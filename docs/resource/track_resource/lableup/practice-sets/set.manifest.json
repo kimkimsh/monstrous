@@ -1,0 +1,123 @@
+{
+  "attribution_notices": [
+    "SWE-bench (Jimenez et al., ICLR 2024); instances derive from their upstream repositories",
+    "LiveCodeBench (Jain et al., 2024); problem statements scraped from LeetCode / AtCoder / CodeForces",
+    "MATH-500 problems from Hendrycks et al., 'Measuring Mathematical Problem Solving With the MATH Dataset' (MIT license), level-5 subset via HuggingFaceH4/MATH-500.",
+    "AIME 2024 problems are American Invitational Mathematics Examination material (Mathematical Association of America), obtained via HuggingFaceH4/aime_2024, whose dataset card declares no license.",
+    "MMLU-Pro (TIGER-Lab), MIT licensed."
+  ],
+  "config": {
+    "name": "junctionx-2026",
+    "splits": {
+      "hidden": {
+        "coding": {
+          "livecodebench": 40,
+          "swebench": 150
+        },
+        "generic": {
+          "per_category": 20
+        },
+        "math": {},
+        "targets": {
+          "coding": {
+            "max_items": 240,
+            "min_items": 140
+          },
+          "generic": {
+            "max_items": 698,
+            "min_items": 448
+          },
+          "math": {
+            "max_items": 66,
+            "min_items": 60
+          }
+        }
+      },
+      "visible": {
+        "coding": {
+          "livecodebench": 20,
+          "swebench": 40
+        },
+        "generic": {
+          "per_category": 10
+        },
+        "math": {},
+        "targets": {
+          "coding": {
+            "max_items": 70,
+            "min_items": 50
+          },
+          "generic": {
+            "max_items": 140,
+            "min_items": 140
+          },
+          "math": {
+            "max_items": 164,
+            "min_items": 164
+          }
+        }
+      }
+    },
+    "visible_seed": 20260819,
+    "weight_derivation": "Weights are score weights over per-track accuracies (plan section 6, open decision O2: 50/25/25 proposed, settled by the #25 pilot). They are not item-count shares: a track's weight says how much its accuracy counts, not how many items it runs. The counts below follow the per-track bands of plan section 4 instead, and the set manifest records weights and resulting counts side by side so the two cannot silently disagree.",
+    "weights": {
+      "coding": 0.5,
+      "generic": 0.25,
+      "math": 0.25
+    }
+  },
+  "config_sha256": "2215bb03da2005bf03e8fccd3b54d0f596b0d5e9d3113a35e1b00e497e8d3842",
+  "context_bundle": {
+    "context": "data/visible/coding/context.jsonl",
+    "context_chars": 2396205,
+    "context_sha256": "d01cd63cfa30cf95f83e2e8b4c4d1ac73310942477adfd2453ce774147748ff5",
+    "item_count": 40,
+    "manifest": "data/visible/coding/context.manifest.json",
+    "manifest_sha256": "de810c2c71cb160ba01cb440c7ec38899a3164e50a0fdee16736e40d13eade76",
+    "recipe_fingerprint": "f2bcf89ad5a47c1318117589a9fc68c9e29909d367598aaf19d7381795ec1851",
+    "recipe_version": "R1",
+    "track": "coding"
+  },
+  "item_count": 364,
+  "items_per_track": {
+    "coding": 60,
+    "generic": 140,
+    "math": 164
+  },
+  "kind": "evaluation-set",
+  "name": "junctionx-2026",
+  "seed_provenance": {
+    "disclosure": "published with the visible set",
+    "seed": 20260819
+  },
+  "tracks": {
+    "coding": {
+      "item_count": 60,
+      "items": "data/visible/coding/items.jsonl",
+      "items_sha256": "fa3c89594d491648cd9e281ab6c8091a2eacff10ab4f267738f97ed12182d985",
+      "manifest": "data/visible/coding/manifest.json",
+      "manifest_sha256": "d01a8c2e241e1b75c1b4d238043f3452e407cd7dfafb9551a3bcbef2b0b08c9e"
+    },
+    "generic": {
+      "item_count": 140,
+      "items": "data/visible/generic-visible.jsonl",
+      "items_sha256": "32a3790ca28fab68d766f7b2298940116fbb71685b6b1823f2524efcc81e24f4",
+      "manifest": "data/visible/generic-visible.manifest.json",
+      "manifest_sha256": "89eaec9ee4741ac704d6fd57903d5847a2978139346c495c910198c205d162c6"
+    },
+    "math": {
+      "item_count": 164,
+      "items": "data/visible/math/items.jsonl",
+      "items_sha256": "74b272382f65e73c0fbaa941bcbc3d51d7146a05bb56d2da8272cf866b2ea603",
+      "manifest": "data/visible/math/manifest.json",
+      "manifest_sha256": "69ac33e7c8d5c55cf95e73bd2f4eead00182be75af6e578657d9f921fb621f2f"
+    }
+  },
+  "visibility": "visible",
+  "weight_derivation": "Weights are score weights over per-track accuracies (plan section 6, open decision O2: 50/25/25 proposed, settled by the #25 pilot). They are not item-count shares: a track's weight says how much its accuracy counts, not how many items it runs. The counts below follow the per-track bands of plan section 4 instead, and the set manifest records weights and resulting counts side by side so the two cannot silently disagree.",
+  "weights": {
+    "coding": 0.5,
+    "generic": 0.25,
+    "math": 0.25
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "item_count": 140,
+  "items_per_dataset": {
+    "mmlu-pro": 140
+  },
+  "items_per_subject": {
+    "biology": 10,
+    "business": 10,
+    "chemistry": 10,
+    "computer science": 10,
+    "economics": 10,
+    "engineering": 10,
+    "health": 10,
+    "history": 10,
+    "law": 10,
+    "math": 10,
+    "other": 10,
+    "philosophy": 10,
+    "physics": 10,
+    "psychology": 10
+  },
+  "per_category": 10,
+  "seed": 20260819,
+  "seed_disclosure": "published with the visible set",
+  "sources": [
+    {
+      "dataset": "mmlu-pro",
+      "repo_id": "TIGER-Lab/MMLU-Pro",
+      "revision": "b189ec765aa7ed75c8acfea42df31fdae71f97be"
+    }
+  ],
+  "stratification": "uniform per MMLU-Pro category",
+  "track": "generic",
+  "visibility": "visible",
+  "weight_per_dataset": {
+    "mmlu-pro": 140.0
+  }
+}

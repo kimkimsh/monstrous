@@ -1,0 +1,122 @@
+{
+  "grading": {
+    "livecodebench": "livecodebench_tests",
+    "swebench": "swebench_docker"
+  },
+  "item_count": 60,
+  "items_per_dataset": {
+    "livecodebench-v6": 20,
+    "swebench-lite": 40
+  },
+  "seed": 20260819,
+  "sources": [
+    {
+      "attribution": "SWE-bench (Jimenez et al., ICLR 2024); instances derive from their upstream repositories",
+      "dataset": "swebench-lite",
+      "file": "data/test-00000-of-00001.parquet",
+      "license": null,
+      "native_ids": [
+        "astropy__astropy-14182",
+        "django__django-10914",
+        "django__django-11099",
+        "django__django-11848",
+        "django__django-12184",
+        "django__django-12453",
+        "django__django-13033",
+        "django__django-13321",
+        "django__django-13590",
+        "django__django-13933",
+        "django__django-14016",
+        "django__django-14608",
+        "django__django-14672",
+        "django__django-15213",
+        "django__django-16046",
+        "django__django-17087",
+        "matplotlib__matplotlib-23476",
+        "matplotlib__matplotlib-24149",
+        "matplotlib__matplotlib-26020",
+        "mwaskom__seaborn-3010",
+        "psf__requests-863",
+        "pydata__xarray-4493",
+        "pylint-dev__pylint-5859",
+        "pytest-dev__pytest-7220",
+        "pytest-dev__pytest-8906",
+        "scikit-learn__scikit-learn-10297",
+        "scikit-learn__scikit-learn-13439",
+        "scikit-learn__scikit-learn-13584",
+        "sphinx-doc__sphinx-7738",
+        "sphinx-doc__sphinx-8713",
+        "sympy__sympy-12481",
+        "sympy__sympy-13146",
+        "sympy__sympy-13437",
+        "sympy__sympy-15609",
+        "sympy__sympy-17022",
+        "sympy__sympy-18532",
+        "sympy__sympy-18835",
+        "sympy__sympy-19254",
+        "sympy__sympy-21379",
+        "sympy__sympy-24909"
+      ],
+      "permalink": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/blob/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/data/test-00000-of-00001.parquet",
+      "repo_id": "princeton-nlp/SWE-bench_Lite",
+      "revision": "6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2",
+      "selected": 40,
+      "selection": {
+        "excludes": null,
+        "size": 40,
+        "strata": [
+          "repo"
+        ],
+        "strategy": "stratified-hash"
+      }
+    },
+    {
+      "attribution": "LiveCodeBench (Jain et al., 2024); problem statements scraped from LeetCode / AtCoder / CodeForces",
+      "dataset": "livecodebench-v6",
+      "file": "test6.jsonl",
+      "license": "cc",
+      "native_ids": [
+        "atcoder/abc387_b",
+        "atcoder/abc387_c",
+        "atcoder/abc388_a",
+        "atcoder/abc388_b",
+        "atcoder/abc388_d",
+        "atcoder/abc389_a",
+        "atcoder/abc389_d",
+        "atcoder/abc390_a",
+        "atcoder/abc390_b",
+        "atcoder/abc390_c",
+        "atcoder/abc390_d",
+        "atcoder/arc191_a",
+        "leetcode/3708",
+        "leetcode/3714",
+        "leetcode/3720",
+        "leetcode/3721",
+        "leetcode/3731",
+        "leetcode/3737",
+        "leetcode/3747",
+        "leetcode/3751"
+      ],
+      "permalink": "https://huggingface.co/datasets/livecodebench/code_generation_lite/blob/0fe84c3912ea0c4d4a78037083943e8f0c4dd505/test6.jsonl",
+      "repo_id": "livecodebench/code_generation_lite",
+      "revision": "0fe84c3912ea0c4d4a78037083943e8f0c4dd505",
+      "selected": 20,
+      "selection": {
+        "contest_date_from": "2025-01-01",
+        "contest_date_to": "2025-01-31",
+        "difficulties": [
+          "easy",
+          "medium"
+        ],
+        "size": 20,
+        "strata": [
+          "platform",
+          "difficulty"
+        ],
+        "strategy": "stratified-hash"
+      }
+    }
+  ],
+  "track": "coding",
+  "visibility": "visible"
+}
