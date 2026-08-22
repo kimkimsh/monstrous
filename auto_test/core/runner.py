@@ -50,10 +50,91 @@ READ_TIMEOUT_SECONDS = 30.0
 MATCH_PREFIX_CHARS = 60
 ERROR_TAIL_CHARS = 400
 
+# Discussion-room limits, both enforced server-side and both hit by real items.
+# The request always goes in as a message, never as the topic: 39 of the 121
+# practice requests are longer than the topic cap, and a single path is easier to
+# reason about than a per-track branch.
+DISCUSSION_TOPIC_MAX = 1024
+DISCUSSION_MESSAGE_MAX = 65536
+DISCUSSION_TERMINAL = ("completed", "cancelled", "error", "awaitingUser")
+DISCUSSION_STRATEGIES = ("roundRobin", "brainstorm", "moderated", "autonomous")
+
 STATUS_COMPLETED = "completed"
 STATUS_NO_REPLY = "no_reply"
 STATUS_CANCELLED = "cancelled"
 STATUS_ERROR = "error"
+
+
+def _chunk(text: str, limit_bytes: int) -> list[str]:
+    """Split on line boundaries so a chunk never lands mid-token.
+
+    Eight of the practice requests are longer than the server's message cap, all of
+    them swebench context bundles. Splitting changes what the squad sees compared
+    with one message, so it is worth knowing which items it happened to.
+    """
+    if len(text.encode("utf-8")) <= limit_bytes:
+        return [text]
+    chunks, current, size = [], [], 0
+    for line in text.splitlines(keepends=True):
+        line_size = len(line.encode("utf-8"))
+        if size + line_size > limit_bytes and current:
+            chunks.append("".join(current))
+            current, size = [], 0
+        current.append(line)
+        size += line_size
+    if current:
+        chunks.append("".join(current))
+    return chunks
+
+
+def _conclusion_text(summary: Any) -> str:
+    """Flatten the synthesized conclusion into the transcript's tail.
+
+    The server stores whatever the synthesizing agent returned. When that agent
+    answers with a JSON object instead of prose, the parse fails server-side and
+    the whole blob lands in `summary` as a string while `keyPoints`, `decisions`
+    and `actionItems` come back empty. Observed on discussion
+    2356df2d-c098-427a-8706-ba61d033fb2b, whose summary string held the answer.
+    """
+    if isinstance(summary, str):
+        summary = _maybe_json(summary)
+    if not isinstance(summary, dict):
+        return str(summary or "")
+
+    inner = summary.get("summary")
+    if isinstance(inner, str):
+        parsed = _maybe_json(inner)
+        if isinstance(parsed, dict):
+            summary = {**summary, **parsed}
+
+    lines = []
+    if isinstance(summary.get("summary"), str):
+        lines.append(summary["summary"])
+    for key in ("keyPoints", "decisions"):
+        for entry in summary.get(key) or []:
+            lines.append(f"- {entry}")
+    for item in summary.get("actionItems") or []:
+        lines.append(f"- {item.get('description', '')}" if isinstance(item, dict)
+                     else f"- {item}")
+    return "\n".join(lines)
+
+
+def _maybe_json(text: str) -> Any:
+    try:
+        return json.loads(text)
+    except (json.JSONDecodeError, TypeError):
+        return text
+
+
+def _conclusion_tokens(summary: Any) -> tuple[int, int]:
+    """Synthesis is billed separately: `discussion analytics` reports only the
+    per-agent turns, so its total misses the conclusion call entirely. Measured on
+    one room: analytics said 6,315/3,712 while the conclusion cost another
+    2,168/978 on top."""
+    usage = summary.get("tokenUsage") if isinstance(summary, dict) else None
+    if not isinstance(usage, dict):
+        return 0, 0
+    return usage.get("promptTokens") or 0, usage.get("completionTokens") or 0
 
 
 class AigoCliError(RuntimeError):
@@ -84,6 +165,9 @@ class AskResult:
     seconds: float
     status: str
     error: str | None
+    discussion_id: str | None = None
+    turns: int | None = None
+    speakers: tuple = ()
 
 
 def _tail(text: str | None) -> str:
@@ -179,6 +263,117 @@ class AigoClient:
             return None
         except AigoCliError as error:
             return str(error)
+
+    def run_discussion(self, squad_id: str, topic: str, prompt: str,
+                       turn_budget: int, timeout: float,
+                       strategy: str = "roundRobin", conclude: bool = True,
+                       cancel: threading.Event | None = None,
+                       on_poll: Callable[[float], None] | None = None) -> AskResult:
+        """Run one request through the whole squad and return what the agents said.
+
+        This is the squad-wide path. `squad execute` — the planner path the judge
+        actually uses — accepts an execution headless and then never runs the
+        planner: the plan stays `created` with zero tasks and the router request
+        counter does not move. A discussion room is the only multi-agent surface
+        that works outside the desktop app.
+
+        `strategy` defaults to roundRobin because it picks the next speaker with
+        `participants[turns_taken % count]` and spends no tokens doing it. moderated
+        adds a consensus-gate call every third turn and autonomous adds one call per
+        participant per turn, both of which also make the speaking order depend on a
+        model's judgment — so a score change can no longer be attributed to the
+        prompt alone.
+
+        The returned text contains agent messages only. The request is posted as a
+        user message, and it carries the REQUIRED OUTPUT block verbatim, including
+        the literal `FINAL ANSWER: \\boxed{<answer>}` line; feeding that back to the
+        grader would extract the answer out of the question.
+        """
+        started = time.monotonic()
+
+        def elapsed():
+            return time.monotonic() - started
+
+        if cancel is not None and cancel.is_set():
+            return AskResult("", None, None, 0.0, STATUS_CANCELLED, None)
+
+        try:
+            room = self._run("squad", "discussion", "create", "--json", json.dumps({
+                "squadId": squad_id,
+                "topic": topic[:DISCUSSION_TOPIC_MAX],
+                "turnBudget": turn_budget,
+            }), timeout=READ_TIMEOUT_SECONDS)
+            discussion_id = room["id"]
+        except (AigoCliError, KeyError, TypeError) as error:
+            return AskResult("", None, None, elapsed(), STATUS_ERROR, str(error))
+
+        try:
+            self._run("squad", "discussion", "strategy", discussion_id, strategy,
+                      timeout=READ_TIMEOUT_SECONDS)
+            for chunk in _chunk(prompt, DISCUSSION_MESSAGE_MAX):
+                self._run("squad", "discussion", "post", discussion_id,
+                          "--message", chunk, timeout=READ_TIMEOUT_SECONDS)
+            self._run("squad", "discussion", "start", discussion_id,
+                      timeout=READ_TIMEOUT_SECONDS)
+        except AigoCliError as error:
+            return AskResult("", None, None, elapsed(), STATUS_ERROR, str(error),
+                             discussion_id=discussion_id)
+
+        room = None
+        while True:
+            if _wait(cancel, POLL_SECONDS):
+                return AskResult("", None, None, elapsed(), STATUS_CANCELLED, None,
+                                 discussion_id=discussion_id)
+            if on_poll:
+                on_poll(elapsed())
+            try:
+                room = self._run("squad", "discussion", "show", discussion_id,
+                                 timeout=READ_TIMEOUT_SECONDS)
+            except AigoCliError as error:
+                return AskResult("", None, None, elapsed(), STATUS_ERROR, str(error),
+                                 discussion_id=discussion_id)
+            if room.get("status") in DISCUSSION_TERMINAL:
+                break
+            if elapsed() > timeout:
+                return AskResult("", None, None, elapsed(), STATUS_ERROR,
+                                 f"discussion still {room.get('status')} after {timeout:.0f}s",
+                                 discussion_id=discussion_id)
+
+        parts, speakers = [], []
+        for message in room.get("messages") or []:
+            author = message.get("author") or {}
+            if author.get("type") != "agent":
+                continue
+            speakers.append(author.get("agentId", "?"))
+            parts.append(str(message.get("content", "")))
+
+        conclusion_in = conclusion_out = 0
+        if conclude:
+            try:
+                summary = self._run("squad", "discussion", "conclude", discussion_id,
+                                    timeout=timeout)
+                parts.append(_conclusion_text(summary))
+                conclusion_in, conclusion_out = _conclusion_tokens(summary)
+            except AigoCliError:
+                pass
+
+        prompt_tokens = completion_tokens = None
+        try:
+            stats = self._run("squad", "discussion", "analytics", discussion_id,
+                              timeout=READ_TIMEOUT_SECONDS)
+            usage = stats.get("totalTokenUsage") or {}
+            prompt_tokens = (usage.get("promptTokens") or 0) + conclusion_in
+            completion_tokens = (usage.get("completionTokens") or 0) + conclusion_out
+        except AigoCliError:
+            pass
+
+        text = "\n\n".join(part for part in parts if part.strip())
+        return AskResult(
+            text, prompt_tokens, completion_tokens, elapsed(),
+            STATUS_COMPLETED if text.strip() else STATUS_NO_REPLY, None,
+            discussion_id=discussion_id, turns=room.get("turnsTaken"),
+            speakers=tuple(speakers),
+        )
 
     def ask(self, squad_id: str, agent_id: str, prompt: str, timeout: float,
             cancel: threading.Event | None = None,

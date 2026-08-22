@@ -1,0 +1,74 @@
+[
+  {
+    "id": "b1917e59-c8db-4575-80d2-1d4654e8c01b",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "topic": "math-visible-0143",
+    "participants": [
+      "agent-1787398903663-ivwa7p6",
+      "agent-1787398903663-fxuz71j",
+      "agent-1787398903663-z47ly8b",
+      "agent-1787398903663-nu95xxz"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 305
+    },
+    "createdAt": "2026-08-22T14:19:57.332956Z",
+    "updatedAt": "2026-08-22T14:27:57.434694Z"
+  },
+  {
+    "id": "23282631-7923-4d65-8c9c-79c855bd98f7",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "topic": "math-visible-0144",
+    "participants": [
+      "agent-1787398903663-ivwa7p6",
+      "agent-1787398903663-fxuz71j",
+      "agent-1787398903663-z47ly8b",
+      "agent-1787398903663-nu95xxz"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 304
+    },
+    "createdAt": "2026-08-22T14:22:52.056704Z",
+    "updatedAt": "2026-08-22T14:29:52.158315Z"
+  },
+  {
+    "id": "3f4dd6f2-664a-425d-b4a4-56b3b4ca5459",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "topic": "math-visible-0145",
+    "participants": [
+      "agent-1787398903663-ivwa7p6",
+      "agent-1787398903663-fxuz71j",
+      "agent-1787398903663-z47ly8b",
+      "agent-1787398903663-nu95xxz"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 310
+    },
+    "createdAt": "2026-08-22T14:24:47.797740Z",
+    "updatedAt": "2026-08-22T14:31:47.914853Z"
+  }
+]

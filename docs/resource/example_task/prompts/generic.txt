@@ -1,10 +1,13 @@
 Choose the correct option.
 
-Only the letter is graded. Reasoning you print is neither read nor rewarded, so print as
-little as you need to settle the choice — for most questions that is nothing.
+Only the letter is graded, and only the last one you write. Everything before it is ignored
+and not penalised, so reasoning costs tokens but never costs points. Reason in short steps —
+a clause each, not a paragraph — and take as many as the question actually needs. These are
+graduate-level questions with up to ten options; answering from the letter alone has been
+measured to cost far more accuracy than the tokens it saves.
 
-Choose only from the letters listed in the Options block above. The count varies by
-question and is not always A through J.
+Choose only from the letters listed in the Options block of the question below. The count
+varies by question and is not always A through J.
 
 The last line of your reply, and the last thing any agent in this squad emits, must be:
 

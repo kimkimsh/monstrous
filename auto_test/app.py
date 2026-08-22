@@ -18,6 +18,7 @@ from PySide6.QtCore import (QAbstractTableModel, QModelIndex, QSortFilterProxyMo
                             Qt, QThread, Signal)
 from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
+                               QSpinBox,
                                QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMainWindow, QMessageBox, QProgressBar,
                                QPushButton, QSplitter, QTabWidget, QTableView,
@@ -26,9 +27,10 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComb
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from core.grading import HAVE_MATH_VERIFY
-from core.runner import AigoClient
+from core.runner import DISCUSSION_STRATEGIES, AigoClient
 from core.samples import load_report
-from core.session import ITEM_TIMEOUT_SECONDS, RunLog, run_items, summarize
+from core.session import (ITEM_TIMEOUT_SECONDS, MODE_AGENT, MODE_SQUAD,
+                          RunLog, run_items, summarize)
 
 ROOT = Path(__file__).resolve().parent
 SAMPLE_ROOT = ROOT / "test_sample"
@@ -209,13 +211,18 @@ class RunWorker(QThread):
     run_done = Signal(object, object)   # results, run_log_path
     failed = Signal(str)
 
-    def __init__(self, client, squad_id, agent_id, model_id, samples):
+    def __init__(self, client, squad_id, agent_id, model_id, samples,
+                 mode, turn_budget, strategy, conclude):
         super().__init__()
         self.client = client
         self.squad_id = squad_id
         self.agent_id = agent_id
         self.model_id = model_id
         self.samples = samples
+        self.mode = mode
+        self.turn_budget = turn_budget
+        self.strategy = strategy
+        self.conclude = conclude
         self.cancel = threading.Event()
 
     def run(self):
@@ -223,7 +230,9 @@ class RunWorker(QThread):
         try:
             results = run_items(
                 self.client, self.squad_id, self.agent_id, self.model_id,
-                self.samples, run_log=run_log, cancel=self.cancel,
+                self.samples, mode=self.mode, turn_budget=self.turn_budget,
+                strategy=self.strategy, conclude=self.conclude,
+                run_log=run_log, cancel=self.cancel,
                 on_start=self.started_item.emit, on_finish=self.finished_item.emit,
             )
             self.run_done.emit(results, run_log.path)
@@ -298,6 +307,26 @@ class MainWindow(QMainWindow):
         self.model_label = QLabel("—")
         self.model_label.setStyleSheet("color: #8c8c91;")
 
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItem("스쿼드 전체 (discussion room)", MODE_SQUAD)
+        self.mode_combo.addItem("단일 에이전트 (스쿼드 테스트 아님)", MODE_AGENT)
+        self.strategy_combo = QComboBox()
+        for name in DISCUSSION_STRATEGIES:
+            self.strategy_combo.addItem(name, name)
+        self.strategy_combo.setToolTip(
+            "roundRobin 과 brainstorm 은 발언자를 코드로 정한다 (LLM 호출 0).\n"
+            "moderated 는 3턴마다 합의 게이트를, autonomous 는 턴마다 참여자 수만큼\n"
+            "LLM을 더 부른다 — 토큰이 늘고 발언 순서가 모델 판단에 의존한다.")
+        self.turns_spin = QSpinBox()
+        self.turns_spin.setRange(1, 100)
+        self.turns_spin.setValue(3)
+        self.turns_spin.setSuffix(" 턴")
+        self.conclude_check = QCheckBox("결론 합성")
+        self.conclude_check.setChecked(True)
+        self.conclude_check.setToolTip(
+            "대화가 끝난 뒤 사회자 역할 에이전트가 대화록을 요약한다.\n"
+            "LLM 호출이 한 번 더 붙고, 그 토큰도 집계에 포함된다.")
+
         grid.addWidget(QLabel("Endpoint"), 0, 0)
         grid.addWidget(self.endpoint_edit, 0, 1)
         grid.addWidget(QLabel("Token"), 0, 2)
@@ -309,6 +338,22 @@ class MainWindow(QMainWindow):
         grid.addWidget(QLabel("Agent"), 1, 2)
         grid.addWidget(self.agent_combo, 1, 3)
         grid.addWidget(self.model_label, 1, 4, 1, 2)
+
+        mode_row = QHBoxLayout()
+        mode_row.setContentsMargins(0, 0, 0, 0)
+        mode_row.addWidget(QLabel("실행 방식"))
+        mode_row.addWidget(self.mode_combo)
+        mode_row.addSpacing(12)
+        mode_row.addWidget(QLabel("발언 전략"))
+        mode_row.addWidget(self.strategy_combo)
+        mode_row.addWidget(QLabel("턴 예산"))
+        mode_row.addWidget(self.turns_spin)
+        mode_row.addWidget(self.conclude_check)
+        mode_row.addStretch(1)
+        holder = QWidget()
+        holder.setLayout(mode_row)
+        grid.addWidget(holder, 2, 0, 1, 6)
+
         grid.setColumnStretch(1, 1)
         grid.setColumnStretch(3, 1)
         return box
@@ -391,6 +436,7 @@ class MainWindow(QMainWindow):
 
     def _wire(self):
         self.connect_button.clicked.connect(self.on_connect)
+        self.mode_combo.currentIndexChanged.connect(self.on_mode_changed)
         self.squad_combo.currentIndexChanged.connect(self.on_squad_changed)
         self.agent_combo.currentIndexChanged.connect(self.on_agent_changed)
         self.search_edit.textChanged.connect(self.proxy.set_needle)
@@ -403,6 +449,14 @@ class MainWindow(QMainWindow):
         self.check_button.clicked.connect(self.on_check)
         self.run_button.clicked.connect(self.on_run)
         self.stop_button.clicked.connect(self.on_stop)
+
+    def on_mode_changed(self):
+        squad_mode = self.mode_combo.currentData() == MODE_SQUAD
+        self.strategy_combo.setEnabled(squad_mode)
+        self.turns_spin.setEnabled(squad_mode)
+        self.conclude_check.setEnabled(squad_mode)
+        self.agent_combo.setEnabled(not squad_mode)
+        self._refresh_counts()
 
     def on_track_toggled(self):
         self.proxy.set_tracks({t for t, b in self.track_boxes.items() if b.isChecked()})
@@ -436,8 +490,13 @@ class MainWindow(QMainWindow):
                      f"상세      {result.detail}",
                      f"토큰      {result.prompt_tokens} in / {result.completion_tokens} out",
                      f"시간      {result.seconds:.1f}s",
-                     f"조건      squad={result.squad_id} agent={result.agent_id} "
-                     f"model={result.model_id}"]
+                     f"방식      {result.mode}"]
+            if result.mode == MODE_SQUAD:
+                lines.append(f"토론방    {result.discussion_id}  ({result.turns}턴)")
+                lines.append("발언 순서 " + " → ".join(s[-7:] for s in result.speakers))
+            else:
+                lines.append(f"에이전트  {result.agent_id}")
+            lines.append(f"모델      {result.model_id}")
             if result.error:
                 lines.append(f"오류      {result.error}")
         else:
@@ -555,8 +614,17 @@ class MainWindow(QMainWindow):
             lines.append(f"주의            {len(functional)}개는 livecodebench functional "
                          f"모드다. 로컬 채점기가 stdout으로 비교해서 답이 맞아도 FAIL로 "
                          f"나온다 — 이 항목의 FAIL은 믿지 마라")
-        est = len(selected) * 15
-        lines.append(f"예상 소요       약 {est // 60}분 {est % 60}초 (문항당 15초 가정)")
+        squad_mode = self.mode_combo.currentData() == MODE_SQUAD
+        per_item = 28 * self.turns_spin.value() if squad_mode else 12
+        est = len(selected) * per_item
+        lines.append(f"실행 방식       {'스쿼드 전체 (discussion)' if squad_mode else '단일 에이전트'}"
+                     + (f" · {self.strategy_combo.currentData()} · "
+                        f"{self.turns_spin.value()}턴" if squad_mode else ""))
+        if squad_mode and self.strategy_combo.currentData() in ("moderated", "autonomous"):
+            lines.append("주의            이 전략은 발언자 선정에도 LLM을 쓴다. 토큰이 늘고, "
+                         "발언 순서가 매번 달라져서 프롬프트 변경 효과와 구분이 안 된다")
+        lines.append(f"예상 소요       약 {est // 60}분 {est % 60}초 "
+                     f"(문항당 {per_item}초 가정)")
         lines.append("")
         lines.append("통과" if ok else "위 항목을 먼저 해결해라")
 
@@ -574,8 +642,12 @@ class MainWindow(QMainWindow):
             return
         squad_id = self.squad_combo.currentData()
         agent = self.agent_combo.currentData()
-        if not (squad_id and agent):
-            self.warn("스쿼드와 에이전트를 선택해라.")
+        squad_mode = self.mode_combo.currentData() == MODE_SQUAD
+        if not squad_id:
+            self.warn("스쿼드를 선택해라.")
+            return
+        if not squad_mode and not agent:
+            self.warn("단일 에이전트 방식에서는 에이전트를 선택해야 한다.")
             return
         selected = self.selected_samples()
         if not selected:
@@ -591,7 +663,11 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(True)
         self.statusBar().showMessage(f"{len(selected)}개 실행 중")
 
-        self.worker = RunWorker(self.client, squad_id, agent.id, agent.model_id, selected)
+        self.worker = RunWorker(
+            self.client, squad_id, agent.id if agent else "",
+            agent.model_id if agent else "", selected,
+            self.mode_combo.currentData(), self.turns_spin.value(),
+            self.strategy_combo.currentData(), self.conclude_check.isChecked())
         self.worker.started_item.connect(lambda s: self.model.mark_running(s.id))
         self.worker.finished_item.connect(self.on_item_finished)
         self.worker.run_done.connect(self.on_run_done)

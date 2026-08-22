@@ -28,7 +28,10 @@ from .runner import AigoClient
 # Bounds the worst-case delay between pressing stop and the run halting: the
 # stop flag is read between items and between polls, but an in-flight CLI call
 # runs to its own timeout first. See PLAN.md.
-ITEM_TIMEOUT_SECONDS = 300.0
+ITEM_TIMEOUT_SECONDS = 600.0
+
+MODE_SQUAD = "squad"
+MODE_AGENT = "agent"
 
 
 @dataclass
@@ -49,6 +52,10 @@ class ItemResult:
     agent_id: str
     model_id: str
     error: str | None = None
+    mode: str = "squad"
+    discussion_id: str | None = None
+    turns: int | None = None
+    speakers: tuple = ()
 
     @property
     def label(self):
@@ -125,7 +132,7 @@ class RunLog:
     """
 
     FIELDS = ("item_id", "track", "output", "status", "prompt_tokens",
-              "completion_tokens", "wallclock_seconds")
+              "completion_tokens", "wallclock_seconds", "mode", "discussion_id")
 
     def __init__(self, directory, stamp=None):
         directory = Path(directory)
@@ -149,9 +156,20 @@ class RunLog:
 
 
 def run_items(client: AigoClient, squad_id, agent_id, model_id, samples,
+              mode=MODE_SQUAD, turn_budget=3, strategy="roundRobin", conclude=True,
               run_log=None, cancel=None, on_start=None, on_finish=None,
               item_timeout=ITEM_TIMEOUT_SECONDS):
     """Run samples one at a time, grading each as it lands.
+
+    `mode` picks which surface carries the request:
+
+        squad   a discussion room — every agent takes a turn. This is the only
+                multi-agent path that runs headless, because `squad execute` (the
+                planner path the judge uses) accepts the execution and then never
+                runs the planner.
+        agent   one `squad message` to a single agent. Faster and roughly a fifth
+                of the tokens, but it is not a squad test — use it to sanity-check
+                a prompt, not to predict a score.
 
     Sequential on purpose: one local model server serves these, so concurrent
     requests contend for the same slots and only add latency.
@@ -159,11 +177,12 @@ def run_items(client: AigoClient, squad_id, agent_id, model_id, samples,
     `cancel` is a threading.Event. It is checked before each item and passed
     down to the client so a poll loop can break out of a long wait.
     """
-    problem = client.ensure_session(squad_id, agent_id)
-    if problem:
-        raise RuntimeError(
-            f"에이전트 세션을 열 수 없다 — {problem}\n"
-            f"이 상태로는 모든 문항이 같은 이유로 실패하므로 시작하지 않는다.")
+    if mode == MODE_AGENT:
+        problem = client.ensure_session(squad_id, agent_id)
+        if problem:
+            raise RuntimeError(
+                f"에이전트 세션을 열 수 없다 — {problem}\n"
+                f"이 상태로는 모든 문항이 같은 이유로 실패하므로 시작하지 않는다.")
 
     results = []
     for sample in samples:
@@ -173,8 +192,14 @@ def run_items(client: AigoClient, squad_id, agent_id, model_id, samples,
             on_start(sample)
 
         started = time.time()
-        ask = client.ask(squad_id, agent_id, sample.prompt,
-                         timeout=item_timeout, cancel=cancel)
+        if mode == MODE_SQUAD:
+            ask = client.run_discussion(squad_id, sample.id, sample.prompt,
+                                        turn_budget=turn_budget, timeout=item_timeout,
+                                        strategy=strategy, conclude=conclude,
+                                        cancel=cancel)
+        else:
+            ask = client.ask(squad_id, agent_id, sample.prompt,
+                             timeout=item_timeout, cancel=cancel)
 
         if ask.status == "completed":
             verdict = grade(sample, ask.text)
@@ -188,8 +213,9 @@ def run_items(client: AigoClient, squad_id, agent_id, model_id, samples,
             correct=correct, detail=detail, output=ask.text,
             prompt_tokens=ask.prompt_tokens, completion_tokens=ask.completion_tokens,
             seconds=ask.seconds if ask.seconds else time.time() - started,
-            squad_id=squad_id, agent_id=agent_id, model_id=model_id,
-            error=ask.error,
+            squad_id=squad_id, agent_id=agent_id if mode == MODE_AGENT else "",
+            model_id=model_id, error=ask.error, mode=mode,
+            discussion_id=ask.discussion_id, turns=ask.turns, speakers=ask.speakers,
         )
         results.append(result)
         if run_log:
