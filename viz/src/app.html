@@ -113,7 +113,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .chk b{width:15px}
 .chk .k{flex:1}
 .chk .d{color:var(--fg-faint);font-size:10px}
-.chk.ok b{color:var(--ok)} .chk.no b{color:var(--bad)}
+.chk.ok b{color:var(--ok)} .chk.no b{color:var(--bad)} .chk b{color:var(--fg-faint)}
 
 /* ── 스쿼드 맵 ── */
 .sm-wrap{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px;overflow:hidden;
@@ -259,7 +259,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
         <select id="f-status">
           <option value="">모든 실행</option>
           <option value="ran">실행된 것만 (호출 거부 제외)</option>
-          <option value="markers">마커 없어서 0점인 것</option>
+          <option value="markers">답 형식 없어서 0점인 것</option>
           <option value="gradable">채점 적격만</option>
           <option value="blocked">호출 거부만</option>
         </select>
@@ -319,7 +319,67 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
    ═══════════════════════════════════════════════════════════════════════ */
 const PS="*** PATCH START ***", PE="*** PATCH END ***";
 
-function inspectAnswer(text){
+/* 출력 계약은 문항마다 다르다. 요청 지문의 "=== REQUIRED OUTPUT ===" 절이 알려준다.
+   실측된 두 가지:
+     patch — *** PATCH START *** … SEARCH/REPLACE … *** PATCH END ***   (coding)
+     boxed — FINAL ANSWER: \boxed{<answer>}                              (math)
+   계약을 안 보고 patch 마커만 검사하면 math 문항이 전부 "마커 없음"으로 오판된다. */
+const CONTRACT={
+  patch:{label:"패치 마커", spec:"*** PATCH START *** … *** PATCH END ***"},
+  boxed:{label:"FINAL ANSWER", spec:"FINAL ANSWER: \\boxed{<answer>}"},
+  letter:{label:"보기 문자", spec:"단일 보기 문자"},
+  unknown:{label:"출력 계약 불명", spec:"요청 지문에서 계약을 찾지 못함"}
+};
+function contractOf(request){
+  const r=String(request||"");
+  if(r.includes(PS)) return "patch";
+  if(/FINAL ANSWER:\s*\\+boxed\s*\{/.test(r)||/\\+boxed\{<answer>\}/.test(r)) return "boxed";
+  if(/\boption letter\b|\bsingle letter\b|answer letter/i.test(r)) return "letter";
+  return "unknown";
+}
+
+/* 마지막 \boxed{ 의 내용을 짝 맞는 중괄호까지 읽는다. 중첩 중괄호(\frac{a}{b})가 흔해서
+   정규식으로는 못 자른다. 규칙상 여러 개면 마지막 것이 채점된다. */
+function lastBoxed(t){
+  const i=t.lastIndexOf("\\boxed{");
+  if(i<0) return null;
+  let d=0;
+  for(let j=i+6;j<t.length;j++){
+    if(t[j]==="{") d++;
+    else if(t[j]==="}"){ d--; if(!d) return {start:i, end:j+1, body:t.slice(i+7,j)}; }
+  }
+  return {start:i, end:-1, body:null};      // 닫히지 않음
+}
+
+function inspectBoxed(text){
+  const t=String(text||""), checks=[];
+  const b=lastBoxed(t);
+  checks.push({k:"\\boxed{} 존재", ok:!!b, d:b?"발견 (마지막 것 사용)":"없음 — judge 가 추출할 것이 없다"});
+  checks.push({k:"중괄호 짝", ok:!!(b&&b.end>0), d:b?(b.end>0?"닫힘":"열린 채로 끝남"):"—"});
+  const body=b&&b.body!=null?b.body.trim():"";
+  checks.push({k:"답이 비어있지 않음", ok:body.length>0, d:body?`"${body.slice(0,28)}"`:"빈 값"});
+
+  // 여기까지가 필수. 아래는 권장이다.
+  // 지문은 "FINAL ANSWER: \boxed{…}" 형태의 줄을 요구하지만, "여러 개면 마지막 것을 쓴다"는
+  // 규칙이 \boxed{} 를 가리키는 것으로 읽히고 math_verify 계열 채점기는 보통 마지막 \boxed{} 만
+  // 뽑는다. 접두사가 실제로 필수인지는 확인되지 않았다.
+  // 그래서 이것 때문에 "채점 불가"로 단정하지 않는다 — 확인 안 된 것을 확정으로 적으면 안 된다.
+  const prefix=/FINAL ANSWER:\s*\\boxed\{/.test(t);
+  const required=checks.every(c=>c.ok);
+  checks.push({k:"FINAL ANSWER: 접두사 (권장)", ok:prefix||null,
+    d:prefix?"있음":"없음 — 지문은 요구하지만 채점기가 실제로 요구하는지는 미확인"});
+  return {gradable:required, advisory:!prefix, checks, body,
+          si:b?b.start:-1, ei:b?b.end:-1, text:t, kind:"boxed"};
+}
+
+function inspectAnswer(text,kind){
+  if(kind==="boxed") return inspectBoxed(text);
+  if(kind==="letter"||kind==="unknown"){
+    // 계약을 모르면 판정하지 않는다. 모르는 것을 "불합격"으로 적으면 화면이 거짓말을 한다.
+    const t=String(text||"");
+    return {gradable:null, kind, text:t, si:-1, ei:-1, body:"",
+      checks:[{k:CONTRACT[kind].label, ok:null, d:"이 문항의 출력 계약을 확인하지 못해 판정을 보류한다"}]};
+  }
   const t=String(text||""), checks=[];
   const si=t.lastIndexOf(PS);                       // 규칙: 여러 개면 마지막 것
   checks.push({k:"*** PATCH START *** 마커", ok:si>=0, d:si>=0?"발견 (마지막 것 사용)":"없음 — judge 가 추출할 것이 없다"});
@@ -339,7 +399,10 @@ function inspectAnswer(text){
     if(j>=0&&lines[j].trim()&&!/^[<>=]{7}/.test(lines[j])) paths++; else bad++;
   });
   checks.push({k:"블록마다 경로 줄", ok:nS>0&&bad===0, d:nS?`경로 ${paths} · 누락 ${bad}`:"블록 없음"});
-  return {gradable:checks.every(c=>c.ok), checks, body, si, ei, text:t};
+  // ei 는 강조 구간의 '끝 다음' 위치로 통일한다 — boxed 쪽과 같은 규약이어야
+  // 장부 대조에서 한 코드로 하이라이트할 수 있다. PE 마커까지 포함한다.
+  return {gradable:checks.every(c=>c.ok), checks, body, si,
+          ei:ei>=0?ei+PE.length:-1, text:t, kind:"patch"};
 }
 
 /* 실패 분류 — 규칙표를 화면에 그대로 노출한다. 추측이 아니라 규칙임을 보이기 위해. */
@@ -478,9 +541,14 @@ function build(){
   const ids=new Set([...RAW.hist.keys(), ...byExec.keys(), ...RAW.log.keys()]);
   S.execs=[...ids].map(id=>{
     const h=RAW.hist.get(id)||{};
+    const partial=!RAW.hist.has(id);      // events 에만 있고 history 에서 잘려나간 실행
     const evs=(byExec.get(id)||[]).sort((a,b)=>(a.id??0)-(b.id??0));
     const pick=t=>evs.find(e=>e.eventType==="squad:"+t);
     const planReady=pick("plan-ready");
+    // history 가 없으면 요청 원문을 planning-started 이벤트에서 줍는다
+    const request=h.request||pick("planning-started")?.payload?.request||"";
+
+    const contract=contractOf(request);
 
     // 태스크 구간 — 재생의 뼈대. task-status-changed(in_progress) 가 시작,
     // task-completed 가 끝이다. 없으면 원문 로그의 "assigned to agent" 줄, 그것도
@@ -501,7 +569,7 @@ function build(){
       return {
         ...t, start, end,
         meta:RAW.task.get(t.taskId)||null,
-        answer:inspectAnswer(t.output),
+        answer:inspectAnswer(t.output,contract),
         fail:t.status==="failed"||t.error?classify(t.error):null
       };
     });
@@ -511,7 +579,7 @@ function build(){
         const p=e.payload||{};
         tasks.push({taskId:p.taskId, title:p.taskTitle, status:p.success?"completed":"failed",
           output:"", error:p.error, agentName:null, durationMs:null,
-          meta:RAW.task.get(p.taskId)||null, answer:inspectAnswer(""),
+          meta:RAW.task.get(p.taskId)||null, answer:inspectAnswer("",contract),
           fail:p.success?null:classify(p.error)});
       }
     }
@@ -526,7 +594,7 @@ function build(){
         const title=m[1];
         if(!seen.has(title)) seen.set(title,{taskId:null, title, agentName:m[3]||m[4]||null,
           status:"running", output:"", error:null, durationMs:null, meta:null,
-          answer:inspectAnswer(""), fail:null, partial:true});
+          answer:inspectAnswer("",contract), fail:null, partial:true});
         const t=seen.get(title);
         if(m[4]){ t.status="completed"; t.agentName=m[4]; }
         if(m[5]){ t.status="failed"; t.error=m[5]; t.fail=classify(m[5]); }
@@ -572,7 +640,7 @@ function build(){
     }
     const tokEstimated=tokenCurve.length>0;
 
-    const final=inspectAnswer(h.finalResult);
+    const final=inspectAnswer(h.finalResult,contract);
     const t0=ms(h.startedAt)??ms(evs[0]?.timestamp)??ms(logLines[0]?.timestamp);
     const t1=ms(h.completedAt)??ms(evs[evs.length-1]?.timestamp)??ms(logLines[logLines.length-1]?.timestamp);
     const tu=h.totalTokenUsage||pick("execution-completed")?.payload?.tokenUsage||{promptTokens:0,completionTokens:0};
@@ -588,16 +656,18 @@ function build(){
     // 출력 유무로 판단하면 안 된다 — 실패한 태스크도 output 에
     // "Task assigned to `X` failed." 라는 자리표시 문자열이 들어간다. 상태로 판단한다.
     const anyDone=tasks.some(t=>t.status==="completed"||t.status==="done");
-    const blocker=grad?null:(!anyDone&&tasks.some(t=>t.fail)?"blocked":"markers");
+    const blocker=grad?null
+      :(contract==="unknown"||contract==="letter")?"unknown"      // 계약을 몰라 판정 보류
+      :(!anyDone&&tasks.some(t=>t.fail))?"blocked":"markers";
 
     const counts=pick("execution-completed")?.payload?.taskCounts
       ||{total:tasks.length,completed:tasks.filter(t=>t.status==="completed"||t.status==="done").length,
          failed:tasks.filter(t=>t.status==="failed").length};
 
     return {
-      id, squadName:h.squadName||"—", request:h.request||"", planTitle:h.planTitle||"",
+      id, squadName:h.squadName||"—", request, planTitle:h.planTitle||"", partial,
       aigoStatus:h.status||pick("execution-completed")?"completed":"unknown",
-      tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker,
+      tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker, contract,
       blockKind:blocker==="blocked"?(tasks.find(t=>t.fail)?.fail.kind||"—"):null,
       counts, tokens:tu, t0, t1, tokenCurve, tokUnattributed, tokEstimated,
       durationMs:h.durationMs??((t0&&t1)?t1-t0:null),
@@ -679,14 +749,19 @@ function renderHeader(){
   $("#s-exec").textContent=n;
   $("#s-exec-d").textContent=SEEN.files+" files loaded";
   $("#s-aigo").textContent=aigo+" / "+n;
-  // 호출이 거부된 실행은 분모에서 뺀다. "우리가 고칠 수 있는 것" 위에서만 비율을 낸다.
-  const ran=S.execs.filter(e=>e.blocker!=="blocked");
+  // 호출이 거부됐거나 계약을 모르는 실행은 분모에서 뺀다.
+  // "우리가 고칠 수 있는 것" 위에서만 비율을 낸다.
+  const ran=S.execs.filter(e=>e.blocker!=="blocked"&&e.blocker!=="unknown");
   const gradRan=ran.filter(e=>e.gradable).length;
+  const nBlocked=S.execs.filter(e=>e.blocker==="blocked").length;
+  const nUnknown=S.execs.filter(e=>e.blocker==="unknown").length;
   $("#s-grad").textContent=gradRan+" / "+ran.length;
-  $("#s-grad").style.color=gradRan<ran.length?"var(--bad)":"var(--ok)";
-  $("#s-grad-d").textContent=
-    (S.execs.length-ran.length?`실행 불가 ${S.execs.length-ran.length}건 제외 · `:"")+
-    `마커 없음 ${ran.length-gradRan}건`;
+  $("#s-grad").style.color=ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)";
+  $("#s-grad-d").textContent=[
+    nBlocked?`실행 불가 ${nBlocked}건 제외`:"",
+    nUnknown?`계약 불명 ${nUnknown}건 제외`:"",
+    `답 형식 없음 ${ran.length-gradRan}건`
+  ].filter(Boolean).join(" · ");
   $("#s-tok").textContent=fmt(pt+ct);
   $("#s-tok-d").textContent="in "+fmt(pt)+" · out "+fmt(ct);
   $("#s-wall").textContent=(wall/1000).toFixed(0)+"s";
@@ -713,7 +788,7 @@ function renderList(){
       `<div class="m">`+
         `<span class="pill ${e.counts.failed?"bad":"ok"}">AI:GO ${e.counts.total-e.counts.failed}/${e.counts.total}</span>`+
         `<span class="pill ${e.gradable?"ok":e.blocker==="blocked"?"warn":"bad"}">`+
-          `${e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":"마커 없음"}</span>`+
+          `${e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":e.partial?"부분 기록":e.blocker==="unknown"?"판정 보류":"답 형식 없음"}</span>`+
         `<span>${fmt((e.tokens.promptTokens||0)+(e.tokens.completionTokens||0))} tok</span>`+
         `<span>${secs(e.durationMs)}</span>`+
       `</div>`;
@@ -745,18 +820,25 @@ function runSummaryCard(){
   const n=S.execs.length;
   const aigo=S.execs.filter(x=>x.counts.failed===0&&x.counts.total>0).length;
   const grad=S.execs.filter(x=>x.gradable).length;
-  const ran=S.execs.filter(x=>x.blocker!=="blocked");
+  const ran=S.execs.filter(x=>x.blocker!=="blocked"&&x.blocker!=="unknown");
   const blocked=S.execs.filter(x=>x.blocker==="blocked");
+  const unk=S.execs.filter(x=>x.blocker==="unknown");
   const gradRan=ran.filter(x=>x.gradable).length;
-  const WHY={null:"—", blocked:"호출 거부", markers:"패치 마커 없음"};
-  const rows=S.execs.map(x=>
-    `<tr${x.blocker==="blocked"?' style="opacity:.5"':""}><td>${esc(one(x.request).slice(0,52)||x.id)}</td>`+
+  const rows=S.execs.map(x=>{
+    const dim=x.blocker==="blocked"||x.blocker==="unknown";
+    const pill=x.gradable?["ok","적격"]:x.blocker==="blocked"?["warn","실행 불가"]
+              :x.partial?["","부분 기록"]:x.blocker==="unknown"?["","판정 보류"]:["bad","답 형식 없음"];
+    const why=x.gradable?"—"
+      :x.blocker==="blocked"?"호출 거부"+(x.blockKind?" · "+x.blockKind:"")
+      :x.partial?"부분 기록 — history.json 에 없음":x.blocker==="unknown"?"출력 계약을 못 읽음"
+      :`${CONTRACT[x.contract].label} 없음`;
+    return `<tr${dim?' style="opacity:.55"':""}><td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
+      `<td><span class="pill">${esc(CONTRACT[x.contract].label)}</span></td>`+
       `<td><span class="pill ${x.counts.failed?"bad":"ok"}">${x.counts.total-x.counts.failed}/${x.counts.total}</span></td>`+
-      `<td><span class="pill ${x.gradable?"ok":x.blocker==="blocked"?"warn":"bad"}">`+
-        `${x.gradable?"적격":x.blocker==="blocked"?"실행 불가":"마커 없음"}</span></td>`+
-      `<td style="color:var(--fg-dim)">${esc(WHY[x.blocker]+(x.blockKind?" · "+x.blockKind:""))}</td>`+
+      `<td><span class="pill ${pill[0]}">${pill[1]}</span></td>`+
+      `<td style="color:var(--fg-dim)">${esc(why)}</td>`+
       `<td class="n">${fmt((x.tokens.promptTokens||0)+(x.tokens.completionTokens||0))}</td>`+
-      `<td class="n">${secs(x.durationMs)}</td></tr>`).join("");
+      `<td class="n">${secs(x.durationMs)}</td></tr>`;}).join("");
   const warn=(S.missing&&S.missing.length)
     ? `<div class="card" style="border-color:var(--warn)"><h2>일부 파일이 빠졌습니다</h2>
        <p class="q">되는 만큼만 그렸습니다. 빠진 것:</p>
@@ -768,15 +850,19 @@ function runSummaryCard(){
     판정은 응답 텍스트의 패치 마커 검사로만 한다. <b>LLM 호출 0회.</b></p>
     <div class="readout">
       <div class="stat"><span>AI:GO 성공</span><b style="font-size:19px">${aigo} / ${n}</b><em>태스크 실패 0건</em></div>
-      <div class="stat"><span>실행된 것</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${blocked.length?`호출 거부 ${blocked.length}건 제외`:"전부 실행됨"}</em></div>
-      <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>패치 마커 존재</em></div>
+      <div class="stat"><span>판정 가능</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${
+        [blocked.length?`호출 거부 ${blocked.length}`:"",unk.length?`계약 불명 ${unk.length}`:""].filter(Boolean).join(" · ")||"전부 판정됨"} 제외</em></div>
+      <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
     </div>
-    <table><tr><th>요청</th><th>AI:GO</th><th>채점</th><th>불가 사유</th><th class="n">토큰</th><th class="n">시간</th></tr>${rows}</table>
-    <p class="note"><b>두 가지 0점을 구분한다.</b>
-    <b>호출 거부</b>는 모델이 요청을 받지도 못한 것이다 — 컨텍스트 초과·인프라 오류. 프롬프트나 형식으로 고칠 수 없다.
-    <b>마커 없음</b>은 실행도 됐고 답도 나왔는데 <code>*** PATCH START ***</code> 를 안 내서 0점이 된 것이다.
-    <b>여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 낸다.</b>
-    AI:GO 는 에이전트가 응답을 반환하면 성공으로 보지만 judge 는 마커 사이만 읽는다.</p></div>`;
+    <table><tr><th>요청</th><th>출력 계약</th><th>AI:GO</th><th>채점</th><th>불가 사유</th><th class="n">토큰</th><th class="n">시간</th></tr>${rows}</table>
+    <p class="note"><b>출력 계약은 문항마다 다르다.</b> 요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽는다.
+    실측된 두 가지: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) 과
+    <code>FINAL ANSWER: \\boxed{…}</code> (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판된다.<br>
+    <b>0점을 세 가지로 구분한다.</b>
+    <b>호출 거부</b>는 모델이 요청을 받지도 못한 것 — 컨텍스트 초과·인프라. 프롬프트나 형식으로 고칠 수 없다.
+    <b>판정 보류</b>는 지문에서 계약을 못 읽은 것 — 모르는 것을 불합격으로 적지 않는다.
+    <b>답 형식 없음</b>은 실행도 됐고 답도 나왔는데 요구된 형식을 안 내서 0점이 된 것이다.
+    <b>여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 낸다.</b></p></div>`;
 }
 
 function paneOverview(P,e){
@@ -785,9 +871,12 @@ function paneOverview(P,e){
     <p class="q">${esc(one(e.request).slice(0,220))}${one(e.request).length>220?"…":""}</p>
     <dl class="kv">
       <dt>AI:GO 판정</dt><dd>${esc(e.aigoStatus)} — 태스크 ${e.counts.total-e.counts.failed}/${e.counts.total} 성공</dd>
+      <dt>출력 계약</dt><dd><code>${esc(CONTRACT[e.contract].spec)}</code></dd>
       <dt>채점 적격</dt><dd>${e.gradable
-        ?`<span class="pill ok">적격</span> — <code>${esc(e.gradCarrier.who)}</code> 안에 패치가 있다`
-        :`<span class="pill bad">불가</span> — 어떤 응답에도 패치 마커가 없다`}</dd>
+        ?`<span class="pill ok">적격</span> — <code>${esc(e.gradCarrier.who)}</code> 안에 있다`
+        :e.blocker==="unknown"?`<span class="pill">판정 보류</span> — 지문에서 출력 계약을 못 읽었다`
+        :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span> — 호출이 거부돼 응답 자체가 없다`
+        :`<span class="pill bad">불가</span> — 어떤 응답에도 ${esc(CONTRACT[e.contract].label)} 가 없다`}</dd>
       <dt>토큰</dt><dd>${fmt(tokTotal)} (in ${fmt(e.tokens.promptTokens)} · out ${fmt(e.tokens.completionTokens)})</dd>
       <dt>소요</dt><dd>${secs(e.durationMs)}</dd>
       <dt>웨이브</dt><dd>${e.waves.length?e.waves.map((w,i)=>`W${i+1}: ${w.length}개`).join(" · "):"—"}</dd>
@@ -1214,7 +1303,7 @@ function paneLedger(P,e){
   // 지문의 출력 계약 부분을 강조
   const reqHtml=esc(req)
     .replace(/(=== REQUIRED OUTPUT ===[\s\S]*?)(?=\n\n## |$)/, m=>`<mark>${m}</mark>`)
-    .replace(/(\*\*\* PATCH (?:START|END) \*\*\*)/g,'<mark class="g">$1</mark>');
+    .replace(/(\*\*\* PATCH (?:START|END) \*\*\*|FINAL ANSWER:|\\boxed\{[^}]*\})/g,'<mark class="g">$1</mark>');
 
   let h=`<div class="card"><h2>장부 대조 — 채점기가 읽는 바이트</h2>
     <p class="q">왼쪽은 judge 가 보낸 요청 원문, 오른쪽은 우리가 낸 응답이다.
@@ -1230,14 +1319,21 @@ function paneLedger(P,e){
         <span class="stamp ${a.gradable?"g":"n"}">${a.gradable?"GRADED":"NOT GRADED"}</span></h3>`;
     if(!has){ h+=`<p class="q">출력이 비어 있습니다.</p></div>`; continue; }
     let out=esc(a.text);
-    if(a.gradable) out=out.replace(/(\*\*\* PATCH START \*\*\*[\s\S]*?\*\*\* PATCH END \*\*\*)/,'<mark class="g">$1</mark>');
+    // 채점되는 부분만 표시한다. 계약에 따라 잡는 자리가 다르다.
+    if(a.gradable&&a.si>=0&&a.ei>a.si){
+      const pre=esc(a.text.slice(0,a.si)), mid=esc(a.text.slice(a.si,a.ei)), post=esc(a.text.slice(a.ei));
+      out=pre+`<mark class="g">${mid}</mark>`+post;
+    }
     h+=`<div class="scroll" style="max-height:300px"><pre>${out}</pre></div>
         <div class="checks">`+a.checks.map(k=>
-          `<div class="chk ${k.ok?"ok":"no"}"><b>${k.ok?"✓":"✗"}</b><span class="k">${esc(k.k)}</span><span class="d">${esc(k.d)}</span></div>`).join("")+
+          `<div class="chk ${k.ok===null?"":k.ok?"ok":"no"}"><b>${k.ok===null?"?":k.ok?"✓":"✗"}</b><span class="k">${esc(k.k)}</span><span class="d">${esc(k.d)}</span></div>`).join("")+
         `</div></div>`;
   }
   h+=`</div></div>
-    <p class="note"><b>이 검사가 곧 Preflight 다.</b> 정규식 몇 개로 끝나고 <b>LLM 호출이 0회</b>다.
+    <p class="note"><b>이 문항의 출력 계약: <code>${esc(CONTRACT[e.contract].spec)}</code></b>
+    — 요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽었다. 계약은 문항마다 다르므로
+    한쪽만 검사하면 다른 쪽이 통째로 오판된다.<br>
+    <b>이 검사가 곧 Preflight 다.</b> 정규식 몇 개로 끝나고 <b>LLM 호출이 0회</b>다.
     돌려주는 것이 "다시 해봐"가 아니라 어느 검사가 왜 실패했는지이므로, 재시도에 실제로 쓸 수 있는 신호가 된다.<br>
     <b>미확인:</b> judge 에게 실제로 전달되는 것이 <code>finalResult</code> 인지 태스크 출력인지는 아직 확인되지 않았다.
     그래서 둘 다 검사해서 나란히 보여준다.</p></div>`;
