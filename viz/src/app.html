@@ -292,13 +292,19 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 
 <div class="drop" id="drop">
   <h1>LEDGER · AI:GO Squad Trace Viewer</h1>
-  <p>AI:GO 워크스페이스의 <code>logs/</code> 폴더를 고르거나 이 창에 끌어다 놓으세요.
-     스냅샷 폴더 여러 개를 한꺼번에 넣어도 됩니다. <b>executionId 로 중복을 제거해 병합</b>합니다.<br>
-     읽는 파일: <code>history.json</code> · <code>events.jsonl</code> · <code>&lt;executionId&gt;.jsonl</code> · <code>tasks/*.json</code>
-     &nbsp;(<code>index.json</code> 은 history.json 에서 유도 가능해 무시합니다)</p>
+  <p><b>AI:GO 워크스페이스 폴더</b>를 고르거나 이 창에 끌어다 놓으세요.
+     <code>logs/</code> 가 아니라 그 <b>상위 폴더</b>입니다. 워크스페이스 여러 개를 한꺼번에 넣어도 됩니다.
+     <b>executionId 로 중복을 제거해 병합</b>합니다.</p>
+  <p>읽는 파일:
+     <code>.squad.json</code> (스쿼드 구성·모델) ·
+     <code>logs/history.json</code> (응답 본문) ·
+     <code>logs/events.jsonl</code> (웨이브·토큰) ·
+     <code>logs/&lt;executionId&gt;.jsonl</code> ·
+     <code>tasks/*.json</code> ·
+     <code>artifacts/</code> (워크스페이스에 쓴 파일)<br>
+     <code>logs/index.json</code> 은 history.json 에서 유도할 수 있어 무시합니다.</p>
   <div class="row">
-    <button id="btn-sample">샘플 로그 열기</button>
-    <button id="btn-dir">폴더 고르기</button>
+    <button id="btn-dir">워크스페이스 폴더 고르기</button>
     <button id="btn-file">파일 고르기</button>
   </div>
   <div class="err" id="derr"></div>
@@ -307,14 +313,6 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
   <input type="file" id="in-file" hidden multiple>
 </div>
 
-<!-- 마커는 반드시 자기 줄에 둔다. build.sh 의 sed 가 마커 줄을 통째로 지우고
-     그 자리에 파일을 끼워 넣기 때문에, script 태그와 같은 줄에 있으면 태그까지 사라진다. -->
-<script id="sample-history" type="application/json">
-<!--@HISTORY@-->
-</script>
-<script id="sample-events" type="application/x-ndjson">
-<!--@EVENTS@-->
-</script>
 
 <script>
 "use strict";
@@ -433,7 +431,7 @@ function classify(err){
    수집 — 폴더 안의 파일을 이름으로 분류해 병합한다
    ═══════════════════════════════════════════════════════════════════════ */
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), squad:null};
+const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), artifact:new Map(), squad:null};
 const SEEN={files:0, kinds:{}, skipped:[]};
 
 function ndjson(text){
@@ -468,22 +466,49 @@ function addFile(path,name,text){
       bump("events.jsonl"); return;
     }
     if(name==="index.json"){ bump("index.json (무시)"); return; }
-    // Squad Template JSON — 스쿼드 구성(로스터)의 유일한 출처다.
+    // .squad.json — 스쿼드 구성(로스터)의 유일한 출처다.
     // 로그에는 "태스크를 배정받은 에이전트"만 나오므로, 한 번도 일하지 않은 구성원과
-    // 플래너는 로그만으로는 존재 자체를 알 수 없다.
-    {
+    // 플래너는 로그만으로는 존재 자체를 알 수 없다. 모델 이름도 로그에는 없고 여기에만 있다.
+    //
+    // 여기서 JSON.parse 가 던지면 바깥 catch 로 빠져 그 파일이 통째로 버려진다.
+    // 뒤에 오는 <executionId>.jsonl 은 JSON 이 아니므로 반드시 자체 try 로 막는다.
+    if(name.endsWith(".json")) try {
       const j=JSON.parse(text);
-      const arr=j?.agents||j?.squad?.agents||j?.template?.agents;
+      const cfg=j?.config||j?.squad||j?.template||j;
+      const arr=cfg?.agents;
       if(Array.isArray(arr)&&arr.length&&arr.some(a=>a&&(a.name||a.role))){
-        RAW.squad={name:j.name||j.squadName||j?.squad?.name||"(스쿼드)",
-          agents:arr.map(a=>({name:a.name||a.id||"agent", role:a.role||a.type||"", model:a.model||a.modelId||""}))};
-        bump("squad template"); return;
+        const plannerId=cfg.plannerAgentId||null;
+        RAW.squad={
+          name:j.squadName||cfg.name||"(스쿼드)",
+          description:cfg.description||"",
+          plannerId,
+          agents:arr.map(a=>{
+            // role 은 {type:"planner"} 이거나 {type:"custom", value:"Backend Developer"} 형태다.
+            const rt=a.role&&typeof a.role==="object"?a.role:null;
+            const role=rt?(rt.value||rt.type||""):(typeof a.role==="string"?a.role:"");
+            return {
+              id:a.id||null, name:a.name||a.id||"agent", icon:a.icon||"",
+              role:(a.id&&a.id===plannerId)?"Planner":role,
+              model:a.modelPreferences?.preferredModelId||a.model||a.modelId||"",
+              tools:a.toolConfig?.enabledTools||[],
+              prompt:a.systemPrompt||""
+            };
+          })};
+        bump("squad config"); return;
       }
-    }
+    } catch { /* 스쿼드 설정이 아니면 아래 판별로 넘어간다 */ }
     if(/\/tasks\//.test(path)&&name.endsWith(".json")){
       const t=JSON.parse(text);
       for(const x of (Array.isArray(t)?t:[t])) if(x&&x.id) RAW.task.set(x.id,x);
       bump("tasks/*.json"); return;
+    }
+    // artifacts/ — 에이전트가 워크스페이스에 쓴 파일.
+    // judge 는 워크스페이스를 읽지 않는다. 답이 여기에만 있고 응답 텍스트에 없으면 0점이다.
+    // 실측: test_2/artifacts/final_answer.txt 에 답이 있는데 응답에는 \boxed{} 가 없었다.
+    // reports/ 는 AI:GO 가 만든 실행 요약이라 제외한다. 에이전트가 쓴 것이 아니다.
+    if(/\/artifacts\//.test(path)&&!/\/artifacts\/reports\//.test(path)){
+      RAW.artifact.set(path,{path, name, text, chars:text.length});
+      bump("artifacts/*"); return;
     }
     if(name.endsWith(".jsonl")&&UUID.test(base)){
       const cur=RAW.log.get(base)||new Map();
@@ -699,7 +724,7 @@ function buildRoster(){
   const m=new Map();
   const put=(name,src)=>{
     if(!name) return null;
-    if(!m.has(name)) m.set(name,{name, id:null, role:"", model:"", src,
+    if(!m.has(name)) m.set(name,{name, id:null, role:"", model:"", icon:"", tools:[], prompt:"", src,
       execs:new Set(), tasks:0, done:0, failed:0, tok:0});
     return m.get(name);
   };
@@ -709,20 +734,25 @@ function buildRoster(){
     if(t.status==="failed"||t.fail) r.failed++; else r.done++;
     r.tok+=t.tok||0;
   }
-  // 플래너는 태스크를 배정받지 않으므로 로그에 이름이 없다. 계획 이벤트가 있으면 자리만 만든다.
-  const planned=S.execs.some(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
-  if(planned&&!m.has("(플래너)")) m.set("(플래너)",{name:"(플래너)", id:null, role:"Planner",
-    model:"", src:"inferred", execs:new Set(S.execs.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready")).map(e=>e.id)),
-    tasks:0, done:0, failed:0, tok:0});
-
+  // .squad.json 이 있으면 그것이 로스터의 정답이다. 이름과 id 양쪽으로 맞춰 붙인다.
   if(RAW.squad){
+    const byId=new Map([...m.values()].filter(r=>r.id).map(r=>[r.id,r]));
     for(const a of RAW.squad.agents){
-      const r=put(a.name,"template");
-      if(r){ r.role=a.role||r.role; r.model=a.model||r.model; r.src="template"; }
+      const r=(a.id&&byId.get(a.id))||put(a.name,"config");
+      if(!r) continue;
+      r.name=a.name; r.id||=a.id; r.icon=a.icon; r.role=a.role||r.role;
+      r.model=a.model; r.tools=a.tools; r.prompt=a.prompt; r.src="config";
     }
+  }else{
+    // 설정이 없으면 플래너 자리만 추론한다. 플래너는 태스크를 배정받지 않아 로그에 이름이 없다.
+    const planned=S.execs.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
+    if(planned.length&&!m.has("(플래너)")) m.set("(플래너)",{name:"(플래너)", id:null, role:"Planner",
+      model:"", icon:"", tools:[], prompt:"", src:"inferred",
+      execs:new Set(planned.map(e=>e.id)), tasks:0, done:0, failed:0, tok:0});
   }
   S.roster=[...m.values()];
-  S.rosterSource=RAW.squad?"template":"log";
+  S.squadName=RAW.squad?.name||null;
+  S.rosterSource=RAW.squad?"config":"log";
 }
 
 function phasesOf(evs){
@@ -892,6 +922,7 @@ function paneOverview(P,e){
     <br>→ 요청이 분해되지 않고 <b>모든 에이전트에게 원본이 그대로</b> 들어갔습니다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생합니다.</p>`;
   h+=`</div>`;
 
+  h+=artifactCard(e);
   h+=rosterCard(e);
   h+=`<div class="card"><h2>시간이 어디에 쓰였나</h2>`+phaseBar(e)+`</div>`;
 
@@ -907,6 +938,39 @@ function paneOverview(P,e){
   P.innerHTML=h;
 }
 
+/* 워크스페이스에 쓴 파일.
+   judge 는 이 파일들을 읽지 않는다. 응답 텍스트만 읽는다.
+   그래서 "파일에는 답이 있는데 응답에는 없는" 상태가 조용히 0점이 된다. */
+function artifactCard(e){
+  const arts=[...RAW.artifact.values()];
+  if(!arts.length) return "";
+  // 이 실행에서 쓰인 파일. workspace-file-changed 이벤트가 있으면 그것으로 좁힌다.
+  const touched=new Set(e.events.filter(v=>v.eventType==="squad:workspace-file-changed")
+                                .map(v=>v.payload?.path).filter(Boolean));
+  const rows=arts.map(a=>{
+    const here=touched.size?[...touched].some(p=>a.path.endsWith(p)):null;
+    return {a, here};
+  });
+  const answerish=rows.filter(r=>/final|answer|solution|result/i.test(r.a.name));
+  const rowsHtml=rows.map(({a,here})=>
+    `<tr${here===false?' style="opacity:.5"':""}><td><code>${esc(a.name)}</code></td>`+
+    `<td class="n">${a.chars.toLocaleString()}자</td>`+
+    `<td>${here===null?"—":here?'<span class="pill warn">이 실행에서 씀</span>':""}</td>`+
+    `<td style="color:var(--fg-dim)">${esc(one(a.text).slice(0,64))}</td></tr>`).join("");
+  return `<div class="card"${answerish.length&&!e.gradable?' style="border-color:var(--bad)"':""}>
+    <h2>워크스페이스에 쓴 파일 ${arts.length}개</h2>
+    <p class="q">에이전트가 <code>write_file</code> 로 만든 파일입니다.
+    <b>judge 는 이 파일을 읽지 않습니다.</b> 응답 텍스트만 읽습니다.</p>
+    <table><tr><th>파일</th><th class="n">크기</th><th>이 실행</th><th>앞부분</th></tr>${rowsHtml}</table>
+    ${answerish.length&&!e.gradable
+      ? `<p class="note"><b>답이 파일에만 있습니다.</b>
+         <code>${answerish.map(r=>esc(r.a.name)).join("</code>, <code>")}</code> 에는 결과가 들어 있는데
+         응답 텍스트에는 ${esc(CONTRACT[e.contract].label)} 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.<br>
+         에이전트에게 <code>write_file</code> 이 열려 있고 시스템 프롬프트가 "구현하세요"라고만 말하면
+         파일을 쓰는 쪽이 자연스러운 행동입니다. 출력 계약을 프롬프트에 넣어야 고쳐집니다.</p>`
+      : ""}</div>`;
+}
+
 function rosterCard(e){
   const R=S.roster||[];
   if(!R.length) return "";
@@ -914,8 +978,10 @@ function rosterCard(e){
   const rows=R.map(r=>{
     const here=r.role==="Planner"?e.events.some(v=>v.eventType==="squad:plan-ready"):worked.has(r.name);
     return `<tr${here?"":' style="opacity:.5"'}>
-      <td><b>${esc(r.name)}</b></td>
+      <td>${r.icon?esc(r.icon)+" ":""}<b>${esc(r.name)}</b>${
+        r.tools&&r.tools.length?`<div style="font-size:9.5px;color:var(--fg-faint)">${esc(r.tools.join(" · "))}</div>`:""}</td>
       <td>${esc(r.role||(r.name==="(플래너)"?"Planner":"—"))}</td>
+      <td style="color:var(--fg-dim)">${esc(r.model||"—")}</td>
       <td>${here?'<span class="pill ok">참여</span>':'<span class="pill">미참여</span>'}</td>
       <td class="n">${r.execs.size} / ${S.execs.length}</td>
       <td class="n">${r.tasks||"—"}</td>
@@ -924,14 +990,14 @@ function rosterCard(e){
   return `<div class="card"><h2>스쿼드 구성 · ${R.length}명</h2>
     <p class="q">이 실행에서 동작한 에이전트는 <b>${[...worked].length + (e.events.some(v=>v.eventType==="squad:plan-ready")?1:0)}명</b>입니다.
     나머지는 스쿼드에 있지만 이번엔 태스크를 받지 않았습니다.</p>
-    <table><tr><th>에이전트</th><th>역할</th><th>이 실행</th><th class="n">참여 실행</th>
+    <table><tr><th>에이전트</th><th>역할</th><th>모델</th><th>이 실행</th><th class="n">참여 실행</th>
       <th class="n">태스크</th><th class="n">실패</th><th class="n">토큰(추정)</th></tr>${rows}</table>
     <p class="note"><b>로스터는 로그에 없습니다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남습니다.
     한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없습니다.
-    ${S.rosterSource==="template"
-      ? "지금은 <b>Squad Template JSON</b> 을 읽어 정확한 로스터를 쓰고 있습니다."
+    ${S.rosterSource==="config"
+      ? "지금은 워크스페이스의 <b>.squad.json</b> 을 읽어 정확한 로스터를 쓰고 있습니다. 모델·역할·도구·시스템 프롬프트가 모두 그 파일에 있습니다."
       : `그래서 위 표는 <b>전 실행에 걸쳐 등장한 에이전트의 합집합</b> + 계획 이벤트로 추론한 플래너 자리입니다.
-         정확한 구성을 보려면 제출용 <b>Squad Template JSON</b> 을 같이 넣으세요. 그 파일이 로스터의 유일한 출처입니다.`}
+         정확한 구성을 보려면 워크스페이스의 <b>.squad.json</b> 을 같이 넣으세요. 그 파일이 로스터의 유일한 출처입니다.`}
     </p></div>`;
 }
 
@@ -1312,7 +1378,7 @@ function squadMap(e){
       <span>스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b></span>
       ${key("var(--ok)","완료")}${key("var(--bad)","실패")}${key("var(--accent)","실행 중")}
       ${n>act?key("var(--fg-faint)","미참여 (점선)"):""}
-      <span class="sm-src">${S.rosterSource==="template"?"Squad Template JSON 기준":
+      <span class="sm-src">${S.rosterSource==="config"?`.squad.json 기준`:
         "로그에서 추린 것입니다. 로그에는 태스크를 배정받은 에이전트만 남습니다. 플래너는 이름이 없어 자리만 세웠습니다"}</span>
     </div>`;
 }
@@ -1473,7 +1539,7 @@ function finish(){
   $("#drop").hidden=true;
   renderHeader(); renderList(); renderPane();
 }
-function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.squad=null;
+function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.artifact.clear();RAW.squad=null;
   SEEN.files=0;SEEN.kinds={};SEEN.skipped=[]; }
 
 /* 파일 하나를 텍스트로 읽는다.
@@ -1549,25 +1615,6 @@ $("#btn-file").onclick=()=>$("#in-file").click();
 $("#in-dir").onchange=e=>loadEntries(asEntries(e.target.files));
 $("#in-file").onchange=e=>loadEntries(asEntries(e.target.files));
 $("#btn-load").onclick=()=>{$("#drop").hidden=false;$("#derr").textContent="";};
-$("#btn-sample").onclick=()=>{
-  const h=document.getElementById("sample-history").textContent;
-  const e=document.getElementById("sample-events").textContent;
-  // 빌드 전 템플릿(viz/src/app.html)을 직접 열면 치환 안 된 마커가 그대로 남아 있다.
-  // 마커 문자열 자체를 여기 적으면 안 된다 — build.sh 의 sed 가 이 줄까지 마커로 보고
-  // 데이터를 한 번 더 끼워 넣는다. 주석 시작 부호만 보고 판별한다.
-  if(h.includes("<!--@")||e.includes("<!--@")||!h.trim()){
-    $("#derr").innerHTML="이 파일은 <b>빌드 전 템플릿</b>(<code>viz/src/app.html</code>)이라 샘플이 비어 있습니다.<br>"+
-      "<code>bash viz/tools/build.sh</code> 로 만든 <b>viz/trace-visualizer.html</b> 을 여세요. "+
-      "또는 아래 \"폴더 고르기\"로 실제 <code>logs/</code> 를 직접 물려도 됩니다.";
-    return;
-  }
-  reset();
-  try{
-    addFile("sample/history.json","history.json",h);
-    addFile("sample/events.jsonl","events.jsonl",e);
-    finish();
-  }catch(err){ $("#derr").textContent=err.message; }
-};
 ["dragenter","dragover"].forEach(t=>document.addEventListener(t,ev=>{
   ev.preventDefault(); $("#drop").hidden=false; $("#drop").classList.add("over");}));
 document.addEventListener("dragleave",ev=>{ev.preventDefault();$("#drop").classList.remove("over");});
