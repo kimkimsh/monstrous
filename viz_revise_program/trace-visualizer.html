@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,">
 <title>monstrous — AI:GO Squad Trace Viewer</title>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
@@ -164,6 +165,10 @@ ul{margin:0;padding:0;list-style:none}
 code,pre,kbd{font-family:var(--font-mono);font-variant-ligatures:none;
   font-variant-numeric:slashed-zero tabular-nums;
   word-break:normal;overflow-wrap:break-word}
+/* 인라인 code 에는 한국어 문장이 들어온다 — 출력 계약 설명이 그렇다("요청 지문에서 계약을
+   찾지 못함"). word-break:normal 은 한글을 음절 단위로 끊으므로 「찾 / 지」가 된다.
+   overflow-wrap:break-word 가 이미 남아 있어서 긴 라틴 식별자는 그대로 접힌다. */
+code,kbd{word-break:keep-all}
 /* anywhere 는 요소의 최소 폭을 0 으로 만든다. 원문 덤프에는 필요하지만 인라인 code 에
    걸면 좁은 칸에서 "finalResult" 가 "finalResu / lt" 로 쪼개진다. */
 pre,.scroll pre,.logline .msg{overflow-wrap:anywhere}
@@ -203,7 +208,7 @@ a{color:var(--accent)}
   align-items:center;column-gap:var(--s4);padding:var(--s1) var(--s4);
   min-height:56px;
 }
-.hud-stats{display:flex;gap:var(--s4);min-width:0;overflow:hidden}
+.hud-stats{display:flex;gap:var(--s3);min-width:0;overflow:hidden}
 .hud-nav{display:flex;align-items:center;gap:var(--s1)}
 
 /* 세로 패딩이 0 인 것이 의도다. 버튼 자체가 40px 이고(조밀 데스크톱 히트 영역 하한),
@@ -320,15 +325,17 @@ body.resizing{user-select:none}
 .stat-vs i{font-style:normal}
 
 /* HUD 안의 계기 — 2줄. 값은 --fs-title 이지 --fs-display 가 아니다.
-   3줄짜리 세로 스택은 계기 하나가 72.5px 이라 56px HUD 에 들어가지 않는다. */
+   3줄짜리 세로 스택은 계기 하나가 72.5px 이라 56px HUD 에 들어가지 않는다.
+
+   flex:none 이 같이 있어야 한다. 기본 flex-shrink 를 두면 폭이 몇 px 모자란 순간
+   상자만 좁아지고 overflow:hidden 이 값을 잘라 낸다 — 실측 1440px 에서 「AI:GO 성공 ⇄
+   채점 적격」의 오른쪽 숫자가 4px, 영어에서는 30px 잘려 아예 사라졌다. 안 줄이면 대신
+   계기 하나가 통째로 사라지고, 무엇이 먼저 사라질지는 아래 미디어 질의가 정한다. */
 .hud .stat{
   display:grid;grid-template-columns:auto auto;
   align-items:baseline;column-gap:var(--s2);row-gap:0;min-width:0;
-  overflow:hidden;
+  flex:none;overflow:hidden;
 }
-/* 크레딧 계기는 줄이지 않는다. 게이지가 고정 폭이라 상자만 줄면 옆 계기 위로 넘친다 —
-   실측: 1440px 에서 게이지가 TIME 계기를 128px 덮었다. */
-.hud .stat-credit{flex:none}
 .hud .stat-v{font-size:var(--fs-title);line-height:var(--lh-title);white-space:nowrap}
 .hud .stat-k{white-space:nowrap}
 /* 줄바꿈을 막아야 띠 1 이 56px 을 유지한다. 한 줄이라도 접히면 아래 띠와 겹친다. */
@@ -422,6 +429,10 @@ body.resizing{user-select:none}
 .trk svg{fill:currentColor;shape-rendering:crispEdges;flex:none}
 /* 「트랙별」 카드 안에서만 계열색을 빌린다. 그 문맥에는 판정 배지가 같이 나오지 않는다. */
 .by-track .trk{border-color:var(--c);color:var(--c)}
+/* 고정 배치는 열을 똑같이 나눈다. 출력 계약 칸이 168px 이 되면 마커 문자열이 세 줄로
+   접히면서 「*** PATCH START / *** … *** PATCH / END ***」 로 잘려 읽힌다. */
+.by-track th:nth-child(1),.by-track td:nth-child(1){width:104px}
+.by-track th:nth-child(2),.by-track td:nth-child(2){width:26%}
 
 /* ── 도트 아바타 ───────────────────────────────────────────────────────
    전부 12x12 격자에 그리고 12px 또는 24px 로만 낸다. viewBox 가 7 인 그림을 12px 로
@@ -434,6 +445,8 @@ body.resizing{user-select:none}
 .ava[data-role="Developer"]{color:var(--ember)}
 .ava[data-role="Solver"]   {color:var(--lime)}
 .ava[data-role="Reviewer"] {color:var(--plum)}
+/* 역할을 모르는 자리. 아는 다섯 역할의 램프색과 섞이지 않게 무채로 둔다. */
+.ava[data-role=""]{color:var(--fg-dim)}
 .ava.idle{color:var(--fg-faint)}
 .ava-row{display:flex;gap:var(--s1);align-items:center;flex-wrap:wrap}
 
@@ -471,8 +484,13 @@ body.resizing{user-select:none}
    바깥 실루엣이 눌리기 전후로 똑같아야 "눌렸다"로 읽힌다. 1px 만 움직이면 상자가
    눌린 것이 아니라 옆으로 미끄러진 것으로 보인다. */
 .grid-runs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--s3)}
+/* 카드가 <button> 이라 button 규칙의 대문자화·자간 .16em 을 그대로 물려받는다.
+   그 안에 들어가는 것은 요청 원문 — 로그의 값이다. 데이터를 대문자로 바꿔 그리면
+   화면이 로그에 없는 모양을 지어내는 것이고, 한국어 요청이면 「채 점 적 격」이 된다. */
 .card-run{
   border:var(--bd) solid var(--line);background:var(--panel);
+  font:400 var(--fs-body)/var(--lh-body) var(--font-ui);
+  letter-spacing:0;text-transform:none;
   padding:var(--s3);display:grid;gap:var(--s2);cursor:pointer;text-align:left;
   transition:transform var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease);
 }
@@ -595,6 +613,10 @@ select,input[type=search],input[type=text]{
   border:var(--bd) solid var(--line);border-radius:0;
 }
 input[type=search]{min-width:180px}
+/* 조작 띠에는 265~409px 이 빈 채로 남아 있었고 검색창만 180px 에 묶여 자리표시 문구가
+   「Search — request, agen」에서 잘렸다. 남는 폭을 검색창이 먼저 가져가고, 좁아지면
+   180px 까지 줄었다가 그 아래로는 빈 칸(.sp)이 먼저 없어진다. */
+.hud-2 input[type=search]{flex:0 1 320px}
 .qhit{font:var(--fs-caption)/1 var(--font-mono);color:var(--fg-faint);white-space:nowrap}
 
 @media (hover:hover) and (pointer:fine){
@@ -624,6 +646,10 @@ input[type=search]{min-width:180px}
 .phases > div:last-child{border-right:0}
 .phases > div.wait{
   background-image:repeating-linear-gradient(45deg,var(--panel) 0 1px,transparent 1px 4px)}
+/* 라벨은 빗금 위가 아니라 자기 판 위에 선다. 45° 줄이 글자 획을 가로지르면 --ink 가
+   --fg-faint 위에서 5.6:1 이어도 「승인 대기」가 안 읽힌다 — 고대비 모드에서만 읽혔다.
+   질감은 구간이 지고 라벨은 판이 진다. */
+.phases > div > span,.rp-phases > div > span{background:var(--c);padding:0 var(--s2)}
 
 /* ── 차트 공통 ─────────────────────────────────────────────────────────
    뷰박스 폭을 고정하지 않는다. 현행은 520 고정이라 컨테이너에 따라 라벨이
@@ -667,8 +693,8 @@ input[type=search]{min-width:180px}
   padding-top:2px;white-space:nowrap}
 .kv dd{margin:0;font-size:var(--fs-body);min-width:0}
 .verdict-track{text-align:right;min-width:0}
-.verdict-track code{display:block;font-size:var(--fs-caption);color:var(--fg-dim);
-  margin-top:var(--s2)}
+.verdict-track code,.verdict-track .spec{display:block;font-size:var(--fs-caption);
+  color:var(--fg-dim);margin-top:var(--s2)}
 .big{font:700 var(--fs-display)/var(--lh-display) var(--font-mono);
   font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 /* .panel.warn 을 개요 패널에 걸면 GOLD 테두리가 LIME 도장을 감싸 판정이 둘이 된다.
@@ -751,13 +777,16 @@ input[type=search]{min-width:180px}
 .rp-meters .stat-v{font-size:var(--fs-title);line-height:var(--lh-title)}
 
 /* ── 스쿼드 맵 ─────────────────────────────────────────────────────── */
+/* 높이를 340px 로 못 박으면 맵이 가로로 긴 경우(실측 viewBox 1140x294, 무대 폭 647px)
+   preserveAspectRatio 가 167px 만 쓰고 173px 을 빈 칸으로 남긴다 — 재생 탭 절반이 여백이었다.
+   SVG 가 제 비율대로 서고 무대가 그 높이를 따라가되, 위아래로 상한과 하한만 건다. */
 .sm-stage{position:relative;border:var(--bd) solid var(--line);background:var(--panel-2);
-  height:340px;overflow:hidden;cursor:grab}
+  min-height:200px;max-height:340px;overflow:hidden;cursor:grab}
 .sm-stage.drag{cursor:grabbing}
 /* 맵 SVG 는 sm- 이름 공간 안에 둔다. 예전 이름 .sm 은 작은 도장의 수식자 .stamp.sm 과
    글자가 같아서, display:block; width:100% 가 도장에 그대로 걸렸다 — 목록의 도장이
    행 폭 전체로 늘어났다. 한 글자짜리 클래스는 이렇게 조용히 충돌한다. */
-.sm-svg{width:100%;height:100%;display:block}
+.sm-svg{width:100%;height:auto;max-height:340px;display:block}
 .sm-node{cursor:pointer;--nc:var(--fg-faint)}
 .sm-node .box{fill:var(--panel);stroke:var(--nc);stroke-width:1.4}
 .sm-node .lbl{fill:var(--fg);font-size:var(--fs-label);font-weight:700;font-family:var(--font-ui)}
@@ -883,8 +912,13 @@ pre.raw{margin:0;padding:var(--s3);background:var(--panel-2);border:var(--bd) so
   margin-top:var(--s1);line-height:var(--lh-caption)}
 .drop-feats svg{fill:var(--accent);shape-rendering:crispEdges;flex:none}
 .drop-files{font-size:var(--fs-caption);color:var(--fg-faint)}
+/* summary 에 display:flex 를 걸면 브라우저 기본 삼각형이 사라진다. 표시가 없으면 그냥
+   흐린 글자 한 줄이라 펼 수 있다는 것을 모른다 — 각주(.fn)와 같은 글리프를 쓴다. */
 .drop-files summary{cursor:pointer;padding:var(--s2) 0;min-height:32px;display:flex;
-  align-items:center}
+  align-items:center;gap:var(--s2);list-style:none}
+.drop-files summary::-webkit-details-marker{display:none}
+.drop-files summary::before{content:"▸";transition:transform var(--t-hover) var(--ease)}
+.drop-files[open] summary::before{transform:rotate(90deg)}
 .drop-files > div{padding:2px 0}
 .drop-team{margin-top:var(--s6);font-size:var(--fs-caption);color:var(--fg-faint);
   letter-spacing:.06em}
@@ -1003,11 +1037,15 @@ html[data-contrast="1"] .drop-grid{display:none}
 }
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:var(--s4)}
 
-/* HUD 계기는 뒤에서부터 숨는다. 크레딧과 대조 계기는 마지막까지 남는다 —
-   그 둘이 이 도구의 논점이고, 환산 비율은 화면에서 빼면 안 되는 값이다. */
+/* HUD 계기는 뒤에서부터 숨는다. 크레딧이 마지막까지 남는다 —
+   시그니처이고, 환산 비율은 화면에서 빼면 안 되는 값이다.
+   경계값은 영어 라벨 기준이다. 한국어보다 「AI:GO success ⇄ Gradable」이 38px 넓어서
+   한국어에 맞추면 언어를 바꾸는 순간 다시 잘린다. 실측 폭(영어): 계기 89·229·310·103,
+   워드마크 168, 도구 줄 473, 좌우 여백과 열 간격 64, 계기 사이 12. */
 @media (max-width:1560px){ .hud-stats > .stat:nth-child(4) .stat-d{display:none} }
-@media (max-width:1400px){ .hud-stats > .stat:nth-child(4){display:none} }
-@media (max-width:1240px){ .hud-stats > .stat:nth-child(1){display:none} }
+@media (max-width:1480px){ .hud-stats > .stat:nth-child(4){display:none} }
+@media (max-width:1360px){ .hud-stats > .stat:nth-child(1){display:none} }
+@media (max-width:1260px){ .hud-stats > .stat:nth-child(2){display:none} }
 @media (max-width:900px){
   .side{position:absolute;left:0;top:0;bottom:0;z-index:var(--z-pop)}
 }
@@ -1018,12 +1056,29 @@ html[data-contrast="1"] .drop-grid{display:none}
 }
 
 @media print{
-  html,body{height:auto;overflow:visible;background:#FFFFFF;color:#000000}
+  /* 색은 body 가 아니라 토큰에서 뒤집어야 한다. body 만 흰색으로 바꾸면 패널은 --panel 을
+     그대로 써서 검은 종이가 되고, 브라우저가 배경 인쇄를 끄면 이번엔 --fg(#FFF3E3) 가
+     흰 종이 위에 남아 아무것도 안 보인다. 값은 라이트 테마 계열을 순백 기준으로 다시
+     누른 것이고 tools/contrast.py 가 이 블록도 같이 검사한다. */
+  :root{
+    --bg:#FFFFFF; --panel:#FFFFFF; --panel-2:#FFFFFF;
+    --line:#999999; --line-strong:#000000;
+    --fg:#000000; --fg-dim:#241813; --fg-faint:#5C4436;
+    --ink:#FFFFFF;
+    --ember:#AF3B09; --gold:#865A00; --lime:#3F6A0B;
+    --coral:#B92D24; --magenta:#B12B75; --plum:#7A3DAF;
+  }
+  html,body{height:auto;overflow:visible}
   .hud-nav,.hud-2,.side,.splitter,.drop,.cut-ctl,.sm-zoom,.help,.rp-ctl{display:none!important}
-  .panel{break-inside:avoid;box-shadow:none;border-color:#999999}
+  .panel{break-inside:avoid;box-shadow:none}
   .stamp{box-shadow:none;transform:none}
   details{display:block} details > *{display:block!important}
   .pane,.scroll,.rp-tick,pre.raw{max-height:none;overflow:visible}
+  /* 여기서 채움이 곧 값이다 — 막대 길이·칸 수·소유권 구간. 브라우저가 "배경 그림 인쇄"를
+     꺼도 이것만은 나와야 종이 위의 그림이 화면과 같은 말을 한다. */
+  .stack > div,.phases > div,.phases > div > span,.rp-phases > div,.rp-phases > div > span,
+  .gauge,.rp-bar,.rp-wait,.legend i,.sm-key i,.row-bar,.sq-card .bar{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
@@ -2202,7 +2257,7 @@ const EN={
   "계약 미전송":"No contract sent","판정 보류":"Undecided","부분 기록":"Partial",
   "적격":"OK","불가":"No","호출 거부":"Call rejected","출력 계약":"Output contract",
   "판정 가능":"Decidable","AI:GO 판정":"AI:GO verdict","판정":"Verdict",
-  "{0} 안에 있습니다":"it is inside {0}",
+  "채점기가 읽는 형식이 {0} 안에 있습니다":"the format the grader reads is inside {0}",
   "요청 지문에 === REQUIRED OUTPUT === 절이 없어 모델이 형식을 들은 적이 없습니다":
     "the request carries no === REQUIRED OUTPUT === section, so the model was never told the format",
   "지문에서 출력 계약을 못 읽었습니다":"the output contract could not be read from the request",
@@ -2284,7 +2339,7 @@ const EN={
   "태스크 {0}개 중":"of {0} tasks","위상":"Phase","요청":"Request","플래너":"Planner",
   "폴백 · 분해 실패":"fallback · no decomposition","폴백":"fallback","태스크 {0}개":"{0} tasks",
   "{0}/{1} 완료":"{0}/{1} done","실행 중":"running","추정":"est.","토큰 미보고":"tokens not reported",
-  "아직 보고 없음":"not reported yet","토큰 이벤트 없음":"no token events",
+  "이 실행 총 {0}":"{0} for this run","아직 보고 없음":"not reported yet","토큰 이벤트 없음":"no token events",
   "in {0} · out {1} · +{2}s 보고":"in {0} · out {1} · reported at +{2}s",
   "스쿼드 {0}명 · 이 실행에서 동작 {1}명":"squad of {0} · {1} active in this run",
   "드래그 = 이동 · 휠 = 확대":"drag to pan · wheel to zoom",
@@ -2305,9 +2360,9 @@ const EN={
   // ── 장부 대조 ──
   "이 문항의 출력 계약: {0}":"this item's output contract: {0}",
   "(요청 원문이 history.json 에 없습니다)":"(the original request is not in history.json)",
-  "응답 후보 {0}개":"{0} response candidates","출력이 비어 있습니다.":"The output is empty.",
-  "이 검사가 곧 Preflight 다":"This check is the Preflight",
-  "정규식 몇 개로 끝나고 LLM 호출이 0회다. 어느 검사가 왜 실패했는지를 돌려주기 때문에 재시도에 그대로 쓸 수 있는 신호가 된다.":
+  "{0}자":"{0} chars","응답 후보 {0}개":"{0} response candidates","출력이 비어 있습니다.":"The output is empty.",
+  "이 검사가 곧 Preflight 입니다":"This check is the Preflight",
+  "정규식 몇 개로 끝나고 LLM 호출이 0회입니다. 어느 검사가 왜 실패했는지를 돌려주기 때문에 재시도에 그대로 쓸 수 있는 신호가 됩니다.":
     "A few regexes, and zero LLM calls. Because it returns which check failed and why, the signal is directly usable for a retry.",
   "미확인: judge 에게 실제로 전달되는 것이 finalResult 인지 태스크 출력인지는 아직 확인되지 않았습니다. 그래서 둘 다 검사해서 나란히 보여줍니다.":
     "Unverified: whether the judge receives finalResult or the task output is still unknown, so both are checked and shown side by side.",
@@ -2320,7 +2375,7 @@ const EN={
     "With autoApprove: false, time spent waiting on a human to approve the plan is mixed in here. That share disappears in an unattended benchmark run.",
   "대기가 길면 웨이브를 잘못 나눈 것입니다. 앞 웨이브가 끝나야 다음이 시작합니다.":
     "A long wait means the waves were cut wrong — the next wave cannot start until the previous one ends.",
-  "웨이브 구간은 파일 두 개를 합쳐야 닫힌다":"A wave's span needs both files to close",
+  "웨이브 구간은 파일 두 개를 합쳐야 닫힙니다":"A wave's span needs both files to close",
   "웨이브 시작은 events.jsonl 에, 끝은 <executionId>.jsonl 에만 있습니다. 한쪽만 읽으면 구간이 닫히지 않아 띠가 실행 끝까지 늘어납니다.":
     "Wave starts are in events.jsonl, wave ends only in <executionId>.jsonl. Reading one of them leaves the band open and it stretches to the end of the run.",
   "어느 태스크가 어느 태스크를 기다렸는가":"which task waited on which",
@@ -2357,6 +2412,8 @@ const EN={
   "잃는 적격":"Gradable lost","잘리는 실행":"Runs cut","전체의 {0}":"{0} of the total",
   "적격 {0}건 중":"of {0} gradable","전체 {0}건 중":"of {0} runs","{0}건":"{0}","{0}명":"{0}",
   "정직한 한계":"An honest limit",
+  "과금 토큰이 0인 실행 {0}건은 로그 눈금에 올릴 수 없어 가로축 왼쪽 끝에 모여 있습니다. 1 토큰이라는 뜻이 아닙니다.":
+    "{0} runs were billed 0 tokens. A log axis cannot hold 0, so they sit at the far left — that is not the same as 1 token.",
   "상한에 닿는 순간 그 실행을 포기했다고 가정합니다. 잘린 실행의 적격은 전부 잃는 것으로 계산하므로 이 값은 손실의 상한입니다.":
     "This assumes the run was abandoned the moment it hit the cap, and counts every cut run's gradability as lost — so this is an upper bound on the loss.",
   "문항당 과금 토큰 (로그 눈금)":"billed tokens per run (log scale)",
@@ -2381,16 +2438,16 @@ const EN={
     "So far every track the squad picked matches the request.",
   "0점이 네 갈래로 갈립니다. 갈래마다 고칠 사람이 다릅니다":
     "a zero splits four ways, and each way has a different owner",
-  "주최 OpenAPI 열거형과의 대응":"How this maps to the organizers' OpenAPI enum",
+  "우리 분류를 주최 OpenAPI 열거형에 대보면":"Our classes against the organizers' OpenAPI enum",
   "우리 분류":"Our class","누가 고치나":"Who fixes it",
   "설정":"config","러너":"runner","검사기":"checker","프롬프트":"prompt",
   "모든 실행을 한 시간축에":"every run on one time axis",
   "실행 사이의 빈칸은 아무도 일하지 않은 시간입니다.":"Gaps between runs are time nobody was working.",
-  "전체 실행 간트":"Gantt of all runs","비용이 언제 발생했는가":"when the cost was incurred",
+  "전체 실행 간트":"Gantt of all runs","{0}건 중 {1}건":"{1} of {0} shown","비용이 언제 발생했는가":"when the cost was incurred",
   "보고된 시점에만 계단으로 오릅니다.":"It only steps up at reported points.",
   "실행별 누적 토큰 곡선":"cumulative tokens per run",
   "토큰 이벤트가 있는 실행이 없습니다.":"No run has token events.",
-  "길게 쓴다고 맞는 것이 아니다":"longer is not better",
+  "길게 쓴다고 맞는 것이 아닙니다":"longer is not better",
   "응답 길이 대 채점 적격":"response length vs gradability","응답 글자 수":"response length (chars)",
   "형식을 못 맞춘 실행이 얼마나 아까웠는가":"how close the runs that missed the format came",
   "통과율이 높을수록 조금만 고치면 되는 실행입니다.":
@@ -2749,6 +2806,13 @@ const ART={
           "...#....#...","...#....#...","...######...",
           "............","............","............"],
 
+  /* 역할을 모르고 icon 도 없을 때의 중립 자리. 역할을 지어내지 않되 자리는 비우지 않는다.
+     예전에는 가운뎃점 하나였는데 목록에서 「· 백엔드 개발자」가 글머리 기호로 읽혔다. */
+  agent: ["............","............","....####....",
+          "....####....","....####....","............",
+          "..########..",".##########.",".##########.",
+          "............","............","............"],
+
   /* 역할별 아바타 5종. .squad.json 의 로스터가 고정돼 있어 그릴 수 있다.
      없는 역할에는 그림을 지어내지 않고 icon 이모지로 폴백한다. */
   Planner:  ["............","............",".###....###.",
@@ -2797,16 +2861,25 @@ const ART={
           "..#########.","............","............"]
 };
 
-/* 판정 도장. 한국어가 주, 영문이 보조다. */
+/* 판정 도장. 한국어가 주, 영문이 보조다.
+   영어 모드에서는 보조 줄을 빼야 한다 — 주 라벨이 이미 영어라 「Gradable / GRADED」처럼
+   같은 말이 두 번 찍힌다. */
 const stamp=(v,small)=>
   `<span class="stamp${small?" sm":""}" data-v="${v.k||"hold"}">`+
-  `<b>${esc(t(v.label))}</b><em>${STAMP_EN[v.label]||""}</em></span>`;
+  `<b>${esc(t(v.label))}</b><em>${LANG==="en"?"":(STAMP_EN[v.label]||"")}</em></span>`;
 
 /* 셀 게이지. 칸은 보조 표기이고 실제 숫자를 언제나 옆에 같이 적는다.
    aria-label 에는 칸이 아니라 진짜 값을 넣는다 — 스크린리더에 "12칸" 은 정보가 아니다. */
 const gauge=(on,cells,c,dim,label)=>
   `<div class="gauge" role="img" aria-label="${esc(label||"")}"`+
   ` style="--cells:${cells};--on:${on};--dim:${dim||0};--c:${c}"></div>`;
+
+/* 출력 계약 표기. patch·boxed·letter 는 모델이 내야 할 진짜 형식 문자열이라 고정폭이 맞다.
+   missing·unknown 은 형식이 아니라 상태를 적은 한국어 문장인데, --font-mono 스택에는
+   한글 글리프가 없어 시스템 폴백이 전각으로 그린다 — 「요청  지문에서  계약을」이 된다. */
+const specOf=c=>REAL_CONTRACT.has(c)
+  ? `<code>${esc(t(CONTRACT[c].spec))}</code>`
+  : `<span class="spec">${esc(t(CONTRACT[c].spec))}</span>`;
 
 /* 트랙 배지 — 색을 쓰지 않는다. 얇은 테두리 + 도트 글리프 + 라벨. */
 const trk=k=>`<span class="trk" data-t="${k}">${dotArt(ART[k]||ART.unknown,12)}`+
@@ -2816,10 +2889,11 @@ const ROLES=["Planner","Architect","Developer","Solver","Reviewer"];
 function avatar(a,px){
   const role=ROLES.includes(a.role)?a.role:"";
   const idle=a.idle?" idle":"";
-  const ttl=esc(a.name+(role?" · "+role:"")+(a.model?" · "+a.model:""));
+  const ttl=att(a.name+(role?" · "+role:"")+(a.model?" · "+a.model:""));
   return role
     ? `<span class="ava${idle}" data-role="${role}" title="${ttl}">${dotArt(ART[role],px||12)}</span>`
-    : `<span class="ava${idle}" data-role="" title="${ttl}">${esc(a.icon||"·")}</span>`;
+    : `<span class="ava${idle}" data-role="" title="${ttl}">${
+        a.icon?esc(a.icon):dotArt(ART.agent,px||12)}</span>`;
 }
 
 /* 검사 항목 — checks[].ok 의 세 값과 글리프 세 개가 1:1 */
@@ -2977,11 +3051,14 @@ function rowRun(e,maxTok){
     ` aria-selected="${S.sel===e.id}" style="--c:${wsColor(e.sq)}">`+
     `<span class="row-bar"></span>`+
     `<div class="row-head">${trk(e.track)}`+
-      `<span class="row-t">${esc(one(e.request).slice(0,64)||e.id)}</span></div>`+
+      `<span class="row-t">${esc(clip(e.request,64)||e.id)}</span></div>`+
     `<div class="row-meta">${stamp(v,true)}`+
       `<span class="row-aigo">AI:GO ${e.counts.total-e.counts.failed}/${e.counts.total}</span></div>`+
     `<div class="row-foot">`+
-      gauge(on,12,"var(--c)",0,tn("토큰 {0}",fmt(tok)))+
+      /* 계열색을 값으로 넘긴다. "var(--c)" 를 넘기면 게이지 자신의 --c 를 자기 자신으로
+         가리켜(--c:var(--c)) 순환이 되고, 순환한 커스텀 속성은 계산 시점에 무효라
+         background 전체가 initial(none) 로 떨어진다 — 칸이 통째로 안 보였다. */
+      gauge(on,12,wsColor(e.sq),0,tn("토큰 {0}",fmt(tok)))+
       `<span class="row-num">${fmt(tok)} tok · ${secs(e.durationMs)}</span></div>`+
     `</li>`;
 }
@@ -2995,13 +3072,17 @@ function cardRun(e,maxTok){
     `<div class="top">${trk(e.track)}${stamp(v,true)}</div>`+
     `<div class="num">${fmt(tok)} tok</div>`+
     gauge(cellsLog(tok,maxTok,8),8,wsColor(e.sq),0,tn("토큰 {0}",fmt(tok)))+
-    `<div class="cap">${esc(one(e.request).slice(0,40)||e.id)}</div>`+
+    `<div class="cap">${esc(clip(e.request,40)||e.id)}</div>`+
     `</button></li>`;
 }
 
 /* 속성 안에 들어가는 값은 따옴표까지 막아야 한다. esc() 는 보존 구간 함수라
    & < > 만 바꾼다 — 요청 지문에 " 가 흔해서 title 속성이 통째로 깨진다. */
 const att=s=>esc(s).replace(/"/g,"&quot;");
+
+/* 잘라 낸 자리에는 잘렸다는 표시를 남긴다. 그냥 slice 하면 "…an iss ·" 처럼 오타로 읽히고,
+   SVG text 나 표 셀처럼 넓은 자리에서는 CSS 의 text-overflow 도 안 도와준다. */
+const clip=(s,n)=>{ const v=one(s); return v.length>n?v.slice(0,n)+"…":v; };
 
 /* ═══════════════════════════════════════════════════════════════════════
    렌더 — 패널 전환
@@ -3082,7 +3163,7 @@ function paneOverview(P,e){
 
   /* ── 결론 층 ── */
   const why=e.gradable
-    ? tn("{0} 안에 있습니다",e.gradCarrier.who)
+    ? tn("채점기가 읽는 형식이 {0} 안에 있습니다",clip(e.gradCarrier.who,40))
     : e.blocker==="nocontract" ? t("요청 지문에 === REQUIRED OUTPUT === 절이 없어 모델이 형식을 들은 적이 없습니다")
     : e.blocker==="unknown"    ? t("지문에서 출력 계약을 못 읽었습니다")
     : e.blocker==="blocked"    ? t("호출이 거부돼 응답 자체가 없습니다")
@@ -3105,7 +3186,7 @@ function paneOverview(P,e){
       `</dl>`+
     `</div>`+
     `<div class="verdict-track">${trk(e.track)}`+
-      `<code>${esc(t(CONTRACT[e.contract].spec))}</code></div>`+
+      specOf(e.contract)+`</div>`+
   `</div>`;
 
   /* ── 경고 층 — 있을 때만, 순서 고정. 각주로 내리지 않는다.
@@ -3114,13 +3195,13 @@ function paneOverview(P,e){
   if(bare) h+=warnBox("bad",
     "보기 문자는 냈는데 ANSWER: 줄이 아닙니다.",
     tn("응답의 마지막 줄이 {0} 입니다. 지문은 ANSWER: {1} 라는 줄을 요구합니다 — 앞에 무엇이 오든 상관없지만 그 줄 자체는 있어야 합니다.",
-       one(bare.raw).slice(0,20),bare.letter.toUpperCase()));
+       clip(bare.raw,20),bare.letter.toUpperCase()));
 
   const hint=e.carriers.find(c=>c.a&&c.a.hint)?.a.hint;
   if(hint) h+=warnBox("bad",
     "답은 맞혔는데 보기 문자를 내지 않았습니다.",
     tn("응답의 {0} 는 보기 {1}. {2} 와 같은 값입니다. 채점기는 letter_match 라서 값이 아니라 문자 하나를 봅니다. {1} 한 글자만 냈으면 점수가 됐습니다.",
-       String(hint.gave).slice(0,24),hint.letter,one(hint.text).slice(0,40)));
+       clip(hint.gave,24),hint.letter,clip(hint.text,40)));
 
   if(mismatch) h+=warnBox("",
     "이 트랙의 계약이 지문에 없습니다.",
@@ -3220,7 +3301,7 @@ function taskTable(e){
     if(tk.meta) anyMeta=true;
     if(w) waitSum+=w;
     const ok=tk.answer.gradable;
-    return `<tr><td>${esc(one(tk.title).slice(0,52))}</td>`+
+    return `<tr><td>${esc(clip(tk.title,52))}</td>`+
       `<td>${esc(tk.agentName||tk.agentId||"—")}</td>`+
       `<td>${tk.meta?.priority?`<span class="badge">${esc(tk.meta.priority)}</span>`:"—"}</td>`+
       `<td><span class="badge${tk.status==="failed"?" bad":""}">${esc(tk.status)}</span></td>`+
@@ -3304,7 +3385,7 @@ function phaseBar(e){
   const bars=e.phases.map(p=>
     `<div class="${p.k===PHASE_WAIT?"wait":""}" title="${att(tp(p.k)+" "+secs(p.ms))}"`+
     ` style="--w:${(p.ms/tot*100).toFixed(2)}%;--c:${PHASE_COLOR[p.k]||"var(--line-strong)"}">`+
-    `${p.ms/tot>.12?esc(tp(p.k)):""}</div>`).join("");
+    `${p.ms/tot>.12?`<span>${esc(tp(p.k))}</span>`:""}</div>`).join("");
   const legend=e.phases.map(p=>
     `<span><i style="--c:${PHASE_COLOR[p.k]||"var(--line-strong)"}"></i>`+
     `${esc(tp(p.k))} ${secs(p.ms)} (${(p.ms/tot*100).toFixed(0)}%)</span>`).join("");
@@ -3360,7 +3441,7 @@ function mapLayout(e){
   e.waves.forEach((w,i)=>w.forEach(tid=>waveOf.set(tid,i)));
   const nWaves=Math.max(1,e.waves.length||1);
   const cols=[];
-  cols.push([{id:"req",label:t("요청"),sub:one(e.request).slice(0,20)||"—",kind:"io"}]);
+  cols.push([{id:"req",label:t("요청"),sub:clip(e.request,20)||"—",kind:"io"}]);
   cols.push([{id:"planner",label:t("플래너"),
     sub:e.plannerWarning?t("폴백 · 분해 실패"):tn("태스크 {0}개",e.tasks.length),
     kind:e.plannerWarning?"warnnode":"sys"}]);
@@ -3370,7 +3451,7 @@ function mapLayout(e){
     const inWave=e.tasks.filter(x=>(waveOf.get(x.taskId)??0)===w);
     if(!inWave.length) continue;
     const col=inWave.map(x=>({id:"t"+e.tasks.indexOf(x),label:x.agentName||x.agentId||"agent",
-      sub:one(x.title).slice(0,22),kind:"agent",task:x,taskId:x.taskId}));
+      sub:clip(x.title,22),kind:"agent",task:x,taskId:x.taskId}));
     /* 첫 웨이브 열에 "스쿼드에 있지만 이 실행에서 일하지 않은" 구성원을 같이 세운다.
        안 그리면 스쿼드가 실제보다 작아 보인다. id 는 이름이 아니라 로스터 인덱스로
        만든다 — \w 는 ASCII 전용이라 한국어 이름끼리 id 가 충돌한다. */
@@ -3427,7 +3508,7 @@ function squadMap(e,L){
       <rect class="ring" x="-4" y="-4" width="${NW+8}" height="${NH+8}"/>
       <rect class="box" width="${NW}" height="${NH}"${n.kind==="idle"?' stroke-dasharray="5 4"':""}/>
       <circle class="sm-dot" cx="15" cy="19" r="4"/>
-      <text class="lbl" x="27" y="23">${esc(String(n.label).slice(0,19))}</text>
+      <text class="lbl" x="27" y="23">${esc(clip(n.label,19))}</text>
       <text class="sub" x="15" y="39">${esc(n.sub)}</text>
       <text class="sm-tok" x="15" y="52"></text>
       <text class="sm-mark" x="${NW-12}" y="23" text-anchor="end"></text>
@@ -3463,7 +3544,7 @@ function laneRows(e){
     if(!by.has(who)) by.set(who,[]);
     const a=tk.start??e.t0, b=tk.end??e.t1;
     by.get(who).push({a,b:Math.max(b,a+400),ok:!(tk.status==="failed"||tk.fail),
-      label:one(tk.title).slice(0,42), id:"t"+i, taskId:tk.taskId,
+      label:clip(tk.title,42), id:"t"+i, taskId:tk.taskId,
       wait:waitOf(tk), made:ms(tk.meta?.createdAt)});
   });
   return [...by].map(([who,bars],i)=>({who,bars,i}));
@@ -3473,7 +3554,7 @@ function phaseCells(e){
   return e.phases.map(p=>
     `<div class="${p.k===PHASE_WAIT?"wait":""}"`+
     ` style="--w:${(p.ms/tot*100).toFixed(2)}%;--c:${PHASE_COLOR[p.k]||"var(--line-strong)"}">`+
-    `${p.ms/tot>.14?esc(tp(p.k)):""}</div>`).join("");
+    `${p.ms/tot>.14?`<span>${esc(tp(p.k))}</span>`:""}</div>`).join("");
 }
 function phaseAt(e,tt){
   let acc=0;
@@ -3482,14 +3563,14 @@ function phaseAt(e,tt){
 }
 function evDetail(ev){
   const p=ev.payload||{};
-  if(p.taskTitle) return one(p.taskTitle).slice(0,70);
+  if(p.taskTitle) return clip(p.taskTitle,70);
   if(p.waves) return "waves: "+p.waves.map(w=>w.length).join(" / ")+(p.plannerWarning?"  ⚠ "+t("플래너 폴백"):"");
   if(p.total!=null) return tn("누적 {0} (in {1} · out {2})",fmt(p.total),fmt(p.promptTokens),fmt(p.completionTokens));
   if(p.path) return p.changeType+" "+p.path;
   if(p.state) return (p.agentId||"")+" → "+p.state;
   if(p.newStatus) return p.oldStatus+" → "+p.newStatus;
   if(p.taskIds) return p.taskIds.length+" tasks"+(p.waveIndex!=null?` · wave ${p.waveIndex+1}/${p.totalWaves}`:"");
-  if(p.error) return "⚠ "+one(p.error).slice(0,70);
+  if(p.error) return "⚠ "+clip(p.error,70);
   return "";
 }
 /* 결정 지점 배지 — 무엇을 왜 그렇게 했는지가 이벤트 목록에서 읽히게 한다 */
@@ -3510,8 +3591,11 @@ function paneReplay(P,e){
   const span=Math.max(1,(e.t1??0)-(e.t0??0));
   const L=mapLayout(e);
   const lanes=laneRows(e);
+  /* 이 탭의 질문이 "토큰이 실제로 언제 쓰였는가" 다. 계기에 숫자만 있으면 계단이 안 보인다.
+     칸은 이 실행의 최종 과금 토큰을 기준으로 채운다 — 전체 예산 기준으로 잡으면
+     실행 하나가 1~2칸이라 재생 내내 아무것도 안 움직인다. */
   const total=billed(e);
-  const unit=creditScale(Math.max(1,...S.execs.map(billed)))||1;
+  const RP_CELLS=16;
 
   P.innerHTML=panel(`<b>${t(TAB_Q.replay)}</b> — ${t("녹화된 로그만으로 재생합니다. 모델 호출 0회")}`,
     `<div class="rp-ctl">
@@ -3555,6 +3639,7 @@ function paneReplay(P,e){
       ${statBlock("경과","0.0s","",tn("전체 {0}",secs(span)))}
       <div class="stat"><span class="stat-k lat">Credits</span>
         <b class="stat-v" id="rp-tok">0</b>
+        ${gauge(0,RP_CELLS,"var(--accent)",0,tn("이 실행 총 {0}",fmt(total)))}
         <em class="stat-d" id="rp-tok-d">in 0 · out 0</em></div>
       ${statBlock("완료","0","",tn("태스크 {0}개 중",e.tasks.length))}
       ${statBlock("실패","0","bad","")}
@@ -3569,6 +3654,8 @@ function paneReplay(P,e){
           `<p>${t("누적 토큰은 보고된 시점에만 계단식으로 오릅니다. 사이를 보간하면 로그에 없는 숫자를 지어내게 됩니다.")}</p>`)
       : fn("notok","이 실행에는 토큰 이벤트가 없습니다",
           `<p>${t("요청이 거부돼 토큰이 청구되지 않았습니다. 누적 토큰은 0입니다.")}</p>`)));
+
+  const rpGauge=P.querySelector(".rp-meters .gauge");
 
   /* 계기 자리에 실제 id 를 붙인다 — statBlock 은 공용이라 id 를 모른다 */
   const meters=P.querySelectorAll(".rp-meters .stat-v");
@@ -3714,6 +3801,16 @@ function paneReplay(P,e){
     $("#rp-tok-d").textContent=lastP
       ? tn("in {0} · out {1} · +{2}s 보고",fmt(lastP.inTok),fmt(lastP.outTok),((lastP.t-e.t0)/1000).toFixed(1))
       : (e.tokenCurve.length?t("아직 보고 없음"):t("토큰 이벤트 없음"));
+    if(rpGauge){
+      const on=total?Math.min(RP_CELLS,Math.round((lastP?lastP.total:0)/total*RP_CELLS)):0;
+      const prev=+rpGauge.style.getPropertyValue("--on")||0;
+      /* 계단이 보이려면 칸 하나에 한 프레임보다 긴 시간이 필요하다. 값이 안 바뀐 프레임에
+         다시 걸면 전이가 매번 처음부터 시작해 아무것도 안 움직인다. */
+      if(on!==prev){
+        rpGauge.style.setProperty("--t-gauge",Math.min(420,Math.abs(on-prev)*28)+"ms");
+        rpGauge.style.setProperty("--on",on);
+      }
+    }
 
     P.querySelectorAll(".rp-mark").forEach(m=>m.classList.toggle("on",p*100>=+m.dataset.at));
     $("#rp-phase").textContent=e.phases.length?tp(phaseAt(e,tt)):"—";
@@ -3808,7 +3905,7 @@ function paneLedger(P,e){
     `<b>${t(TAB_Q.ledger)}</b> — ${tn("이 문항의 출력 계약: {0}",t(CONTRACT[e.contract].spec))}`,
     `<div class="ledger">
        <div class="col">
-         <h3>${t("요청")}<span class="len n">${req.length.toLocaleString()}</span></h3>
+         <h3>${t("요청")}<span class="len n">${tn("{0}자",req.length.toLocaleString())}</span></h3>
          <div class="scroll"><pre>${reqHtml}</pre></div>
        </div>
        <div class="ledger-grip" id="lgrip" title="${t("드래그로 폭 조절")}"></div>
@@ -3817,8 +3914,8 @@ function paneLedger(P,e){
          ${right}
        </div>
      </div>`+
-    fn("preflight","이 검사가 곧 Preflight 다",
-      `<p>${t("정규식 몇 개로 끝나고 LLM 호출이 0회다. 어느 검사가 왜 실패했는지를 돌려주기 때문에 재시도에 그대로 쓸 수 있는 신호가 된다.")}</p>`+
+    fn("preflight","이 검사가 곧 Preflight 입니다",
+      `<p>${t("정규식 몇 개로 끝나고 LLM 호출이 0회입니다. 어느 검사가 왜 실패했는지를 돌려주기 때문에 재시도에 그대로 쓸 수 있는 신호가 됩니다.")}</p>`+
       `<p>${t("미확인: judge 에게 실제로 전달되는 것이 finalResult 인지 태스크 출력인지는 아직 확인되지 않았습니다. 그래서 둘 다 검사해서 나란히 보여줍니다.")}</p>`));
 
   /* 좌우 폭 조절 — coding 문항의 요청이 60,000자다 */
@@ -3871,7 +3968,7 @@ function paneTimeline(P,e){
           `<p>${e.autoApprove===false
             ? t("autoApprove: false 인 실행이므로 사람이 계획을 승인하기까지의 시간이 여기 섞여 있습니다. 자동으로 도는 벤치마크에서는 이 몫이 사라집니다.")
             : t("대기가 길면 웨이브를 잘못 나눈 것입니다. 앞 웨이브가 끝나야 다음이 시작합니다.")}</p>`):""}
-       ${fn("wave-src","웨이브 구간은 파일 두 개를 합쳐야 닫힌다",
+       ${fn("wave-src","웨이브 구간은 파일 두 개를 합쳐야 닫힙니다",
           `<p>${t("웨이브 시작은 events.jsonl 에, 끝은 <executionId>.jsonl 에만 있습니다. 한쪽만 읽으면 구간이 닫히지 않아 띠가 실행 끝까지 늘어납니다.")}</p>`)}
      </div>`);
 
@@ -3920,7 +4017,7 @@ function paneFailure(P,e){
         `<span><i style="--c:${x.c}"></i>${esc(x.k)} ${x.v}</span>`).join("")}</div>`;
     body+=`<div class="sec">`+fails.map(ft=>
       `<div class="warnbox${ft.fail.owner==="organizer"?"":" bad"}">`+
-      `<h3>${esc(one(ft.title).slice(0,44))} · <code>${esc(ft.fail.kind)}</code> `+
+      `<h3>${esc(clip(ft.title,44))} · <code>${esc(ft.fail.kind)}</code> `+
       `<span class="badge">${esc(ft.fail.owner)}</span></h3>`+
       `<p>${esc(t(ft.fail.why))}</p>`+
       `<pre class="raw">${esc(ft.fail.raw)}</pre></div>`).join("")+`</div>`;
@@ -4067,10 +4164,16 @@ function paintCutStats(X){
   if(lostEl) lostEl.setAttribute("data-tone",r.lost?"bad":"ok");
 }
 
+/* 행 높이를 17px 로 못 박고 높이를 460px 로 자르면 26행째부터는 그리지 않는다 —
+   실행 30건에서 5건이 아무 표시 없이 사라졌고, 카드 제목은 여전히 「전체 실행 간트」였다.
+   그래서 (1) 들어갈 만큼 행 높이를 줄이고 (2) 그래도 넘치면 몇 건이 안 보이는지 적는다. */
+const GANTT_H=460, GANTT_ROW_MAX=17, GANTT_ROW_MIN=6;
 function drawGantt(host,X){
-  const rowH=17;
-  chartIn(host,Math.min(460,X.length*rowH+40),(g,W,H)=>{
+  const fit=Math.floor((GANTT_H-38)/Math.max(1,X.length));
+  const rowH=Math.max(GANTT_ROW_MIN,Math.min(GANTT_ROW_MAX,fit));
+  chartIn(host,Math.min(GANTT_H,X.length*rowH+40),(g,W,H)=>{
     const P={l:96,r:24,t:22,b:16};
+    let shown=0;
     const t0=Math.min(...X.map(e=>e.t0??Infinity)), t1=Math.max(...X.map(e=>e.t1??-Infinity));
     const span=Math.max(1,t1-t0);
     const px=v=>P.l+(v-t0)/span*(W-P.l-P.r);
@@ -4082,6 +4185,7 @@ function drawGantt(host,X){
     X.forEach((e,i)=>{
       const y=P.t+i*rowH;
       if(y>H-P.b) return;
+      shown++;
       let acc=e.t0??t0;
       for(const p of e.phases){
         g.appendChild(svgEl("rect",{x:px(acc),y,width:Math.max(1,px(acc+p.ms)-px(acc)),
@@ -4089,10 +4193,12 @@ function drawGantt(host,X){
           [svgEl("title",{},`${e.ws} · ${tp(p.k)} ${secs(p.ms)}`)]));
         acc+=p.ms;
       }
-      g.appendChild(txt(P.l-8,y+9,
-        (e.squadName&&e.squadName!=="—"?e.squadName:e.ws||"").slice(0,12),
+      if(rowH>=11) g.appendChild(txt(P.l-8,y+9,
+        clip(e.squadName&&e.squadName!=="—"?e.squadName:e.ws||"",12),
         e.gradable?"":"faint","end"));
     });
+    if(shown<X.length)
+      g.appendChild(txt(W-P.r,P.t-10,tn("{0}건 중 {1}건",X.length,shown),"faint ko","end"));
   },t("전체 실행 간트"));
 }
 
@@ -4253,7 +4359,7 @@ function trackCard(X){
     const mine=X.filter(e=>e.track===k), d=decidable(mine);
     return `<tr style="--c:var(${SERIES[i%SERIES.length]})">`+
       `<td>${trk(k)}</td>`+
-      `<td class="dim"><code>${esc(t(CONTRACT[TRACK[k].contract].spec))}</code></td>`+
+      `<td class="dim">${specOf(TRACK[k].contract)}</td>`+
       `<td class="n">${mine.length}</td><td class="n">${d.n}</td>`+
       `<td class="n${d.n&&d.grad<d.n?" bad":""}">${d.n?`${d.grad} / ${d.n}`:"—"}</td>`+
       `<td class="n${d.nocontract?" warn":""}">${d.nocontract||"—"}</td>`+
@@ -4277,8 +4383,10 @@ function routeCard(X){
   if(!R.length) return "";
   const miss=R.filter(e=>e.route.track!==e.track);
   const sure=miss.filter(e=>e.route.conf>=0.9);
-  const rows=R.map(e=>`<tr class="${e.route.track===e.track?"":"dim"}">`+
-    `<td>${esc(one(e.request).slice(0,44))}</td>`+
+  /* 어긋난 행이 이 표의 발견이다. 일치한 행을 흐리게 눕히고 어긋난 행을 본문 밝기로 둔다 —
+     반대로 걸려 있었고, 그러면 찾아낸 것이 배경보다 어두워진다. */
+  const rows=R.map(e=>`<tr class="${e.route.track===e.track?"dim":""}">`+
+    `<td>${esc(clip(e.request,44))}</td>`+
     `<td>${trk(e.track)}</td><td>${trk(e.route.track)}</td>`+
     `<td class="n">${e.route.conf}</td>`+
     `<td>${e.route.track===e.track
@@ -4311,7 +4419,7 @@ function blockerCard(X){
   ];
   return panel(`<b>${t("0점이 네 갈래로 갈립니다. 갈래마다 고칠 사람이 다릅니다")}</b>`,
     stack(segs,segs.filter(s=>s.v).map(s=>t(s.k)+" "+s.v).join(", "))+
-    fn("blocker-enum","주최 OpenAPI 열거형과의 대응",
+    fn("blocker-enum","우리 분류를 주최 OpenAPI 열거형에 대보면",
       `<div class="tbl-wrap"><table><tr><th>${t("우리 분류")}</th><th>Outcome</th>`+
       `<th>${t("누가 고치나")}</th></tr>`+
       Object.keys(BLOCKER_LABEL).map(k=>
@@ -4330,7 +4438,7 @@ function nearCard(X){
     `<th class="n">${t("통과")}</th><th>${t("얼마나 아까운가")}</th></tr>`+
     rows.map(r=>{
       const f=r.p/r.n;
-      return `<tr><td>${esc(one(r.e.request).slice(0,34)||r.e.id)}</td>`+
+      return `<tr><td>${esc(clip(r.e.request,34)||r.e.id)}</td>`+
         `<td class="dim">${esc(r.e.ws)}</td><td class="n">${r.p} / ${r.n}</td>`+
         `<td>${gauge(Math.round(f*8),8,f>=.75?"var(--v-warn)":"var(--accent)",0,
               tn("{0}개 중 {1}개 통과",r.n,r.p))}</td></tr>`;
@@ -4348,7 +4456,7 @@ function runTableFn(X){
       :x.blocker==="unknown"?t("출력 계약을 못 읽음")
       :REAL_CONTRACT.has(x.contract)?t(CONTRACT[x.contract].label)+" "+t("없음"):t("형식 없음");
     return `<tr class="${UNDECIDED.has(x.blocker)?"dim":""}">`+
-      `<td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
+      `<td>${esc(clip(x.request,50)||x.id)}</td>`+
       `<td>${trk(x.track)}</td>`+
       `<td>${stamp(v,true)}</td>`+
       `<td class="dim">${esc(why)}</td>`+
@@ -4384,7 +4492,12 @@ function paneAll(P){
          ${statBlock("잘리는 실행","—","","")}
        </div>`+
       fn("cut-honest","정직한 한계",
-        `<p>${t("상한에 닿는 순간 그 실행을 포기했다고 가정합니다. 잘린 실행의 적격은 전부 잃는 것으로 계산하므로 이 값은 손실의 상한입니다.")}</p>`),
+        `<p>${t("상한에 닿는 순간 그 실행을 포기했다고 가정합니다. 잘린 실행의 적격은 전부 잃는 것으로 계산하므로 이 값은 손실의 상한입니다.")}</p>`+
+        /* 로그 눈금에는 0 을 올릴 수 없어 왼쪽 끝에 모인다. 그 자리의 눈금은 1 이라
+           적혀 있으므로, 적어 두지 않으면 화면이 "1 토큰" 이라고 말하는 셈이 된다. */
+        (X.some(e=>!billed(e))
+          ? `<p>${tn("과금 토큰이 0인 실행 {0}건은 로그 눈금에 올릴 수 없어 가로축 왼쪽 끝에 모여 있습니다. 1 토큰이라는 뜻이 아닙니다.",X.filter(e=>!billed(e)).length)}</p>`
+          : "")),
       "cut")+
     trackCard(X)+
     routeCard(X)+
@@ -4396,7 +4509,7 @@ function paneAll(P){
     `<div class="grid2">`+
       panel(`<b>${t("비용이 언제 발생했는가")}</b> — ${t("보고된 시점에만 계단으로 오릅니다.")}`,
         `<div id="c-tok"></div>`)+
-      panel(`<b>${t("길게 쓴다고 맞는 것이 아니다")}</b>`,`<div id="c-len"></div>`)+
+      panel(`<b>${t("길게 쓴다고 맞는 것이 아닙니다")}</b>`,`<div id="c-len"></div>`)+
     `</div>`+
     nearCard(X)+
     panel(`<b>${t("전체 실행 판정표")}</b>`,runTableFn(X));
@@ -4446,26 +4559,29 @@ function paneCmp(P){
     return;
   }
   const rows=sq.map(s=>({s,...squadStat(s)}));
-  const best={rate:Math.max(...rows.map(r=>r.rate)),
-              tokPer:Math.min(...rows.map(r=>r.tokPer||Infinity)),
-              durPer:Math.min(...rows.map(r=>r.durPer||Infinity)),
-              execPer:Math.min(...rows.map(r=>r.execPer||Infinity))};
+  /* ★ 는 판정 가능한 실행이 하나라도 있는 스쿼드끼리만 겨룬다. 아무것도 못 돌린 스쿼드의
+     「문항당 토큰 0」이 최고값을 가져가면 화면이 그 구성을 제일 효율적이라고 말한다. */
+  const cmp=rows.filter(r=>r.ran>0);
+  const best={rate:Math.max(0,...cmp.map(r=>r.rate)),
+              tokPer:Math.min(...cmp.map(r=>r.tokPer||Infinity)),
+              durPer:Math.min(...cmp.map(r=>r.durPer||Infinity)),
+              execPer:Math.min(...cmp.map(r=>r.execPer||Infinity))};
   const line=(k,val,isBest,cells)=>
     `<div class="sq-line"><span>${esc(t(k))}</span>`+
     `<b>${isBest?'<span class="star">★</span> ':""}${esc(val)}</b></div>`+(cells||"");
 
   const cards=rows.map(r=>
     `<div class="sq-card" style="--c:${wsColor(r.s.sq)}"><span class="bar"></span>`+
-    `<h3>${esc(r.s.name)}</h3>`+
+    `<h3>${esc(r.s.name!=="—"?r.s.name:r.s.ws)}</h3>`+
     `<div class="src">${esc(r.s.ws)}${r.s.squadId?" · "+esc(r.s.squadId.slice(0,8)):""}`+
       `${r.s.source==="config"?"":" · "+t("로그에서 추정")}</div>`+
     `<div class="ava-row">${r.s.agents.map(a=>avatar(a,12)).join("")}`+
       `<span class="stat-d">${tn("{0}명",r.s.agents.length)}</span></div>`+
-    line("채점 적격",`${r.grad} / ${r.ran}`,r.rate===best.rate)+
+    line("채점 적격",`${r.grad} / ${r.ran}`,r.ran>0&&r.rate===best.rate)+
     gauge(Math.round(r.rate*16),16,"var(--v-ok)",0,pct(r.rate))+
-    line("문항당 토큰",fmt(r.tokPer),r.tokPer===best.tokPer)+
-    line("문항당 시간",secs(r.durPer),r.durPer===best.durPer)+
-    line("실제 실행 시간",secs(r.execPer),r.execPer===best.execPer)+
+    line("문항당 토큰",fmt(r.tokPer),r.ran>0&&r.tokPer===best.tokPer)+
+    line("문항당 시간",secs(r.durPer),r.ran>0&&r.durPer===best.durPer)+
+    line("실제 실행 시간",secs(r.execPer),r.ran>0&&r.execPer===best.execPer)+
     `</div>`).join("");
 
   const shared=sharedRequests(S.execs);
