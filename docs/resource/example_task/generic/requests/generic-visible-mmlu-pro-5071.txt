@@ -1,0 +1,20 @@
+In what ways have governments responded to the threat of TNC post-Cold War?
+
+Options:
+A. In response to the threat of TNC post-Cold War, governments have primarily relied on economic sanctions against countries seen as hubs for transnational crime.
+B. Governments have increasingly turned to the use of private military companies to combat the threat of TNC post-Cold War.
+C. The approach to the threat of TNC has largely been disorganized and lacking in any form of international cooperation, with each state tackling the issue individually.
+D. With the expansion of TNC in the 1990s, states became increasingly willing to take measures to reduce the asymmetries between countries through harmonization of legislation and increasing police capacity and networking. The government response to transnational crime has focused on targeting the individuals and organizations perpetrating the crime, rather than the criminal markets themselves.
+E. The response to TNC post-Cold War has been largely focused on the implementation of strict border controls and immigration policies.
+F. The threat of TNC has been primarily addressed through the expansion of domestic law enforcement agencies, with minimal international cooperation.
+G. Governments have remained passive and unresponsive to the threat of TNC post-Cold War, allowing transnational crime to flourish unchecked.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

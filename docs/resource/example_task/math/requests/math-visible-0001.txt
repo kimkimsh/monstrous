@@ -1,0 +1,10 @@
+What is the smallest real number $x$ in the domain of the function $$g(x) = \sqrt{(x-3)^2-(x-8)^2}~?$$
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

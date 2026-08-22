@@ -1,0 +1,10 @@
+In the circle with center $Q$, radii $AQ$ and $BQ$ form a right angle. The two smaller regions are tangent semicircles, as shown. The radius of the circle with center $Q$ is 14 inches. What is the radius of the smaller semicircle? Express your answer as a common fraction.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

@@ -1,0 +1,1791 @@
+You are resolving an issue in an existing repository. The issue report comes
+first, then the parts of the repository the judge retrieved for it.
+
+## Issue
+
+DataSet.update causes chunked dask DataArray to evalute its values eagerly 
+**What happened**:
+Used `DataSet.update` to update a chunked dask DataArray, but the DataArray is no longer chunked after the update.
+
+**What you expected to happen**:
+The chunked DataArray should still be chunked after the update
+
+**Minimal Complete Verifiable Example**:
+
+```python
+foo = xr.DataArray(np.random.randn(3, 3), dims=("x", "y")).chunk()  # foo is chunked
+ds = xr.Dataset({"foo": foo, "bar": ("x", [1, 2, 3])})  # foo is still chunked here
+ds  # you can verify that foo is chunked
+```
+```python
+update_dict = {"foo": (("x", "y"), ds.foo[1:, :]), "bar": ("x", ds.bar[1:])}
+update_dict["foo"][1]  # foo is still chunked
+```
+```python
+ds.update(update_dict)
+ds  # now foo is no longer chunked
+```
+
+**Environment**:
+
+<details><summary>Output of <tt>xr.show_versions()</tt></summary>
+
+```
+commit: None
+python: 3.8.3 (default, Jul  2 2020, 11:26:31) 
+[Clang 10.0.0 ]
+python-bits: 64
+OS: Darwin
+OS-release: 19.6.0
+machine: x86_64
+processor: i386
+byteorder: little
+LC_ALL: None
+LANG: en_US.UTF-8
+LOCALE: en_US.UTF-8
+libhdf5: 1.10.6
+libnetcdf: None
+
+xarray: 0.16.0
+pandas: 1.0.5
+numpy: 1.18.5
+scipy: 1.5.0
+netCDF4: None
+pydap: None
+h5netcdf: None
+h5py: 2.10.0
+Nio: None
+zarr: None
+cftime: None
+nc_time_axis: None
+PseudoNetCDF: None
+rasterio: None
+cfgrib: None
+iris: None
+bottleneck: None
+dask: 2.20.0
+distributed: 2.20.0
+matplotlib: 3.2.2
+cartopy: None
+seaborn: None
+numbagg: None
+pint: None
+setuptools: 49.2.0.post20200714
+pip: 20.1.1
+conda: None
+pytest: 5.4.3
+IPython: 7.16.1
+sphinx: None
+```
+
+</details>
+Dataset constructor with DataArray triggers computation
+Is it intentional that creating a Dataset with a DataArray and dimension names for a single variable causes computation of that variable?  In other words, why does ```xr.Dataset(dict(a=('d0', xr.DataArray(da.random.random(10)))))``` cause the dask array to compute?
+
+A longer example:
+
+```python
+import dask.array as da
+import xarray as xr
+x = da.random.randint(1, 10, size=(100, 25))
+ds = xr.Dataset(dict(a=xr.DataArray(x, dims=('x', 'y'))))
+type(ds.a.data)
+dask.array.core.Array
+
+# Recreate the dataset with the same array, but also redefine the dimensions
+ds2 = xr.Dataset(dict(a=(('x', 'y'), ds.a))
+type(ds2.a.data)
+numpy.ndarray
+```
+
+## Repository context
+
+Repository: pydata/xarray at commit a5f53e203c52a7605d5db799864046471115d04f
+Retrieved 6 of 81 candidate source files.
+You cannot browse the repository. The excerpts below are the whole of the
+code you have been given; anything not shown, you do not have.
+
+--- xarray/util/print_versions.py (lines 1-160 of 160) ---
+```python
+"""Utility functions for printing version information."""
+import importlib
+import locale
+import os
+import platform
+import struct
+import subprocess
+import sys
+
+
+def get_sys_info():
+    """Returns system information as a dict"""
+
+    blob = []
+
+    # get full commit hash
+    commit = None
+    if os.path.isdir(".git") and os.path.isdir("xarray"):
+        try:
+            pipe = subprocess.Popen(
+                'git log --format="%H" -n 1'.split(" "),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            so, _ = pipe.communicate()
+        except Exception:
+            pass
+        else:
+            if pipe.returncode == 0:
+                commit = so
+                try:
+                    commit = so.decode("utf-8")
+                except ValueError:
+                    pass
+                commit = commit.strip().strip('"')
+
+    blob.append(("commit", commit))
+
+    try:
+        (sysname, _nodename, release, _version, machine, processor) = platform.uname()
+        blob.extend(
+            [
+                ("python", sys.version),
+                ("python-bits", struct.calcsize("P") * 8),
+                ("OS", "%s" % (sysname)),
+                ("OS-release", "%s" % (release)),
+                # ("Version", "%s" % (version)),
+                ("machine", "%s" % (machine)),
+                ("processor", "%s" % (processor)),
+                ("byteorder", "%s" % sys.byteorder),
+                ("LC_ALL", "%s" % os.environ.get("LC_ALL", "None")),
+                ("LANG", "%s" % os.environ.get("LANG", "None")),
+                ("LOCALE", "%s.%s" % locale.getlocale()),
+            ]
+        )
+    except Exception:
+        pass
+
+    return blob
+
+
+def netcdf_and_hdf5_versions():
+    libhdf5_version = None
+    libnetcdf_version = None
+    try:
+        import netCDF4
+
+        libhdf5_version = netCDF4.__hdf5libversion__
+        libnetcdf_version = netCDF4.__netcdf4libversion__
+    except ImportError:
+        try:
+            import h5py
+
+            libhdf5_version = h5py.version.hdf5_version
+        except ImportError:
+            pass
+    return [("libhdf5", libhdf5_version), ("libnetcdf", libnetcdf_version)]
+
+
+def show_versions(file=sys.stdout):
+    """print the versions of xarray and its dependencies
+
+    Parameters
+    ----------
+    file : file-like, optional
+        print to the given file-like object. Defaults to sys.stdout.
+    """
+    sys_info = get_sys_info()
+
+    try:
+        sys_info.extend(netcdf_and_hdf5_versions())
+    except Exception as e:
+        print(f"Error collecting netcdf / hdf5 version: {e}")
+
+    deps = [
+        # (MODULE_NAME, f(mod) -> mod version)
+        ("xarray", lambda mod: mod.__version__),
+        ("pandas", lambda mod: mod.__version__),
+        ("numpy", lambda mod: mod.__version__),
+        ("scipy", lambda mod: mod.__version__),
+        # xarray optionals
+        ("netCDF4", lambda mod: mod.__version__),
+        ("pydap", lambda mod: mod.__version__),
+        ("h5netcdf", lambda mod: mod.__version__),
+        ("h5py", lambda mod: mod.__version__),
+        ("Nio", lambda mod: mod.__version__),
+        ("zarr", lambda mod: mod.__version__),
+        ("cftime", lambda mod: mod.__version__),
+        ("nc_time_axis", lambda mod: mod.__version__),
+        ("PseudoNetCDF", lambda mod: mod.__version__),
+        ("rasterio", lambda mod: mod.__version__),
+        ("cfgrib", lambda mod: mod.__version__),
+        ("iris", lambda mod: mod.__version__),
+        ("bottleneck", lambda mod: mod.__version__),
+        ("dask", lambda mod: mod.__version__),
+        ("distributed", lambda mod: mod.__version__),
+        ("matplotlib", lambda mod: mod.__version__),
+        ("cartopy", lambda mod: mod.__version__),
+        ("seaborn", lambda mod: mod.__version__),
+        ("numbagg", lambda mod: mod.__version__),
+        ("pint", lambda mod: mod.__version__),
+        # xarray setup/test
+        ("setuptools", lambda mod: mod.__version__),
+        ("pip", lambda mod: mod.__version__),
+        ("conda", lambda mod: mod.__version__),
+        ("pytest", lambda mod: mod.__version__),
+        # Misc.
+        ("IPython", lambda mod: mod.__version__),
+        ("sphinx", lambda mod: mod.__version__),
+    ]
+
+    deps_blob = []
+    for (modname, ver_f) in deps:
+        try:
+            if modname in sys.modules:
+                mod = sys.modules[modname]
+            else:
+                mod = importlib.import_module(modname)
+        except Exception:
+            deps_blob.append((modname, None))
+        else:
+            try:
+                ver = ver_f(mod)
+                deps_blob.append((modname, ver))
+            except Exception:
+                deps_blob.append((modname, "installed"))
+
+    print("\nINSTALLED VERSIONS", file=file)
+    print("------------------", file=file)
+
+    for k, stat in sys_info:
+        print(f"{k}: {stat}", file=file)
+
+    print("", file=file)
+    for k, stat in deps_blob:
+        print(f"{k}: {stat}", file=file)
+
+
+if __name__ == "__main__":
+    show_versions()
+```
+
+--- xarray/backends/api.py (lines 307-561 of 1454; not shown in this file: <module header>, _get_default_engine_remote_uri, _get_default_engine_grib, _get_default_engine_gz, _get_default_engine_netcdf, _get_engine_from_magic_number, _get_default_engine, _autodetect_engine, _get_backend_cls, _normalize_path, _validate_dataset_names, _validate_attrs, _protect_dataset_variables_inplace, _finalize_store, load_dataset, load_dataarray, open_dataarray, to_netcdf, dump_to_store, save_mfdataset, _validate_datatypes_for_zarr_append, _validate_append_dim_and_encoding, to_zarr) ---
+```python
+def open_dataset(
+    filename_or_obj,
+    group=None,
+    decode_cf=True,
+    mask_and_scale=None,
+    decode_times=True,
+    concat_characters=True,
+    decode_coords=True,
+    engine=None,
+    chunks=None,
+    lock=None,
+    cache=None,
+    drop_variables=None,
+    backend_kwargs=None,
+    use_cftime=None,
+    decode_timedelta=None,
+):
+    """Open and decode a dataset from a file or file-like object.
+
+    Parameters
+    ----------
+    filename_or_obj : str, Path, file-like or DataStore
+        Strings and Path objects are interpreted as a path to a netCDF file
+        or an OpenDAP URL and opened with python-netCDF4, unless the filename
+        ends with .gz, in which case the file is gunzipped and opened with
+        scipy.io.netcdf (only netCDF3 supported). Byte-strings or file-like
+        objects are opened by scipy.io.netcdf (netCDF3) or h5py (netCDF4/HDF).
+    group : str, optional
+        Path to the netCDF4 group in the given file to open (only works for
+        netCDF4 files).
+    decode_cf : bool, optional
+        Whether to decode these variables, assuming they were saved according
+        to CF conventions.
+    mask_and_scale : bool, optional
+        If True, replace array values equal to `_FillValue` with NA and scale
+        values according to the formula `original_values * scale_factor +
+        add_offset`, where `_FillValue`, `scale_factor` and `add_offset` are
+        taken from variable attributes (if they exist).  If the `_FillValue` or
+        `missing_value` attribute contains multiple values a warning will be
+        issued and all array values matching one of the multiple values will
+        be replaced by NA. mask_and_scale defaults to True except for the
+        pseudonetcdf backend.
+    decode_times : bool, optional
+        If True, decode times encoded in the standard NetCDF datetime format
+        into datetime objects. Otherwise, leave them encoded as numbers.
+    concat_characters : bool, optional
+        If True, concatenate along the last dimension of character arrays to
+        form string arrays. Dimensions will only be concatenated over (and
+        removed) if they have no corresponding variable and if they are only
+        used as the last dimension of character arrays.
+    decode_coords : bool, optional
+        If True, decode the 'coordinates' attribute to identify coordinates in
+        the resulting dataset.
+    engine : {"netcdf4", "scipy", "pydap", "h5netcdf", "pynio", "cfgrib", \
+        "pseudonetcdf", "zarr"}, optional
+        Engine to use when reading files. If not provided, the default engine
+        is chosen based on available dependencies, with a preference for
+        "netcdf4".
+    chunks : int or dict, optional
+        If chunks is provided, it is used to load the new dataset into dask
+        arrays. ``chunks=-1`` loads the dataset with dask using a single
+        chunk for all arrays. `chunks={}`` loads the dataset with dask using
+        engine preferred chunks if exposed by the backend, otherwise with
+        a single chunk for all arrays.
+        ``chunks='auto'`` will use dask ``auto`` chunking taking into account the
+        engine preferred chunks. See dask chunking for more details.
+    lock : False or lock-like, optional
+        Resource lock to use when reading data from disk. Only relevant when
+        using dask or another form of parallelism. By default, appropriate
+        locks are chosen to safely read and write files with the currently
+        active dask scheduler.
+    cache : bool, optional
+        If True, cache data loaded from the underlying datastore in memory as
+        NumPy arrays when accessed to avoid reading from the underlying data-
+        store multiple times. Defaults to True unless you specify the `chunks`
+        argument to use dask, in which case it defaults to False. Does not
+        change the behavior of coordinates corresponding to dimensions, which
+        always load their data from disk into a ``pandas.Index``.
+    drop_variables: str or iterable, optional
+        A variable or list of variables to exclude from being parsed from the
+        dataset. This may be useful to drop variables with problems or
+        inconsistent values.
+    backend_kwargs: dict, optional
+        A dictionary of keyword arguments to pass on to the backend. This
+        may be useful when backend options would improve performance or
+        allow user control of dataset processing.
+    use_cftime: bool, optional
+        Only relevant if encoded dates come from a standard calendar
+        (e.g. "gregorian", "proleptic_gregorian", "standard", or not
+        specified).  If None (default), attempt to decode times to
+        ``np.datetime64[ns]`` objects; if this is not possible, decode times to
+        ``cftime.datetime`` objects. If True, always decode times to
+        ``cftime.datetime`` objects, regardless of whether or not they can be
+        represented using ``np.datetime64[ns]`` objects.  If False, always
+        decode times to ``np.datetime64[ns]`` objects; if this is not possible
+        raise an error.
+    decode_timedelta : bool, optional
+        If True, decode variables and coordinates with time units in
+        {"days", "hours", "minutes", "seconds", "milliseconds", "microseconds"}
+        into timedelta objects. If False, leave them encoded as numbers.
+        If None (default), assume the same value of decode_time.
+
+    Returns
+    -------
+    dataset : Dataset
+        The newly created dataset.
+
+    Notes
+    -----
+    ``open_dataset`` opens the file with read-only access. When you modify
+    values of a Dataset, even one linked to files on disk, only the in-memory
+    copy you are manipulating in xarray is modified: the original file on disk
+    is never touched.
+
+    See Also
+    --------
+    open_mfdataset
+    """
+    if os.environ.get("XARRAY_BACKEND_API", "v1") == "v2":
+        kwargs = {k: v for k, v in locals().items() if v is not None}
+        from . import apiv2
+
+        return apiv2.open_dataset(**kwargs)
+
+    if mask_and_scale is None:
+        mask_and_scale = not engine == "pseudonetcdf"
+
+    if not decode_cf:
+        mask_and_scale = False
+        decode_times = False
+        concat_characters = False
+        decode_coords = False
+        decode_timedelta = False
+
+    if cache is None:
+        cache = chunks is None
+
+    if backend_kwargs is None:
+        backend_kwargs = {}
+
+    def maybe_decode_store(store, chunks):
+        ds = conventions.decode_cf(
+            store,
+            mask_and_scale=mask_and_scale,
+            decode_times=decode_times,
+            concat_characters=concat_characters,
+            decode_coords=decode_coords,
+            drop_variables=drop_variables,
+            use_cftime=use_cftime,
+            decode_timedelta=decode_timedelta,
+        )
+
+        _protect_dataset_variables_inplace(ds, cache)
+
+        if chunks is not None and engine != "zarr":
+            from dask.base import tokenize
+
+            # if passed an actual file path, augment the token with
+            # the file modification time
+            if isinstance(filename_or_obj, str) and not is_remote_uri(filename_or_obj):
+                mtime = os.path.getmtime(filename_or_obj)
+            else:
+                mtime = None
+            token = tokenize(
+                filename_or_obj,
+                mtime,
+                group,
+                decode_cf,
+                mask_and_scale,
+                decode_times,
+                concat_characters,
+                decode_coords,
+                engine,
+                chunks,
+                drop_variables,
+                use_cftime,
+                decode_timedelta,
+            )
+            name_prefix = "open_dataset-%s" % token
+            ds2 = ds.chunk(chunks, name_prefix=name_prefix, token=token)
+
+        elif engine == "zarr":
+            # adapted from Dataset.Chunk() and taken from open_zarr
+            if not (isinstance(chunks, (int, dict)) or chunks is None):
+                if chunks != "auto":
+                    raise ValueError(
+                        "chunks must be an int, dict, 'auto', or None. "
+                        "Instead found %s. " % chunks
+                    )
+
+            if chunks == "auto":
+                try:
+                    import dask.array  # noqa
+                except ImportError:
+                    chunks = None
+
+            # auto chunking needs to be here and not in ZarrStore because
+            # the variable chunks does not survive decode_cf
+            # return trivial case
+            if chunks is None:
+                return ds
+
+            if isinstance(chunks, int):
+                chunks = dict.fromkeys(ds.dims, chunks)
+
+            variables = {
+                k: _maybe_chunk(
+                    k,
+                    v,
+                    _get_chunk(v, chunks),
+                    overwrite_encoded_chunks=overwrite_encoded_chunks,
+                )
+                for k, v in ds.variables.items()
+            }
+            ds2 = ds._replace(variables)
+
+        else:
+            ds2 = ds
+        ds2.set_close(ds._close)
+        return ds2
+
+    filename_or_obj = _normalize_path(filename_or_obj)
+
+    if isinstance(filename_or_obj, AbstractDataStore):
+        store = filename_or_obj
+    else:
+        if engine is None:
+            engine = _autodetect_engine(filename_or_obj)
+
+        extra_kwargs = {}
+        if group is not None:
+            extra_kwargs["group"] = group
+        if lock is not None:
+            extra_kwargs["lock"] = lock
+
+        if engine == "zarr":
+            backend_kwargs = backend_kwargs.copy()
+            overwrite_encoded_chunks = backend_kwargs.pop(
+                "overwrite_encoded_chunks", None
+            )
+
+        opener = _get_backend_cls(engine)
+        store = opener(filename_or_obj, **extra_kwargs, **backend_kwargs)
+
+    with close_on_error(store):
+        ds = maybe_decode_store(store, chunks)
+
+    # Ensure source filename always stored in dataset object (GH issue #2550)
+    if "source" not in ds.encoding:
+        if isinstance(filename_or_obj, str):
+            ds.encoding["source"] = filename_or_obj
+
+    return ds
+
+
+```
+
+--- xarray/backends/api.py (lines 718-757 of 1454; not shown in this file: <module header>, _get_default_engine_remote_uri, _get_default_engine_grib, _get_default_engine_gz, _get_default_engine_netcdf, _get_engine_from_magic_number, _get_default_engine, _autodetect_engine, _get_backend_cls, _normalize_path, _validate_dataset_names, _validate_attrs, _protect_dataset_variables_inplace, _finalize_store, load_dataset, load_dataarray, open_dataarray, to_netcdf, dump_to_store, save_mfdataset, _validate_datatypes_for_zarr_append, _validate_append_dim_and_encoding, to_zarr) ---
+```python
+def open_mfdataset(
+    paths,
+    chunks=None,
+    concat_dim=None,
+    compat="no_conflicts",
+    preprocess=None,
+    engine=None,
+    lock=None,
+    data_vars="all",
+    coords="different",
+    combine="by_coords",
+    parallel=False,
+    join="outer",
+    attrs_file=None,
+    **kwargs,
+):
+    """Open multiple files as a single dataset.
+
+    If combine='by_coords' then the function ``combine_by_coords`` is used to combine
+    the datasets into one before returning the result, and if combine='nested' then
+    ``combine_nested`` is used. The filepaths must be structured according to which
+    combining function is used, the details of which are given in the documentation for
+    ``combine_by_coords`` and ``combine_nested``. By default ``combine='by_coords'``
+    will be used. Requires dask to be installed. See documentation for
+    details on dask [1]_. Global attributes from the ``attrs_file`` are used
+    for the combined dataset.
+
+    Parameters
+    ----------
+    paths : str or sequence
+        Either a string glob in the form ``"path/to/my/files/*.nc"`` or an explicit list of
+        files to open. Paths can be given as strings or as pathlib Paths. If
+        concatenation along more than one dimension is desired, then ``paths`` must be a
+        nested list-of-lists (see ``combine_nested`` for details). (A string glob will
+        be expanded to a 1-dimensional list.)
+    chunks : int or dict, optional
+        Dictionary with keys given by dimension names and values given by chunk sizes.
+        In general, these should divide the dimensions of each dataset. If int, chunk
+        each dimension by ``chunks``. By default, chunks will be chosen to load entire
+        input files into memory at once. This has a major impact on performance: please
+```
+
+--- xarray/core/dataset.py (lines 512-869 of 7011; not shown in this file: <module header>, _get_virtual_variable, calculate_dimensions, merge_indexes, split_indexes, _assert_empty, _check_chunks_compatibility, _get_chunk, _maybe_chunk, as_dataset, DataVariables, _LocIndexer) ---
+```python
+class Dataset(Mapping, ImplementsDatasetReduce, DataWithCoords):
+    """A multi-dimensional, in memory, array database.
+
+    A dataset resembles an in-memory representation of a NetCDF file,
+    and consists of variables, coordinates and attributes which
+    together form a self describing dataset.
+
+    Dataset implements the mapping interface with keys given by variable
+    names and values given by DataArray objects for each variable name.
+
+    One dimensional variables with name equal to their dimension are
+    index coordinates used for label based indexing.
+
+    To load data from a file or file-like object, use the `open_dataset`
+    function.
+
+    Parameters
+    ----------
+    data_vars : dict-like, optional
+        A mapping from variable names to :py:class:`~xarray.DataArray`
+        objects, :py:class:`~xarray.Variable` objects or to tuples of
+        the form ``(dims, data[, attrs])`` which can be used as
+        arguments to create a new ``Variable``. Each dimension must
+        have the same length in all variables in which it appears.
+
+        The following notations are accepted:
+
+        - mapping {var name: DataArray}
+        - mapping {var name: Variable}
+        - mapping {var name: (dimension name, array-like)}
+        - mapping {var name: (tuple of dimension names, array-like)}
+        - mapping {dimension name: array-like}
+          (it will be automatically moved to coords, see below)
+
+        Each dimension must have the same length in all variables in
+        which it appears.
+    coords : dict-like, optional
+        Another mapping in similar form as the `data_vars` argument,
+        except the each item is saved on the dataset as a "coordinate".
+        These variables have an associated meaning: they describe
+        constant/fixed/independent quantities, unlike the
+        varying/measured/dependent quantities that belong in
+        `variables`. Coordinates values may be given by 1-dimensional
+        arrays or scalars, in which case `dims` do not need to be
+        supplied: 1D arrays will be assumed to give index values along
+        the dimension with the same name.
+
+        The following notations are accepted:
+
+        - mapping {coord name: DataArray}
+        - mapping {coord name: Variable}
+        - mapping {coord name: (dimension name, array-like)}
+        - mapping {coord name: (tuple of dimension names, array-like)}
+        - mapping {dimension name: array-like}
+          (the dimension name is implicitly set to be the same as the
+          coord name)
+
+        The last notation implies that the coord name is the same as
+        the dimension name.
+
+    attrs : dict-like, optional
+        Global attributes to save on this dataset.
+
+    Examples
+    --------
+    Create data:
+
+    >>> np.random.seed(0)
+    >>> temperature = 15 + 8 * np.random.randn(2, 2, 3)
+    >>> precipitation = 10 * np.random.rand(2, 2, 3)
+    >>> lon = [[-99.83, -99.32], [-99.79, -99.23]]
+    >>> lat = [[42.25, 42.21], [42.63, 42.59]]
+    >>> time = pd.date_range("2014-09-06", periods=3)
+    >>> reference_time = pd.Timestamp("2014-09-05")
+
+    Initialize a dataset with multiple dimensions:
+
+    >>> ds = xr.Dataset(
+    ...     data_vars=dict(
+    ...         temperature=(["x", "y", "time"], temperature),
+    ...         precipitation=(["x", "y", "time"], precipitation),
+    ...     ),
+    ...     coords=dict(
+    ...         lon=(["x", "y"], lon),
+    ...         lat=(["x", "y"], lat),
+    ...         time=time,
+    ...         reference_time=reference_time,
+    ...     ),
+    ...     attrs=dict(description="Weather related data."),
+    ... )
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:         (time: 3, x: 2, y: 2)
+    Coordinates:
+        lon             (x, y) float64 -99.83 -99.32 -99.79 -99.23
+        lat             (x, y) float64 42.25 42.21 42.63 42.59
+      * time            (time) datetime64[ns] 2014-09-06 2014-09-07 2014-09-08
+        reference_time  datetime64[ns] 2014-09-05
+    Dimensions without coordinates: x, y
+    Data variables:
+        temperature     (x, y, time) float64 29.11 18.2 22.83 ... 18.28 16.15 26.63
+        precipitation   (x, y, time) float64 5.68 9.256 0.7104 ... 7.992 4.615 7.805
+    Attributes:
+        description:  Weather related data.
+
+    Find out where the coldest temperature was and what values the
+    other variables had:
+
+    >>> ds.isel(ds.temperature.argmin(...))
+    <xarray.Dataset>
+    Dimensions:         ()
+    Coordinates:
+        lon             float64 -99.32
+        lat             float64 42.21
+        time            datetime64[ns] 2014-09-08
+        reference_time  datetime64[ns] 2014-09-05
+    Data variables:
+        temperature     float64 7.182
+        precipitation   float64 8.326
+    Attributes:
+        description:  Weather related data.
+    """
+
+    _attrs: Optional[Dict[Hashable, Any]]
+    _cache: Dict[str, Any]
+    _coord_names: Set[Hashable]
+    _dims: Dict[Hashable, int]
+    _encoding: Optional[Dict[Hashable, Any]]
+    _close: Optional[Callable[[], None]]
+    _indexes: Optional[Dict[Hashable, pd.Index]]
+    _variables: Dict[Hashable, Variable]
+
+    __slots__ = (
+        "_attrs",
+        "_cache",
+        "_coord_names",
+        "_dims",
+        "_encoding",
+        "_close",
+        "_indexes",
+        "_variables",
+        "__weakref__",
+    )
+
+    _groupby_cls = groupby.DatasetGroupBy
+    _rolling_cls = rolling.DatasetRolling
+    _coarsen_cls = rolling.DatasetCoarsen
+    _resample_cls = resample.DatasetResample
+    _weighted_cls = weighted.DatasetWeighted
+
+    def __init__(
+        self,
+        # could make a VariableArgs to use more generally, and refine these
+        # categories
+        data_vars: Mapping[Hashable, Any] = None,
+        coords: Mapping[Hashable, Any] = None,
+        attrs: Mapping[Hashable, Any] = None,
+    ):
+        # TODO(shoyer): expose indexes as a public argument in __init__
+
+        if data_vars is None:
+            data_vars = {}
+        if coords is None:
+            coords = {}
+
+        both_data_and_coords = set(data_vars) & set(coords)
+        if both_data_and_coords:
+            raise ValueError(
+                "variables %r are found in both data_vars and coords"
+                % both_data_and_coords
+            )
+
+        if isinstance(coords, Dataset):
+            coords = coords.variables
+
+        variables, coord_names, dims, indexes, _ = merge_data_and_coords(
+            data_vars, coords, compat="broadcast_equals"
+        )
+
+        self._attrs = dict(attrs) if attrs is not None else None
+        self._close = None
+        self._encoding = None
+        self._variables = variables
+        self._coord_names = coord_names
+        self._dims = dims
+        self._indexes = indexes
+
+    @classmethod
+    def load_store(cls, store, decoder=None) -> "Dataset":
+        """Create a new dataset from the contents of a backends.*DataStore
+        object
+        """
+        variables, attributes = store.load()
+        if decoder:
+            variables, attributes = decoder(variables, attributes)
+        obj = cls(variables, attrs=attributes)
+        obj.set_close(store.close)
+        return obj
+
+    @property
+    def variables(self) -> Mapping[Hashable, Variable]:
+        """Low level interface to Dataset contents as dict of Variable objects.
+
+        This ordered dictionary is frozen to prevent mutation that could
+        violate Dataset invariants. It contains all variable objects
+        constituting the Dataset, including both data variables and
+        coordinates.
+        """
+        return Frozen(self._variables)
+
+    @property
+    def attrs(self) -> Dict[Hashable, Any]:
+        """Dictionary of global attributes on this dataset"""
+        if self._attrs is None:
+            self._attrs = {}
+        return self._attrs
+
+    @attrs.setter
+    def attrs(self, value: Mapping[Hashable, Any]) -> None:
+        self._attrs = dict(value)
+
+    @property
+    def encoding(self) -> Dict:
+        """Dictionary of global encoding attributes on this dataset"""
+        if self._encoding is None:
+            self._encoding = {}
+        return self._encoding
+
+    @encoding.setter
+    def encoding(self, value: Mapping) -> None:
+        self._encoding = dict(value)
+
+    @property
+    def dims(self) -> Mapping[Hashable, int]:
+        """Mapping from dimension names to lengths.
+
+        Cannot be modified directly, but is updated when adding new variables.
+
+        Note that type of this object differs from `DataArray.dims`.
+        See `Dataset.sizes` and `DataArray.sizes` for consistently named
+        properties.
+        """
+        return Frozen(SortedKeysDict(self._dims))
+
+    @property
+    def sizes(self) -> Mapping[Hashable, int]:
+        """Mapping from dimension names to lengths.
+
+        Cannot be modified directly, but is updated when adding new variables.
+
+        This is an alias for `Dataset.dims` provided for the benefit of
+        consistency with `DataArray.sizes`.
+
+        See also
+        --------
+        DataArray.sizes
+        """
+        return self.dims
+
+    def load(self, **kwargs) -> "Dataset":
+        """Manually trigger loading and/or computation of this dataset's data
+        from disk or a remote source into memory and return this dataset.
+        Unlike compute, the original dataset is modified and returned.
+
+        Normally, it should not be necessary to call this method in user code,
+        because all xarray functions should either work on deferred data or
+        load data automatically. However, this method can be necessary when
+        working with many file objects on disk.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Additional keyword arguments passed on to ``dask.compute``.
+
+        See Also
+        --------
+        dask.compute
+        """
+        # access .data to coerce everything to numpy or dask arrays
+        lazy_data = {
+            k: v._data for k, v in self.variables.items() if is_duck_dask_array(v._data)
+        }
+        if lazy_data:
+            import dask.array as da
+
+            # evaluate all the dask arrays simultaneously
+            evaluated_data = da.compute(*lazy_data.values(), **kwargs)
+
+            for k, data in zip(lazy_data, evaluated_data):
+                self.variables[k].data = data
+
+        # load everything else sequentially
+        for k, v in self.variables.items():
+            if k not in lazy_data:
+                v.load()
+
+        return self
+
+    def __dask_tokenize__(self):
+        from dask.base import normalize_token
+
+        return normalize_token(
+            (type(self), self._variables, self._coord_names, self._attrs)
+        )
+
+    def __dask_graph__(self):
+        graphs = {k: v.__dask_graph__() for k, v in self.variables.items()}
+        graphs = {k: v for k, v in graphs.items() if v is not None}
+        if not graphs:
+            return None
+        else:
+            try:
+                from dask.highlevelgraph import HighLevelGraph
+
+                return HighLevelGraph.merge(*graphs.values())
+            except ImportError:
+                from dask import sharedict
+
+                return sharedict.merge(*graphs.values())
+
+    def __dask_keys__(self):
+        import dask
+
+        return [
+            v.__dask_keys__()
+            for v in self.variables.values()
+            if dask.is_dask_collection(v)
+        ]
+
+    def __dask_layers__(self):
+        import dask
+
+        return sum(
+            [
+                v.__dask_layers__()
+                for v in self.variables.values()
+                if dask.is_dask_collection(v)
+            ],
+            (),
+        )
+
+    @property
+    def __dask_optimize__(self):
+        import dask.array as da
+
+        return da.Array.__dask_optimize__
+
+    @property
+    def __dask_scheduler__(self):
+        import dask.array as da
+
+        return da.Array.__dask_scheduler__
+
+    def __dask_postcompute__(self):
+        import dask
+
+        info = [
+            (True, k, v.__dask_postcompute__())
+```
+
+--- xarray/backends/netCDF4_.py (lines 1-42 of 573; not shown in this file: BaseNetCDF4Array, _encode_nc4_variable, _check_encoding_dtype_is_vlen_string, _get_datatype, _nc4_dtype, _netcdf4_create_group, _nc4_require_group, _ensure_fill_value_valid, _extract_nc4_variable_encoding, _is_list_of_strings) ---
+```python
+import functools
+import operator
+import os
+import pathlib
+from contextlib import suppress
+
+import numpy as np
+
+from .. import coding
+from ..coding.variables import pop_to
+from ..core import indexing
+from ..core.utils import FrozenDict, close_on_error, is_remote_uri
+from ..core.variable import Variable
+from .common import (
+    BACKEND_ENTRYPOINTS,
+    BackendArray,
+    BackendEntrypoint,
+    WritableCFDataStore,
+    find_root_and_group,
+    robust_getitem,
+)
+from .file_manager import CachingFileManager, DummyFileManager
+from .locks import HDF5_LOCK, NETCDFC_LOCK, combine_locks, ensure_lock, get_write_lock
+from .netcdf3 import encode_nc3_attr_value, encode_nc3_variable
+from .store import StoreBackendEntrypoint
+
+try:
+    import netCDF4
+
+    has_netcdf4 = True
+except ModuleNotFoundError:
+    has_netcdf4 = False
+
+
+# This lookup table maps from dtype.byteorder to a readable endian
+# string used by netCDF4.
+_endian_lookup = {"=": "native", ">": "big", "<": "little", "|": "native"}
+
+
+NETCDF4_PYTHON_LOCK = combine_locks([NETCDFC_LOCK, HDF5_LOCK])
+
+
+```
+
+--- xarray/backends/netCDF4_.py (lines 72-111 of 573; not shown in this file: BaseNetCDF4Array, _encode_nc4_variable, _check_encoding_dtype_is_vlen_string, _get_datatype, _nc4_dtype, _netcdf4_create_group, _nc4_require_group, _ensure_fill_value_valid, _extract_nc4_variable_encoding, _is_list_of_strings) ---
+```python
+class NetCDF4ArrayWrapper(BaseNetCDF4Array):
+    __slots__ = ()
+
+    def get_array(self, needs_lock=True):
+        ds = self.datastore._acquire(needs_lock)
+        variable = ds.variables[self.variable_name]
+        variable.set_auto_maskandscale(False)
+        # only added in netCDF4-python v1.2.8
+        with suppress(AttributeError):
+            variable.set_auto_chartostring(False)
+        return variable
+
+    def __getitem__(self, key):
+        return indexing.explicit_indexing_adapter(
+            key, self.shape, indexing.IndexingSupport.OUTER, self._getitem
+        )
+
+    def _getitem(self, key):
+        if self.datastore.is_remote:  # pragma: no cover
+            getitem = functools.partial(robust_getitem, catch=RuntimeError)
+        else:
+            getitem = operator.getitem
+
+        try:
+            with self.datastore.lock:
+                original_array = self.get_array(needs_lock=False)
+                array = getitem(original_array, key)
+        except IndexError:
+            # Catch IndexError in netCDF4 and return a more informative
+            # error message.  This is most often called when an unsorted
+            # indexer is used before the data is loaded from disk.
+            msg = (
+                "The indexing operation you are attempting to perform "
+                "is not valid on netCDF4.Variable object. Try loading "
+                "your data into memory first by calling .load()."
+            )
+            raise IndexError(msg)
+        return array
+
+
+```
+
+--- xarray/backends/netCDF4_.py (lines 191-213 of 573; not shown in this file: BaseNetCDF4Array, _encode_nc4_variable, _check_encoding_dtype_is_vlen_string, _get_datatype, _nc4_dtype, _netcdf4_create_group, _nc4_require_group, _ensure_fill_value_valid, _extract_nc4_variable_encoding, _is_list_of_strings) ---
+```python
+def _force_native_endianness(var):
+    # possible values for byteorder are:
+    #     =    native
+    #     <    little-endian
+    #     >    big-endian
+    #     |    not applicable
+    # Below we check if the data type is not native or NA
+    if var.dtype.byteorder not in ["=", "|"]:
+        # if endianness is specified explicitly, convert to the native type
+        data = var.data.astype(var.dtype.newbyteorder("="))
+        var = Variable(var.dims, data, var.attrs, var.encoding)
+        # if endian exists, remove it from the encoding.
+        var.encoding.pop("endian", None)
+    # check to see if encoding has a value for endian its 'native'
+    if not var.encoding.get("endian", "native") == "native":
+        raise NotImplementedError(
+            "Attempt to write non-native endian type, "
+            "this is not supported by the netCDF4 "
+            "python library."
+        )
+    return var
+
+
+```
+
+--- xarray/backends/netCDF4_.py (lines 290-549 of 573; not shown in this file: BaseNetCDF4Array, _encode_nc4_variable, _check_encoding_dtype_is_vlen_string, _get_datatype, _nc4_dtype, _netcdf4_create_group, _nc4_require_group, _ensure_fill_value_valid, _extract_nc4_variable_encoding, _is_list_of_strings) ---
+```python
+class NetCDF4DataStore(WritableCFDataStore):
+    """Store for reading and writing data via the Python-NetCDF4 library.
+
+    This store supports NetCDF3, NetCDF4 and OpenDAP datasets.
+    """
+
+    __slots__ = (
+        "autoclose",
+        "format",
+        "is_remote",
+        "lock",
+        "_filename",
+        "_group",
+        "_manager",
+        "_mode",
+    )
+
+    def __init__(
+        self, manager, group=None, mode=None, lock=NETCDF4_PYTHON_LOCK, autoclose=False
+    ):
+
+        if isinstance(manager, netCDF4.Dataset):
+            if group is None:
+                root, group = find_root_and_group(manager)
+            else:
+                if not type(manager) is netCDF4.Dataset:
+                    raise ValueError(
+                        "must supply a root netCDF4.Dataset if the group "
+                        "argument is provided"
+                    )
+                root = manager
+            manager = DummyFileManager(root)
+
+        self._manager = manager
+        self._group = group
+        self._mode = mode
+        self.format = self.ds.data_model
+        self._filename = self.ds.filepath()
+        self.is_remote = is_remote_uri(self._filename)
+        self.lock = ensure_lock(lock)
+        self.autoclose = autoclose
+
+    @classmethod
+    def open(
+        cls,
+        filename,
+        mode="r",
+        format="NETCDF4",
+        group=None,
+        clobber=True,
+        diskless=False,
+        persist=False,
+        lock=None,
+        lock_maker=None,
+        autoclose=False,
+    ):
+
+        if isinstance(filename, pathlib.Path):
+            filename = os.fspath(filename)
+
+        if not isinstance(filename, str):
+            raise ValueError(
+                "can only read bytes or file-like objects "
+                "with engine='scipy' or 'h5netcdf'"
+            )
+
+        if format is None:
+            format = "NETCDF4"
+
+        if lock is None:
+            if mode == "r":
+                if is_remote_uri(filename):
+                    lock = NETCDFC_LOCK
+                else:
+                    lock = NETCDF4_PYTHON_LOCK
+            else:
+                if format is None or format.startswith("NETCDF4"):
+                    base_lock = NETCDF4_PYTHON_LOCK
+                else:
+                    base_lock = NETCDFC_LOCK
+                lock = combine_locks([base_lock, get_write_lock(filename)])
+
+        kwargs = dict(
+            clobber=clobber, diskless=diskless, persist=persist, format=format
+        )
+        manager = CachingFileManager(
+            netCDF4.Dataset, filename, mode=mode, kwargs=kwargs
+        )
+        return cls(manager, group=group, mode=mode, lock=lock, autoclose=autoclose)
+
+    def _acquire(self, needs_lock=True):
+        with self._manager.acquire_context(needs_lock) as root:
+            ds = _nc4_require_group(root, self._group, self._mode)
+        return ds
+
+    @property
+    def ds(self):
+        return self._acquire()
+
+    def open_store_variable(self, name, var):
+        dimensions = var.dimensions
+        data = indexing.LazilyOuterIndexedArray(NetCDF4ArrayWrapper(name, self))
+        attributes = {k: var.getncattr(k) for k in var.ncattrs()}
+        _ensure_fill_value_valid(data, attributes)
+        # netCDF4 specific encoding; save _FillValue for later
+        encoding = {}
+        filters = var.filters()
+        if filters is not None:
+            encoding.update(filters)
+        chunking = var.chunking()
+        if chunking is not None:
+            if chunking == "contiguous":
+                encoding["contiguous"] = True
+                encoding["chunksizes"] = None
+            else:
+                encoding["contiguous"] = False
+                encoding["chunksizes"] = tuple(chunking)
+        # TODO: figure out how to round-trip "endian-ness" without raising
+        # warnings from netCDF4
+        # encoding['endian'] = var.endian()
+        pop_to(attributes, encoding, "least_significant_digit")
+        # save source so __repr__ can detect if it's local or not
+        encoding["source"] = self._filename
+        encoding["original_shape"] = var.shape
+        encoding["dtype"] = var.dtype
+
+        return Variable(dimensions, data, attributes, encoding)
+
+    def get_variables(self):
+        dsvars = FrozenDict(
+            (k, self.open_store_variable(k, v)) for k, v in self.ds.variables.items()
+        )
+        return dsvars
+
+    def get_attrs(self):
+        attrs = FrozenDict((k, self.ds.getncattr(k)) for k in self.ds.ncattrs())
+        return attrs
+
+    def get_dimensions(self):
+        dims = FrozenDict((k, len(v)) for k, v in self.ds.dimensions.items())
+        return dims
+
+    def get_encoding(self):
+        encoding = {}
+        encoding["unlimited_dims"] = {
+            k for k, v in self.ds.dimensions.items() if v.isunlimited()
+        }
+        return encoding
+
+    def set_dimension(self, name, length, is_unlimited=False):
+        dim_length = length if not is_unlimited else None
+        self.ds.createDimension(name, size=dim_length)
+
+    def set_attribute(self, key, value):
+        if self.format != "NETCDF4":
+            value = encode_nc3_attr_value(value)
+        if _is_list_of_strings(value):
+            # encode as NC_STRING if attr is list of strings
+            self.ds.setncattr_string(key, value)
+        else:
+            self.ds.setncattr(key, value)
+
+    def encode_variable(self, variable):
+        variable = _force_native_endianness(variable)
+        if self.format == "NETCDF4":
+            variable = _encode_nc4_variable(variable)
+        else:
+            variable = encode_nc3_variable(variable)
+        return variable
+
+    def prepare_variable(
+        self, name, variable, check_encoding=False, unlimited_dims=None
+    ):
+        datatype = _get_datatype(
+            variable, self.format, raise_on_invalid_encoding=check_encoding
+        )
+        attrs = variable.attrs.copy()
+
+        fill_value = attrs.pop("_FillValue", None)
+
+        if datatype is str and fill_value is not None:
+            raise NotImplementedError(
+                "netCDF4 does not yet support setting a fill value for "
+                "variable-length strings "
+                "(https://github.com/Unidata/netcdf4-python/issues/730). "
+                "Either remove '_FillValue' from encoding on variable %r "
+                "or set {'dtype': 'S1'} in encoding to use the fixed width "
+                "NC_CHAR type." % name
+            )
+
+        encoding = _extract_nc4_variable_encoding(
+            variable, raise_on_invalid=check_encoding, unlimited_dims=unlimited_dims
+        )
+
+        if name in self.ds.variables:
+            nc4_var = self.ds.variables[name]
+        else:
+            nc4_var = self.ds.createVariable(
+                varname=name,
+                datatype=datatype,
+                dimensions=variable.dims,
+                zlib=encoding.get("zlib", False),
+                complevel=encoding.get("complevel", 4),
+                shuffle=encoding.get("shuffle", True),
+                fletcher32=encoding.get("fletcher32", False),
+                contiguous=encoding.get("contiguous", False),
+                chunksizes=encoding.get("chunksizes"),
+                endian="native",
+                least_significant_digit=encoding.get("least_significant_digit"),
+                fill_value=fill_value,
+            )
+
+        nc4_var.setncatts(attrs)
+
+        target = NetCDF4ArrayWrapper(name, self)
+
+        return target, variable.data
+
+    def sync(self):
+        self.ds.sync()
+
+    def close(self, **kwargs):
+        self._manager.close(**kwargs)
+
+
+class NetCDF4BackendEntrypoint(BackendEntrypoint):
+    def guess_can_open(self, store_spec):
+        if isinstance(store_spec, str) and is_remote_uri(store_spec):
+            return True
+        try:
+            _, ext = os.path.splitext(store_spec)
+        except TypeError:
+            return False
+        return ext in {".nc", ".nc4", ".cdf"}
+
+    def open_dataset(
+        self,
+        filename_or_obj,
+        mask_and_scale=True,
+        decode_times=None,
+        concat_characters=None,
+        decode_coords=None,
+        drop_variables=None,
+        use_cftime=None,
+        decode_timedelta=None,
+        group=None,
+        mode="r",
+        format="NETCDF4",
+        clobber=True,
+        diskless=False,
+        persist=False,
+        lock=None,
+        autoclose=False,
+    ):
+
+        store = NetCDF4DataStore.open(
+            filename_or_obj,
+            mode=mode,
+            format=format,
+            group=group,
+```
+
+--- xarray/core/dataarray.py (lines 221-535 of 4314; not shown in this file: <module header>, _infer_coords_and_dims, _check_data_shape, _LocIndexer) ---
+```python
+class DataArray(AbstractArray, DataWithCoords):
+    """N-dimensional array with labeled coordinates and dimensions.
+
+    DataArray provides a wrapper around numpy ndarrays that uses
+    labeled dimensions and coordinates to support metadata aware
+    operations. The API is similar to that for the pandas Series or
+    DataFrame, but DataArray objects can have any number of dimensions,
+    and their contents have fixed data types.
+
+    Additional features over raw numpy arrays:
+
+    - Apply operations over dimensions by name: ``x.sum('time')``.
+    - Select or assign values by integer location (like numpy):
+      ``x[:10]`` or by label (like pandas): ``x.loc['2014-01-01']`` or
+      ``x.sel(time='2014-01-01')``.
+    - Mathematical operations (e.g., ``x - y``) vectorize across
+      multiple dimensions (known in numpy as "broadcasting") based on
+      dimension names, regardless of their original order.
+    - Keep track of arbitrary metadata in the form of a Python
+      dictionary: ``x.attrs``
+    - Convert to a pandas Series: ``x.to_series()``.
+
+    Getting items from or doing mathematical operations with a
+    DataArray always returns another DataArray.
+
+    Parameters
+    ----------
+    data : array_like
+        Values for this array. Must be an ``numpy.ndarray``, ndarray
+        like, or castable to an ``ndarray``. If a self-described xarray
+        or pandas object, attempts are made to use this array's
+        metadata to fill in other unspecified arguments. A view of the
+        array's data is used instead of a copy if possible.
+    coords : sequence or dict of array_like, optional
+        Coordinates (tick labels) to use for indexing along each
+        dimension. The following notations are accepted:
+
+        - mapping {dimension name: array-like}
+        - sequence of tuples that are valid arguments for
+          ``xarray.Variable()``
+          - (dims, data)
+          - (dims, data, attrs)
+          - (dims, data, attrs, encoding)
+
+        Additionally, it is possible to define a coord whose name
+        does not match the dimension name, or a coord based on multiple
+        dimensions, with one of the following notations:
+
+        - mapping {coord name: DataArray}
+        - mapping {coord name: Variable}
+        - mapping {coord name: (dimension name, array-like)}
+        - mapping {coord name: (tuple of dimension names, array-like)}
+
+    dims : hashable or sequence of hashable, optional
+        Name(s) of the data dimension(s). Must be either a hashable
+        (only for 1D data) or a sequence of hashables with length equal
+        to the number of dimensions. If this argument is omitted,
+        dimension names default to ``['dim_0', ... 'dim_n']``.
+    name : str or None, optional
+        Name of this array.
+    attrs : dict_like or None, optional
+        Attributes to assign to the new instance. By default, an empty
+        attribute dictionary is initialized.
+
+    Examples
+    --------
+    Create data:
+
+    >>> np.random.seed(0)
+    >>> temperature = 15 + 8 * np.random.randn(2, 2, 3)
+    >>> precipitation = 10 * np.random.rand(2, 2, 3)
+    >>> lon = [[-99.83, -99.32], [-99.79, -99.23]]
+    >>> lat = [[42.25, 42.21], [42.63, 42.59]]
+    >>> time = pd.date_range("2014-09-06", periods=3)
+    >>> reference_time = pd.Timestamp("2014-09-05")
+
+    Initialize a dataarray with multiple dimensions:
+
+    >>> da = xr.DataArray(
+    ...     data=temperature,
+    ...     dims=["x", "y", "time"],
+    ...     coords=dict(
+    ...         lon=(["x", "y"], lon),
+    ...         lat=(["x", "y"], lat),
+    ...         time=time,
+    ...         reference_time=reference_time,
+    ...     ),
+    ...     attrs=dict(
+    ...         description="Ambient temperature.",
+    ...         units="degC",
+    ...     ),
+    ... )
+    >>> da
+    <xarray.DataArray (x: 2, y: 2, time: 3)>
+    array([[[29.11241877, 18.20125767, 22.82990387],
+            [32.92714559, 29.94046392,  7.18177696]],
+    <BLANKLINE>
+           [[22.60070734, 13.78914233, 14.17424919],
+            [18.28478802, 16.15234857, 26.63418806]]])
+    Coordinates:
+        lon             (x, y) float64 -99.83 -99.32 -99.79 -99.23
+        lat             (x, y) float64 42.25 42.21 42.63 42.59
+      * time            (time) datetime64[ns] 2014-09-06 2014-09-07 2014-09-08
+        reference_time  datetime64[ns] 2014-09-05
+    Dimensions without coordinates: x, y
+    Attributes:
+        description:  Ambient temperature.
+        units:        degC
+
+    Find out where the coldest temperature was:
+
+    >>> da.isel(da.argmin(...))
+    <xarray.DataArray ()>
+    array(7.18177696)
+    Coordinates:
+        lon             float64 -99.32
+        lat             float64 42.21
+        time            datetime64[ns] 2014-09-08
+        reference_time  datetime64[ns] 2014-09-05
+    Attributes:
+        description:  Ambient temperature.
+        units:        degC
+    """
+
+    _cache: Dict[str, Any]
+    _coords: Dict[Any, Variable]
+    _close: Optional[Callable[[], None]]
+    _indexes: Optional[Dict[Hashable, pd.Index]]
+    _name: Optional[Hashable]
+    _variable: Variable
+
+    __slots__ = (
+        "_cache",
+        "_coords",
+        "_close",
+        "_indexes",
+        "_name",
+        "_variable",
+        "__weakref__",
+    )
+
+    _groupby_cls = groupby.DataArrayGroupBy
+    _rolling_cls = rolling.DataArrayRolling
+    _coarsen_cls = rolling.DataArrayCoarsen
+    _resample_cls = resample.DataArrayResample
+    _weighted_cls = weighted.DataArrayWeighted
+
+    dt = utils.UncachedAccessor(CombinedDatetimelikeAccessor)
+
+    def __init__(
+        self,
+        data: Any = dtypes.NA,
+        coords: Union[Sequence[Tuple], Mapping[Hashable, Any], None] = None,
+        dims: Union[Hashable, Sequence[Hashable], None] = None,
+        name: Hashable = None,
+        attrs: Mapping = None,
+        # internal parameters
+        indexes: Dict[Hashable, pd.Index] = None,
+        fastpath: bool = False,
+    ):
+        if fastpath:
+            variable = data
+            assert dims is None
+            assert attrs is None
+        else:
+            # try to fill in arguments from data if they weren't supplied
+            if coords is None:
+
+                if isinstance(data, DataArray):
+                    coords = data.coords
+                elif isinstance(data, pd.Series):
+                    coords = [data.index]
+                elif isinstance(data, pd.DataFrame):
+                    coords = [data.index, data.columns]
+                elif isinstance(data, (pd.Index, IndexVariable)):
+                    coords = [data]
+                elif isinstance(data, pdcompat.Panel):
+                    coords = [data.items, data.major_axis, data.minor_axis]
+
+            if dims is None:
+                dims = getattr(data, "dims", getattr(coords, "dims", None))
+            if name is None:
+                name = getattr(data, "name", None)
+            if attrs is None and not isinstance(data, PANDAS_TYPES):
+                attrs = getattr(data, "attrs", None)
+
+            data = _check_data_shape(data, coords, dims)
+            data = as_compatible_data(data)
+            coords, dims = _infer_coords_and_dims(data.shape, coords, dims)
+            variable = Variable(dims, data, attrs, fastpath=True)
+            indexes = dict(
+                _extract_indexes_from_coords(coords)
+            )  # needed for to_dataset
+
+        # These fully describe a DataArray
+        self._variable = variable
+        assert isinstance(coords, dict)
+        self._coords = coords
+        self._name = name
+
+        # TODO(shoyer): document this argument, once it becomes part of the
+        # public interface.
+        self._indexes = indexes
+
+        self._close = None
+
+    def _replace(
+        self,
+        variable: Variable = None,
+        coords=None,
+        name: Union[Hashable, None, Default] = _default,
+        indexes=None,
+    ) -> "DataArray":
+        if variable is None:
+            variable = self.variable
+        if coords is None:
+            coords = self._coords
+        if name is _default:
+            name = self.name
+        return type(self)(variable, coords, name=name, fastpath=True, indexes=indexes)
+
+    def _replace_maybe_drop_dims(
+        self, variable: Variable, name: Union[Hashable, None, Default] = _default
+    ) -> "DataArray":
+        if variable.dims == self.dims and variable.shape == self.shape:
+            coords = self._coords.copy()
+            indexes = self._indexes
+        elif variable.dims == self.dims:
+            # Shape has changed (e.g. from reduce(..., keepdims=True)
+            new_sizes = dict(zip(self.dims, variable.shape))
+            coords = {
+                k: v
+                for k, v in self._coords.items()
+                if v.shape == tuple(new_sizes[d] for d in v.dims)
+            }
+            changed_dims = [
+                k for k in variable.dims if variable.sizes[k] != self.sizes[k]
+            ]
+            indexes = propagate_indexes(self._indexes, exclude=changed_dims)
+        else:
+            allowed_dims = set(variable.dims)
+            coords = {
+                k: v for k, v in self._coords.items() if set(v.dims) <= allowed_dims
+            }
+            indexes = propagate_indexes(
+                self._indexes, exclude=(set(self.dims) - allowed_dims)
+            )
+        return self._replace(variable, coords, name, indexes=indexes)
+
+    def _overwrite_indexes(self, indexes: Mapping[Hashable, Any]) -> "DataArray":
+        if not len(indexes):
+            return self
+        coords = self._coords.copy()
+        for name, idx in indexes.items():
+            coords[name] = IndexVariable(name, idx)
+        obj = self._replace(coords=coords)
+
+        # switch from dimension to level names, if necessary
+        dim_names: Dict[Any, str] = {}
+        for dim, idx in indexes.items():
+            if not isinstance(idx, pd.MultiIndex) and idx.name != dim:
+                dim_names[dim] = idx.name
+        if dim_names:
+            obj = obj.rename(dim_names)
+        return obj
+
+    def _to_temp_dataset(self) -> Dataset:
+        return self._to_dataset_whole(name=_THIS_ARRAY, shallow_copy=False)
+
+    def _from_temp_dataset(
+        self, dataset: Dataset, name: Union[Hashable, None, Default] = _default
+    ) -> "DataArray":
+        variable = dataset._variables.pop(_THIS_ARRAY)
+        coords = dataset._variables
+        indexes = dataset._indexes
+        return self._replace(variable, coords, name, indexes=indexes)
+
+    def _to_dataset_split(self, dim: Hashable) -> Dataset:
+        """ splits dataarray along dimension 'dim' """
+
+        def subset(dim, label):
+            array = self.loc[{dim: label}]
+            array.attrs = {}
+            return as_variable(array)
+
+        variables = {label: subset(dim, label) for label in self.get_index(dim)}
+        variables.update({k: v for k, v in self._coords.items() if k != dim})
+        indexes = propagate_indexes(self._indexes, exclude=dim)
+        coord_names = set(self._coords) - {dim}
+        dataset = Dataset._construct_direct(
+            variables, coord_names, indexes=indexes, attrs=self.attrs
+        )
+        return dataset
+
+    def _to_dataset_whole(
+        self, name: Hashable = None, shallow_copy: bool = True
+    ) -> Dataset:
+        if name is None:
+            name = self.name
+        if name is None:
+            raise ValueError(
+                "unable to convert unnamed DataArray to a "
+                "Dataset without providing an explicit name"
+            )
+        if name in self.coords:
+            raise ValueError(
+                "cannot create a Dataset from a DataArray with "
+                "the same name as one of its coordinates"
+            )
+        # use private APIs for speed: this is called by _to_temp_dataset(),
+        # which is used in the guts of a lot of operations (e.g., reindex)
+        variables = self._coords.copy()
+        variables[name] = self.variable
+        if shallow_copy:
+            for k in variables:
+```
+
+--- xarray/backends/apiv2.py (lines 112-263 of 282; not shown in this file: <module header>, _protect_dataset_variables_inplace, _get_mtime, _chunk_ds, _dataset_from_backend_dataset, _resolve_decoders_kwargs) ---
+```python
+def open_dataset(
+    filename_or_obj,
+    *,
+    engine=None,
+    chunks=None,
+    cache=None,
+    decode_cf=None,
+    mask_and_scale=None,
+    decode_times=None,
+    decode_timedelta=None,
+    use_cftime=None,
+    concat_characters=None,
+    decode_coords=None,
+    drop_variables=None,
+    backend_kwargs=None,
+    **kwargs,
+):
+    """Open and decode a dataset from a file or file-like object.
+
+    Parameters
+    ----------
+    filename_or_obj : str, Path, file-like or DataStore
+        Strings and Path objects are interpreted as a path to a netCDF file
+        or an OpenDAP URL and opened with python-netCDF4, unless the filename
+        ends with .gz, in which case the file is unzipped and opened with
+        scipy.io.netcdf (only netCDF3 supported). Byte-strings or file-like
+        objects are opened by scipy.io.netcdf (netCDF3) or h5py (netCDF4/HDF).
+    engine : str, optional
+        Engine to use when reading files. If not provided, the default engine
+        is chosen based on available dependencies, with a preference for
+        "netcdf4". Options are: {"netcdf4", "scipy", "pydap", "h5netcdf",\
+        "pynio", "cfgrib", "pseudonetcdf", "zarr"}.
+    chunks : int or dict, optional
+        If chunks is provided, it is used to load the new dataset into dask
+        arrays. ``chunks=-1`` loads the dataset with dask using a single
+        chunk for all arrays. `chunks={}`` loads the dataset with dask using
+        engine preferred chunks if exposed by the backend, otherwise with
+        a single chunk for all arrays.
+        ``chunks='auto'`` will use dask ``auto`` chunking taking into account the
+        engine preferred chunks. See dask chunking for more details.
+    cache : bool, optional
+        If True, cache data is loaded from the underlying datastore in memory as
+        NumPy arrays when accessed to avoid reading from the underlying data-
+        store multiple times. Defaults to True unless you specify the `chunks`
+        argument to use dask, in which case it defaults to False. Does not
+        change the behavior of coordinates corresponding to dimensions, which
+        always load their data from disk into a ``pandas.Index``.
+    decode_cf : bool, optional
+        Setting ``decode_cf=False`` will disable ``mask_and_scale``,
+        ``decode_times``, ``decode_timedelta``, ``concat_characters``,
+        ``decode_coords``.
+    mask_and_scale : bool, optional
+        If True, array values equal to `_FillValue` are replaced with NA and other
+        values are scaled according to the formula `original_values * scale_factor +
+        add_offset`, where `_FillValue`, `scale_factor` and `add_offset` are
+        taken from variable attributes (if they exist).  If the `_FillValue` or
+        `missing_value` attribute contains multiple values, a warning will be
+        issued and all array values matching one of the multiple values will
+        be replaced by NA. mask_and_scale defaults to True except for the
+        pseudonetcdf backend. This keyword may not be supported by all the backends.
+    decode_times : bool, optional
+        If True, decode times encoded in the standard NetCDF datetime format
+        into datetime objects. Otherwise, leave them encoded as numbers.
+        This keyword may not be supported by all the backends.
+    decode_timedelta : bool, optional
+        If True, decode variables and coordinates with time units in
+        {"days", "hours", "minutes", "seconds", "milliseconds", "microseconds"}
+        into timedelta objects. If False, they remain encoded as numbers.
+        If None (default), assume the same value of decode_time.
+        This keyword may not be supported by all the backends.
+    use_cftime: bool, optional
+        Only relevant if encoded dates come from a standard calendar
+        (e.g. "gregorian", "proleptic_gregorian", "standard", or not
+        specified).  If None (default), attempt to decode times to
+        ``np.datetime64[ns]`` objects; if this is not possible, decode times to
+        ``cftime.datetime`` objects. If True, always decode times to
+        ``cftime.datetime`` objects, regardless of whether or not they can be
+        represented using ``np.datetime64[ns]`` objects.  If False, always
+        decode times to ``np.datetime64[ns]`` objects; if this is not possible
+        raise an error. This keyword may not be supported by all the backends.
+    concat_characters : bool, optional
+        If True, concatenate along the last dimension of character arrays to
+        form string arrays. Dimensions will only be concatenated over (and
+        removed) if they have no corresponding variable and if they are only
+        used as the last dimension of character arrays.
+        This keyword may not be supported by all the backends.
+    decode_coords : bool, optional
+        If True, decode the 'coordinates' attribute to identify coordinates in
+        the resulting dataset. This keyword may not be supported by all the
+        backends.
+    drop_variables: str or iterable, optional
+        A variable or list of variables to exclude from the dataset parsing.
+        This may be useful to drop variables with problems or
+        inconsistent values.
+    backend_kwargs:
+        Additional keyword arguments passed on to the engine open function.
+    **kwargs: dict
+        Additional keyword arguments passed on to the engine open function.
+        For example:
+
+        - 'group': path to the netCDF4 group in the given file to open given as
+        a str,supported by "netcdf4", "h5netcdf", "zarr".
+
+        - 'lock': resource lock to use when reading data from disk. Only
+        relevant when using dask or another form of parallelism. By default,
+        appropriate locks are chosen to safely read and write files with the
+        currently active dask scheduler. Supported by "netcdf4", "h5netcdf",
+        "pynio", "pseudonetcdf", "cfgrib".
+
+        See engine open function for kwargs accepted by each specific engine.
+
+
+    Returns
+    -------
+    dataset : Dataset
+        The newly created dataset.
+
+    Notes
+    -----
+    ``open_dataset`` opens the file with read-only access. When you modify
+    values of a Dataset, even one linked to files on disk, only the in-memory
+    copy you are manipulating in xarray is modified: the original file on disk
+    is never touched.
+
+    See Also
+    --------
+    open_mfdataset
+    """
+
+    if cache is None:
+        cache = chunks is None
+
+    if backend_kwargs is not None:
+        kwargs.update(backend_kwargs)
+
+    if engine is None:
+        engine = plugins.guess_engine(filename_or_obj)
+
+    backend = plugins.get_backend(engine)
+
+    decoders = _resolve_decoders_kwargs(
+        decode_cf,
+        open_backend_dataset_parameters=backend.open_dataset_parameters,
+        mask_and_scale=mask_and_scale,
+        decode_times=decode_times,
+        decode_timedelta=decode_timedelta,
+        concat_characters=concat_characters,
+        use_cftime=use_cftime,
+        decode_coords=decode_coords,
+    )
+
+    overwrite_encoded_chunks = kwargs.pop("overwrite_encoded_chunks", None)
+```

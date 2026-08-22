@@ -1,0 +1,15 @@
+Rectangle $ABCD$ has center $O$ and $AB/AD=k$. A point is randomly chosen from the interior of rectangle $ABCD$. What is the probability that it is closer to $O$ than to any of the four vertices?  [asy]
+size(200);
+draw((-250,100)--(250,100)--(250,-100)--(-250,-100)--cycle);
+dot((0,0));
+label("$O$",(0,0),N);
+label("$A$",(-250,100),NW); label("$B$",(250,100),NE); label("$C$",(250,-100),SE); label("$D$",(-250,-100),SW);[/asy]
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

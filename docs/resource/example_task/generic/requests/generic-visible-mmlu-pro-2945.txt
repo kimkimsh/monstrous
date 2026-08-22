@@ -1,0 +1,23 @@
+The skin is much more than merely an outer wrapping for an animal; it is an important organ system and performs many diverse functions. What are some of the primary functions of the skin in man?
+
+Options:
+A. The skin primarily serves as a storage site for fat-soluble vitamins
+B. The skin's primary function is to enhance physical appearance
+C. The primary function of the skin is to provide an outer covering for the body
+D. The main function of the skin is to produce sweat and keep the body cool
+E. The skin's main function is to regulate the level of oxygen entering the body
+F. The main function of the skin is to produce pigments that give color to the hair and eyes
+G. The skin's primary function is to absorb nutrients from the external environment
+H. The primary role of the skin is to act as a secondary respiratory organ
+I. The primary functions of the skin are to protect the body against external agents, maintain a constant internal environment, thermoregulation, and excretion of metabolic wastes.
+J. The primary function of the skin is to facilitate the sense of touch only
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

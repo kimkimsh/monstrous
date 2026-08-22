@@ -1,0 +1,12 @@
+Let $f(x)$ be the polynomial \[f(x)=3x^4+5x^2-9x-2.\] If $g(x)$ is equal to the polynomial $f(x-1)$, what is the sum of the coefficients of $g$?
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

@@ -1,0 +1,23 @@
+Compute $\int_{|z| = 1} z^2 sin(1/z) dz$. The answer is Ai with i denoting the imaginary unit, what is A?
+
+Options:
+A. -1.047
+B. 1.732
+C. -0.5
+D. 3.141
+E. 2.718
+F. -0.75
+G. 0
+H. 0.5
+I. 1
+J. -2
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

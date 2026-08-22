@@ -1,0 +1,78 @@
+## Problem: Snake Numbers
+
+A positive integer not less than 10 whose top digit (the most significant digit) in decimal representation is strictly larger than every other digit in that number is called a Snake number.
+For example, 31 and 201 are Snake numbers, but 35 and 202 are not.
+Find how many Snake numbers exist between L and R, inclusive.
+
+Input
+
+The input is given from Standard Input in the following format:
+L R
+
+Output
+
+Print the answer.
+
+Constraints
+
+
+- 10 \leq L \leq R \leq 10^{18}
+- All input values are integers.
+
+Sample Input 1
+
+97 210
+
+Sample Output 1
+
+6
+
+The Snake numbers between 97 and 210, inclusive, are 97, 98, 100, 200, 201, and 210: there are six.
+
+Sample Input 2
+
+1000 9999
+
+Sample Output 2
+
+2025
+
+Sample Input 3
+
+252509054433933519 760713016476190692
+
+Sample Output 3
+
+221852052834757
+
+## How your solution is run
+
+Your answer is a single new file, `solution.py`. The judge
+starts from an empty repository, so create it with an edit block whose SEARCH
+section is empty, and make it complete and self-contained.
+
+The judge runs your file as a program. It reads its input from standard
+input and writes its answer to standard output, and nothing else.
+
+=== REQUIRED OUTPUT ===
+Your answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two
+patch markers:
+
+*** PATCH START ***
+path/to/file.py
+<<<<<<< SEARCH
+<the exact lines currently in the file>
+=======
+<the lines that replace them>
+>>>>>>> REPLACE
+*** PATCH END ***
+
+Rules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per
+edit; paths are relative to the repository root; SEARCH must be whole lines copied from
+the file; an empty SEARCH section creates a new file.
+
+Only what lies between *** PATCH START *** and *** PATCH END *** is graded.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+The full format specification, with worked examples and every failure code, is published
+as `docs/contracts/patch-format.md`.

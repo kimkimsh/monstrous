@@ -1,0 +1,13 @@
+A sample of an ideal gas at 27°C and 380torroccupied a volume of 492 cm^3. What was the number of moles of gas in this sample? (R = 0.082 literatmmole^-1 deg^-1).
+
+Options:
+A. .0150 moles
+B. .0125 moles
+C. .0300 moles
+D. .0200 moles
+E. .0075 moles
+F. .0350 moles
+G. .0100 moles
+H. .0050 moles
+I. .0025 moles
+J. .0250 moles

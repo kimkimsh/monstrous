@@ -1,0 +1,23 @@
+A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return mirror on Mt. San Antonia 35377 meters away. When the 8-face mirror rotates at a speed of 530rpsno shift of the light source is obtained. Calculate the velocity of light.
+
+Options:
+A. 2.00 ×10^8 m/sec
+B. 3.00 ×10^8 m/sec
+C. 1.00 × 10^9 m/sec
+D. 1.50 × 10^8 m/sec
+E. 2.50 × 10^8 m/sec
+F. 4.00 ×10^8 m/sec
+G. 6.00 × 10^8 m/sec
+H. 7.00 × 10^8 m/sec
+I. 3.50 × 10^8 m/sec
+J. 5.00 ×10^8 m/sec
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

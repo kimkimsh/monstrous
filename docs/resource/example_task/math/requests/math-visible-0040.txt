@@ -1,0 +1,12 @@
+There are 360 people in my school.  15 take calculus, physics, and chemistry, and 15 don't take any of them.  180 take calculus.  Twice as many students take chemistry as take physics.  75 take both calculus and chemistry, and 75 take both physics and chemistry.  Only 30 take both physics and calculus.  How many students take physics?
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

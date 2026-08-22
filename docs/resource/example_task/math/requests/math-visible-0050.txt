@@ -1,0 +1,10 @@
+Let $ABCD$ be a regular tetrahedron with side length 2. The plane parallel to edges $AB$ and $CD$ and lying halfway between them cuts $ABCD$ into two pieces. Find the surface area of one of these pieces.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

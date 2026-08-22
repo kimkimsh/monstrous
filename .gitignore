@@ -58,3 +58,8 @@ tmp/
 *.db
 
 .remember/
+
+# example_task harness output
+docs/resource/example_task/tools/__pycache__/
+docs/resource/example_task/runs/*
+!docs/resource/example_task/runs/.gitkeep

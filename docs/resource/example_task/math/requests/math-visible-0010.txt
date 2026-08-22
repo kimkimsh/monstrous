@@ -1,0 +1,12 @@
+Let $f(x)=\left\lfloor\left(-\frac58\right)^x\right\rfloor$ be a function that is defined for all values of $x$ in $[0,\infty)$ such that $f(x)$ is a real number. How many distinct values exist in the range of $f(x)$?
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

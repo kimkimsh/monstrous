@@ -1,0 +1,1786 @@
+You are resolving an issue in an existing repository. The issue report comes
+first, then the parts of the repository the judge retrieved for it.
+
+## Issue
+
+Allow lists in the dict values of the hooks argument
+Currently the Request class has a .register_hook() method but it parses the dictionary it expects from it's hooks argument weirdly: the argument can only specify one hook function per hook.  If you pass in a list of hook functions per hook the code in Request.**init**() will wrap the list in a list which then fails when the hooks are consumed (since a list is not callable).  This is especially annoying since you can not use multiple hooks from a session.  The only way to get multiple hooks now is to create the request object without sending it, then call .register_hook() multiple times and then finally call .send().
+
+This would all be much easier if Request.**init**() parsed the hooks parameter in a way that it accepts lists as it's values.
+
+## Repository context
+
+Repository: psf/requests at commit a0df2cbb10419037d11d04352b3175405ab52941
+Retrieved 7 of 117 candidate source files.
+You cannot browse the repository. The excerpts below are the whole of the
+code you have been given; anything not shown, you do not have.
+
+--- requests/models.py (lines 43-411 of 888; not shown in this file: <module header>, Response) ---
+```python
+class Request(object):
+    """The :class:`Request <Request>` object. It carries out all functionality
+    of Requests. Recommended interface is with the Requests functions.
+    """
+
+    def __init__(self,
+        url=None,
+        headers=dict(),
+        files=None,
+        method=None,
+        data=dict(),
+        params=dict(),
+        auth=None,
+        cookies=None,
+        timeout=None,
+        redirect=False,
+        allow_redirects=False,
+        proxies=None,
+        hooks=None,
+        config=None,
+        prefetch=True,
+        _poolmanager=None,
+        verify=None,
+        session=None,
+        cert=None):
+
+        #: Dictionary of configurations for this request.
+        self.config = dict(config or [])
+
+        #: Float describes the timeout of the request.
+        #  (Use socket.setdefaulttimeout() as fallback)
+        self.timeout = timeout
+
+        #: Request URL.
+        #: Accept objects that have string representations.
+        try:
+            self.url = unicode(url)
+        except NameError:
+            # We're on Python 3.
+            self.url = str(url)
+        except UnicodeDecodeError:
+            self.url = url
+
+        #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
+        self.headers = dict(headers or [])
+
+        #: Dictionary of files to multipart upload (``{filename: content}``).
+        self.files = None
+
+        #: HTTP Method to use.
+        self.method = method
+
+        #: Dictionary, bytes or file stream of request body data to attach to the
+        #: :class:`Request <Request>`.
+        self.data = None
+
+        #: Dictionary or byte of querystring data to attach to the
+        #: :class:`Request <Request>`. The dictionary values can be lists for representing
+        #: multivalued query parameters.
+        self.params = None
+
+        #: True if :class:`Request <Request>` is part of a redirect chain (disables history
+        #: and HTTPError storage).
+        self.redirect = redirect
+
+        #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)
+        self.allow_redirects = allow_redirects
+
+        # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
+        self.proxies = dict(proxies or [])
+
+        for proxy_type,uri_ref in list(self.proxies.items()):
+            if not uri_ref:
+                del self.proxies[proxy_type]
+
+        # If no proxies are given, allow configuration by environment variables
+        # HTTP_PROXY and HTTPS_PROXY.
+        if not self.proxies and self.config.get('trust_env'):
+            self.proxies = get_environ_proxies()
+
+        self.data = data
+        self.params = params
+        self.files = files
+
+        #: :class:`Response <Response>` instance, containing
+        #: content and metadata of HTTP Response, once :attr:`sent <send>`.
+        self.response = Response()
+
+        #: Authentication tuple or object to attach to :class:`Request <Request>`.
+        self.auth = auth
+
+        #: CookieJar to attach to :class:`Request <Request>`.
+        if isinstance(cookies, cookielib.CookieJar):
+            self.cookies = cookies
+        else:
+            self.cookies = cookiejar_from_dict(cookies)
+
+        #: True if Request has been sent.
+        self.sent = False
+
+        #: Event-handling hooks.
+        self.hooks = {}
+
+        for event in HOOKS:
+            self.hooks[event] = []
+
+        hooks = hooks or {}
+
+        for (k, v) in list(hooks.items()):
+            self.register_hook(event=k, hook=v)
+
+        #: Session.
+        self.session = session
+
+        #: SSL Verification.
+        self.verify = verify
+
+        #: SSL Certificate
+        self.cert = cert
+
+        #: Prefetch response content
+        self.prefetch = prefetch
+
+        if headers:
+            headers = CaseInsensitiveDict(self.headers)
+        else:
+            headers = CaseInsensitiveDict()
+
+        # Add configured base headers.
+        for (k, v) in list(self.config.get('base_headers', {}).items()):
+            if k not in headers:
+                headers[k] = v
+
+        self.headers = headers
+        self._poolmanager = _poolmanager
+
+    def __repr__(self):
+        return '<Request [%s]>' % (self.method)
+
+    def _build_response(self, resp):
+        """Build internal :class:`Response <Response>` object
+        from given response.
+        """
+
+        def build(resp):
+
+            response = Response()
+
+            # Pass settings over.
+            response.config = self.config
+
+            if resp:
+
+                # Fallback to None if there's no status_code, for whatever reason.
+                response.status_code = getattr(resp, 'status', None)
+
+                # Make headers case-insensitive.
+                response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
+
+                # Set encoding.
+                response.encoding = get_encoding_from_headers(response.headers)
+
+                # Add new cookies from the server. Don't if configured not to
+                if self.config.get('store_cookies'):
+                    extract_cookies_to_jar(self.cookies, self, resp)
+
+                # Save cookies in Response.
+                response.cookies = self.cookies
+
+                # Save cookies in Session.
+                for cookie in self.cookies:
+                    self.session.cookies.set_cookie(cookie)
+
+                # No exceptions were harmed in the making of this request.
+                response.error = getattr(resp, 'error', None)
+
+            # Save original response for later.
+            response.raw = resp
+            if isinstance(self.full_url, bytes):
+                response.url = self.full_url.decode('utf-8')
+            else:
+                response.url = self.full_url
+
+            return response
+
+        history = []
+
+        r = build(resp)
+
+        if r.status_code in REDIRECT_STATI and not self.redirect:
+
+            while (('location' in r.headers) and
+                   ((r.status_code is codes.see_other) or (self.allow_redirects))):
+
+                r.content  # Consume socket so it can be released
+
+                if not len(history) < self.config.get('max_redirects'):
+                    raise TooManyRedirects()
+
+                # Release the connection back into the pool.
+                r.raw.release_conn()
+
+                history.append(r)
+
+                url = r.headers['location']
+                data = self.data
+                files = self.files
+
+                # Handle redirection without scheme (see: RFC 1808 Section 4)
+                if url.startswith('//'):
+                    parsed_rurl = urlparse(r.url)
+                    url = '%s:%s' % (parsed_rurl.scheme, url)
+
+                # Facilitate non-RFC2616-compliant 'location' headers
+                # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
+                if not urlparse(url).netloc:
+                    url = urljoin(r.url,
+                                  # Compliant with RFC3986, we percent
+                                  # encode the url.
+                                  requote_uri(url))
+
+                # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
+                if r.status_code is codes.see_other:
+                    method = 'GET'
+                    data = None
+                    files = None
+                else:
+                    method = self.method
+
+                # Do what the browsers do if strict_mode is off...
+                if (not self.config.get('strict_mode')):
+
+                    if r.status_code in (codes.moved, codes.found) and self.method == 'POST':
+                        method = 'GET'
+                        data = None
+                        files = None
+
+                    if (r.status_code == 303) and self.method != 'HEAD':
+                        method = 'GET'
+                        data = None
+                        files = None
+
+                # Remove the cookie headers that were sent.
+                headers = self.headers
+                try:
+                    del headers['Cookie']
+                except KeyError:
+                    pass
+
+                request = Request(
+                    url=url,
+                    headers=headers,
+                    files=files,
+                    method=method,
+                    params=self.session.params,
+                    auth=self.auth,
+                    cookies=self.cookies,
+                    redirect=True,
+                    data=data,
+                    config=self.config,
+                    timeout=self.timeout,
+                    _poolmanager=self._poolmanager,
+                    proxies=self.proxies,
+                    verify=self.verify,
+                    session=self.session,
+                    cert=self.cert,
+                    prefetch=self.prefetch,
+                )
+
+                request.send()
+                r = request.response
+
+            r.history = history
+
+        self.response = r
+        self.response.request = self
+
+    @staticmethod
+    def _encode_params(data):
+        """Encode parameters in a piece of data.
+
+        Will successfully encode parameters when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+        """
+
+        if isinstance(data, (str, bytes)):
+            return data
+        elif hasattr(data, 'read'):
+            return data
+        elif hasattr(data, '__iter__'):
+            result = []
+            for k, vs in to_key_val_list(data):
+                for v in isinstance(vs, list) and vs or [vs]:
+                    if v is not None:
+                        result.append(
+                            (k.encode('utf-8') if isinstance(k, str) else k,
+                             v.encode('utf-8') if isinstance(v, str) else v))
+            return urlencode(result, doseq=True)
+        else:
+            return data
+
+    def _encode_files(self, files):
+        """Build the body for a multipart/form-data request.
+
+        Will successfully encode files when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+
+        """
+        if (not files) or isinstance(self.data, str):
+            return None
+
+        new_fields = []
+        fields = to_key_val_list(self.data)
+        files = to_key_val_list(files)
+
+        for field, val in fields:
+            if isinstance(val, list):
+                for v in val:
+                    new_fields.append((field, str(v)))
+            else:
+                new_fields.append((field, str(val)))
+
+        for (k, v) in files:
+            # support for explicit filename
+            if isinstance(v, (tuple, list)):
+                fn, fp = v
+            else:
+                fn = guess_filename(v) or k
+                fp = v
+            if isinstance(fp, str):
+                fp = StringIO(fp)
+            if isinstance(fp, bytes):
+                fp = BytesIO(fp)
+            new_fields.append((k, (fn, fp.read())))
+
+        body, content_type = encode_multipart_formdata(new_fields)
+
+        return body, content_type
+
+    @property
+    def full_url(self):
+        """Build the actual URL to use."""
+
+        if not self.url:
+            raise URLRequired()
+
+        url = self.url
+
+        # Support for unicode domain names and paths.
+        scheme, netloc, path, params, query, fragment = urlparse(url)
+
+        if not scheme:
+            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
+
+        if not scheme in SCHEMAS:
+            raise InvalidSchema("Invalid scheme %r" % scheme)
+
+        try:
+            netloc = netloc.encode('idna').decode('utf-8')
+        except UnicodeError:
+            raise InvalidURL('URL has an invalid label.')
+
+        if not path:
+            path = '/'
+
+        if is_py2:
+            if isinstance(scheme, str):
+```
+
+--- requests/sessions.py (lines 1-328 of 328) ---
+```python
+# -*- coding: utf-8 -*-
+
+"""
+requests.session
+~~~~~~~~~~~~~~~~
+
+This module provides a Session object to manage and persist settings across
+requests (cookies, auth, proxies).
+
+"""
+
+from copy import deepcopy
+from .compat import cookielib
+from .cookies import cookiejar_from_dict, remove_cookie_by_name
+from .defaults import defaults
+from .models import Request
+from .hooks import dispatch_hook
+from .utils import header_expand, from_key_val_list
+from .packages.urllib3.poolmanager import PoolManager
+
+
+def merge_kwargs(local_kwarg, default_kwarg):
+    """Merges kwarg dictionaries.
+
+    If a local key in the dictionary is set to None, it will be removed.
+    """
+
+    if default_kwarg is None:
+        return local_kwarg
+
+    if isinstance(local_kwarg, str):
+        return local_kwarg
+
+    if local_kwarg is None:
+        return default_kwarg
+
+    # Bypass if not a dictionary (e.g. timeout)
+    if not hasattr(default_kwarg, 'items'):
+        return local_kwarg
+
+    default_kwarg = from_key_val_list(default_kwarg)
+    local_kwarg = from_key_val_list(local_kwarg)
+
+    # Update new values.
+    kwargs = default_kwarg.copy()
+    kwargs.update(local_kwarg)
+
+    # Remove keys that are set to None.
+    for (k, v) in local_kwarg.items():
+        if v is None:
+            del kwargs[k]
+
+    return kwargs
+
+
+class Session(object):
+    """A Requests session."""
+
+    __attrs__ = [
+        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
+        'params', 'config', 'verify', 'cert', 'prefetch']
+
+    def __init__(self,
+        headers=None,
+        cookies=None,
+        auth=None,
+        timeout=None,
+        proxies=None,
+        hooks=None,
+        params=None,
+        config=None,
+        prefetch=True,
+        verify=True,
+        cert=None):
+
+        self.headers = from_key_val_list(headers or [])
+        self.auth = auth
+        self.timeout = timeout
+        self.proxies = from_key_val_list(proxies or [])
+        self.hooks = from_key_val_list(hooks or {})
+        self.params = from_key_val_list(params or [])
+        self.config = from_key_val_list(config or {})
+        self.prefetch = prefetch
+        self.verify = verify
+        self.cert = cert
+
+        for (k, v) in list(defaults.items()):
+            self.config.setdefault(k, deepcopy(v))
+
+        self.init_poolmanager()
+
+        # Set up a CookieJar to be used by default
+        if isinstance(cookies, cookielib.CookieJar):
+            self.cookies = cookies
+        else:
+            self.cookies = cookiejar_from_dict(cookies)
+
+    def init_poolmanager(self):
+        self.poolmanager = PoolManager(
+            num_pools=self.config.get('pool_connections'),
+            maxsize=self.config.get('pool_maxsize')
+        )
+
+    def __repr__(self):
+        return '<requests-client at 0x%x>' % (id(self))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def close(self):
+        """Dispose of any internal state.
+
+        Currently, this just closes the PoolManager, which closes pooled
+        connections.
+        """
+        self.poolmanager.clear()
+
+    def request(self, method, url,
+        params=None,
+        data=None,
+        headers=None,
+        cookies=None,
+        files=None,
+        auth=None,
+        timeout=None,
+        allow_redirects=True,
+        proxies=None,
+        hooks=None,
+        return_response=True,
+        config=None,
+        prefetch=None,
+        verify=None,
+        cert=None):
+
+        """Constructs and sends a :class:`Request <Request>`.
+        Returns :class:`Response <Response>` object.
+
+        :param method: method for the new :class:`Request` object.
+        :param url: URL for the new :class:`Request` object.
+        :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+        :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
+        :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+        :param auth: (optional) Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth.
+        :param timeout: (optional) Float describing the timeout of the request.
+        :param allow_redirects: (optional) Boolean. Set to True by default.
+        :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+        :param return_response: (optional) If False, an un-sent Request object will returned.
+        :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
+        :param prefetch: (optional) whether to immediately download the response content. Defaults to ``True``.
+        :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
+        :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        """
+
+        method = str(method).upper()
+
+        # Default empty dicts for dict params.
+        data = [] if data is None else data
+        files = [] if files is None else files
+        headers = {} if headers is None else headers
+        params = {} if params is None else params
+        hooks = {} if hooks is None else hooks
+        prefetch = prefetch if prefetch is not None else self.prefetch
+
+        # use session's hooks as defaults
+        for key, cb in list(self.hooks.items()):
+            hooks.setdefault(key, cb)
+
+        # Expand header values.
+        if headers:
+            for k, v in list(headers.items() or {}):
+                headers[k] = header_expand(v)
+
+        args = dict(
+            method=method,
+            url=url,
+            data=data,
+            params=from_key_val_list(params),
+            headers=from_key_val_list(headers),
+            cookies=cookies,
+            files=files,
+            auth=auth,
+            hooks=from_key_val_list(hooks),
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            proxies=from_key_val_list(proxies),
+            config=from_key_val_list(config),
+            prefetch=prefetch,
+            verify=verify,
+            cert=cert,
+            _poolmanager=self.poolmanager
+        )
+
+        # merge session cookies into passed-in ones
+        dead_cookies = None
+        # passed-in cookies must become a CookieJar:
+        if not isinstance(cookies, cookielib.CookieJar):
+            args['cookies'] = cookiejar_from_dict(cookies)
+            # support unsetting cookies that have been passed in with None values
+            # this is only meaningful when `cookies` is a dict ---
+            # for a real CookieJar, the client should use session.cookies.clear()
+            if cookies is not None:
+                dead_cookies = [name for name in cookies if cookies[name] is None]
+        # merge the session's cookies into the passed-in cookies:
+        for cookie in self.cookies:
+            args['cookies'].set_cookie(cookie)
+        # remove the unset cookies from the jar we'll be using with the current request
+        # (but not from the session's own store of cookies):
+        if dead_cookies is not None:
+            for name in dead_cookies:
+                remove_cookie_by_name(args['cookies'], name)
+
+        # Merge local kwargs with session kwargs.
+        for attr in self.__attrs__:
+            # we already merged cookies:
+            if attr == 'cookies':
+                continue
+
+            session_val = getattr(self, attr, None)
+            local_val = args.get(attr)
+            args[attr] = merge_kwargs(local_val, session_val)
+
+        # Arguments manipulation hook.
+        args = dispatch_hook('args', args['hooks'], args)
+
+        # Create the (empty) response.
+        r = Request(**args)
+
+        # Give the response some context.
+        r.session = self
+
+        # Don't send if asked nicely.
+        if not return_response:
+            return r
+
+        # Send the HTTP Request.
+        r.send(prefetch=prefetch)
+
+        # Return the response.
+        return r.response
+
+    def get(self, url, **kwargs):
+        """Sends a GET request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', True)
+        return self.request('get', url, **kwargs)
+
+    def options(self, url, **kwargs):
+        """Sends a OPTIONS request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', True)
+        return self.request('options', url, **kwargs)
+
+    def head(self, url, **kwargs):
+        """Sends a HEAD request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', False)
+        return self.request('head', url, **kwargs)
+
+    def post(self, url, data=None, **kwargs):
+        """Sends a POST request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('post', url, data=data, **kwargs)
+
+    def put(self, url, data=None, **kwargs):
+        """Sends a PUT request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('put', url, data=data, **kwargs)
+
+    def patch(self, url, data=None, **kwargs):
+        """Sends a PATCH request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('patch', url,  data=data, **kwargs)
+
+    def delete(self, url, **kwargs):
+        """Sends a DELETE request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('delete', url, **kwargs)
+
+    def __getstate__(self):
+        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+
+    def __setstate__(self, state):
+        for attr, value in state.items():
+            setattr(self, attr, value)
+
+        self.init_poolmanager()
+
+
+def session(**kwargs):
+    """Returns a :class:`Session` for context-management."""
+
+    return Session(**kwargs)
+```
+
+--- requests/hooks.py (lines 1-49 of 49) ---
+```python
+# -*- coding: utf-8 -*-
+
+"""
+requests.hooks
+~~~~~~~~~~~~~~
+
+This module provides the capabilities for the Requests hooks system.
+
+Available hooks:
+
+``args``:
+    A dictionary of the arguments being sent to Request().
+
+``pre_request``:
+    The Request object, directly after being created.
+
+``pre_send``:
+    The Request object, directly before being sent.
+
+``post_request``:
+    The Request object, directly after being sent.
+
+``response``:
+    The response generated from a Request.
+
+"""
+
+
+HOOKS = ('args', 'pre_request', 'pre_send', 'post_request', 'response')
+
+
+def dispatch_hook(key, hooks, hook_data):
+    """Dispatches a hook dictionary on a given piece of data."""
+
+    hooks = hooks or dict()
+
+    if key in hooks:
+        hooks = hooks.get(key)
+
+        if hasattr(hooks, '__call__'):
+            hooks = [hooks]
+
+        for hook in hooks:
+            _hook_data = hook(hook_data)
+            if _hook_data is not None:
+                hook_data = _hook_data
+
+
+    return hook_data
+```
+
+--- requests/auth.py (lines 45-138 of 382; not shown in this file: <module header>, _basic_auth_str, HTTPProxyAuth, _negotiate_value) ---
+```python
+class AuthBase(object):
+    """Base class that all auth implementations derive from"""
+
+    def __call__(self, r):
+        raise NotImplementedError('Auth hooks must be callable.')
+
+
+class OAuth1(AuthBase):
+    """Signs the request using OAuth 1 (RFC5849)"""
+    def __init__(self, client_key,
+            client_secret=None,
+            resource_owner_key=None,
+            resource_owner_secret=None,
+            callback_uri=None,
+            signature_method=SIGNATURE_HMAC,
+            signature_type=SIGNATURE_TYPE_AUTH_HEADER,
+            rsa_key=None, verifier=None):
+
+        try:
+            signature_type = signature_type.upper()
+        except AttributeError:
+            pass
+
+        self.client = Client(client_key, client_secret, resource_owner_key,
+            resource_owner_secret, callback_uri, signature_method,
+            signature_type, rsa_key, verifier)
+
+    def __call__(self, r):
+        """Add OAuth parameters to the request.
+
+        Parameters may be included from the body if the content-type is
+        urlencoded, if no content type is set an educated guess is made.
+        """
+        # split(";") because Content-Type may be "multipart/form-data; boundary=xxxxx"
+        contenttype = r.headers.get('Content-Type', '').split(";")[0].lower()
+        # extract_params will not give params unless the body is a properly
+        # formatted string, a dictionary or a list of 2-tuples.
+        decoded_body = extract_params(r.data)
+
+        # extract_params can only check the present r.data and does not know
+        # of r.files, thus an extra check is performed. We know that
+        # if files are present the request will not have
+        # Content-type: x-www-form-urlencoded. We guess it will have
+        # a mimetype of multipart/form-data and if this is not the case
+        # we assume the correct header will be set later.
+        _oauth_signed = True
+        if r.files and contenttype == CONTENT_TYPE_MULTI_PART:
+            # Omit body data in the signing and since it will always
+            # be empty (cant add paras to body if multipart) and we wish
+            # to preserve body.
+            r.url, r.headers, _ = self.client.sign(
+                unicode(r.full_url), unicode(r.method), None, r.headers)
+        elif decoded_body != None and contenttype in (CONTENT_TYPE_FORM_URLENCODED, ''):
+            # Normal signing
+            if not contenttype:
+                r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
+            r.url, r.headers, r.data = self.client.sign(
+                unicode(r.full_url), unicode(r.method), r.data, r.headers)
+        else:
+            _oauth_signed = False
+        if _oauth_signed:
+            # Both flows add params to the URL by using r.full_url,
+            # so this prevents adding it again later
+            r.params = {}
+
+            # Having the authorization header, key or value, in unicode will
+            # result in UnicodeDecodeErrors when the request is concatenated
+            # by httplib. This can easily be seen when attaching files.
+            # Note that simply encoding the value is not enough since Python
+            # saves the type of first key set. Thus we remove and re-add.
+            # >>> d = {u'a':u'foo'}
+            # >>> d['a'] = 'foo'
+            # >>> d
+            # { u'a' : 'foo' }
+            u_header = unicode('Authorization')
+            if u_header in r.headers:
+                auth_header = r.headers[u_header].encode('utf-8')
+                del r.headers[u_header]
+                r.headers['Authorization'] = auth_header
+
+        return r
+
+
+class HTTPBasicAuth(AuthBase):
+    """Attaches HTTP Basic Authentication to the given Request object."""
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def __call__(self, r):
+        r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
+        return r
+
+
+```
+
+--- requests/auth.py (lines 146-261 of 382; not shown in this file: <module header>, _basic_auth_str, HTTPProxyAuth, _negotiate_value) ---
+```python
+class HTTPDigestAuth(AuthBase):
+    """Attaches HTTP Digest Authentication to the given Request object."""
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.last_nonce = ''
+        self.nonce_count = 0
+        self.chal = {}
+
+    def build_digest_header(self, method, url):
+
+        realm = self.chal['realm']
+        nonce = self.chal['nonce']
+        qop = self.chal.get('qop')
+        algorithm = self.chal.get('algorithm', 'MD5')
+        opaque = self.chal.get('opaque', None)
+
+        algorithm = algorithm.upper()
+        # lambdas assume digest modules are imported at the top level
+        if algorithm == 'MD5':
+            def md5_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.md5(x).hexdigest()
+            hash_utf8 = md5_utf8
+        elif algorithm == 'SHA':
+            def sha_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.sha1(x).hexdigest()
+            hash_utf8 = sha_utf8
+        # XXX MD5-sess
+        KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
+
+        if hash_utf8 is None:
+            return None
+
+        # XXX not implemented yet
+        entdig = None
+        p_parsed = urlparse(url)
+        path = p_parsed.path
+        if p_parsed.query:
+            path += '?' + p_parsed.query
+
+        A1 = '%s:%s:%s' % (self.username, realm, self.password)
+        A2 = '%s:%s' % (method, path)
+
+        if qop == 'auth':
+            if nonce == self.last_nonce:
+                self.nonce_count += 1
+            else:
+                self.nonce_count = 1
+
+            ncvalue = '%08x' % self.nonce_count
+            s = str(self.nonce_count).encode('utf-8')
+            s += nonce.encode('utf-8')
+            s += time.ctime().encode('utf-8')
+            s += os.urandom(8)
+
+            cnonce = (hashlib.sha1(s).hexdigest()[:16])
+            noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
+            respdig = KD(hash_utf8(A1), noncebit)
+        elif qop is None:
+            respdig = KD(hash_utf8(A1), "%s:%s" % (nonce, hash_utf8(A2)))
+        else:
+            # XXX handle auth-int.
+            return None
+
+        self.last_nonce = nonce
+
+        # XXX should the partial digests be encoded too?
+        base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
+           'response="%s"' % (self.username, realm, nonce, path, respdig)
+        if opaque:
+            base += ', opaque="%s"' % opaque
+        if entdig:
+            base += ', digest="%s"' % entdig
+            base += ', algorithm="%s"' % algorithm
+        if qop:
+            base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
+
+        return 'Digest %s' % (base)
+
+    def handle_401(self, r):
+        """Takes the given response and tries digest-auth, if needed."""
+
+        num_401_calls = r.request.hooks['response'].count(self.handle_401)
+
+        s_auth = r.headers.get('www-authenticate', '')
+
+        if 'digest' in s_auth.lower() and num_401_calls < 2:
+
+            self.chal = parse_dict_header(s_auth.replace('Digest ', ''))
+
+            # Consume content and release the original connection
+            # to allow our new request to reuse the same one.
+            r.content
+            r.raw.release_conn()
+
+            r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
+            r.request.send(anyway=True)
+            _r = r.request.response
+            _r.history.append(r)
+
+            return _r
+
+        return r
+
+    def __call__(self, r):
+        # If we have a saved nonce, skip the 401
+        if self.last_nonce:
+            r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
+        r.register_hook('response', self.handle_401)
+        return r
+
+
+```
+
+--- requests/auth.py (lines 276-382 of 382; not shown in this file: <module header>, _basic_auth_str, HTTPProxyAuth, _negotiate_value) ---
+```python
+class HTTPKerberosAuth(AuthBase):
+    """Attaches HTTP GSSAPI/Kerberos Authentication to the given Request object."""
+    def __init__(self, require_mutual_auth=True):
+        if k is None:
+            raise Exception("Kerberos libraries unavailable")
+        self.context = None
+        self.require_mutual_auth = require_mutual_auth
+
+    def generate_request_header(self, r):
+        """Generates the gssapi authentication token with kerberos"""
+
+        host = urlparse(r.url).netloc
+        tail, _, head = host.rpartition(':')
+        domain = tail if tail else head
+
+        result, self.context = k.authGSSClientInit("HTTP@%s" % domain)
+
+        if result < 1:
+            raise Exception("authGSSClientInit failed")
+
+        result = k.authGSSClientStep(self.context, _negotiate_value(r))
+
+        if result < 0:
+            raise Exception("authGSSClientStep failed")
+
+        response = k.authGSSClientResponse(self.context)
+
+        return "Negotiate %s" % response
+
+    def authenticate_user(self, r):
+        """Handles user authentication with gssapi/kerberos"""
+
+        auth_header = self.generate_request_header(r)
+        log.debug("authenticate_user(): Authorization header: %s" % auth_header)
+        r.request.headers['Authorization'] = auth_header
+        r.request.send(anyway=True)
+        _r = r.request.response
+        _r.history.append(r)
+        log.debug("authenticate_user(): returning %s" % _r)
+        return _r
+
+    def handle_401(self, r):
+        """Handles 401's, attempts to use gssapi/kerberos authentication"""
+
+        log.debug("handle_401(): Handling: 401")
+        if _negotiate_value(r) is not None:
+            _r = self.authenticate_user(r)
+            log.debug("handle_401(): returning %s" % _r)
+            return _r
+        else:
+            log.debug("handle_401(): Kerberos is not supported")
+            log.debug("handle_401(): returning %s" % r)
+            return r
+
+    def handle_other(self, r):
+        """Handles all responses with the exception of 401s.
+
+        This is necessary so that we can authenticate responses if requested"""
+
+        log.debug("handle_other(): Handling: %d" % r.status_code)
+        self.deregister(r)
+        if self.require_mutual_auth:
+            if _negotiate_value(r) is not None:
+                log.debug("handle_other(): Authenticating the server")
+                _r = self.authenticate_server(r)
+                log.debug("handle_other(): returning %s" % _r)
+                return _r
+            else:
+                log.error("handle_other(): Mutual authentication failed")
+                raise Exception("Mutual authentication failed")
+        else:
+            log.debug("handle_other(): returning %s" % r)
+            return r
+
+    def authenticate_server(self, r):
+        """Uses GSSAPI to authenticate the server"""
+
+        log.debug("authenticate_server(): Authenticate header: %s" % _negotiate_value(r))
+        result = k.authGSSClientStep(self.context, _negotiate_value(r))
+        if  result < 1:
+            raise Exception("authGSSClientStep failed")
+        _r = r.request.response
+        log.debug("authenticate_server(): returning %s" % _r)
+        return _r
+
+    def handle_response(self, r):
+        """Takes the given response and tries kerberos-auth, as needed."""
+
+        if r.status_code == 401:
+            _r = self.handle_401(r)
+            log.debug("handle_response returning %s" % _r)
+            return _r
+        else:
+            _r = self.handle_other(r)
+            log.debug("handle_response returning %s" % _r)
+            return _r
+
+        log.debug("handle_response returning %s" % r)
+        return r
+
+    def deregister(self, r):
+        """Deregisters the response handler"""
+        r.request.deregister_hook('response', self.handle_response)
+
+    def __call__(self, r):
+        r.register_hook('response', self.handle_response)
+        return r
+```
+
+--- requests/cookies.py (lines 18-105 of 373; not shown in this file: <module header>, get_cookie_header, remove_cookie_by_name, CookieConflictError, morsel_to_cookie) ---
+```python
+class MockRequest(object):
+    """Wraps a `requests.Request` to mimic a `urllib2.Request`.
+
+    The code in `cookielib.CookieJar` expects this interface in order to correctly
+    manage cookie policies, i.e., determine whether a cookie can be set, given the
+    domains of the request and the cookie.
+
+    The original request object is read-only. The client is responsible for collecting
+    the new headers via `get_new_headers()` and interpreting them appropriately. You
+    probably want `get_cookie_header`, defined below.
+    """
+
+    def __init__(self, request):
+        self._r = request
+        self._new_headers = {}
+
+    def get_type(self):
+        return urlparse(self._r.full_url).scheme
+
+    def get_host(self):
+        return urlparse(self._r.full_url).netloc
+
+    def get_origin_req_host(self):
+        if self._r.response.history:
+            r = self._r.response.history[0]
+            return urlparse(r.url).netloc
+        else:
+            return self.get_host()
+
+    def get_full_url(self):
+        return self._r.full_url
+
+    def is_unverifiable(self):
+        # unverifiable == redirected
+        return bool(self._r.response.history)
+
+    def has_header(self, name):
+        return name in self._r.headers or name in self._new_headers
+
+    def get_header(self, name, default=None):
+        return self._r.headers.get(name, self._new_headers.get(name, default))
+
+    def add_header(self, key, val):
+        """cookielib has no legitimate use for this method; add it back if you find one."""
+        raise NotImplementedError("Cookie headers should be added with add_unredirected_header()")
+
+    def add_unredirected_header(self, name, value):
+        self._new_headers[name] = value
+
+    def get_new_headers(self):
+        return self._new_headers
+
+
+class MockResponse(object):
+    """Wraps a `httplib.HTTPMessage` to mimic a `urllib.addinfourl`.
+
+    ...what? Basically, expose the parsed HTTP headers from the server response
+    the way `cookielib` expects to see them.
+    """
+
+    def __init__(self, headers):
+        """Make a MockResponse for `cookielib` to read.
+
+        :param headers: a httplib.HTTPMessage or analogous carrying the headers
+        """
+        self._headers = headers
+
+    def info(self):
+        return self._headers
+
+    def getheaders(self, name):
+        self._headers.getheaders(name)
+
+
+def extract_cookies_to_jar(jar, request, response):
+    """Extract the cookies from the response into a CookieJar.
+
+    :param jar: cookielib.CookieJar (not necessarily a RequestsCookieJar)
+    :param request: our own requests.Request object
+    :param response: urllib3.HTTPResponse object
+    """
+    # the _original_response field is the wrapped httplib.HTTPResponse object,
+    req = MockRequest(request)
+    # pull out the HTTPMessage with the headers and put it in the mock:
+    res = MockResponse(response._original_response.msg)
+    jar.extract_cookies(res, req)
+
+
+```
+
+--- requests/cookies.py (lines 134-337 of 373; not shown in this file: <module header>, get_cookie_header, remove_cookie_by_name, CookieConflictError, morsel_to_cookie) ---
+```python
+class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
+    """Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.
+
+    This is the CookieJar we create by default for requests and sessions that
+    don't specify one, since some clients may expect response.cookies and
+    session.cookies to support dict operations.
+
+    Don't use the dict interface internally; it's just for compatibility with
+    with external client code. All `requests` code should work out of the box
+    with externally provided instances of CookieJar, e.g., LWPCookieJar and
+    FileCookieJar.
+
+    Caution: dictionary operations that are normally O(1) may be O(n).
+
+    Unlike a regular CookieJar, this class is pickleable.
+    """
+
+    def get(self, name, default=None, domain=None, path=None):
+        """Dict-like get() that also supports optional domain and path args in
+        order to resolve naming collisions from using one cookie jar over
+        multiple domains. Caution: operation is O(n), not O(1)."""
+        try:
+            return self._find_no_duplicates(name, domain, path)
+        except KeyError:
+            return default
+
+    def set(self, name, value, **kwargs):
+        """Dict-like set() that also supports optional domain and path args in
+        order to resolve naming collisions from using one cookie jar over
+        multiple domains."""
+        # support client code that unsets cookies by assignment of a None value:
+        if value is None:
+            remove_cookie_by_name(self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
+            return
+
+        if isinstance(value, Morsel):
+            c = morsel_to_cookie(value)
+        else:
+            c = create_cookie(name, value, **kwargs)
+        self.set_cookie(c)
+        return c
+
+    def keys(self):
+        """Dict-like keys() that returns a list of names of cookies from the jar.
+        See values() and items()."""
+        keys = []
+        for cookie in iter(self):
+            keys.append(cookie.name)
+        return keys
+
+    def values(self):
+        """Dict-like values() that returns a list of values of cookies from the jar.
+        See keys() and items()."""
+        values = []
+        for cookie in iter(self):
+            values.append(cookie.value)
+        return values
+
+    def items(self):
+        """Dict-like items() that returns a list of name-value tuples from the jar.
+        See keys() and values(). Allows client-code to call "dict(RequestsCookieJar)
+        and get a vanilla python dict of key value pairs."""
+        items = []
+        for cookie in iter(self):
+            items.append((cookie.name, cookie.value))
+        return items
+
+    def list_domains(self):
+        """Utility method to list all the domains in the jar."""
+        domains = []
+        for cookie in iter(self):
+            if cookie.domain not in domains:
+                domains.append(cookie.domain)
+        return domains
+
+    def list_paths(self):
+        """Utility method to list all the paths in the jar."""
+        paths = []
+        for cookie in iter(self):
+            if cookie.path not in paths:
+                paths.append(cookie.path)
+        return paths
+
+    def multiple_domains(self):
+        """Returns True if there are multiple domains in the jar.
+        Returns False otherwise."""
+        domains = []
+        for cookie in iter(self):
+            if cookie.domain is not None and cookie.domain in domains:
+                return True
+            domains.append(cookie.domain)
+        return False  # there is only one domain in jar
+
+    def get_dict(self, domain=None, path=None):
+        """Takes as an argument an optional domain and path and returns a plain old
+        Python dict of name-value pairs of cookies that meet the requirements."""
+        dictionary = {}
+        for cookie in iter(self):
+            if (domain == None or cookie.domain == domain) and (path == None
+                                                or cookie.path == path):
+                dictionary[cookie.name] = cookie.value
+        return dictionary
+
+    def __getitem__(self, name):
+        """Dict-like __getitem__() for compatibility with client code. Throws exception
+        if there are more than one cookie with name. In that case, use the more
+        explicit get() method instead. Caution: operation is O(n), not O(1)."""
+        return self._find_no_duplicates(name)
+
+    def __setitem__(self, name, value):
+        """Dict-like __setitem__ for compatibility with client code. Throws exception
+        if there is already a cookie of that name in the jar. In that case, use the more
+        explicit set() method instead."""
+        self.set(name, value)
+
+    def __delitem__(self, name):
+        """Deletes a cookie given a name. Wraps cookielib.CookieJar's remove_cookie_by_name()."""
+        remove_cookie_by_name(self, name)
+
+    def _find(self, name, domain=None, path=None):
+        """Requests uses this method internally to get cookie values. Takes as args name
+        and optional domain and path. Returns a cookie.value. If there are conflicting cookies,
+        _find arbitrarily chooses one. See _find_no_duplicates if you want an exception thrown
+        if there are conflicting cookies."""
+        for cookie in iter(self):
+            if cookie.name == name:
+                if domain is None or cookie.domain == domain:
+                    if path is None or cookie.path == path:
+                        return cookie.value
+
+        raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
+
+    def _find_no_duplicates(self, name, domain=None, path=None):
+        """__get_item__ and get call _find_no_duplicates -- never used in Requests internally.
+        Takes as args name and optional domain and path. Returns a cookie.value.
+        Throws KeyError if cookie is not found and CookieConflictError if there are
+        multiple cookies that match name and optionally domain and path."""
+        toReturn = None
+        for cookie in iter(self):
+            if cookie.name == name:
+                if domain is None or cookie.domain == domain:
+                    if path is None or cookie.path == path:
+                        if toReturn != None:  # if there are multiple cookies that meet passed in criteria
+                            raise CookieConflictError('There are multiple cookies with name, %r' % (name))
+                        toReturn = cookie.value  # we will eventually return this as long as no cookie conflict
+
+        if toReturn:
+            return toReturn
+        raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
+
+    def __getstate__(self):
+        """Unlike a normal CookieJar, this class is pickleable."""
+        state = self.__dict__.copy()
+        # remove the unpickleable RLock object
+        state.pop('_cookies_lock')
+        return state
+
+    def __setstate__(self, state):
+        """Unlike a normal CookieJar, this class is pickleable."""
+        self.__dict__.update(state)
+        if '_cookies_lock' not in self.__dict__:
+            self._cookies_lock = threading.RLock()
+
+    def copy(self):
+        """This is not implemented. Calling this will throw an exception."""
+        raise NotImplementedError
+
+
+def create_cookie(name, value, **kwargs):
+    """Make a cookie from underspecified parameters.
+
+    By default, the pair of `name` and `value` will be set for the domain ''
+    and sent on every request (this is sometimes called a "supercookie").
+    """
+    result = dict(
+        version=0,
+        name=name,
+        value=value,
+        port=None,
+        domain='',
+        path='/',
+        secure=False,
+        expires=None,
+        discard=True,
+        comment=None,
+        comment_url=None,
+        rest={'HttpOnly': None},
+        rfc2109=False,
+        )
+
+    badargs = set(kwargs) - set(result)
+    if badargs:
+        err = 'create_cookie() got unexpected keyword arguments: %s'
+        raise TypeError(err % list(badargs))
+
+    result.update(kwargs)
+    result['port_specified'] = bool(result['port'])
+    result['domain_specified'] = bool(result['domain'])
+    result['domain_initial_dot'] = result['domain'].startswith('.')
+    result['path_specified'] = bool(result['path'])
+
+    return cookielib.Cookie(**result)
+
+
+```
+
+--- requests/cookies.py (lines 362-373 of 373; not shown in this file: <module header>, get_cookie_header, remove_cookie_by_name, CookieConflictError, morsel_to_cookie) ---
+```python
+def cookiejar_from_dict(cookie_dict, cookiejar=None):
+    """Returns a CookieJar from a key/value dictionary.
+
+    :param cookie_dict: Dict of key/values to insert into CookieJar.
+    """
+    if cookiejar is None:
+        cookiejar = RequestsCookieJar()
+
+    if cookie_dict is not None:
+        for name in cookie_dict:
+            cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+    return cookiejar
+```
+
+--- requests/packages/oauthlib/common.py (lines 1-229 of 229) ---
+```python
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
+"""
+oauthlib.common
+~~~~~~~~~~~~~~
+
+This module provides data structures and utilities common
+to all implementations of OAuth.
+"""
+
+import random
+import re
+import string
+import time
+import urllib
+import urlparse
+
+UNICODE_ASCII_CHARACTER_SET = (string.ascii_letters.decode('ascii') +
+    string.digits.decode('ascii'))
+
+always_safe = (u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+               u'abcdefghijklmnopqrstuvwxyz'
+               u'0123456789' u'_.-')
+
+
+def quote(s, safe=u'/'):
+    encoded = s.encode("utf-8")
+    quoted = urllib.quote(encoded, safe)
+    return quoted.decode("utf-8")
+
+
+def unquote(s):
+    encoded = s.encode("utf-8")
+    unquoted = urllib.unquote(encoded)
+    return unquoted.decode("utf-8")
+
+
+def urlencode(params):
+    utf8_params = encode_params_utf8(params)
+    urlencoded = urllib.urlencode(utf8_params)
+    return urlencoded.decode("utf-8")
+
+
+def encode_params_utf8(params):
+    """Ensures that all parameters in a list of 2-element tuples are encoded to
+    bytestrings using UTF-8
+    """
+    encoded = []
+    for k, v in params:
+        encoded.append((
+            k.encode('utf-8') if isinstance(k, unicode) else k,
+            v.encode('utf-8') if isinstance(v, unicode) else v))
+    return encoded
+
+
+def decode_params_utf8(params):
+    """Ensures that all parameters in a list of 2-element tuples are decoded to
+    unicode using UTF-8.
+    """
+    decoded = []
+    for k, v in params:
+        decoded.append((
+            k.decode('utf-8') if isinstance(k, str) else k,
+            v.decode('utf-8') if isinstance(v, str) else v))
+    return decoded
+
+
+urlencoded = set(always_safe) | set(u'=&;%+~')
+
+
+def urldecode(query):
+    """Decode a query string in x-www-form-urlencoded format into a sequence
+    of two-element tuples.
+
+    Unlike urlparse.parse_qsl(..., strict_parsing=True) urldecode will enforce
+    correct formatting of the query string by validation. If validation fails
+    a ValueError will be raised. urllib.parse_qsl will only raise errors if
+    any of name-value pairs omits the equals sign.
+    """
+    # Check if query contains invalid characters
+    if query and not set(query) <= urlencoded:
+        raise ValueError('Invalid characters in query string.')
+
+    # Check for correctly hex encoded values using a regular expression
+    # All encoded values begin with % followed by two hex characters
+    # correct = %00, %A0, %0A, %FF
+    # invalid = %G0, %5H, %PO
+    invalid_hex = u'%[^0-9A-Fa-f]|%[0-9A-Fa-f][^0-9A-Fa-f]'
+    if len(re.findall(invalid_hex, query)):
+        raise ValueError('Invalid hex encoding in query string.')
+
+    query = query.decode('utf-8') if isinstance(query, str) else query
+    # We want to allow queries such as "c2" whereas urlparse.parse_qsl
+    # with the strict_parsing flag will not.
+    params = urlparse.parse_qsl(query, keep_blank_values=True)
+
+    # unicode all the things
+    return decode_params_utf8(params)
+
+
+def extract_params(raw):
+    """Extract parameters and return them as a list of 2-tuples.
+
+    Will successfully extract parameters from urlencoded query strings,
+    dicts, or lists of 2-tuples. Empty strings/dicts/lists will return an
+    empty list of parameters. Any other input will result in a return
+    value of None.
+    """
+    if isinstance(raw, basestring):
+        try:
+            params = urldecode(raw)
+        except ValueError:
+            params = None
+    elif hasattr(raw, '__iter__'):
+        try:
+            dict(raw)
+        except ValueError:
+            params = None
+        except TypeError:
+            params = None
+        else:
+            params = list(raw.items() if isinstance(raw, dict) else raw)
+            params = decode_params_utf8(params)
+    else:
+        params = None
+
+    return params
+
+
+def generate_nonce():
+    """Generate pseudorandom nonce that is unlikely to repeat.
+
+    Per `section 3.3`_ of the OAuth 1 RFC 5849 spec.
+    Per `section 3.2.1`_ of the MAC Access Authentication spec.
+
+    A random 64-bit number is appended to the epoch timestamp for both
+    randomness and to decrease the likelihood of collisions.
+
+    .. _`section 3.2.1`: http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-01#section-3.2.1
+    .. _`section 3.3`: http://tools.ietf.org/html/rfc5849#section-3.3
+    """
+    return unicode(unicode(random.getrandbits(64)) + generate_timestamp())
+
+
+def generate_timestamp():
+    """Get seconds since epoch (UTC).
+
+    Per `section 3.3`_ of the OAuth 1 RFC 5849 spec.
+    Per `section 3.2.1`_ of the MAC Access Authentication spec.
+
+    .. _`section 3.2.1`: http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-01#section-3.2.1
+    .. _`section 3.3`: http://tools.ietf.org/html/rfc5849#section-3.3
+    """
+    return unicode(int(time.time()))
+
+
+def generate_token(length=30, chars=UNICODE_ASCII_CHARACTER_SET):
+    """Generates a non-guessable OAuth token
+
+    OAuth (1 and 2) does not specify the format of tokens except that they
+    should be strings of random characters. Tokens should not be guessable
+    and entropy when generating the random characters is important. Which is
+    why SystemRandom is used instead of the default random.choice method.
+    """
+    rand = random.SystemRandom()
+    return u''.join(rand.choice(chars) for x in range(length))
+
+
+def add_params_to_qs(query, params):
+    """Extend a query with a list of two-tuples."""
+    queryparams = urlparse.parse_qsl(query, keep_blank_values=True)
+    queryparams.extend(params)
+    return urlencode(queryparams)
+
+
+def add_params_to_uri(uri, params):
+    """Add a list of two-tuples to the uri query components."""
+    sch, net, path, par, query, fra = urlparse.urlparse(uri)
+    query = add_params_to_qs(query, params)
+    return urlparse.urlunparse((sch, net, path, par, query, fra))
+
+def safe_string_equals(a, b):
+    """ Near-constant time string comparison. 
+
+    Used in order to avoid timing attacks on sensitive information such
+    as secret keys during request verification (`rootLabs`_).
+
+    .. _`rootLabs`: http://rdist.root.org/2010/01/07/timing-independent-array-comparison/
+    
+    """
+    if len(a) != len(b):
+        return False
+
+    result = 0
+    for x, y in zip(a, b):
+        result |= ord(x) ^ ord(y)
+    return result == 0
+
+class Request(object):
+    """A malleable representation of a signable HTTP request.
+
+    Body argument may contain any data, but parameters will only be decoded if
+    they are one of:
+
+    * urlencoded query string
+    * dict
+    * list of 2-tuples
+
+    Anything else will be treated as raw body data to be passed through
+    unmolested.
+    """
+
+    def __init__(self, uri, http_method=u'GET', body=None, headers=None):
+        self.uri = uri
+        self.http_method = http_method
+        self.headers = headers or {}
+        self.body = body
+        self.decoded_body = extract_params(body)
+        self.oauth_params = []
+
+    @property
+    def uri_query(self):
+        return urlparse.urlparse(self.uri).query
+
+    @property
+    def uri_query_params(self):
+        return urlparse.parse_qsl(self.uri_query, keep_blank_values=True,
+                                  strict_parsing=True)
+```
+
+--- requests/api.py (lines 1-130 of 130) ---
+```python
+# -*- coding: utf-8 -*-
+
+"""
+requests.api
+~~~~~~~~~~~~
+
+This module implements the Requests API.
+
+:copyright: (c) 2012 by Kenneth Reitz.
+:license: ISC, see LICENSE for more details.
+
+"""
+
+from . import sessions
+from .safe_mode import catch_exceptions_if_in_safe_mode
+
+
+@catch_exceptions_if_in_safe_mode
+def request(method, url, **kwargs):
+    """Constructs and sends a :class:`Request <Request>`.
+    Returns :class:`Response <Response>` object.
+
+    :param method: method for the new :class:`Request` object.
+    :param url: URL for the new :class:`Request` object.
+    :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
+    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
+    :param files: (optional) Dictionary of 'name': file-like-objects (or {'name': ('filename', fileobj)}) for multipart encoding upload.
+    :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
+    :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
+    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param return_response: (optional) If False, an un-sent Request object will returned.
+    :param session: (optional) A :class:`Session` object to be used for the request.
+    :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
+    :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
+    :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
+    :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+    """
+
+    # if this session was passed in, leave it open (and retain pooled connections);
+    # if we're making it just for this call, then close it when we're done.
+    adhoc_session = False
+    session = kwargs.pop('session', None)
+    if session is None:
+        session = sessions.session()
+        adhoc_session = True
+
+    try:
+        return session.request(method=method, url=url, **kwargs)
+    finally:
+        if adhoc_session:
+            session.close()
+
+
+def get(url, **kwargs):
+    """Sends a GET request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    kwargs.setdefault('allow_redirects', True)
+    return request('get', url, **kwargs)
+
+
+def options(url, **kwargs):
+    """Sends a OPTIONS request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    kwargs.setdefault('allow_redirects', True)
+    return request('options', url, **kwargs)
+
+
+def head(url, **kwargs):
+    """Sends a HEAD request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    kwargs.setdefault('allow_redirects', False)
+    return request('head', url, **kwargs)
+
+
+def post(url, data=None, **kwargs):
+    """Sends a POST request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    return request('post', url, data=data, **kwargs)
+
+
+def put(url, data=None, **kwargs):
+    """Sends a PUT request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    return request('put', url, data=data, **kwargs)
+
+
+def patch(url, data=None, **kwargs):
+    """Sends a PATCH request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    return request('patch', url,  data=data, **kwargs)
+
+
+def delete(url, **kwargs):
+    """Sends a DELETE request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    return request('delete', url, **kwargs)
+```

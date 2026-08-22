@@ -1,0 +1,10 @@
+For what real values of $x$ is $-4<x^{4}+4x^{2}<21$ satisfied? Express your answer in interval notation.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

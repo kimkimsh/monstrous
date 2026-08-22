@@ -1,0 +1,13 @@
+Sigma Corporation is studying the following production meth-odtogether with its various input combinations that will produce10 dozen pairs of shoes per day. Production Method Quantity of Shoes Produced per day ( in dozens ) Number of Shoe Workers ( in 8-hours day) Number of Shoe making Machines ( in 8-hours day) alpha beta gamma delta epsilon 10 10 10 10 10 30 25 22 20 20 10 7 5 6 5 Management has also determined that the precise relationshipamong shoe workers (W), the shoemaking machinery(M) and the quantity of shoes produced (S) to be: S =\surd(W \textbullet M ) whereshoe output will be measured in numbers of pairs of shoesper day and the inputs on the basis of a standard 8 hour day. Which of the five different production methodsshould managementchoose so that it will be technically efficient andconsequently efficient with the production func-tion?
+
+Options:
+A. production method delta
+B. production method alpha
+C. a combination of production methods alpha and beta
+D. production method epsilon
+E. production method gamma
+F. a combination of production methods alpha, beta, and gamma
+G. a combination of production methods beta and epsilon
+H. production method zeta (a hypothetical method not mentioned in the initial data)
+I. a combination of production methods gamma and delta
+J. production method beta

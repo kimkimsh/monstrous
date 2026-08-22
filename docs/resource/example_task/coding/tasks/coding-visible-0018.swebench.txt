@@ -1,0 +1,1722 @@
+You are resolving an issue in an existing repository. The issue report comes
+first, then the parts of the repository the judge retrieved for it.
+
+## Issue
+
+[Bug]: ax.bar raises for all-nan data on matplotlib 3.6.1 
+### Bug summary
+
+`ax.bar` raises an exception in 3.6.1 when passed only nan data. This irrevocably breaks seaborn's histogram function (which draws and then removes a "phantom" bar to trip the color cycle).
+
+### Code for reproduction
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+f, ax = plt.subplots()
+ax.bar([np.nan], [np.nan])
+```
+
+
+### Actual outcome
+
+```python-traceback
+---------------------------------------------------------------------------
+StopIteration                             Traceback (most recent call last)
+Cell In [1], line 4
+      2 import matplotlib.pyplot as plt
+      3 f, ax = plt.subplots()
+----> 4 ax.bar([np.nan], [np.nan])[0].get_x()
+
+File ~/miniconda/envs/py310/lib/python3.10/site-packages/matplotlib/__init__.py:1423, in _preprocess_data.<locals>.inner(ax, data, *args, **kwargs)
+   1420 @functools.wraps(func)
+   1421 def inner(ax, *args, data=None, **kwargs):
+   1422     if data is None:
+-> 1423         return func(ax, *map(sanitize_sequence, args), **kwargs)
+   1425     bound = new_sig.bind(ax, *args, **kwargs)
+   1426     auto_label = (bound.arguments.get(label_namer)
+   1427                   or bound.kwargs.get(label_namer))
+
+File ~/miniconda/envs/py310/lib/python3.10/site-packages/matplotlib/axes/_axes.py:2373, in Axes.bar(self, x, height, width, bottom, align, **kwargs)
+   2371 x0 = x
+   2372 x = np.asarray(self.convert_xunits(x))
+-> 2373 width = self._convert_dx(width, x0, x, self.convert_xunits)
+   2374 if xerr is not None:
+   2375     xerr = self._convert_dx(xerr, x0, x, self.convert_xunits)
+
+File ~/miniconda/envs/py310/lib/python3.10/site-packages/matplotlib/axes/_axes.py:2182, in Axes._convert_dx(dx, x0, xconv, convert)
+   2170 try:
+   2171     # attempt to add the width to x0; this works for
+   2172     # datetime+timedelta, for instance
+   (...)
+   2179     # removes the units from unit packages like `pint` that
+   2180     # wrap numpy arrays.
+   2181     try:
+-> 2182         x0 = cbook._safe_first_finite(x0)
+   2183     except (TypeError, IndexError, KeyError):
+   2184         pass
+
+File ~/miniconda/envs/py310/lib/python3.10/site-packages/matplotlib/cbook/__init__.py:1749, in _safe_first_finite(obj, skip_nonfinite)
+   1746     raise RuntimeError("matplotlib does not "
+   1747                        "support generators as input")
+   1748 else:
+-> 1749     return next(val for val in obj if safe_isfinite(val))
+
+StopIteration: 
+```
+
+### Expected outcome
+
+On 3.6.0 this returns a `BarCollection` with one Rectangle, having `nan` for `x` and `height`.
+
+### Additional information
+
+I assume it's related to this bullet in the release notes:
+
+- Fix barplot being empty when first element is NaN
+
+But I don't know the context for it to investigate further (could these link to PRs?)
+
+Further debugging:
+
+```python
+ax.bar([np.nan], [0])  # Raises
+ax.bar([0], [np.nan])  # Works
+```
+
+So it's about the x position specifically.
+
+### Operating system
+
+Macos
+
+### Matplotlib Version
+
+3.6.1
+
+### Matplotlib Backend
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Jupyter version
+
+_No response_
+
+### Installation
+
+pip
+
+## Repository context
+
+Repository: matplotlib/matplotlib at commit af39f1edffcd828f05cfdd04f2e59506bb4a27bc
+Retrieved 5 of 241 candidate source files.
+You cannot browse the repository. The excerpts below are the whole of the
+code you have been given; anything not shown, you do not have.
+
+--- lib/matplotlib/cbook/__init__.py (lines 129-341 of 2365; not shown in this file: <module header>, __getattr__, _get_running_interactive_framework, _exception_printer, _StrongRef, _weak_or_strong_ref, silent_list, _local_over_kwdict, strip_math, _strip_comment, is_writable_file_like, file_requires_unicode, to_filehandle, open_file_cm, is_scalar_or_string, get_sample_data, _get_data_path, flatten, maxdict, Stack, report_memory, safe_masked_invalid, print_cycles, Grouper, GrouperView) ---
+```python
+class CallbackRegistry:
+    """
+    Handle registering, processing, blocking, and disconnecting
+    for a set of signals and callbacks:
+
+        >>> def oneat(x):
+        ...    print('eat', x)
+        >>> def ondrink(x):
+        ...    print('drink', x)
+
+        >>> from matplotlib.cbook import CallbackRegistry
+        >>> callbacks = CallbackRegistry()
+
+        >>> id_eat = callbacks.connect('eat', oneat)
+        >>> id_drink = callbacks.connect('drink', ondrink)
+
+        >>> callbacks.process('drink', 123)
+        drink 123
+        >>> callbacks.process('eat', 456)
+        eat 456
+        >>> callbacks.process('be merry', 456)   # nothing will be called
+
+        >>> callbacks.disconnect(id_eat)
+        >>> callbacks.process('eat', 456)        # nothing will be called
+
+        >>> with callbacks.blocked(signal='drink'):
+        ...     callbacks.process('drink', 123)  # nothing will be called
+        >>> callbacks.process('drink', 123)
+        drink 123
+
+    In practice, one should always disconnect all callbacks when they are
+    no longer needed to avoid dangling references (and thus memory leaks).
+    However, real code in Matplotlib rarely does so, and due to its design,
+    it is rather difficult to place this kind of code.  To get around this,
+    and prevent this class of memory leaks, we instead store weak references
+    to bound methods only, so when the destination object needs to die, the
+    CallbackRegistry won't keep it alive.
+
+    Parameters
+    ----------
+    exception_handler : callable, optional
+       If not None, *exception_handler* must be a function that takes an
+       `Exception` as single parameter.  It gets called with any `Exception`
+       raised by the callbacks during `CallbackRegistry.process`, and may
+       either re-raise the exception or handle it in another manner.
+
+       The default handler prints the exception (with `traceback.print_exc`) if
+       an interactive event loop is running; it re-raises the exception if no
+       interactive event loop is running.
+
+    signals : list, optional
+        If not None, *signals* is a list of signals that this registry handles:
+        attempting to `process` or to `connect` to a signal not in the list
+        throws a `ValueError`.  The default, None, does not restrict the
+        handled signals.
+    """
+
+    # We maintain two mappings:
+    #   callbacks: signal -> {cid -> weakref-to-callback}
+    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
+
+    def __init__(self, exception_handler=_exception_printer, *, signals=None):
+        self._signals = None if signals is None else list(signals)  # Copy it.
+        self.exception_handler = exception_handler
+        self.callbacks = {}
+        self._cid_gen = itertools.count()
+        self._func_cid_map = {}
+        # A hidden variable that marks cids that need to be pickled.
+        self._pickled_cids = set()
+
+    def __getstate__(self):
+        return {
+            **vars(self),
+            # In general, callbacks may not be pickled, so we just drop them,
+            # unless directed otherwise by self._pickled_cids.
+            "callbacks": {s: {cid: proxy() for cid, proxy in d.items()
+                              if cid in self._pickled_cids}
+                          for s, d in self.callbacks.items()},
+            # It is simpler to reconstruct this from callbacks in __setstate__.
+            "_func_cid_map": None,
+        }
+
+    def __setstate__(self, state):
+        vars(self).update(state)
+        self.callbacks = {
+            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+                for cid, func in d.items()}
+            for s, d in self.callbacks.items()}
+        self._func_cid_map = {
+            s: {proxy: cid for cid, proxy in d.items()}
+            for s, d in self.callbacks.items()}
+
+    def connect(self, signal, func):
+        """Register *func* to be called when signal *signal* is generated."""
+        if signal == "units finalize":
+            _api.warn_deprecated(
+                "3.5", name=signal, obj_type="signal", alternative="units")
+        if self._signals is not None:
+            _api.check_in_list(self._signals, signal=signal)
+        self._func_cid_map.setdefault(signal, {})
+        proxy = _weak_or_strong_ref(func, self._remove_proxy)
+        if proxy in self._func_cid_map[signal]:
+            return self._func_cid_map[signal][proxy]
+        cid = next(self._cid_gen)
+        self._func_cid_map[signal][proxy] = cid
+        self.callbacks.setdefault(signal, {})
+        self.callbacks[signal][cid] = proxy
+        return cid
+
+    def _connect_picklable(self, signal, func):
+        """
+        Like `.connect`, but the callback is kept when pickling/unpickling.
+
+        Currently internal-use only.
+        """
+        cid = self.connect(signal, func)
+        self._pickled_cids.add(cid)
+        return cid
+
+    # Keep a reference to sys.is_finalizing, as sys may have been cleared out
+    # at that point.
+    def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
+        if _is_finalizing():
+            # Weakrefs can't be properly torn down at that point anymore.
+            return
+        for signal, proxy_to_cid in list(self._func_cid_map.items()):
+            cid = proxy_to_cid.pop(proxy, None)
+            if cid is not None:
+                del self.callbacks[signal][cid]
+                self._pickled_cids.discard(cid)
+                break
+        else:
+            # Not found
+            return
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
+
+    def disconnect(self, cid):
+        """
+        Disconnect the callback registered with callback id *cid*.
+
+        No error is raised if such a callback does not exist.
+        """
+        self._pickled_cids.discard(cid)
+        # Clean up callbacks
+        for signal, cid_to_proxy in list(self.callbacks.items()):
+            proxy = cid_to_proxy.pop(cid, None)
+            if proxy is not None:
+                break
+        else:
+            # Not found
+            return
+
+        proxy_to_cid = self._func_cid_map[signal]
+        for current_proxy, current_cid in list(proxy_to_cid.items()):
+            if current_cid == cid:
+                assert proxy is current_proxy
+                del proxy_to_cid[current_proxy]
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
+
+    def process(self, s, *args, **kwargs):
+        """
+        Process signal *s*.
+
+        All of the functions registered to receive callbacks on *s* will be
+        called with ``*args`` and ``**kwargs``.
+        """
+        if self._signals is not None:
+            _api.check_in_list(self._signals, signal=s)
+        for cid, ref in list(self.callbacks.get(s, {}).items()):
+            func = ref()
+            if func is not None:
+                try:
+                    func(*args, **kwargs)
+                # this does not capture KeyboardInterrupt, SystemExit,
+                # and GeneratorExit
+                except Exception as exc:
+                    if self.exception_handler is not None:
+                        self.exception_handler(exc)
+                    else:
+                        raise
+
+    @contextlib.contextmanager
+    def blocked(self, *, signal=None):
+        """
+        Block callback signals from being processed.
+
+        A context manager to temporarily block/disable callback signals
+        from being processed by the registered listeners.
+
+        Parameters
+        ----------
+        signal : str, optional
+            The callback signal to block. The default is to block all signals.
+        """
+        orig = self.callbacks
+        try:
+            if signal is None:
+                # Empty out the callbacks
+                self.callbacks = {}
+            else:
+                # Only remove the specific signal
+                self.callbacks = {k: orig[k] for k in orig if k != signal}
+            yield
+        finally:
+            self.callbacks = orig
+
+
+```
+
+--- lib/matplotlib/cbook/__init__.py (lines 973-1031 of 2365; not shown in this file: <module header>, __getattr__, _get_running_interactive_framework, _exception_printer, _StrongRef, _weak_or_strong_ref, silent_list, _local_over_kwdict, strip_math, _strip_comment, is_writable_file_like, file_requires_unicode, to_filehandle, open_file_cm, is_scalar_or_string, get_sample_data, _get_data_path, flatten, maxdict, Stack, report_memory, safe_masked_invalid, print_cycles, Grouper, GrouperView) ---
+```python
+def delete_masked_points(*args):
+    """
+    Find all masked and/or non-finite points in a set of arguments,
+    and return the arguments with only the unmasked points remaining.
+
+    Arguments can be in any of 5 categories:
+
+    1) 1-D masked arrays
+    2) 1-D ndarrays
+    3) ndarrays with more than one dimension
+    4) other non-string iterables
+    5) anything else
+
+    The first argument must be in one of the first four categories;
+    any argument with a length differing from that of the first
+    argument (and hence anything in category 5) then will be
+    passed through unchanged.
+
+    Masks are obtained from all arguments of the correct length
+    in categories 1, 2, and 4; a point is bad if masked in a masked
+    array or if it is a nan or inf.  No attempt is made to
+    extract a mask from categories 2, 3, and 4 if `numpy.isfinite`
+    does not yield a Boolean array.
+
+    All input arguments that are not passed unchanged are returned
+    as ndarrays after removing the points or rows corresponding to
+    masks in any of the arguments.
+
+    A vastly simpler version of this function was originally
+    written as a helper for Axes.scatter().
+
+    """
+    if not len(args):
+        return ()
+    if is_scalar_or_string(args[0]):
+        raise ValueError("First argument must be a sequence")
+    nrecs = len(args[0])
+    margs = []
+    seqlist = [False] * len(args)
+    for i, x in enumerate(args):
+        if not isinstance(x, str) and np.iterable(x) and len(x) == nrecs:
+            seqlist[i] = True
+            if isinstance(x, np.ma.MaskedArray):
+                if x.ndim > 1:
+                    raise ValueError("Masked arrays must be 1-D")
+            else:
+                x = np.asarray(x)
+        margs.append(x)
+    masks = []  # List of masks that are True where good.
+    for i, x in enumerate(margs):
+        if seqlist[i]:
+            if x.ndim > 1:
+                continue  # Don't try to get nan locations unless 1-D.
+            if isinstance(x, np.ma.MaskedArray):
+                masks.append(~np.ma.getmaskarray(x))  # invert the mask
+                xd = x.data
+            else:
+                xd = x
+            try:
+```
+
+--- lib/matplotlib/cbook/__init__.py (lines 1709-1751 of 2365; not shown in this file: <module header>, __getattr__, _get_running_interactive_framework, _exception_printer, _StrongRef, _weak_or_strong_ref, silent_list, _local_over_kwdict, strip_math, _strip_comment, is_writable_file_like, file_requires_unicode, to_filehandle, open_file_cm, is_scalar_or_string, get_sample_data, _get_data_path, flatten, maxdict, Stack, report_memory, safe_masked_invalid, print_cycles, Grouper, GrouperView) ---
+```python
+def _safe_first_finite(obj, *, skip_nonfinite=True):
+    """
+    Return the first non-None (and optionally finite) element in *obj*.
+
+    This is a method for internal use.
+
+    This is an type-independent way of obtaining the first non-None element,
+    supporting both index access and the iterator protocol.
+    The first non-None element will be obtained when skip_none is True.
+    """
+    def safe_isfinite(val):
+        if val is None:
+            return False
+        try:
+            return np.isfinite(val) if np.isscalar(val) else True
+        except TypeError:
+            # This is something that numpy can not make heads or tails
+            # of, assume "finite"
+            return True
+    if skip_nonfinite is False:
+        if isinstance(obj, collections.abc.Iterator):
+            # needed to accept `array.flat` as input.
+            # np.flatiter reports as an instance of collections.Iterator
+            # but can still be indexed via [].
+            # This has the side effect of re-setting the iterator, but
+            # that is acceptable.
+            try:
+                return obj[0]
+            except TypeError:
+                pass
+            raise RuntimeError("matplotlib does not support generators "
+                               "as input")
+        return next(iter(obj))
+    elif isinstance(obj, np.flatiter):
+        # TODO do the finite filtering on this
+        return obj[0]
+    elif isinstance(obj, collections.abc.Iterator):
+        raise RuntimeError("matplotlib does not "
+                           "support generators as input")
+    else:
+        return next(val for val in obj if safe_isfinite(val))
+
+
+```
+
+--- lib/matplotlib/__init__.py (lines 606-729 of 1463; not shown in this file: <module header>, _parse_to_version_info, _get_version, __getattr__, _check_versions, _ensure_handler, set_loglevel, _logged_cached, ExecutableNotFoundError, _get_executable_info, checkdep_usetex, _get_xdg_config_dir, _get_xdg_cache_dir, _get_config_or_cache_dir, get_configdir, get_cachedir, get_data_path, matplotlib_fname, rc_params, is_url, _get_ssl_context, _open_file_or_url, rc_params_from_file, rc, rcdefaults) ---
+```python
+class RcParams(MutableMapping, dict):
+    """
+    A dictionary object including validation.
+
+    Validating functions are defined and associated with rc parameters in
+    :mod:`matplotlib.rcsetup`.
+
+    The list of rcParams is:
+
+    %s
+
+    See Also
+    --------
+    :ref:`customizing-with-matplotlibrc-files`
+    """
+
+    validate = rcsetup._validators
+
+    # validate values on the way in
+    def __init__(self, *args, **kwargs):
+        self.update(*args, **kwargs)
+
+    def __setitem__(self, key, val):
+        try:
+            if key in _deprecated_map:
+                version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
+                _api.warn_deprecated(
+                    version, name=key, obj_type="rcparam", alternative=alt_key)
+                key = alt_key
+                val = alt_val(val)
+            elif key in _deprecated_remain_as_none and val is not None:
+                version, = _deprecated_remain_as_none[key]
+                _api.warn_deprecated(version, name=key, obj_type="rcparam")
+            elif key in _deprecated_ignore_map:
+                version, alt_key = _deprecated_ignore_map[key]
+                _api.warn_deprecated(
+                    version, name=key, obj_type="rcparam", alternative=alt_key)
+                return
+            elif key == 'backend':
+                if val is rcsetup._auto_backend_sentinel:
+                    if 'backend' in self:
+                        return
+            try:
+                cval = self.validate[key](val)
+            except ValueError as ve:
+                raise ValueError(f"Key {key}: {ve}") from None
+            dict.__setitem__(self, key, cval)
+        except KeyError as err:
+            raise KeyError(
+                f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                f"a list of valid parameters)") from err
+
+    def __getitem__(self, key):
+        if key in _deprecated_map:
+            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
+            _api.warn_deprecated(
+                version, name=key, obj_type="rcparam", alternative=alt_key)
+            return inverse_alt(dict.__getitem__(self, alt_key))
+
+        elif key in _deprecated_ignore_map:
+            version, alt_key = _deprecated_ignore_map[key]
+            _api.warn_deprecated(
+                version, name=key, obj_type="rcparam", alternative=alt_key)
+            return dict.__getitem__(self, alt_key) if alt_key else None
+
+        # In theory, this should only ever be used after the global rcParams
+        # has been set up, but better be safe e.g. in presence of breakpoints.
+        elif key == "backend" and self is globals().get("rcParams"):
+            val = dict.__getitem__(self, key)
+            if val is rcsetup._auto_backend_sentinel:
+                from matplotlib import pyplot as plt
+                plt.switch_backend(rcsetup._auto_backend_sentinel)
+
+        return dict.__getitem__(self, key)
+
+    def _get_backend_or_none(self):
+        """Get the requested backend, if any, without triggering resolution."""
+        backend = dict.__getitem__(self, "backend")
+        return None if backend is rcsetup._auto_backend_sentinel else backend
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        indent = len(class_name) + 1
+        with _api.suppress_matplotlib_deprecation_warning():
+            repr_split = pprint.pformat(dict(self), indent=1,
+                                        width=80 - indent).split('\n')
+        repr_indented = ('\n' + ' ' * indent).join(repr_split)
+        return '{}({})'.format(class_name, repr_indented)
+
+    def __str__(self):
+        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
+
+    def __iter__(self):
+        """Yield sorted list of keys."""
+        with _api.suppress_matplotlib_deprecation_warning():
+            yield from sorted(dict.__iter__(self))
+
+    def __len__(self):
+        return dict.__len__(self)
+
+    def find_all(self, pattern):
+        """
+        Return the subset of this RcParams dictionary whose keys match,
+        using :func:`re.search`, the given ``pattern``.
+
+        .. note::
+
+            Changes to the returned dictionary are *not* propagated to
+            the parent RcParams dictionary.
+
+        """
+        pattern_re = re.compile(pattern)
+        return RcParams((key, value)
+                        for key, value in self.items()
+                        if pattern_re.search(key))
+
+    def copy(self):
+        """Copy this RcParams instance."""
+        rccopy = RcParams()
+        for k in self:  # Skip deprecations and revalidation.
+            dict.__setitem__(rccopy, k, dict.__getitem__(self, k))
+        return rccopy
+
+
+```
+
+--- lib/matplotlib/__init__.py (lines 770-835 of 1463; not shown in this file: <module header>, _parse_to_version_info, _get_version, __getattr__, _check_versions, _ensure_handler, set_loglevel, _logged_cached, ExecutableNotFoundError, _get_executable_info, checkdep_usetex, _get_xdg_config_dir, _get_xdg_cache_dir, _get_config_or_cache_dir, get_configdir, get_cachedir, get_data_path, matplotlib_fname, rc_params, is_url, _get_ssl_context, _open_file_or_url, rc_params_from_file, rc, rcdefaults) ---
+```python
+def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
+    """
+    Construct a `RcParams` instance from file *fname*.
+
+    Unlike `rc_params_from_file`, the configuration class only contains the
+    parameters specified in the file (i.e. default values are not filled in).
+
+    Parameters
+    ----------
+    fname : path-like
+        The loaded file.
+    transform : callable, default: the identity function
+        A function called on each individual line of the file to transform it,
+        before further parsing.
+    fail_on_error : bool, default: False
+        Whether invalid entries should result in an exception or a warning.
+    """
+    import matplotlib as mpl
+    rc_temp = {}
+    with _open_file_or_url(fname) as fd:
+        try:
+            for line_no, line in enumerate(fd, 1):
+                line = transform(line)
+                strippedline = cbook._strip_comment(line)
+                if not strippedline:
+                    continue
+                tup = strippedline.split(':', 1)
+                if len(tup) != 2:
+                    _log.warning('Missing colon in file %r, line %d (%r)',
+                                 fname, line_no, line.rstrip('\n'))
+                    continue
+                key, val = tup
+                key = key.strip()
+                val = val.strip()
+                if val.startswith('"') and val.endswith('"'):
+                    val = val[1:-1]  # strip double quotes
+                if key in rc_temp:
+                    _log.warning('Duplicate key in file %r, line %d (%r)',
+                                 fname, line_no, line.rstrip('\n'))
+                rc_temp[key] = (val, line, line_no)
+        except UnicodeDecodeError:
+            _log.warning('Cannot decode configuration file %r as utf-8.',
+                         fname)
+            raise
+
+    config = RcParams()
+
+    for key, (val, line, line_no) in rc_temp.items():
+        if key in rcsetup._validators:
+            if fail_on_error:
+                config[key] = val  # try to convert to proper type or raise
+            else:
+                try:
+                    config[key] = val  # try to convert to proper type or skip
+                except Exception as msg:
+                    _log.warning('Bad value in file %r, line %d (%r): %s',
+                                 fname, line_no, line.rstrip('\n'), msg)
+        elif key in _deprecated_ignore_map:
+            version, alt_key = _deprecated_ignore_map[key]
+            _api.warn_deprecated(
+                version, name=key, alternative=alt_key, obj_type='rcparam',
+                addendum="Please update your matplotlibrc.")
+        else:
+            # __version__ must be looked up as an attribute to trigger the
+            # module-level __getattr__.
+            version = ('main' if '.post' in mpl.__version__
+```
+
+--- lib/matplotlib/__init__.py (lines 1349-1463 of 1463; not shown in this file: <module header>, _parse_to_version_info, _get_version, __getattr__, _check_versions, _ensure_handler, set_loglevel, _logged_cached, ExecutableNotFoundError, _get_executable_info, checkdep_usetex, _get_xdg_config_dir, _get_xdg_cache_dir, _get_config_or_cache_dir, get_configdir, get_cachedir, get_data_path, matplotlib_fname, rc_params, is_url, _get_ssl_context, _open_file_or_url, rc_params_from_file, rc, rcdefaults) ---
+```python
+def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
+    """
+    A decorator to add a 'data' kwarg to a function.
+
+    When applied::
+
+        @_preprocess_data()
+        def func(ax, *args, **kwargs): ...
+
+    the signature is modified to ``decorated(ax, *args, data=None, **kwargs)``
+    with the following behavior:
+
+    - if called with ``data=None``, forward the other arguments to ``func``;
+    - otherwise, *data* must be a mapping; for any argument passed in as a
+      string ``name``, replace the argument by ``data[name]`` (if this does not
+      throw an exception), then forward the arguments to ``func``.
+
+    In either case, any argument that is a `MappingView` is also converted to a
+    list.
+
+    Parameters
+    ----------
+    replace_names : list of str or None, default: None
+        The list of parameter names for which lookup into *data* should be
+        attempted. If None, replacement is attempted for all arguments.
+    label_namer : str, default: None
+        If set e.g. to "namer" (which must be a kwarg in the function's
+        signature -- not as ``**kwargs``), if the *namer* argument passed in is
+        a (string) key of *data* and no *label* kwarg is passed, then use the
+        (string) value of the *namer* as *label*. ::
+
+            @_preprocess_data(label_namer="foo")
+            def func(foo, label=None): ...
+
+            func("key", data={"key": value})
+            # is equivalent to
+            func.__wrapped__(value, label="key")
+    """
+
+    if func is None:  # Return the actual decorator.
+        return functools.partial(
+            _preprocess_data,
+            replace_names=replace_names, label_namer=label_namer)
+
+    sig = inspect.signature(func)
+    varargs_name = None
+    varkwargs_name = None
+    arg_names = []
+    params = list(sig.parameters.values())
+    for p in params:
+        if p.kind is Parameter.VAR_POSITIONAL:
+            varargs_name = p.name
+        elif p.kind is Parameter.VAR_KEYWORD:
+            varkwargs_name = p.name
+        else:
+            arg_names.append(p.name)
+    data_param = Parameter("data", Parameter.KEYWORD_ONLY, default=None)
+    if varkwargs_name:
+        params.insert(-1, data_param)
+    else:
+        params.append(data_param)
+    new_sig = sig.replace(parameters=params)
+    arg_names = arg_names[1:]  # remove the first "ax" / self arg
+
+    assert {*arg_names}.issuperset(replace_names or []) or varkwargs_name, (
+        "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
+        .format(replace_names, func.__name__))
+    assert label_namer is None or label_namer in arg_names, (
+        "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
+        .format(label_namer, func.__name__))
+
+    @functools.wraps(func)
+    def inner(ax, *args, data=None, **kwargs):
+        if data is None:
+            return func(ax, *map(sanitize_sequence, args), **kwargs)
+
+        bound = new_sig.bind(ax, *args, **kwargs)
+        auto_label = (bound.arguments.get(label_namer)
+                      or bound.kwargs.get(label_namer))
+
+        for k, v in bound.arguments.items():
+            if k == varkwargs_name:
+                for k1, v1 in v.items():
+                    if replace_names is None or k1 in replace_names:
+                        v[k1] = _replacer(data, v1)
+            elif k == varargs_name:
+                if replace_names is None:
+                    bound.arguments[k] = tuple(_replacer(data, v1) for v1 in v)
+            else:
+                if replace_names is None or k in replace_names:
+                    bound.arguments[k] = _replacer(data, v)
+
+        new_args = bound.args
+        new_kwargs = bound.kwargs
+
+        args_and_kwargs = {**bound.arguments, **bound.kwargs}
+        if label_namer and "label" not in args_and_kwargs:
+            new_kwargs["label"] = _label_from_arg(
+                args_and_kwargs.get(label_namer), auto_label)
+
+        return func(*new_args, **new_kwargs)
+
+    inner.__doc__ = _add_data_doc(inner.__doc__, replace_names)
+    inner.__signature__ = new_sig
+    return inner
+
+
+_log.debug('interactive is %s', is_interactive())
+_log.debug('platform is %s', sys.platform)
+
+
+# workaround: we must defer colormaps import to after loading rcParams, because
+# colormap creation depends on rcParams
+from matplotlib.cm import _colormaps as colormaps
+from matplotlib.colors import _color_sequences as color_sequences
+```
+
+--- lib/matplotlib/axes/_axes.py (lines 46-391 of 8237; not shown in this file: <module header>) ---
+```python
+@_docstring.interpd
+class Axes(_AxesBase):
+    """
+    The `Axes` contains most of the figure elements: `~.axis.Axis`,
+    `~.axis.Tick`, `~.lines.Line2D`, `~.text.Text`, `~.patches.Polygon`, etc.,
+    and sets the coordinate system.
+
+    The `Axes` instance supports callbacks through a callbacks attribute which
+    is a `~.cbook.CallbackRegistry` instance.  The events you can connect to
+    are 'xlim_changed' and 'ylim_changed' and the callback will be called with
+    func(*ax*) where *ax* is the `Axes` instance.
+
+    Attributes
+    ----------
+    dataLim : `.Bbox`
+        The bounding box enclosing all data displayed in the Axes.
+    viewLim : `.Bbox`
+        The view limits in data coordinates.
+
+    """
+    ### Labelling, legend and texts
+
+    def get_title(self, loc="center"):
+        """
+        Get an Axes title.
+
+        Get one of the three available Axes titles. The available titles
+        are positioned above the Axes in the center, flush with the left
+        edge, and flush with the right edge.
+
+        Parameters
+        ----------
+        loc : {'center', 'left', 'right'}, str, default: 'center'
+            Which title to return.
+
+        Returns
+        -------
+        str
+            The title text string.
+
+        """
+        titles = {'left': self._left_title,
+                  'center': self.title,
+                  'right': self._right_title}
+        title = _api.check_getitem(titles, loc=loc.lower())
+        return title.get_text()
+
+    def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
+                  **kwargs):
+        """
+        Set a title for the Axes.
+
+        Set one of the three available Axes titles. The available titles
+        are positioned above the Axes in the center, flush with the left
+        edge, and flush with the right edge.
+
+        Parameters
+        ----------
+        label : str
+            Text to use for the title
+
+        fontdict : dict
+            A dictionary controlling the appearance of the title text,
+            the default *fontdict* is::
+
+               {'fontsize': rcParams['axes.titlesize'],
+                'fontweight': rcParams['axes.titleweight'],
+                'color': rcParams['axes.titlecolor'],
+                'verticalalignment': 'baseline',
+                'horizontalalignment': loc}
+
+        loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
+            Which title to set.
+
+        y : float, default: :rc:`axes.titley`
+            Vertical Axes location for the title (1.0 is the top).  If
+            None (the default) and :rc:`axes.titley` is also None, y is
+            determined automatically to avoid decorators on the Axes.
+
+        pad : float, default: :rc:`axes.titlepad`
+            The offset of the title from the top of the Axes, in points.
+
+        Returns
+        -------
+        `.Text`
+            The matplotlib text instance representing the title
+
+        Other Parameters
+        ----------------
+        **kwargs : `.Text` properties
+            Other keyword arguments are text properties, see `.Text` for a list
+            of valid text properties.
+        """
+        if loc is None:
+            loc = mpl.rcParams['axes.titlelocation']
+
+        if y is None:
+            y = mpl.rcParams['axes.titley']
+        if y is None:
+            y = 1.0
+        else:
+            self._autotitlepos = False
+        kwargs['y'] = y
+
+        titles = {'left': self._left_title,
+                  'center': self.title,
+                  'right': self._right_title}
+        title = _api.check_getitem(titles, loc=loc.lower())
+        default = {
+            'fontsize': mpl.rcParams['axes.titlesize'],
+            'fontweight': mpl.rcParams['axes.titleweight'],
+            'verticalalignment': 'baseline',
+            'horizontalalignment': loc.lower()}
+        titlecolor = mpl.rcParams['axes.titlecolor']
+        if not cbook._str_lower_equal(titlecolor, 'auto'):
+            default["color"] = titlecolor
+        if pad is None:
+            pad = mpl.rcParams['axes.titlepad']
+        self._set_title_offset_trans(float(pad))
+        title.set_text(label)
+        title.update(default)
+        if fontdict is not None:
+            title.update(fontdict)
+        title._internal_update(kwargs)
+        return title
+
+    def get_legend_handles_labels(self, legend_handler_map=None):
+        """
+        Return handles and labels for legend
+
+        ``ax.legend()`` is equivalent to ::
+
+          h, l = ax.get_legend_handles_labels()
+          ax.legend(h, l)
+        """
+        # pass through to legend.
+        handles, labels = mlegend._get_legend_handles_labels(
+            [self], legend_handler_map)
+        return handles, labels
+
+    @_docstring.dedent_interpd
+    def legend(self, *args, **kwargs):
+        """
+        Place a legend on the Axes.
+
+        Call signatures::
+
+            legend()
+            legend(handles, labels)
+            legend(handles=handles)
+            legend(labels)
+
+        The call signatures correspond to the following different ways to use
+        this method:
+
+        **1. Automatic detection of elements to be shown in the legend**
+
+        The elements to be added to the legend are automatically determined,
+        when you do not pass in any extra arguments.
+
+        In this case, the labels are taken from the artist. You can specify
+        them either at artist creation or by calling the
+        :meth:`~.Artist.set_label` method on the artist::
+
+            ax.plot([1, 2, 3], label='Inline label')
+            ax.legend()
+
+        or::
+
+            line, = ax.plot([1, 2, 3])
+            line.set_label('Label via method')
+            ax.legend()
+
+        .. note::
+            Specific artists can be excluded from the automatic legend element
+            selection by using a label starting with an underscore, "_".
+            A string starting with an underscore is the default label for all
+            artists, so calling `.Axes.legend` without any arguments and
+            without setting the labels manually will result in no legend being
+            drawn.
+
+
+        **2. Explicitly listing the artists and labels in the legend**
+
+        For full control of which artists have a legend entry, it is possible
+        to pass an iterable of legend artists followed by an iterable of
+        legend labels respectively::
+
+            ax.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
+
+
+        **3. Explicitly listing the artists in the legend**
+
+        This is similar to 2, but the labels are taken from the artists'
+        label properties. Example::
+
+            line1, = ax.plot([1, 2, 3], label='label1')
+            line2, = ax.plot([1, 2, 3], label='label2')
+            ax.legend(handles=[line1, line2])
+
+
+        **4. Labeling existing plot elements**
+
+        .. admonition:: Discouraged
+
+            This call signature is discouraged, because the relation between
+            plot elements and labels is only implicit by their order and can
+            easily be mixed up.
+
+        To make a legend for all artists on an Axes, call this function with
+        an iterable of strings, one for each legend item. For example::
+
+            ax.plot([1, 2, 3])
+            ax.plot([5, 6, 7])
+            ax.legend(['First line', 'Second line'])
+
+
+        Parameters
+        ----------
+        handles : sequence of `.Artist`, optional
+            A list of Artists (lines, patches) to be added to the legend.
+            Use this together with *labels*, if you need full control on what
+            is shown in the legend and the automatic mechanism described above
+            is not sufficient.
+
+            The length of handles and labels should be the same in this
+            case. If they are not, they are truncated to the smaller length.
+
+        labels : list of str, optional
+            A list of labels to show next to the artists.
+            Use this together with *handles*, if you need full control on what
+            is shown in the legend and the automatic mechanism described above
+            is not sufficient.
+
+        Returns
+        -------
+        `~matplotlib.legend.Legend`
+
+        Other Parameters
+        ----------------
+        %(_legend_kw_doc)s
+
+        See Also
+        --------
+        .Figure.legend
+
+        Notes
+        -----
+        Some artists are not supported by this function.  See
+        :doc:`/tutorials/intermediate/legend_guide` for details.
+
+        Examples
+        --------
+        .. plot:: gallery/text_labels_and_annotations/legend.py
+        """
+        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
+                [self],
+                *args,
+                **kwargs)
+        if len(extra_args):
+            raise TypeError('legend only accepts two non-keyword arguments')
+        self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
+        self.legend_._remove_method = self._remove_legend
+        return self.legend_
+
+    def _remove_legend(self, legend):
+        self.legend_ = None
+
+    def inset_axes(self, bounds, *, transform=None, zorder=5, **kwargs):
+        """
+        Add a child inset Axes to this existing Axes.
+
+        Warnings
+        --------
+        This method is experimental as of 3.0, and the API may change.
+
+        Parameters
+        ----------
+        bounds : [x0, y0, width, height]
+            Lower-left corner of inset Axes, and its width and height.
+
+        transform : `.Transform`
+            Defaults to `ax.transAxes`, i.e. the units of *rect* are in
+            Axes-relative coordinates.
+
+        projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+            The projection type of the inset `~.axes.Axes`. *str* is the name
+            of a custom projection, see `~matplotlib.projections`. The default
+            None results in a 'rectilinear' projection.
+
+        polar : bool, default: False
+            If True, equivalent to projection='polar'.
+
+        axes_class : subclass type of `~.axes.Axes`, optional
+            The `.axes.Axes` subclass that is instantiated.  This parameter
+            is incompatible with *projection* and *polar*.  See
+            :ref:`axisartist_users-guide-index` for examples.
+
+        zorder : number
+            Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
+            to change whether it is above or below data plotted on the
+            parent Axes.
+
+        **kwargs
+            Other keyword arguments are passed on to the inset Axes class.
+
+        Returns
+        -------
+        ax
+            The created `~.axes.Axes` instance.
+
+        Examples
+        --------
+        This example makes two inset Axes, the first is in Axes-relative
+        coordinates, and the second in data-coordinates::
+
+            fig, ax = plt.subplots()
+            ax.plot(range(10))
+            axin1 = ax.inset_axes([0.8, 0.1, 0.15, 0.15])
+            axin2 = ax.inset_axes(
+                    [5, 7, 2.3, 2.3], transform=ax.transData)
+
+        """
+        if transform is None:
+            transform = self.transAxes
+        kwargs.setdefault('label', 'inset_axes')
+
+        # This puts the rectangle into figure-relative coordinates.
+        inset_locator = _TransformedBoundsLocator(bounds, transform)
+        bounds = inset_locator(self, None).bounds
+        projection_class, pkw = self.figure._process_projection_requirements(
+                bounds, **kwargs)
+        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+
+        # this locator lets the axes move if in data coordinates.
+        # it gets called in `ax.apply_aspect() (of all places)
+        inset_ax.set_axes_locator(inset_locator)
+
+        self.add_child_axes(inset_ax)
+
+        return inset_ax
+
+    @_docstring.dedent_interpd
+    def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
+                       facecolor='none', edgecolor='0.5', alpha=0.5,
+```
+
+--- lib/matplotlib/axes/_base.py (lines 547-851 of 4538; not shown in this file: <module header>, _axis_method_wrapper, _TransformedBoundsLocator, _process_plot_format, _process_plot_var_args) ---
+```python
+@_api.define_aliases({"facecolor": ["fc"]})
+class _AxesBase(martist.Artist):
+    name = "rectilinear"
+
+    # axis names are the prefixes for the attributes that contain the
+    # respective axis; e.g. 'x' <-> self.xaxis, containing an XAxis.
+    # Note that PolarAxes uses these attributes as well, so that we have
+    # 'x' <-> self.xaxis, containing a ThetaAxis. In particular we do not
+    # have 'theta' in _axis_names.
+    # In practice, this is ('x', 'y') for all 2D Axes and ('x', 'y', 'z')
+    # for Axes3D.
+    _axis_names = ("x", "y")
+    _shared_axes = {name: cbook.Grouper() for name in _axis_names}
+    _twinned_axes = cbook.Grouper()
+
+    _subclass_uses_cla = False
+
+    @property
+    def _axis_map(self):
+        """A mapping of axis names, e.g. 'x', to `Axis` instances."""
+        return {name: getattr(self, f"{name}axis")
+                for name in self._axis_names}
+
+    def __str__(self):
+        return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
+            type(self).__name__, self._position.bounds)
+
+    def __init__(self, fig, rect,
+                 *,
+                 facecolor=None,  # defaults to rc axes.facecolor
+                 frameon=True,
+                 sharex=None,  # use Axes instance's xaxis info
+                 sharey=None,  # use Axes instance's yaxis info
+                 label='',
+                 xscale=None,
+                 yscale=None,
+                 box_aspect=None,
+                 **kwargs
+                 ):
+        """
+        Build an Axes in a figure.
+
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure`
+            The Axes is built in the `.Figure` *fig*.
+
+        rect : tuple (left, bottom, width, height).
+            The Axes is built in the rectangle *rect*. *rect* is in
+            `.Figure` coordinates.
+
+        sharex, sharey : `~.axes.Axes`, optional
+            The x or y `~.matplotlib.axis` is shared with the x or
+            y axis in the input `~.axes.Axes`.
+
+        frameon : bool, default: True
+            Whether the Axes frame is visible.
+
+        box_aspect : float, optional
+            Set a fixed aspect for the Axes box, i.e. the ratio of height to
+            width. See `~.axes.Axes.set_box_aspect` for details.
+
+        **kwargs
+            Other optional keyword arguments:
+
+            %(Axes:kwdoc)s
+
+        Returns
+        -------
+        `~.axes.Axes`
+            The new `~.axes.Axes` object.
+        """
+
+        super().__init__()
+        if isinstance(rect, mtransforms.Bbox):
+            self._position = rect
+        else:
+            self._position = mtransforms.Bbox.from_bounds(*rect)
+        if self._position.width < 0 or self._position.height < 0:
+            raise ValueError('Width and height specified must be non-negative')
+        self._originalPosition = self._position.frozen()
+        self.axes = self
+        self._aspect = 'auto'
+        self._adjustable = 'box'
+        self._anchor = 'C'
+        self._stale_viewlims = {name: False for name in self._axis_names}
+        self._sharex = sharex
+        self._sharey = sharey
+        self.set_label(label)
+        self.set_figure(fig)
+        self.set_box_aspect(box_aspect)
+        self._axes_locator = None  # Optionally set via update(kwargs).
+        # placeholder for any colorbars added that use this Axes.
+        # (see colorbar.py):
+        self._colorbars = []
+        self.spines = mspines.Spines.from_dict(self._gen_axes_spines())
+
+        # this call may differ for non-sep axes, e.g., polar
+        self._init_axis()
+        if facecolor is None:
+            facecolor = mpl.rcParams['axes.facecolor']
+        self._facecolor = facecolor
+        self._frameon = frameon
+        self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
+
+        self._rasterization_zorder = None
+        self.clear()
+
+        # funcs used to format x and y - fall back on major formatters
+        self.fmt_xdata = None
+        self.fmt_ydata = None
+
+        self.set_navigate(True)
+        self.set_navigate_mode(None)
+
+        if xscale:
+            self.set_xscale(xscale)
+        if yscale:
+            self.set_yscale(yscale)
+
+        self._internal_update(kwargs)
+
+        for name, axis in self._axis_map.items():
+            axis.callbacks._connect_picklable(
+                'units', self._unit_change_handler(name))
+
+        rcParams = mpl.rcParams
+        self.tick_params(
+            top=rcParams['xtick.top'] and rcParams['xtick.minor.top'],
+            bottom=rcParams['xtick.bottom'] and rcParams['xtick.minor.bottom'],
+            labeltop=(rcParams['xtick.labeltop'] and
+                      rcParams['xtick.minor.top']),
+            labelbottom=(rcParams['xtick.labelbottom'] and
+                         rcParams['xtick.minor.bottom']),
+            left=rcParams['ytick.left'] and rcParams['ytick.minor.left'],
+            right=rcParams['ytick.right'] and rcParams['ytick.minor.right'],
+            labelleft=(rcParams['ytick.labelleft'] and
+                       rcParams['ytick.minor.left']),
+            labelright=(rcParams['ytick.labelright'] and
+                        rcParams['ytick.minor.right']),
+            which='minor')
+
+        self.tick_params(
+            top=rcParams['xtick.top'] and rcParams['xtick.major.top'],
+            bottom=rcParams['xtick.bottom'] and rcParams['xtick.major.bottom'],
+            labeltop=(rcParams['xtick.labeltop'] and
+                      rcParams['xtick.major.top']),
+            labelbottom=(rcParams['xtick.labelbottom'] and
+                         rcParams['xtick.major.bottom']),
+            left=rcParams['ytick.left'] and rcParams['ytick.major.left'],
+            right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
+            labelleft=(rcParams['ytick.labelleft'] and
+                       rcParams['ytick.major.left']),
+            labelright=(rcParams['ytick.labelright'] and
+                        rcParams['ytick.major.right']),
+            which='major')
+
+    def __init_subclass__(cls, **kwargs):
+        parent_uses_cla = super(cls, cls)._subclass_uses_cla
+        if 'cla' in cls.__dict__:
+            _api.warn_deprecated(
+                '3.6',
+                pending=True,
+                message=f'Overriding `Axes.cla` in {cls.__qualname__} is '
+                'pending deprecation in %(since)s and will be fully '
+                'deprecated in favor of `Axes.clear` in the future. '
+                'Please report '
+                f'this to the {cls.__module__!r} author.')
+        cls._subclass_uses_cla = 'cla' in cls.__dict__ or parent_uses_cla
+        super().__init_subclass__(**kwargs)
+
+    def __getstate__(self):
+        state = super().__getstate__()
+        # Prune the sharing & twinning info to only contain the current group.
+        state["_shared_axes"] = {
+            name: self._shared_axes[name].get_siblings(self)
+            for name in self._axis_names if self in self._shared_axes[name]}
+        state["_twinned_axes"] = (self._twinned_axes.get_siblings(self)
+                                  if self in self._twinned_axes else None)
+        return state
+
+    def __setstate__(self, state):
+        # Merge the grouping info back into the global groupers.
+        shared_axes = state.pop("_shared_axes")
+        for name, shared_siblings in shared_axes.items():
+            self._shared_axes[name].join(*shared_siblings)
+        twinned_siblings = state.pop("_twinned_axes")
+        if twinned_siblings:
+            self._twinned_axes.join(*twinned_siblings)
+        self.__dict__ = state
+        self._stale = True
+
+    def __repr__(self):
+        fields = []
+        if self.get_label():
+            fields += [f"label={self.get_label()!r}"]
+        if hasattr(self, "get_title"):
+            titles = {}
+            for k in ["left", "center", "right"]:
+                title = self.get_title(loc=k)
+                if title:
+                    titles[k] = title
+            if titles:
+                fields += [f"title={titles}"]
+        for name, axis in self._axis_map.items():
+            if axis.get_label() and axis.get_label().get_text():
+                fields += [f"{name}label={axis.get_label().get_text()!r}"]
+        return f"<{self.__class__.__name__}: " + ", ".join(fields) + ">"
+
+    @_api.delete_parameter("3.6", "args")
+    @_api.delete_parameter("3.6", "kwargs")
+    def get_window_extent(self, renderer=None, *args, **kwargs):
+        """
+        Return the Axes bounding box in display space; *args* and *kwargs*
+        are empty.
+
+        This bounding box does not include the spines, ticks, ticklabels,
+        or other labels.  For a bounding box including these elements use
+        `~matplotlib.axes.Axes.get_tightbbox`.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.get_tightbbox
+        matplotlib.axis.Axis.get_tightbbox
+        matplotlib.spines.Spine.get_window_extent
+        """
+        return self.bbox
+
+    def _init_axis(self):
+        # This is moved out of __init__ because non-separable axes don't use it
+        self.xaxis = maxis.XAxis(self)
+        self.spines.bottom.register_axis(self.xaxis)
+        self.spines.top.register_axis(self.xaxis)
+        self.yaxis = maxis.YAxis(self)
+        self.spines.left.register_axis(self.yaxis)
+        self.spines.right.register_axis(self.yaxis)
+        self._update_transScale()
+
+    def set_figure(self, fig):
+        # docstring inherited
+        super().set_figure(fig)
+
+        self.bbox = mtransforms.TransformedBbox(self._position,
+                                                fig.transSubfigure)
+        # these will be updated later as data is added
+        self.dataLim = mtransforms.Bbox.null()
+        self._viewLim = mtransforms.Bbox.unit()
+        self.transScale = mtransforms.TransformWrapper(
+            mtransforms.IdentityTransform())
+
+        self._set_lim_and_transforms()
+
+    def _unstale_viewLim(self):
+        # We should arrange to store this information once per share-group
+        # instead of on every axis.
+        need_scale = {
+            name: any(ax._stale_viewlims[name]
+                      for ax in self._shared_axes[name].get_siblings(self))
+            for name in self._axis_names}
+        if any(need_scale.values()):
+            for name in need_scale:
+                for ax in self._shared_axes[name].get_siblings(self):
+                    ax._stale_viewlims[name] = False
+            self.autoscale_view(**{f"scale{name}": scale
+                                   for name, scale in need_scale.items()})
+
+    @property
+    def viewLim(self):
+        self._unstale_viewLim()
+        return self._viewLim
+
+    def _request_autoscale_view(self, axis="all", tight=None):
+        """
+        Mark a single axis, or all of them, as stale wrt. autoscaling.
+
+        No computation is performed until the next autoscaling; thus, separate
+        calls to control individual axises incur negligible performance cost.
+
+        Parameters
+        ----------
+        axis : str, default: "all"
+            Either an element of ``self._axis_names``, or "all".
+        tight : bool or None, default: None
+        """
+        axis_names = _api.check_getitem(
+            {**{k: [k] for k in self._axis_names}, "all": self._axis_names},
+            axis=axis)
+        for name in axis_names:
+            self._stale_viewlims[name] = True
+        if tight is not None:
+            self._tight = tight
+
+    def _set_lim_and_transforms(self):
+        """
+        Set the *_xaxis_transform*, *_yaxis_transform*, *transScale*,
+        *transData*, *transLimits* and *transAxes* transformations.
+
+        .. note::
+
+            This method is primarily used by rectilinear projections of the
+            `~matplotlib.axes.Axes` class, and is meant to be overridden by
+            new kinds of projection Axes that need different transformations
+            and limits. (See `~matplotlib.projections.polar.PolarAxes` for an
+            example.)
+        """
+```
+
+--- lib/matplotlib/dates.py (lines 1260-1492 of 1929; not shown in this file: <module header>, _get_tzinfo, _reset_epoch_test_example, set_epoch, get_epoch, _dt64_to_ordinalf, _from_ordinalf, datestr2num, date2num, julian2num, num2julian, num2date, num2timedelta, drange, _wrap_in_tex, DateFormatter, ConciseDateFormatter, AutoDateFormatter, rrulewrapper, DateLocator, RRuleLocator, YearLocator, MonthLocator, WeekdayLocator, DayLocator) ---
+```python
+class AutoDateLocator(DateLocator):
+    """
+    On autoscale, this class picks the best `DateLocator` to set the view
+    limits and the tick locations.
+
+    Attributes
+    ----------
+    intervald : dict
+
+        Mapping of tick frequencies to multiples allowed for that ticking.
+        The default is ::
+
+            self.intervald = {
+                YEARLY  : [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
+                           1000, 2000, 4000, 5000, 10000],
+                MONTHLY : [1, 2, 3, 4, 6],
+                DAILY   : [1, 2, 3, 7, 14, 21],
+                HOURLY  : [1, 2, 3, 4, 6, 12],
+                MINUTELY: [1, 5, 10, 15, 30],
+                SECONDLY: [1, 5, 10, 15, 30],
+                MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500,
+                                1000, 2000, 5000, 10000, 20000, 50000,
+                                100000, 200000, 500000, 1000000],
+            }
+
+        where the keys are defined in `dateutil.rrule`.
+
+        The interval is used to specify multiples that are appropriate for
+        the frequency of ticking. For instance, every 7 days is sensible
+        for daily ticks, but for minutes/seconds, 15 or 30 make sense.
+
+        When customizing, you should only modify the values for the existing
+        keys. You should not add or delete entries.
+
+        Example for forcing ticks every 3 hours::
+
+            locator = AutoDateLocator()
+            locator.intervald[HOURLY] = [3]  # only show every 3 hours
+    """
+
+    def __init__(self, tz=None, minticks=5, maxticks=None,
+                 interval_multiples=True):
+        """
+        Parameters
+        ----------
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+        minticks : int
+            The minimum number of ticks desired; controls whether ticks occur
+            yearly, monthly, etc.
+        maxticks : int
+            The maximum number of ticks desired; controls the interval between
+            ticks (ticking every other, every 3, etc.).  For fine-grained
+            control, this can be a dictionary mapping individual rrule
+            frequency constants (YEARLY, MONTHLY, etc.) to their own maximum
+            number of ticks.  This can be used to keep the number of ticks
+            appropriate to the format chosen in `AutoDateFormatter`. Any
+            frequency not specified in this dictionary is given a default
+            value.
+        interval_multiples : bool, default: True
+            Whether ticks should be chosen to be multiple of the interval,
+            locking them to 'nicer' locations.  For example, this will force
+            the ticks to be at hours 0, 6, 12, 18 when hourly ticking is done
+            at 6 hour intervals.
+        """
+        super().__init__(tz=tz)
+        self._freq = YEARLY
+        self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
+                       SECONDLY, MICROSECONDLY]
+        self.minticks = minticks
+
+        self.maxticks = {YEARLY: 11, MONTHLY: 12, DAILY: 11, HOURLY: 12,
+                         MINUTELY: 11, SECONDLY: 11, MICROSECONDLY: 8}
+        if maxticks is not None:
+            try:
+                self.maxticks.update(maxticks)
+            except TypeError:
+                # Assume we were given an integer. Use this as the maximum
+                # number of ticks for every frequency and create a
+                # dictionary for this
+                self.maxticks = dict.fromkeys(self._freqs, maxticks)
+        self.interval_multiples = interval_multiples
+        self.intervald = {
+            YEARLY:   [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
+                       1000, 2000, 4000, 5000, 10000],
+            MONTHLY:  [1, 2, 3, 4, 6],
+            DAILY:    [1, 2, 3, 7, 14, 21],
+            HOURLY:   [1, 2, 3, 4, 6, 12],
+            MINUTELY: [1, 5, 10, 15, 30],
+            SECONDLY: [1, 5, 10, 15, 30],
+            MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
+                            5000, 10000, 20000, 50000, 100000, 200000, 500000,
+                            1000000],
+                            }
+        if interval_multiples:
+            # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
+            # tick loc for months w/ 31 days: 1, 4, ..., 28, 31, 1
+            # If we use 4 then we get: 1, 5, ... 25, 29, 1
+            self.intervald[DAILY] = [1, 2, 4, 7, 14]
+
+        self._byranges = [None, range(1, 13), range(1, 32),
+                          range(0, 24), range(0, 60), range(0, 60), None]
+
+    def __call__(self):
+        # docstring inherited
+        dmin, dmax = self.viewlim_to_dt()
+        locator = self.get_locator(dmin, dmax)
+        return locator()
+
+    def tick_values(self, vmin, vmax):
+        return self.get_locator(vmin, vmax).tick_values(vmin, vmax)
+
+    def nonsingular(self, vmin, vmax):
+        # whatever is thrown at us, we can scale the unit.
+        # But default nonsingular date plots at an ~4 year period.
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            # Except if there is no data, then use 1970 as default.
+            return (date2num(datetime.date(1970, 1, 1)),
+                    date2num(datetime.date(1970, 1, 2)))
+        if vmax < vmin:
+            vmin, vmax = vmax, vmin
+        if vmin == vmax:
+            vmin = vmin - DAYS_PER_YEAR * 2
+            vmax = vmax + DAYS_PER_YEAR * 2
+        return vmin, vmax
+
+    def _get_unit(self):
+        if self._freq in [MICROSECONDLY]:
+            return 1. / MUSECONDS_PER_DAY
+        else:
+            return RRuleLocator.get_unit_generic(self._freq)
+
+    def get_locator(self, dmin, dmax):
+        """Pick the best locator based on a distance."""
+        delta = relativedelta(dmax, dmin)
+        tdelta = dmax - dmin
+
+        # take absolute difference
+        if dmin > dmax:
+            delta = -delta
+            tdelta = -tdelta
+        # The following uses a mix of calls to relativedelta and timedelta
+        # methods because there is incomplete overlap in the functionality of
+        # these similar functions, and it's best to avoid doing our own math
+        # whenever possible.
+        numYears = float(delta.years)
+        numMonths = numYears * MONTHS_PER_YEAR + delta.months
+        numDays = tdelta.days  # Avoids estimates of days/month, days/year.
+        numHours = numDays * HOURS_PER_DAY + delta.hours
+        numMinutes = numHours * MIN_PER_HOUR + delta.minutes
+        numSeconds = np.floor(tdelta.total_seconds())
+        numMicroseconds = np.floor(tdelta.total_seconds() * 1e6)
+
+        nums = [numYears, numMonths, numDays, numHours, numMinutes,
+                numSeconds, numMicroseconds]
+
+        use_rrule_locator = [True] * 6 + [False]
+
+        # Default setting of bymonth, etc. to pass to rrule
+        # [unused (for year), bymonth, bymonthday, byhour, byminute,
+        #  bysecond, unused (for microseconds)]
+        byranges = [None, 1, 1, 0, 0, 0, None]
+
+        # Loop over all the frequencies and try to find one that gives at
+        # least a minticks tick positions.  Once this is found, look for
+        # an interval from an list specific to that frequency that gives no
+        # more than maxticks tick positions. Also, set up some ranges
+        # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
+        for i, (freq, num) in enumerate(zip(self._freqs, nums)):
+            # If this particular frequency doesn't give enough ticks, continue
+            if num < self.minticks:
+                # Since we're not using this particular frequency, set
+                # the corresponding by_ to None so the rrule can act as
+                # appropriate
+                byranges[i] = None
+                continue
+
+            # Find the first available interval that doesn't give too many
+            # ticks
+            for interval in self.intervald[freq]:
+                if num <= interval * (self.maxticks[freq] - 1):
+                    break
+            else:
+                if not (self.interval_multiples and freq == DAILY):
+                    _api.warn_external(
+                        f"AutoDateLocator was unable to pick an appropriate "
+                        f"interval for this date range. It may be necessary "
+                        f"to add an interval value to the AutoDateLocator's "
+                        f"intervald dictionary. Defaulting to {interval}.")
+
+            # Set some parameters as appropriate
+            self._freq = freq
+
+            if self._byranges[i] and self.interval_multiples:
+                byranges[i] = self._byranges[i][::interval]
+                if i in (DAILY, WEEKLY):
+                    if interval == 14:
+                        # just make first and 15th.  Avoids 30th.
+                        byranges[i] = [1, 15]
+                    elif interval == 7:
+                        byranges[i] = [1, 8, 15, 22]
+
+                interval = 1
+            else:
+                byranges[i] = self._byranges[i]
+            break
+        else:
+            interval = 1
+
+        if (freq == YEARLY) and self.interval_multiples:
+            locator = YearLocator(interval, tz=self.tz)
+        elif use_rrule_locator[i]:
+            _, bymonth, bymonthday, byhour, byminute, bysecond, _ = byranges
+            rrule = rrulewrapper(self._freq, interval=interval,
+                                 dtstart=dmin, until=dmax,
+                                 bymonth=bymonth, bymonthday=bymonthday,
+                                 byhour=byhour, byminute=byminute,
+                                 bysecond=bysecond)
+
+            locator = RRuleLocator(rrule, tz=self.tz)
+        else:
+            locator = MicrosecondLocator(interval, tz=self.tz)
+            if date2num(dmin) > 70 * 365 and interval < 1000:
+                _api.warn_external(
+                    'Plotting microsecond time intervals for dates far from '
+                    f'the epoch (time origin: {get_epoch()}) is not well-'
+                    'supported. See matplotlib.dates.set_epoch to change the '
+                    'epoch.')
+
+        locator.set_axis(self.axis)
+        return locator
+
+
+```
+
+--- lib/matplotlib/dates.py (lines 1814-1873 of 1929; not shown in this file: <module header>, _get_tzinfo, _reset_epoch_test_example, set_epoch, get_epoch, _dt64_to_ordinalf, _from_ordinalf, datestr2num, date2num, julian2num, num2julian, num2date, num2timedelta, drange, _wrap_in_tex, DateFormatter, ConciseDateFormatter, AutoDateFormatter, rrulewrapper, DateLocator, RRuleLocator, YearLocator, MonthLocator, WeekdayLocator, DayLocator) ---
+```python
+class DateConverter(units.ConversionInterface):
+    """
+    Converter for `datetime.date` and `datetime.datetime` data, or for
+    date/time data represented as it would be converted by `date2num`.
+
+    The 'unit' tag for such data is None or a tzinfo instance.
+    """
+
+    def __init__(self, *, interval_multiples=True):
+        self._interval_multiples = interval_multiples
+        super().__init__()
+
+    def axisinfo(self, unit, axis):
+        """
+        Return the `~matplotlib.units.AxisInfo` for *unit*.
+
+        *unit* is a tzinfo instance or None.
+        The *axis* argument is required but not used.
+        """
+        tz = unit
+
+        majloc = AutoDateLocator(tz=tz,
+                                 interval_multiples=self._interval_multiples)
+        majfmt = AutoDateFormatter(majloc, tz=tz)
+        datemin = datetime.date(1970, 1, 1)
+        datemax = datetime.date(1970, 1, 2)
+
+        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
+                              default_limits=(datemin, datemax))
+
+    @staticmethod
+    def convert(value, unit, axis):
+        """
+        If *value* is not already a number or sequence of numbers, convert it
+        with `date2num`.
+
+        The *unit* and *axis* arguments are not used.
+        """
+        return date2num(value)
+
+    @staticmethod
+    def default_units(x, axis):
+        """
+        Return the tzinfo instance of *x* or of its first element, or None
+        """
+        if isinstance(x, np.ndarray):
+            x = x.ravel()
+
+        try:
+            x = cbook._safe_first_finite(x)
+        except (TypeError, StopIteration):
+            pass
+
+        try:
+            return x.tzinfo
+        except AttributeError:
+            pass
+        return None
+
+
+```

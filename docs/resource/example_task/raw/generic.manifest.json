@@ -1,0 +1,64 @@
+{
+  "item_count": 42,
+  "items_per_dataset": {
+    "mmlu-pro": 42
+  },
+  "items_per_subject": {
+    "biology": 3,
+    "business": 3,
+    "chemistry": 3,
+    "computer science": 3,
+    "economics": 3,
+    "engineering": 3,
+    "health": 3,
+    "history": 3,
+    "law": 3,
+    "math": 3,
+    "other": 3,
+    "philosophy": 3,
+    "physics": 3,
+    "psychology": 3
+  },
+  "per_category": 10,
+  "seed": 20260819,
+  "seed_disclosure": "published with the visible set",
+  "sources": [
+    {
+      "dataset": "mmlu-pro",
+      "repo_id": "TIGER-Lab/MMLU-Pro",
+      "revision": "b189ec765aa7ed75c8acfea42df31fdae71f97be"
+    }
+  ],
+  "stratification": "uniform per MMLU-Pro category",
+  "track": "generic",
+  "trim": {
+    "drawn": 140,
+    "note": "`per_category` above stays 10: it is the draw's parameter, not this file's count",
+    "per_category_retained": 3,
+    "per_stratum": {
+      "biology": 3,
+      "business": 3,
+      "chemistry": 3,
+      "computer science": 3,
+      "economics": 3,
+      "engineering": 3,
+      "health": 3,
+      "history": 3,
+      "law": 3,
+      "math": 3,
+      "other": 3,
+      "philosophy": 3,
+      "physics": 3,
+      "psychology": 3
+    },
+    "reason": "the visible practice set was reduced to roughly one third; the hidden set is unchanged, and a subset of the original draw cannot overlap it",
+    "retained": 42,
+    "rule": "round-robin over the draw's strata, in item-file order, until the target is reached",
+    "script": "scripts/trim_visible_set.py",
+    "strata": "MMLU-Pro category \u2014 the stratum the draw used, so `stratification` stays true"
+  },
+  "visibility": "visible",
+  "weight_per_dataset": {
+    "mmlu-pro": 42.0
+  }
+}

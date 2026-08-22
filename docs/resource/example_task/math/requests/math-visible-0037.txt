@@ -1,0 +1,10 @@
+Paul and Jesse each choose a number at random from the first six primes. What is the probability that the sum of the numbers they choose is even?
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

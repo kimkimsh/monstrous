@@ -1,0 +1,13 @@
+A furniture manufacturer wants to find out how many end tables he produced during a certain week. He knows that 8 employees produced 16 end tables each, 21 employees produced 23 each, 7 produced 27 each, and 4 produced 29 each, Find the total number of end 'tables produced during that week.
+
+Options:
+A. 916 end tables
+B. 1000 end tables
+C. 892 end tables
+D. 1100 end tables
+E. 1035 end tables
+F. 975 end tables
+G. 827 end tables
+H. 765 end tables
+I. 945 end tables
+J. 850 end tables

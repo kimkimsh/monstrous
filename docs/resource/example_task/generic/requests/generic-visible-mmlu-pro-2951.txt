@@ -1,0 +1,23 @@
+In Japan, the frequency of the R-governed multiple drug-resistant strain ofShigella, which causes dysentery, rose from 0.2 percent in 1953 to 58 percent in 1965. Also, 84 percent of the E. coli and 90 percent of Proteus collected from affected hospital patients showed similar resistance. How could such an increase happen?
+
+Options:
+A. The bacteria developed immunity to antibiotics
+B. The bacteria were genetically modified
+C. Transfer of resistance genes from non-pathogenic to pathogenic bacteria through horizontal gene transfer
+D. A decline in vaccination rates leading to increased bacterial spread
+E. Over-prescription of antibiotics in livestock agriculture leading to cross-species transfer of resistance
+F. Natural selection favored bacteria that were inherently resistant to antibiotics
+G. The bacteria mutated rapidly
+H. Increased use of antibacterial soaps and disinfectants in hospitals
+I. Introduction of new antibiotics that were less effective against resistant strains
+J. Indiscriminate use of antibiotics selected for drug-resistant bacteria which can then pass their resistance to potentially harmful strains.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

@@ -1,0 +1,23 @@
+Compute the rate of heat transfer by natural convection from thesurface of a horizontal, 7 in. square, plate at a temperatureof 300°F. The ambient air temperature is 80°F. EMPIRICAL EQUATIONS FOR NATURAL CONVECTION FROM HORIZONTAL PLATES TO ROOM TEMPERATURE AIR AT ATMOSPMERIC PRESSURE Configuration Equation Turbulent Region Range of X 2 × 10^7 - 3 × 10^10 Laminar Region Range of X 10^5 - 2 × 10^7 Heated horizontal plates facing upward h = 0.22\Deltat^1/3 h = 0.27(\Deltat/ L)^1/4 Hasted horizontal plates facing downward ... h = 0.12(\Deltat/ L)^1/4 Cooled horizontal plates facing upward ... h = 0.12(\Deltat/ L)^1/4 Cooled horizontal plates facing upward h = 0.22\Deltat^1/3 h = 0.27(\Deltat/ L)^1/4
+
+Options:
+A. 6.88 Btu/hr
+B. 13.88 Btu/hr
+C. 10.88 Btu/hr
+D. 7.88 Btu/hr
+E. 8.88 Btu/hr
+F. 14.88 Btu/hr
+G. 12.88 Btu/hr
+H. 9.88 Btu/hr
+I. 5.88 Btu/hr
+J. 11.88 Btu/hr
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

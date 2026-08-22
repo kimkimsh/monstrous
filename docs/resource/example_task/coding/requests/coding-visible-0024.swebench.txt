@@ -1,0 +1,1742 @@
+You are resolving an issue in an existing repository. The issue report comes
+first, then the parts of the repository the judge retrieved for it.
+
+## Issue
+
+Wrong path to test file when directory changed in fixture
+Files are shown as relative to new directory when working directory is changed in a fixture. This makes it impossible to jump to the error as the editor is unaware of the directory change. The displayed directory should stay relative to the original directory.
+
+test_path_error.py:
+```python
+import os
+import errno
+import shutil
+
+import pytest
+
+
+@pytest.fixture
+def private_dir():  # or (monkeypatch)
+    out_dir = 'ddd'
+
+    try:
+        shutil.rmtree(out_dir)
+    except OSError as ex:
+        if ex.errno != errno.ENOENT:
+            raise
+    os.mkdir(out_dir)
+
+    old_dir = os.getcwd()
+    os.chdir(out_dir)
+    yield out_dir
+    os.chdir(old_dir)
+
+    # Same issue if using:
+    # monkeypatch.chdir(out_dir)
+
+
+def test_show_wrong_path(private_dir):
+    assert False
+```
+
+```diff
++ Expected: test_path_error.py:29: AssertionError
+- Displayed: ../test_path_error.py:29: AssertionError
+```
+
+The full output is:
+```
+-*- mode: compilation; default-directory: "~/src/pytest_path_error/" -*-
+Compilation started at Fri Jan 10 00:05:52
+
+nox
+nox > Running session test
+nox > Creating virtual environment (virtualenv) using python3.7 in .nox/test
+nox > pip install pytest>=5.3
+nox > pip freeze
+attrs==19.3.0
+importlib-metadata==1.3.0
+more-itertools==8.0.2
+packaging==20.0
+pluggy==0.13.1
+py==1.8.1
+pyparsing==2.4.6
+pytest==5.3.2
+six==1.13.0
+wcwidth==0.1.8
+zipp==0.6.0
+nox > pytest 
+================================= test session starts =================================
+platform linux -- Python 3.7.5, pytest-5.3.2, py-1.8.1, pluggy-0.13.1
+rootdir: /home/lhn/src/pytest_path_error
+collected 1 item                                                                      
+
+test_path_error.py F                                                            [100%]
+
+====================================== FAILURES =======================================
+________________________________ test_show_wrong_path _________________________________
+
+private_dir = 'ddd'
+
+    def test_show_wrong_path(private_dir):
+>       assert False
+E       assert False
+
+../test_path_error.py:29: AssertionError
+================================== 1 failed in 0.03s ==================================
+nox > Command pytest  failed with exit code 1
+nox > Session test failed.
+
+Compilation exited abnormally with code 1 at Fri Jan 10 00:06:01
+```
+
+noxfile.py:
+```python
+import nox
+
+@nox.session(python='3.7')
+def test(session):
+    session.install('pytest>=5.3')
+    session.run('pip', 'freeze')
+    session.run('pytest')
+```
+
+## Repository context
+
+Repository: pytest-dev/pytest at commit 56bf819c2f4eaf8b36bd8c42c06bb59d5a3bfc0f
+Retrieved 6 of 72 candidate source files.
+You cannot browse the repository. The excerpts below are the whole of the
+code you have been given; anything not shown, you do not have.
+
+--- src/_pytest/pytester.py (lines 532-862 of 1565; not shown in this file: <module header>, pytest_addoption, pytest_configure, LsofFdLeakChecker, _pytest, PytestArg, get_public_names, ParsedCall, HookRecorder, linecomp, LineMatcher_fixture, testdir, _sys_snapshot, _config_for_test, RunResult, CwdSnapshot, SysModulesSnapshot, SysPathsSnapshot, LineComp, LineMatcher) ---
+```python
+class Testdir:
+    """Temporary test directory with tools to test/run pytest itself.
+
+    This is based on the ``tmpdir`` fixture but provides a number of methods
+    which aid with testing pytest itself.  Unless :py:meth:`chdir` is used all
+    methods will use :py:attr:`tmpdir` as their current working directory.
+
+    Attributes:
+
+    :ivar tmpdir: The :py:class:`py.path.local` instance of the temporary directory.
+
+    :ivar plugins: A list of plugins to use with :py:meth:`parseconfig` and
+       :py:meth:`runpytest`.  Initially this is an empty list but plugins can
+       be added to the list.  The type of items to add to the list depends on
+       the method using them so refer to them for details.
+
+    """
+
+    __test__ = False
+
+    CLOSE_STDIN = object
+
+    class TimeoutExpired(Exception):
+        pass
+
+    def __init__(self, request: FixtureRequest, tmpdir_factory: TempdirFactory) -> None:
+        self.request = request
+        self._mod_collections = (
+            WeakKeyDictionary()
+        )  # type: WeakKeyDictionary[Module, List[Union[Item, Collector]]]
+        if request.function:
+            name = request.function.__name__  # type: str
+        else:
+            name = request.node.name
+        self._name = name
+        self.tmpdir = tmpdir_factory.mktemp(name, numbered=True)
+        self.test_tmproot = tmpdir_factory.mktemp("tmp-" + name, numbered=True)
+        self.plugins = []  # type: List[Union[str, _PluggyPlugin]]
+        self._cwd_snapshot = CwdSnapshot()
+        self._sys_path_snapshot = SysPathsSnapshot()
+        self._sys_modules_snapshot = self.__take_sys_modules_snapshot()
+        self.chdir()
+        self.request.addfinalizer(self.finalize)
+        self._method = self.request.config.getoption("--runpytest")
+
+        mp = self.monkeypatch = MonkeyPatch()
+        mp.setenv("PYTEST_DEBUG_TEMPROOT", str(self.test_tmproot))
+        # Ensure no unexpected caching via tox.
+        mp.delenv("TOX_ENV_DIR", raising=False)
+        # Discard outer pytest options.
+        mp.delenv("PYTEST_ADDOPTS", raising=False)
+        # Ensure no user config is used.
+        tmphome = str(self.tmpdir)
+        mp.setenv("HOME", tmphome)
+        mp.setenv("USERPROFILE", tmphome)
+        # Do not use colors for inner runs by default.
+        mp.setenv("PY_COLORS", "0")
+
+    def __repr__(self):
+        return "<Testdir {!r}>".format(self.tmpdir)
+
+    def __str__(self):
+        return str(self.tmpdir)
+
+    def finalize(self):
+        """Clean up global state artifacts.
+
+        Some methods modify the global interpreter state and this tries to
+        clean this up.  It does not remove the temporary directory however so
+        it can be looked at after the test run has finished.
+
+        """
+        self._sys_modules_snapshot.restore()
+        self._sys_path_snapshot.restore()
+        self._cwd_snapshot.restore()
+        self.monkeypatch.undo()
+
+    def __take_sys_modules_snapshot(self):
+        # some zope modules used by twisted-related tests keep internal state
+        # and can't be deleted; we had some trouble in the past with
+        # `zope.interface` for example
+        def preserve_module(name):
+            return name.startswith("zope")
+
+        return SysModulesSnapshot(preserve=preserve_module)
+
+    def make_hook_recorder(self, pluginmanager):
+        """Create a new :py:class:`HookRecorder` for a PluginManager."""
+        pluginmanager.reprec = reprec = HookRecorder(pluginmanager)
+        self.request.addfinalizer(reprec.finish_recording)
+        return reprec
+
+    def chdir(self):
+        """Cd into the temporary directory.
+
+        This is done automatically upon instantiation.
+
+        """
+        self.tmpdir.chdir()
+
+    def _makefile(self, ext, lines, files, encoding="utf-8"):
+        items = list(files.items())
+
+        def to_text(s):
+            return s.decode(encoding) if isinstance(s, bytes) else str(s)
+
+        if lines:
+            source = "\n".join(to_text(x) for x in lines)
+            basename = self._name
+            items.insert(0, (basename, source))
+
+        ret = None
+        for basename, value in items:
+            p = self.tmpdir.join(basename).new(ext=ext)
+            p.dirpath().ensure_dir()
+            source = Source(value)
+            source = "\n".join(to_text(line) for line in source.lines)
+            p.write(source.strip().encode(encoding), "wb")
+            if ret is None:
+                ret = p
+        return ret
+
+    def makefile(self, ext, *args, **kwargs):
+        r"""Create new file(s) in the testdir.
+
+        :param str ext: The extension the file(s) should use, including the dot, e.g. `.py`.
+        :param list[str] args: All args will be treated as strings and joined using newlines.
+           The result will be written as contents to the file.  The name of the
+           file will be based on the test function requesting this fixture.
+        :param kwargs: Each keyword is the name of a file, while the value of it will
+           be written as contents of the file.
+
+        Examples:
+
+        .. code-block:: python
+
+            testdir.makefile(".txt", "line1", "line2")
+
+            testdir.makefile(".ini", pytest="[pytest]\naddopts=-rs\n")
+
+        """
+        return self._makefile(ext, args, kwargs)
+
+    def makeconftest(self, source):
+        """Write a contest.py file with 'source' as contents."""
+        return self.makepyfile(conftest=source)
+
+    def makeini(self, source):
+        """Write a tox.ini file with 'source' as contents."""
+        return self.makefile(".ini", tox=source)
+
+    def getinicfg(self, source):
+        """Return the pytest section from the tox.ini config file."""
+        p = self.makeini(source)
+        return py.iniconfig.IniConfig(p)["pytest"]
+
+    def makepyfile(self, *args, **kwargs):
+        r"""Shortcut for .makefile() with a .py extension.
+        Defaults to the test name with a '.py' extension, e.g test_foobar.py, overwriting
+        existing files.
+
+        Examples:
+
+        .. code-block:: python
+
+            def test_something(testdir):
+                # initial file is created test_something.py
+                testdir.makepyfile("foobar")
+                # to create multiple files, pass kwargs accordingly
+                testdir.makepyfile(custom="foobar")
+                # at this point, both 'test_something.py' & 'custom.py' exist in the test directory
+
+        """
+        return self._makefile(".py", args, kwargs)
+
+    def maketxtfile(self, *args, **kwargs):
+        r"""Shortcut for .makefile() with a .txt extension.
+        Defaults to the test name with a '.txt' extension, e.g test_foobar.txt, overwriting
+        existing files.
+
+        Examples:
+
+        .. code-block:: python
+
+            def test_something(testdir):
+                # initial file is created test_something.txt
+                testdir.maketxtfile("foobar")
+                # to create multiple files, pass kwargs accordingly
+                testdir.maketxtfile(custom="foobar")
+                # at this point, both 'test_something.txt' & 'custom.txt' exist in the test directory
+
+        """
+        return self._makefile(".txt", args, kwargs)
+
+    def syspathinsert(self, path=None):
+        """Prepend a directory to sys.path, defaults to :py:attr:`tmpdir`.
+
+        This is undone automatically when this object dies at the end of each
+        test.
+        """
+        if path is None:
+            path = self.tmpdir
+
+        self.monkeypatch.syspath_prepend(str(path))
+
+    def mkdir(self, name):
+        """Create a new (sub)directory."""
+        return self.tmpdir.mkdir(name)
+
+    def mkpydir(self, name):
+        """Create a new python package.
+
+        This creates a (sub)directory with an empty ``__init__.py`` file so it
+        gets recognised as a python package.
+
+        """
+        p = self.mkdir(name)
+        p.ensure("__init__.py")
+        return p
+
+    def copy_example(self, name=None):
+        """Copy file from project's directory into the testdir.
+
+        :param str name: The name of the file to copy.
+        :return: path to the copied directory (inside ``self.tmpdir``).
+
+        """
+        import warnings
+        from _pytest.warning_types import PYTESTER_COPY_EXAMPLE
+
+        warnings.warn(PYTESTER_COPY_EXAMPLE, stacklevel=2)
+        example_dir = self.request.config.getini("pytester_example_dir")
+        if example_dir is None:
+            raise ValueError("pytester_example_dir is unset, can't copy examples")
+        example_dir = self.request.config.rootdir.join(example_dir)
+
+        for extra_element in self.request.node.iter_markers("pytester_example_path"):
+            assert extra_element.args
+            example_dir = example_dir.join(*extra_element.args)
+
+        if name is None:
+            func_name = self._name
+            maybe_dir = example_dir / func_name
+            maybe_file = example_dir / (func_name + ".py")
+
+            if maybe_dir.isdir():
+                example_path = maybe_dir
+            elif maybe_file.isfile():
+                example_path = maybe_file
+            else:
+                raise LookupError(
+                    "{} cant be found as module or package in {}".format(
+                        func_name, example_dir.bestrelpath(self.request.config.rootdir)
+                    )
+                )
+        else:
+            example_path = example_dir.join(name)
+
+        if example_path.isdir() and not example_path.join("__init__.py").isfile():
+            example_path.copy(self.tmpdir)
+            return self.tmpdir
+        elif example_path.isfile():
+            result = self.tmpdir.join(example_path.basename)
+            example_path.copy(result)
+            return result
+        else:
+            raise LookupError(
+                'example "{}" is not found as a file or directory'.format(example_path)
+            )
+
+    Session = Session
+
+    def getnode(self, config, arg):
+        """Return the collection node of a file.
+
+        :param config: :py:class:`_pytest.config.Config` instance, see
+           :py:meth:`parseconfig` and :py:meth:`parseconfigure` to create the
+           configuration
+
+        :param arg: a :py:class:`py.path.local` instance of the file
+
+        """
+        session = Session.from_config(config)
+        assert "::" not in str(arg)
+        p = py.path.local(arg)
+        config.hook.pytest_sessionstart(session=session)
+        res = session.perform_collect([str(p)], genitems=False)[0]
+        config.hook.pytest_sessionfinish(session=session, exitstatus=ExitCode.OK)
+        return res
+
+    def getpathnode(self, path):
+        """Return the collection node of a file.
+
+        This is like :py:meth:`getnode` but uses :py:meth:`parseconfigure` to
+        create the (configured) pytest Config instance.
+
+        :param path: a :py:class:`py.path.local` instance of the file
+
+        """
+        config = self.parseconfigure(path)
+        session = Session.from_config(config)
+        x = session.fspath.bestrelpath(path)
+        config.hook.pytest_sessionstart(session=session)
+        res = session.perform_collect([x], genitems=False)[0]
+        config.hook.pytest_sessionfinish(session=session, exitstatus=ExitCode.OK)
+        return res
+
+    def genitems(self, colitems):
+        """Generate all test items from a collection node.
+
+        This recurses into the collection node and returns a list of all the
+        test items contained within.
+
+        """
+        session = colitems[0].session
+        result = []
+        for colitem in colitems:
+            result.extend(session.genitems(colitem))
+        return result
+
+    def runitem(self, source):
+        """Run the "test_func" Item.
+
+        The calling test instance (class containing the test method) must
+        provide a ``.getrunner()`` method which should return a runner which
+        can run the test protocol for a single item, e.g.
+        :py:func:`_pytest.runner.runtestprotocol`.
+
+        """
+        # used from runner functional tests
+        item = self.getitem(source)
+```
+
+--- src/_pytest/main.py (lines 368-660 of 685; not shown in this file: <module header>, pytest_addoption, wrap_session, pytest_cmdline_main, _main, pytest_collection, pytest_runtestloop, _in_venv, pytest_ignore_collect, pytest_collection_modifyitems, NoMatch, Interrupted, Failed, _bestrelpath_cache) ---
+```python
+class Session(nodes.FSCollector):
+    Interrupted = Interrupted
+    Failed = Failed
+    # Set on the session by runner.pytest_sessionstart.
+    _setupstate = None  # type: SetupState
+    # Set on the session by fixtures.pytest_sessionstart.
+    _fixturemanager = None  # type: FixtureManager
+    exitstatus = None  # type: Union[int, ExitCode]
+
+    def __init__(self, config: Config) -> None:
+        nodes.FSCollector.__init__(
+            self, config.rootdir, parent=None, config=config, session=self, nodeid=""
+        )
+        self.testsfailed = 0
+        self.testscollected = 0
+        self.shouldstop = False
+        self.shouldfail = False
+        self.trace = config.trace.root.get("collection")
+        self.startdir = config.invocation_dir
+        self._initialpaths = frozenset()  # type: FrozenSet[py.path.local]
+
+        # Keep track of any collected nodes in here, so we don't duplicate fixtures
+        self._collection_node_cache1 = (
+            {}
+        )  # type: Dict[py.path.local, Sequence[nodes.Collector]]
+        self._collection_node_cache2 = (
+            {}
+        )  # type: Dict[Tuple[Type[nodes.Collector], py.path.local], nodes.Collector]
+        self._collection_node_cache3 = (
+            {}
+        )  # type: Dict[Tuple[Type[nodes.Collector], str], CollectReport]
+
+        # Dirnames of pkgs with dunder-init files.
+        self._collection_pkg_roots = {}  # type: Dict[py.path.local, Package]
+
+        self._bestrelpathcache = _bestrelpath_cache(
+            config.rootdir
+        )  # type: Dict[py.path.local, str]
+
+        self.config.pluginmanager.register(self, name="session")
+
+    @classmethod
+    def from_config(cls, config):
+        return cls._create(config)
+
+    def __repr__(self):
+        return "<%s %s exitstatus=%r testsfailed=%d testscollected=%d>" % (
+            self.__class__.__name__,
+            self.name,
+            getattr(self, "exitstatus", "<UNSET>"),
+            self.testsfailed,
+            self.testscollected,
+        )
+
+    def _node_location_to_relpath(self, node_path: py.path.local) -> str:
+        # bestrelpath is a quite slow function
+        return self._bestrelpathcache[node_path]
+
+    @hookimpl(tryfirst=True)
+    def pytest_collectstart(self):
+        if self.shouldfail:
+            raise self.Failed(self.shouldfail)
+        if self.shouldstop:
+            raise self.Interrupted(self.shouldstop)
+
+    @hookimpl(tryfirst=True)
+    def pytest_runtest_logreport(self, report):
+        if report.failed and not hasattr(report, "wasxfail"):
+            self.testsfailed += 1
+            maxfail = self.config.getvalue("maxfail")
+            if maxfail and self.testsfailed >= maxfail:
+                self.shouldfail = "stopping after %d failures" % (self.testsfailed)
+
+    pytest_collectreport = pytest_runtest_logreport
+
+    def isinitpath(self, path):
+        return path in self._initialpaths
+
+    def gethookproxy(self, fspath: py.path.local):
+        return super()._gethookproxy(fspath)
+
+    def perform_collect(self, args=None, genitems=True):
+        hook = self.config.hook
+        try:
+            items = self._perform_collect(args, genitems)
+            self.config.pluginmanager.check_pending()
+            hook.pytest_collection_modifyitems(
+                session=self, config=self.config, items=items
+            )
+        finally:
+            hook.pytest_collection_finish(session=self)
+        self.testscollected = len(items)
+        return items
+
+    def _perform_collect(self, args, genitems):
+        if args is None:
+            args = self.config.args
+        self.trace("perform_collect", self, args)
+        self.trace.root.indent += 1
+        self._notfound = []
+        initialpaths = []  # type: List[py.path.local]
+        self._initial_parts = []  # type: List[Tuple[py.path.local, List[str]]]
+        self.items = items = []
+        for arg in args:
+            fspath, parts = self._parsearg(arg)
+            self._initial_parts.append((fspath, parts))
+            initialpaths.append(fspath)
+        self._initialpaths = frozenset(initialpaths)
+        rep = collect_one_node(self)
+        self.ihook.pytest_collectreport(report=rep)
+        self.trace.root.indent -= 1
+        if self._notfound:
+            errors = []
+            for arg, exc in self._notfound:
+                line = "(no name {!r} in any of {!r})".format(arg, exc.args[0])
+                errors.append("not found: {}\n{}".format(arg, line))
+            raise UsageError(*errors)
+        if not genitems:
+            return rep.result
+        else:
+            if rep.passed:
+                for node in rep.result:
+                    self.items.extend(self.genitems(node))
+            return items
+
+    def collect(self):
+        for fspath, parts in self._initial_parts:
+            self.trace("processing argument", (fspath, parts))
+            self.trace.root.indent += 1
+            try:
+                yield from self._collect(fspath, parts)
+            except NoMatch as exc:
+                report_arg = "::".join((str(fspath), *parts))
+                # we are inside a make_report hook so
+                # we cannot directly pass through the exception
+                self._notfound.append((report_arg, exc))
+
+            self.trace.root.indent -= 1
+        self._collection_node_cache1.clear()
+        self._collection_node_cache2.clear()
+        self._collection_node_cache3.clear()
+        self._collection_pkg_roots.clear()
+
+    def _collect(self, argpath, names):
+        from _pytest.python import Package
+
+        # Start with a Session root, and delve to argpath item (dir or file)
+        # and stack all Packages found on the way.
+        # No point in finding packages when collecting doctests
+        if not self.config.getoption("doctestmodules", False):
+            pm = self.config.pluginmanager
+            for parent in reversed(argpath.parts()):
+                if pm._confcutdir and pm._confcutdir.relto(parent):
+                    break
+
+                if parent.isdir():
+                    pkginit = parent.join("__init__.py")
+                    if pkginit.isfile():
+                        if pkginit not in self._collection_node_cache1:
+                            col = self._collectfile(pkginit, handle_dupes=False)
+                            if col:
+                                if isinstance(col[0], Package):
+                                    self._collection_pkg_roots[parent] = col[0]
+                                # always store a list in the cache, matchnodes expects it
+                                self._collection_node_cache1[col[0].fspath] = [col[0]]
+
+        # If it's a directory argument, recurse and look for any Subpackages.
+        # Let the Package collector deal with subnodes, don't collect here.
+        if argpath.check(dir=1):
+            assert not names, "invalid arg {!r}".format((argpath, names))
+
+            seen_dirs = set()
+            for path in argpath.visit(
+                fil=self._visit_filter, rec=self._recurse, bf=True, sort=True
+            ):
+                dirpath = path.dirpath()
+                if dirpath not in seen_dirs:
+                    # Collect packages first.
+                    seen_dirs.add(dirpath)
+                    pkginit = dirpath.join("__init__.py")
+                    if pkginit.exists():
+                        for x in self._collectfile(pkginit):
+                            yield x
+                            if isinstance(x, Package):
+                                self._collection_pkg_roots[dirpath] = x
+                if dirpath in self._collection_pkg_roots:
+                    # Do not collect packages here.
+                    continue
+
+                for x in self._collectfile(path):
+                    key = (type(x), x.fspath)
+                    if key in self._collection_node_cache2:
+                        yield self._collection_node_cache2[key]
+                    else:
+                        self._collection_node_cache2[key] = x
+                        yield x
+        else:
+            assert argpath.check(file=1)
+
+            if argpath in self._collection_node_cache1:
+                col = self._collection_node_cache1[argpath]
+            else:
+                collect_root = self._collection_pkg_roots.get(argpath.dirname, self)
+                col = collect_root._collectfile(argpath, handle_dupes=False)
+                if col:
+                    self._collection_node_cache1[argpath] = col
+            m = self.matchnodes(col, names)
+            # If __init__.py was the only file requested, then the matched node will be
+            # the corresponding Package, and the first yielded item will be the __init__
+            # Module itself, so just use that. If this special case isn't taken, then all
+            # the files in the package will be yielded.
+            if argpath.basename == "__init__.py":
+                try:
+                    yield next(m[0].collect())
+                except StopIteration:
+                    # The package collects nothing with only an __init__.py
+                    # file in it, which gets ignored by the default
+                    # "python_files" option.
+                    pass
+                return
+            yield from m
+
+    @staticmethod
+    def _visit_filter(f):
+        return f.check(file=1)
+
+    def _tryconvertpyarg(self, x):
+        """Convert a dotted module name to path."""
+        try:
+            spec = importlib.util.find_spec(x)
+        # AttributeError: looks like package module, but actually filename
+        # ImportError: module does not exist
+        # ValueError: not a module name
+        except (AttributeError, ImportError, ValueError):
+            return x
+        if spec is None or spec.origin in {None, "namespace"}:
+            return x
+        elif spec.submodule_search_locations:
+            return os.path.dirname(spec.origin)
+        else:
+            return spec.origin
+
+    def _parsearg(self, arg):
+        """ return (fspath, names) tuple after checking the file exists. """
+        strpath, *parts = str(arg).split("::")
+        if self.config.option.pyargs:
+            strpath = self._tryconvertpyarg(strpath)
+        relpath = strpath.replace("/", os.sep)
+        fspath = self.config.invocation_dir.join(relpath, abs=True)
+        if not fspath.check():
+            if self.config.option.pyargs:
+                raise UsageError(
+                    "file or package not found: " + arg + " (missing __init__.py?)"
+                )
+            raise UsageError("file not found: " + arg)
+        fspath = fspath.realpath()
+        return (fspath, parts)
+
+    def matchnodes(self, matching, names):
+        self.trace("matchnodes", matching, names)
+        self.trace.root.indent += 1
+        nodes = self._matchnodes(matching, names)
+        num = len(nodes)
+        self.trace("matchnodes finished -> ", num, "nodes")
+        self.trace.root.indent -= 1
+        if num == 0:
+            raise NoMatch(matching, names[:1])
+        return nodes
+
+    def _matchnodes(self, matching, names):
+        if not matching or not names:
+            return matching
+        name = names[0]
+        assert name
+        nextnames = names[1:]
+        resultnodes = []
+        for node in matching:
+            if isinstance(node, nodes.Item):
+                if not names:
+                    resultnodes.append(node)
+                continue
+            assert isinstance(node, nodes.Collector)
+            key = (type(node), node.nodeid)
+            if key in self._collection_node_cache3:
+                rep = self._collection_node_cache3[key]
+            else:
+                rep = collect_one_node(node)
+                self._collection_node_cache3[key] = rep
+            if rep.passed:
+                has_matched = False
+                for x in rep.result:
+                    # TODO: remove parametrized workaround once collection structure contains parametrization
+                    if x.name == name or x.name.split("[")[0] == name:
+```
+
+--- src/_pytest/assertion/rewrite.py (lines 48-266 of 1066; not shown in this file: <module header>, _write_pyc_fp, _rewrite_test, _read_pyc, rewrite_asserts, _saferepr, _format_assertmsg, _should_repr_global_name, _format_boolop, _call_reprcompare, _call_assertion_pass, _check_if_assertion_pass_impl, set_location, _get_assertion_exprs, try_makedirs, get_cache_dir) ---
+```python
+class AssertionRewritingHook(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+    """PEP302/PEP451 import hook which rewrites asserts."""
+
+    def __init__(self, config):
+        self.config = config
+        try:
+            self.fnpats = config.getini("python_files")
+        except ValueError:
+            self.fnpats = ["test_*.py", "*_test.py"]
+        self.session = None
+        self._rewritten_names = set()  # type: Set[str]
+        self._must_rewrite = set()  # type: Set[str]
+        # flag to guard against trying to rewrite a pyc file while we are already writing another pyc file,
+        # which might result in infinite recursion (#3506)
+        self._writing_pyc = False
+        self._basenames_to_check_rewrite = {"conftest"}
+        self._marked_for_rewrite_cache = {}  # type: Dict[str, bool]
+        self._session_paths_checked = False
+
+    def set_session(self, session):
+        self.session = session
+        self._session_paths_checked = False
+
+    # Indirection so we can mock calls to find_spec originated from the hook during testing
+    _find_spec = importlib.machinery.PathFinder.find_spec
+
+    def find_spec(self, name, path=None, target=None):
+        if self._writing_pyc:
+            return None
+        state = self.config._store[assertstate_key]
+        if self._early_rewrite_bailout(name, state):
+            return None
+        state.trace("find_module called for: %s" % name)
+
+        spec = self._find_spec(name, path)
+        if (
+            # the import machinery could not find a file to import
+            spec is None
+            # this is a namespace package (without `__init__.py`)
+            # there's nothing to rewrite there
+            # python3.5 - python3.6: `namespace`
+            # python3.7+: `None`
+            or spec.origin == "namespace"
+            or spec.origin is None
+            # we can only rewrite source files
+            or not isinstance(spec.loader, importlib.machinery.SourceFileLoader)
+            # if the file doesn't exist, we can't rewrite it
+            or not os.path.exists(spec.origin)
+        ):
+            return None
+        else:
+            fn = spec.origin
+
+        if not self._should_rewrite(name, fn, state):
+            return None
+
+        return importlib.util.spec_from_file_location(
+            name,
+            fn,
+            loader=self,
+            submodule_search_locations=spec.submodule_search_locations,
+        )
+
+    def create_module(self, spec):
+        return None  # default behaviour is fine
+
+    def exec_module(self, module):
+        fn = Path(module.__spec__.origin)
+        state = self.config._store[assertstate_key]
+
+        self._rewritten_names.add(module.__name__)
+
+        # The requested module looks like a test file, so rewrite it. This is
+        # the most magical part of the process: load the source, rewrite the
+        # asserts, and load the rewritten source. We also cache the rewritten
+        # module code in a special pyc. We must be aware of the possibility of
+        # concurrent pytest processes rewriting and loading pycs. To avoid
+        # tricky race conditions, we maintain the following invariant: The
+        # cached pyc is always a complete, valid pyc. Operations on it must be
+        # atomic. POSIX's atomic rename comes in handy.
+        write = not sys.dont_write_bytecode
+        cache_dir = get_cache_dir(fn)
+        if write:
+            ok = try_makedirs(cache_dir)
+            if not ok:
+                write = False
+                state.trace("read only directory: {}".format(cache_dir))
+
+        cache_name = fn.name[:-3] + PYC_TAIL
+        pyc = cache_dir / cache_name
+        # Notice that even if we're in a read-only directory, I'm going
+        # to check for a cached pyc. This may not be optimal...
+        co = _read_pyc(fn, pyc, state.trace)
+        if co is None:
+            state.trace("rewriting {!r}".format(fn))
+            source_stat, co = _rewrite_test(fn, self.config)
+            if write:
+                self._writing_pyc = True
+                try:
+                    _write_pyc(state, co, source_stat, pyc)
+                finally:
+                    self._writing_pyc = False
+        else:
+            state.trace("found cached rewritten pyc for {}".format(fn))
+        exec(co, module.__dict__)
+
+    def _early_rewrite_bailout(self, name, state):
+        """This is a fast way to get out of rewriting modules.
+
+        Profiling has shown that the call to PathFinder.find_spec (inside of
+        the find_spec from this class) is a major slowdown, so, this method
+        tries to filter what we're sure won't be rewritten before getting to
+        it.
+        """
+        if self.session is not None and not self._session_paths_checked:
+            self._session_paths_checked = True
+            for path in self.session._initialpaths:
+                # Make something as c:/projects/my_project/path.py ->
+                #     ['c:', 'projects', 'my_project', 'path.py']
+                parts = str(path).split(os.path.sep)
+                # add 'path' to basenames to be checked.
+                self._basenames_to_check_rewrite.add(os.path.splitext(parts[-1])[0])
+
+        # Note: conftest already by default in _basenames_to_check_rewrite.
+        parts = name.split(".")
+        if parts[-1] in self._basenames_to_check_rewrite:
+            return False
+
+        # For matching the name it must be as if it was a filename.
+        path = PurePath(os.path.sep.join(parts) + ".py")
+
+        for pat in self.fnpats:
+            # if the pattern contains subdirectories ("tests/**.py" for example) we can't bail out based
+            # on the name alone because we need to match against the full path
+            if os.path.dirname(pat):
+                return False
+            if fnmatch_ex(pat, path):
+                return False
+
+        if self._is_marked_for_rewrite(name, state):
+            return False
+
+        state.trace("early skip of rewriting module: {}".format(name))
+        return True
+
+    def _should_rewrite(self, name, fn, state):
+        # always rewrite conftest files
+        if os.path.basename(fn) == "conftest.py":
+            state.trace("rewriting conftest file: {!r}".format(fn))
+            return True
+
+        if self.session is not None:
+            if self.session.isinitpath(fn):
+                state.trace(
+                    "matched test file (was specified on cmdline): {!r}".format(fn)
+                )
+                return True
+
+        # modules not passed explicitly on the command line are only
+        # rewritten if they match the naming convention for test files
+        fn_path = PurePath(fn)
+        for pat in self.fnpats:
+            if fnmatch_ex(pat, fn_path):
+                state.trace("matched test file {!r}".format(fn))
+                return True
+
+        return self._is_marked_for_rewrite(name, state)
+
+    def _is_marked_for_rewrite(self, name: str, state):
+        try:
+            return self._marked_for_rewrite_cache[name]
+        except KeyError:
+            for marked in self._must_rewrite:
+                if name == marked or name.startswith(marked + "."):
+                    state.trace(
+                        "matched marked file {!r} (from {!r})".format(name, marked)
+                    )
+                    self._marked_for_rewrite_cache[name] = True
+                    return True
+
+            self._marked_for_rewrite_cache[name] = False
+            return False
+
+    def mark_rewrite(self, *names: str) -> None:
+        """Mark import names as needing to be rewritten.
+
+        The named module or package as well as any nested modules will
+        be rewritten on import.
+        """
+        already_imported = (
+            set(names).intersection(sys.modules).difference(self._rewritten_names)
+        )
+        for name in already_imported:
+            mod = sys.modules[name]
+            if not AssertionRewriter.is_rewrite_disabled(
+                mod.__doc__ or ""
+            ) and not isinstance(mod.__loader__, type(self)):
+                self._warn_already_imported(name)
+        self._must_rewrite.update(names)
+        self._marked_for_rewrite_cache.clear()
+
+    def _warn_already_imported(self, name):
+        from _pytest.warning_types import PytestAssertRewriteWarning
+        from _pytest.warnings import _issue_warning_captured
+
+        _issue_warning_captured(
+            PytestAssertRewriteWarning(
+                "Module already imported so cannot be rewritten: %s" % name
+            ),
+            self.config.hook,
+            stacklevel=5,
+        )
+
+    def get_data(self, pathname):
+        """Optional PEP302 get_data API."""
+        with open(pathname, "rb") as f:
+            return f.read()
+
+
+```
+
+--- src/_pytest/assertion/rewrite.py (lines 558-632 of 1066; not shown in this file: <module header>, _write_pyc_fp, _rewrite_test, _read_pyc, rewrite_asserts, _saferepr, _format_assertmsg, _should_repr_global_name, _format_boolop, _call_reprcompare, _call_assertion_pass, _check_if_assertion_pass_impl, set_location, _get_assertion_exprs, try_makedirs, get_cache_dir) ---
+```python
+class AssertionRewriter(ast.NodeVisitor):
+    """Assertion rewriting implementation.
+
+    The main entrypoint is to call .run() with an ast.Module instance,
+    this will then find all the assert statements and rewrite them to
+    provide intermediate values and a detailed assertion error.  See
+    http://pybites.blogspot.be/2011/07/behind-scenes-of-pytests-new-assertion.html
+    for an overview of how this works.
+
+    The entry point here is .run() which will iterate over all the
+    statements in an ast.Module and for each ast.Assert statement it
+    finds call .visit() with it.  Then .visit_Assert() takes over and
+    is responsible for creating new ast statements to replace the
+    original assert statement: it rewrites the test of an assertion
+    to provide intermediate values and replace it with an if statement
+    which raises an assertion error with a detailed explanation in
+    case the expression is false and calls pytest_assertion_pass hook
+    if expression is true.
+
+    For this .visit_Assert() uses the visitor pattern to visit all the
+    AST nodes of the ast.Assert.test field, each visit call returning
+    an AST node and the corresponding explanation string.  During this
+    state is kept in several instance attributes:
+
+    :statements: All the AST statements which will replace the assert
+       statement.
+
+    :variables: This is populated by .variable() with each variable
+       used by the statements so that they can all be set to None at
+       the end of the statements.
+
+    :variable_counter: Counter to create new unique variables needed
+       by statements.  Variables are created using .variable() and
+       have the form of "@py_assert0".
+
+    :expl_stmts: The AST statements which will be executed to get
+       data from the assertion.  This is the code which will construct
+       the detailed assertion message that is used in the AssertionError
+       or for the pytest_assertion_pass hook.
+
+    :explanation_specifiers: A dict filled by .explanation_param()
+       with %-formatting placeholders and their corresponding
+       expressions to use in the building of an assertion message.
+       This is used by .pop_format_context() to build a message.
+
+    :stack: A stack of the explanation_specifiers dicts maintained by
+       .push_format_context() and .pop_format_context() which allows
+       to build another %-formatted string while already building one.
+
+    This state is reset on every new assert statement visited and used
+    by the other visitors.
+
+    """
+
+    def __init__(self, module_path, config, source):
+        super().__init__()
+        self.module_path = module_path
+        self.config = config
+        if config is not None:
+            self.enable_assertion_pass_hook = config.getini(
+                "enable_assertion_pass_hook"
+            )
+        else:
+            self.enable_assertion_pass_hook = False
+        self.source = source
+
+    @functools.lru_cache(maxsize=1)
+    def _assert_expr_to_lineno(self):
+        return _get_assertion_exprs(self.source)
+
+    def run(self, mod: ast.Module) -> None:
+        """Find all assert statements in *mod* and rewrite them."""
+        if not mod.body:
+            # Nothing to do.
+            return
+```
+
+--- src/_pytest/config/__init__.py (lines 757-1078 of 1271; not shown in this file: <module header>, ExitCode, ConftestImportFailure, main, console_main, cmdline, filename_arg, directory_arg, get_config, get_plugin_manager, _prepareconfig, PytestPluginManager, _get_plugin_specs_as_list, _ensure_removed_sysmodule, Notset, _iter_rewritable_modules, _assertion_supported, _warn_about_missing_assertion, create_terminal_writer, _strtobool) ---
+```python
+class Config:
+    """
+    Access to configuration values, pluginmanager and plugin hooks.
+
+    :param PytestPluginManager pluginmanager:
+
+    :param InvocationParams invocation_params:
+        Object containing the parameters regarding the ``pytest.main``
+        invocation.
+    """
+
+    @attr.s(frozen=True)
+    class InvocationParams:
+        """Holds parameters passed during ``pytest.main()``
+
+        The object attributes are read-only.
+
+        .. versionadded:: 5.1
+
+        .. note::
+
+            Note that the environment variable ``PYTEST_ADDOPTS`` and the ``addopts``
+            ini option are handled by pytest, not being included in the ``args`` attribute.
+
+            Plugins accessing ``InvocationParams`` must be aware of that.
+        """
+
+        args = attr.ib(converter=tuple)
+        """tuple of command-line arguments as passed to ``pytest.main()``."""
+        plugins = attr.ib()
+        """list of extra plugins, might be `None`."""
+        dir = attr.ib(type=Path)
+        """directory where ``pytest.main()`` was invoked from."""
+
+    def __init__(
+        self,
+        pluginmanager: PytestPluginManager,
+        *,
+        invocation_params: Optional[InvocationParams] = None
+    ) -> None:
+        from .argparsing import Parser, FILE_OR_DIR
+
+        if invocation_params is None:
+            invocation_params = self.InvocationParams(
+                args=(), plugins=None, dir=Path().resolve()
+            )
+
+        self.option = argparse.Namespace()
+        """access to command line option as attributes.
+
+          :type: argparse.Namespace"""
+
+        self.invocation_params = invocation_params
+
+        _a = FILE_OR_DIR
+        self._parser = Parser(
+            usage="%(prog)s [options] [{}] [{}] [...]".format(_a, _a),
+            processopt=self._processopt,
+        )
+        self.pluginmanager = pluginmanager
+        """the plugin manager handles plugin registration and hook invocation.
+
+          :type: PytestPluginManager"""
+
+        self.trace = self.pluginmanager.trace.root.get("config")
+        self.hook = self.pluginmanager.hook
+        self._inicache = {}  # type: Dict[str, Any]
+        self._override_ini = ()  # type: Sequence[str]
+        self._opt2dest = {}  # type: Dict[str, str]
+        self._cleanup = []  # type: List[Callable[[], None]]
+        # A place where plugins can store information on the config for their
+        # own use. Currently only intended for internal plugins.
+        self._store = Store()
+        self.pluginmanager.register(self, "pytestconfig")
+        self._configured = False
+        self.hook.pytest_addoption.call_historic(
+            kwargs=dict(parser=self._parser, pluginmanager=self.pluginmanager)
+        )
+
+        if TYPE_CHECKING:
+            from _pytest.cacheprovider import Cache
+
+            self.cache = None  # type: Optional[Cache]
+
+    @property
+    def invocation_dir(self):
+        """Backward compatibility"""
+        return py.path.local(str(self.invocation_params.dir))
+
+    def add_cleanup(self, func):
+        """ Add a function to be called when the config object gets out of
+        use (usually coninciding with pytest_unconfigure)."""
+        self._cleanup.append(func)
+
+    def _do_configure(self):
+        assert not self._configured
+        self._configured = True
+        with warnings.catch_warnings():
+            warnings.simplefilter("default")
+            self.hook.pytest_configure.call_historic(kwargs=dict(config=self))
+
+    def _ensure_unconfigure(self):
+        if self._configured:
+            self._configured = False
+            self.hook.pytest_unconfigure(config=self)
+            self.hook.pytest_configure._call_history = []
+        while self._cleanup:
+            fin = self._cleanup.pop()
+            fin()
+
+    def get_terminal_writer(self):
+        return self.pluginmanager.get_plugin("terminalreporter")._tw
+
+    def pytest_cmdline_parse(self, pluginmanager, args):
+        try:
+            self.parse(args)
+        except UsageError:
+
+            # Handle --version and --help here in a minimal fashion.
+            # This gets done via helpconfig normally, but its
+            # pytest_cmdline_main is not called in case of errors.
+            if getattr(self.option, "version", False) or "--version" in args:
+                from _pytest.helpconfig import showversion
+
+                showversion(self)
+            elif (
+                getattr(self.option, "help", False) or "--help" in args or "-h" in args
+            ):
+                self._parser._getparser().print_help()
+                sys.stdout.write(
+                    "\nNOTE: displaying only minimal help due to UsageError.\n\n"
+                )
+
+            raise
+
+        return self
+
+    def notify_exception(self, excinfo, option=None):
+        if option and getattr(option, "fulltrace", False):
+            style = "long"
+        else:
+            style = "native"
+        excrepr = excinfo.getrepr(
+            funcargs=True, showlocals=getattr(option, "showlocals", False), style=style
+        )
+        res = self.hook.pytest_internalerror(excrepr=excrepr, excinfo=excinfo)
+        if not any(res):
+            for line in str(excrepr).split("\n"):
+                sys.stderr.write("INTERNALERROR> %s\n" % line)
+                sys.stderr.flush()
+
+    def cwd_relative_nodeid(self, nodeid):
+        # nodeid's are relative to the rootpath, compute relative to cwd
+        if self.invocation_dir != self.rootdir:
+            fullpath = self.rootdir.join(nodeid)
+            nodeid = self.invocation_dir.bestrelpath(fullpath)
+        return nodeid
+
+    @classmethod
+    def fromdictargs(cls, option_dict, args):
+        """ constructor usable for subprocesses. """
+        config = get_config(args)
+        config.option.__dict__.update(option_dict)
+        config.parse(args, addopts=False)
+        for x in config.option.plugins:
+            config.pluginmanager.consider_pluginarg(x)
+        return config
+
+    def _processopt(self, opt: "Argument") -> None:
+        for name in opt._short_opts + opt._long_opts:
+            self._opt2dest[name] = opt.dest
+
+        if hasattr(opt, "default"):
+            if not hasattr(self.option, opt.dest):
+                setattr(self.option, opt.dest, opt.default)
+
+    @hookimpl(trylast=True)
+    def pytest_load_initial_conftests(self, early_config):
+        self.pluginmanager._set_initial_conftests(early_config.known_args_namespace)
+
+    def _initini(self, args: Sequence[str]) -> None:
+        ns, unknown_args = self._parser.parse_known_and_unknown_args(
+            args, namespace=copy.copy(self.option)
+        )
+        r = determine_setup(
+            ns.inifilename,
+            ns.file_or_dir + unknown_args,
+            rootdir_cmd_arg=ns.rootdir or None,
+            config=self,
+        )
+        self.rootdir, self.inifile, self.inicfg = r
+        self._parser.extra_info["rootdir"] = self.rootdir
+        self._parser.extra_info["inifile"] = self.inifile
+        self._parser.addini("addopts", "extra command line options", "args")
+        self._parser.addini("minversion", "minimally required pytest version")
+        self._override_ini = ns.override_ini or ()
+
+    def _consider_importhook(self, args: Sequence[str]) -> None:
+        """Install the PEP 302 import hook if using assertion rewriting.
+
+        Needs to parse the --assert=<mode> option from the commandline
+        and find all the installed plugins to mark them for rewriting
+        by the importhook.
+        """
+        ns, unknown_args = self._parser.parse_known_and_unknown_args(args)
+        mode = getattr(ns, "assertmode", "plain")
+        if mode == "rewrite":
+            import _pytest.assertion
+
+            try:
+                hook = _pytest.assertion.install_importhook(self)
+            except SystemError:
+                mode = "plain"
+            else:
+                self._mark_plugins_for_rewrite(hook)
+        _warn_about_missing_assertion(mode)
+
+    def _mark_plugins_for_rewrite(self, hook):
+        """
+        Given an importhook, mark for rewrite any top-level
+        modules or packages in the distribution package for
+        all pytest plugins.
+        """
+        self.pluginmanager.rewrite_hook = hook
+
+        if os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD"):
+            # We don't autoload from setuptools entry points, no need to continue.
+            return
+
+        package_files = (
+            str(file)
+            for dist in importlib_metadata.distributions()
+            if any(ep.group == "pytest11" for ep in dist.entry_points)
+            for file in dist.files or []
+        )
+
+        for name in _iter_rewritable_modules(package_files):
+            hook.mark_rewrite(name)
+
+    def _validate_args(self, args: List[str], via: str) -> List[str]:
+        """Validate known args."""
+        self._parser._config_source_hint = via  # type: ignore
+        try:
+            self._parser.parse_known_and_unknown_args(
+                args, namespace=copy.copy(self.option)
+            )
+        finally:
+            del self._parser._config_source_hint  # type: ignore
+
+        return args
+
+    def _preparse(self, args: List[str], addopts: bool = True) -> None:
+        if addopts:
+            env_addopts = os.environ.get("PYTEST_ADDOPTS", "")
+            if len(env_addopts):
+                args[:] = (
+                    self._validate_args(shlex.split(env_addopts), "via PYTEST_ADDOPTS")
+                    + args
+                )
+        self._initini(args)
+        if addopts:
+            args[:] = (
+                self._validate_args(self.getini("addopts"), "via addopts config") + args
+            )
+
+        self._checkversion()
+        self._consider_importhook(args)
+        self.pluginmanager.consider_preparse(args, exclude_only=False)
+        if not os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD"):
+            # Don't autoload from setuptools entry point. Only explicitly specified
+            # plugins are going to be loaded.
+            self.pluginmanager.load_setuptools_entrypoints("pytest11")
+        self.pluginmanager.consider_env()
+        self.known_args_namespace = ns = self._parser.parse_known_args(
+            args, namespace=copy.copy(self.option)
+        )
+        if self.known_args_namespace.confcutdir is None and self.inifile:
+            confcutdir = py.path.local(self.inifile).dirname
+            self.known_args_namespace.confcutdir = confcutdir
+        try:
+            self.hook.pytest_load_initial_conftests(
+                early_config=self, args=args, parser=self._parser
+            )
+        except ConftestImportFailure as e:
+            if ns.help or ns.version:
+                # we don't want to prevent --help/--version to work
+                # so just let is pass and print a warning at the end
+                from _pytest.warnings import _issue_warning_captured
+
+                _issue_warning_captured(
+                    PytestConfigWarning(
+                        "could not load initial conftests: {}".format(e.path)
+                    ),
+                    self.hook,
+                    stacklevel=2,
+                )
+            else:
+                raise
+
+    def _checkversion(self):
+        import pytest
+
+        minver = self.inicfg.get("minversion", None)
+        if minver:
+            # Imported lazily to improve start-up time.
+            from packaging.version import Version
+
+            if Version(minver) > Version(pytest.__version__):
+                raise pytest.UsageError(
+                    "%s:%d: requires pytest-%s, actual pytest-%s'"
+                    % (
+                        self.inicfg.config.path,
+                        self.inicfg.lineof("minversion"),
+                        minver,
+                        pytest.__version__,
+                    )
+                )
+
+    def parse(self, args: List[str], addopts: bool = True) -> None:
+        # parse given cmdline arguments into this config object.
+        assert not hasattr(
+            self, "args"
+```
+
+--- src/_pytest/monkeypatch.py (lines 1-324 of 324) ---
+```python
+""" monkeypatching and mocking functionality.  """
+import os
+import re
+import sys
+import warnings
+from contextlib import contextmanager
+from typing import Generator
+
+import pytest
+from _pytest.fixtures import fixture
+from _pytest.pathlib import Path
+
+RE_IMPORT_ERROR_NAME = re.compile(r"^No module named (.*)$")
+
+
+@fixture
+def monkeypatch():
+    """The returned ``monkeypatch`` fixture provides these
+    helper methods to modify objects, dictionaries or os.environ::
+
+        monkeypatch.setattr(obj, name, value, raising=True)
+        monkeypatch.delattr(obj, name, raising=True)
+        monkeypatch.setitem(mapping, name, value)
+        monkeypatch.delitem(obj, name, raising=True)
+        monkeypatch.setenv(name, value, prepend=False)
+        monkeypatch.delenv(name, raising=True)
+        monkeypatch.syspath_prepend(path)
+        monkeypatch.chdir(path)
+
+    All modifications will be undone after the requesting
+    test function or fixture has finished. The ``raising``
+    parameter determines if a KeyError or AttributeError
+    will be raised if the set/deletion operation has no target.
+    """
+    mpatch = MonkeyPatch()
+    yield mpatch
+    mpatch.undo()
+
+
+def resolve(name):
+    # simplified from zope.dottedname
+    parts = name.split(".")
+
+    used = parts.pop(0)
+    found = __import__(used)
+    for part in parts:
+        used += "." + part
+        try:
+            found = getattr(found, part)
+        except AttributeError:
+            pass
+        else:
+            continue
+        # we use explicit un-nesting of the handling block in order
+        # to avoid nested exceptions on python 3
+        try:
+            __import__(used)
+        except ImportError as ex:
+            # str is used for py2 vs py3
+            expected = str(ex).split()[-1]
+            if expected == used:
+                raise
+            else:
+                raise ImportError("import error in {}: {}".format(used, ex))
+        found = annotated_getattr(found, part, used)
+    return found
+
+
+def annotated_getattr(obj, name, ann):
+    try:
+        obj = getattr(obj, name)
+    except AttributeError:
+        raise AttributeError(
+            "{!r} object at {} has no attribute {!r}".format(
+                type(obj).__name__, ann, name
+            )
+        )
+    return obj
+
+
+def derive_importpath(import_path, raising):
+    if not isinstance(import_path, str) or "." not in import_path:
+        raise TypeError(
+            "must be absolute import path string, not {!r}".format(import_path)
+        )
+    module, attr = import_path.rsplit(".", 1)
+    target = resolve(module)
+    if raising:
+        annotated_getattr(target, attr, ann=module)
+    return attr, target
+
+
+class Notset:
+    def __repr__(self):
+        return "<notset>"
+
+
+notset = Notset()
+
+
+class MonkeyPatch:
+    """ Object returned by the ``monkeypatch`` fixture keeping a record of setattr/item/env/syspath changes.
+    """
+
+    def __init__(self):
+        self._setattr = []
+        self._setitem = []
+        self._cwd = None
+        self._savesyspath = None
+
+    @contextmanager
+    def context(self) -> Generator["MonkeyPatch", None, None]:
+        """
+        Context manager that returns a new :class:`MonkeyPatch` object which
+        undoes any patching done inside the ``with`` block upon exit:
+
+        .. code-block:: python
+
+            import functools
+
+
+            def test_partial(monkeypatch):
+                with monkeypatch.context() as m:
+                    m.setattr(functools, "partial", 3)
+
+        Useful in situations where it is desired to undo some patches before the test ends,
+        such as mocking ``stdlib`` functions that might break pytest itself if mocked (for examples
+        of this see `#3290 <https://github.com/pytest-dev/pytest/issues/3290>`_.
+        """
+        m = MonkeyPatch()
+        try:
+            yield m
+        finally:
+            m.undo()
+
+    def setattr(self, target, name, value=notset, raising=True):
+        """ Set attribute value on target, memorizing the old value.
+        By default raise AttributeError if the attribute did not exist.
+
+        For convenience you can specify a string as ``target`` which
+        will be interpreted as a dotted import path, with the last part
+        being the attribute name.  Example:
+        ``monkeypatch.setattr("os.getcwd", lambda: "/")``
+        would set the ``getcwd`` function of the ``os`` module.
+
+        The ``raising`` value determines if the setattr should fail
+        if the attribute is not already present (defaults to True
+        which means it will raise).
+        """
+        __tracebackhide__ = True
+        import inspect
+
+        if value is notset:
+            if not isinstance(target, str):
+                raise TypeError(
+                    "use setattr(target, name, value) or "
+                    "setattr(target, value) with target being a dotted "
+                    "import string"
+                )
+            value = name
+            name, target = derive_importpath(target, raising)
+
+        oldval = getattr(target, name, notset)
+        if raising and oldval is notset:
+            raise AttributeError("{!r} has no attribute {!r}".format(target, name))
+
+        # avoid class descriptors like staticmethod/classmethod
+        if inspect.isclass(target):
+            oldval = target.__dict__.get(name, notset)
+        self._setattr.append((target, name, oldval))
+        setattr(target, name, value)
+
+    def delattr(self, target, name=notset, raising=True):
+        """ Delete attribute ``name`` from ``target``, by default raise
+        AttributeError it the attribute did not previously exist.
+
+        If no ``name`` is specified and ``target`` is a string
+        it will be interpreted as a dotted import path with the
+        last part being the attribute name.
+
+        If ``raising`` is set to False, no exception will be raised if the
+        attribute is missing.
+        """
+        __tracebackhide__ = True
+        import inspect
+
+        if name is notset:
+            if not isinstance(target, str):
+                raise TypeError(
+                    "use delattr(target, name) or "
+                    "delattr(target) with target being a dotted "
+                    "import string"
+                )
+            name, target = derive_importpath(target, raising)
+
+        if not hasattr(target, name):
+            if raising:
+                raise AttributeError(name)
+        else:
+            oldval = getattr(target, name, notset)
+            # Avoid class descriptors like staticmethod/classmethod.
+            if inspect.isclass(target):
+                oldval = target.__dict__.get(name, notset)
+            self._setattr.append((target, name, oldval))
+            delattr(target, name)
+
+    def setitem(self, dic, name, value):
+        """ Set dictionary entry ``name`` to value. """
+        self._setitem.append((dic, name, dic.get(name, notset)))
+        dic[name] = value
+
+    def delitem(self, dic, name, raising=True):
+        """ Delete ``name`` from dict. Raise KeyError if it doesn't exist.
+
+        If ``raising`` is set to False, no exception will be raised if the
+        key is missing.
+        """
+        if name not in dic:
+            if raising:
+                raise KeyError(name)
+        else:
+            self._setitem.append((dic, name, dic.get(name, notset)))
+            del dic[name]
+
+    def setenv(self, name, value, prepend=None):
+        """ Set environment variable ``name`` to ``value``.  If ``prepend``
+        is a character, read the current environment variable value
+        and prepend the ``value`` adjoined with the ``prepend`` character."""
+        if not isinstance(value, str):
+            warnings.warn(
+                pytest.PytestWarning(
+                    "Value of environment variable {name} type should be str, but got "
+                    "{value!r} (type: {type}); converted to str implicitly".format(
+                        name=name, value=value, type=type(value).__name__
+                    )
+                ),
+                stacklevel=2,
+            )
+            value = str(value)
+        if prepend and name in os.environ:
+            value = value + prepend + os.environ[name]
+        self.setitem(os.environ, name, value)
+
+    def delenv(self, name, raising=True):
+        """ Delete ``name`` from the environment. Raise KeyError if it does
+        not exist.
+
+        If ``raising`` is set to False, no exception will be raised if the
+        environment variable is missing.
+        """
+        self.delitem(os.environ, name, raising=raising)
+
+    def syspath_prepend(self, path):
+        """ Prepend ``path`` to ``sys.path`` list of import locations. """
+        from pkg_resources import fixup_namespace_packages
+
+        if self._savesyspath is None:
+            self._savesyspath = sys.path[:]
+        sys.path.insert(0, str(path))
+
+        # https://github.com/pypa/setuptools/blob/d8b901bc/docs/pkg_resources.txt#L162-L171
+        fixup_namespace_packages(str(path))
+
+        # A call to syspathinsert() usually means that the caller wants to
+        # import some dynamically created files, thus with python3 we
+        # invalidate its import caches.
+        # This is especially important when any namespace package is in use,
+        # since then the mtime based FileFinder cache (that gets created in
+        # this case already) gets not invalidated when writing the new files
+        # quickly afterwards.
+        from importlib import invalidate_caches
+
+        invalidate_caches()
+
+    def chdir(self, path):
+        """ Change the current working directory to the specified path.
+        Path can be a string or a py.path.local object.
+        """
+        if self._cwd is None:
+            self._cwd = os.getcwd()
+        if hasattr(path, "chdir"):
+            path.chdir()
+        elif isinstance(path, Path):
+            # modern python uses the fspath protocol here LEGACY
+            os.chdir(str(path))
+        else:
+            os.chdir(path)
+
+    def undo(self):
+        """ Undo previous changes.  This call consumes the
+        undo stack. Calling it a second time has no effect unless
+        you do more monkeypatching after the undo call.
+
+        There is generally no need to call `undo()`, since it is
+        called automatically during tear-down.
+
+        Note that the same `monkeypatch` fixture is used across a
+        single test function invocation. If `monkeypatch` is used both by
+        the test function itself and one of the test fixtures,
+        calling `undo()` will undo all of the changes made in
+        both functions.
+        """
+        for obj, name, value in reversed(self._setattr):
+            if value is not notset:
+                setattr(obj, name, value)
+            else:
+                delattr(obj, name)
+        self._setattr[:] = []
+        for dictionary, name, value in reversed(self._setitem):
+            if value is notset:
+                try:
+                    del dictionary[name]
+                except KeyError:
+                    pass  # was already deleted, so we have the desired state
+            else:
+                dictionary[name] = value
+        self._setitem[:] = []
+        if self._savesyspath is not None:
+            sys.path[:] = self._savesyspath
+            self._savesyspath = None
+
+        if self._cwd is not None:
+            os.chdir(self._cwd)
+            self._cwd = None
+```
+
+--- src/_pytest/pathlib.py (lines 221-238 of 367; not shown in this file: <module header>, get_lock_path, ensure_reset_dir, on_rm_rf_error, rm_rf, find_prefixed, extract_suffixes, find_suffixes, parse_num, _force_symlink, make_numbered_dir, create_cleanup_lock, register_cleanup_lock_removal, ensure_deletable, try_cleanup, cleanup_candidates, cleanup_numbered_dir, make_numbered_dir_with_cleanup, resolve_from_str, fnmatch_ex, parts) ---
+```python
+def maybe_delete_a_numbered_dir(path: Path) -> None:
+    """removes a numbered directory if its lock can be obtained and it does not seem to be in use"""
+    lock_path = None
+    try:
+        lock_path = create_cleanup_lock(path)
+        parent = path.parent
+
+        garbage = parent.joinpath("garbage-{}".format(uuid.uuid4()))
+        path.rename(garbage)
+        rm_rf(garbage)
+    except OSError:
+        #  known races:
+        #  * other process did a cleanup at the same time
+        #  * deletable folder was found
+        #  * process cwd (Windows)
+        return
+    finally:
+        # if we created the lock, ensure we remove it even if we failed
+```
+
+=== REQUIRED OUTPUT ===
+Your answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two
+patch markers:
+
+*** PATCH START ***
+path/to/file.py
+<<<<<<< SEARCH
+<the exact lines currently in the file>
+=======
+<the lines that replace them>
+>>>>>>> REPLACE
+*** PATCH END ***
+
+Rules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per
+edit; paths are relative to the repository root; SEARCH must be whole lines copied from
+the file; an empty SEARCH section creates a new file.
+
+Only what lies between *** PATCH START *** and *** PATCH END *** is graded.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+The full format specification, with worked examples and every failure code, is published
+as `docs/contracts/patch-format.md`.

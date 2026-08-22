@@ -1,0 +1,19 @@
+Consider the function \[ f(x) =
+\begin{cases}
+ax^2 & \text{if } x \geq a,\\
+ax +2a& \text{if } x <a,
+\end{cases}
+\]where $a$ is some number.
+
+What is the largest value of $a$ such that the graph of $y=f(x)$ intersects every horizontal line at least once?
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

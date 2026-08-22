@@ -1,0 +1,1730 @@
+You are resolving an issue in an existing repository. The issue report comes
+first, then the parts of the repository the judge retrieved for it.
+
+## Issue
+
+PolyFit is not robust to missing data
+```python
+so.Plot([1, 2, 3, None, 4], [1, 2, 3, 4, 5]).add(so.Line(), so.PolyFit())
+```
+
+<details><summary>Traceback</summary>
+
+```python-traceback
+---------------------------------------------------------------------------
+LinAlgError                               Traceback (most recent call last)
+File ~/miniconda3/envs/seaborn-py39-latest/lib/python3.9/site-packages/IPython/core/formatters.py:343, in BaseFormatter.__call__(self, obj)
+    341     method = get_real_method(obj, self.print_method)
+    342     if method is not None:
+--> 343         return method()
+    344     return None
+    345 else:
+
+File ~/code/seaborn/seaborn/_core/plot.py:265, in Plot._repr_png_(self)
+    263 def _repr_png_(self) -> tuple[bytes, dict[str, float]]:
+--> 265     return self.plot()._repr_png_()
+
+File ~/code/seaborn/seaborn/_core/plot.py:804, in Plot.plot(self, pyplot)
+    800 """
+    801 Compile the plot spec and return the Plotter object.
+    802 """
+    803 with theme_context(self._theme_with_defaults()):
+--> 804     return self._plot(pyplot)
+
+File ~/code/seaborn/seaborn/_core/plot.py:822, in Plot._plot(self, pyplot)
+    819 plotter._setup_scales(self, common, layers, coord_vars)
+    821 # Apply statistical transform(s)
+--> 822 plotter._compute_stats(self, layers)
+    824 # Process scale spec for semantic variables and coordinates computed by stat
+    825 plotter._setup_scales(self, common, layers)
+
+File ~/code/seaborn/seaborn/_core/plot.py:1110, in Plotter._compute_stats(self, spec, layers)
+   1108     grouper = grouping_vars
+   1109 groupby = GroupBy(grouper)
+-> 1110 res = stat(df, groupby, orient, scales)
+   1112 if pair_vars:
+   1113     data.frames[coord_vars] = res
+
+File ~/code/seaborn/seaborn/_stats/regression.py:41, in PolyFit.__call__(self, data, groupby, orient, scales)
+     39 def __call__(self, data, groupby, orient, scales):
+---> 41     return groupby.apply(data, self._fit_predict)
+
+File ~/code/seaborn/seaborn/_core/groupby.py:109, in GroupBy.apply(self, data, func, *args, **kwargs)
+    106 grouper, groups = self._get_groups(data)
+    108 if not grouper:
+--> 109     return self._reorder_columns(func(data, *args, **kwargs), data)
+    111 parts = {}
+    112 for key, part_df in data.groupby(grouper, sort=False):
+
+File ~/code/seaborn/seaborn/_stats/regression.py:30, in PolyFit._fit_predict(self, data)
+     28     xx = yy = []
+     29 else:
+---> 30     p = np.polyfit(x, y, self.order)
+     31     xx = np.linspace(x.min(), x.max(), self.gridsize)
+     32     yy = np.polyval(p, xx)
+
+File <__array_function__ internals>:180, in polyfit(*args, **kwargs)
+
+File ~/miniconda3/envs/seaborn-py39-latest/lib/python3.9/site-packages/numpy/lib/polynomial.py:668, in polyfit(x, y, deg, rcond, full, w, cov)
+    666 scale = NX.sqrt((lhs*lhs).sum(axis=0))
+    667 lhs /= scale
+--> 668 c, resids, rank, s = lstsq(lhs, rhs, rcond)
+    669 c = (c.T/scale).T  # broadcast scale coefficients
+    671 # warn on rank reduction, which indicates an ill conditioned matrix
+
+File <__array_function__ internals>:180, in lstsq(*args, **kwargs)
+
+File ~/miniconda3/envs/seaborn-py39-latest/lib/python3.9/site-packages/numpy/linalg/linalg.py:2300, in lstsq(a, b, rcond)
+   2297 if n_rhs == 0:
+   2298     # lapack can't handle n_rhs = 0 - so allocate the array one larger in that axis
+   2299     b = zeros(b.shape[:-2] + (m, n_rhs + 1), dtype=b.dtype)
+-> 2300 x, resids, rank, s = gufunc(a, b, rcond, signature=signature, extobj=extobj)
+   2301 if m == 0:
+   2302     x[...] = 0
+
+File ~/miniconda3/envs/seaborn-py39-latest/lib/python3.9/site-packages/numpy/linalg/linalg.py:101, in _raise_linalgerror_lstsq(err, flag)
+    100 def _raise_linalgerror_lstsq(err, flag):
+--> 101     raise LinAlgError("SVD did not converge in Linear Least Squares")
+
+LinAlgError: SVD did not converge in Linear Least Squares
+
+```
+
+</details>
+
+## Repository context
+
+Repository: mwaskom/seaborn at commit 0f5a013e2cf43562deec3b879458e59a73853813
+Retrieved 7 of 53 candidate source files.
+You cannot browse the repository. The excerpts below are the whole of the
+code you have been given; anything not shown, you do not have.
+
+--- seaborn/_core/plot.py (lines 856-1178 of 1661; not shown in this file: <module header>, Layer, FacetSpec, PairSpec, Default, theme_context, build_plot_signature, Plot) ---
+```python
+class Plotter:
+    """
+    Engine for compiling a :class:`Plot` spec into a Matplotlib figure.
+
+    This class is not intended to be instantiated directly by users.
+
+    """
+    # TODO decide if we ever want these (Plot.plot(debug=True))?
+    _data: PlotData
+    _layers: list[Layer]
+    _figure: Figure
+
+    def __init__(self, pyplot: bool, theme: dict[str, Any]):
+
+        self._pyplot = pyplot
+        self._theme = theme
+        self._legend_contents: list[tuple[
+            tuple[str, str | int], list[Artist], list[str],
+        ]] = []
+        self._scales: dict[str, Scale] = {}
+
+    def save(self, loc, **kwargs) -> Plotter:  # TODO type args
+        kwargs.setdefault("dpi", 96)
+        try:
+            loc = os.path.expanduser(loc)
+        except TypeError:
+            # loc may be a buffer in which case that would not work
+            pass
+        self._figure.savefig(loc, **kwargs)
+        return self
+
+    def show(self, **kwargs) -> None:
+        """
+        Display the plot by hooking into pyplot.
+
+        This method calls :func:`matplotlib.pyplot.show` with any keyword parameters.
+
+        """
+        # TODO if we did not create the Plotter with pyplot, is it possible to do this?
+        # If not we should clearly raise.
+        import matplotlib.pyplot as plt
+        with theme_context(self._theme):
+            plt.show(**kwargs)
+
+    # TODO API for accessing the underlying matplotlib objects
+    # TODO what else is useful in the public API for this class?
+
+    def _repr_png_(self) -> tuple[bytes, dict[str, float]]:
+
+        # TODO better to do this through a Jupyter hook? e.g.
+        # ipy = IPython.core.formatters.get_ipython()
+        # fmt = ipy.display_formatter.formatters["text/html"]
+        # fmt.for_type(Plot, ...)
+        # Would like to have a svg option too, not sure how to make that flexible
+
+        # TODO use matplotlib backend directly instead of going through savefig?
+
+        # TODO perhaps have self.show() flip a switch to disable this, so that
+        # user does not end up with two versions of the figure in the output
+
+        # TODO use bbox_inches="tight" like the inline backend?
+        # pro: better results,  con: (sometimes) confusing results
+        # Better solution would be to default (with option to change)
+        # to using constrained/tight layout.
+
+        # TODO need to decide what the right default behavior here is:
+        # - Use dpi=72 to match default InlineBackend figure size?
+        # - Accept a generic "scaling" somewhere and scale DPI from that,
+        #   either with 1x -> 72 or 1x -> 96 and the default scaling be .75?
+        # - Listen to rcParams? InlineBackend behavior makes that so complicated :(
+        # - Do we ever want to *not* use retina mode at this point?
+
+        from PIL import Image
+
+        dpi = 96
+        buffer = io.BytesIO()
+
+        with theme_context(self._theme):
+            self._figure.savefig(buffer, dpi=dpi * 2, format="png", bbox_inches="tight")
+        data = buffer.getvalue()
+
+        scaling = .85 / 2
+        w, h = Image.open(buffer).size
+        metadata = {"width": w * scaling, "height": h * scaling}
+        return data, metadata
+
+    def _extract_data(self, p: Plot) -> tuple[PlotData, list[Layer]]:
+
+        common_data = (
+            p._data
+            .join(None, p._facet_spec.get("variables"))
+            .join(None, p._pair_spec.get("variables"))
+        )
+
+        layers: list[Layer] = []
+        for layer in p._layers:
+            spec = layer.copy()
+            spec["data"] = common_data.join(layer.get("source"), layer.get("vars"))
+            layers.append(spec)
+
+        return common_data, layers
+
+    def _resolve_label(self, p: Plot, var: str, auto_label: str | None) -> str:
+
+        label: str
+        if var in p._labels:
+            manual_label = p._labels[var]
+            if callable(manual_label) and auto_label is not None:
+                label = manual_label(auto_label)
+            else:
+                label = cast(str, manual_label)
+        elif auto_label is None:
+            label = ""
+        else:
+            label = auto_label
+        return label
+
+    def _setup_figure(self, p: Plot, common: PlotData, layers: list[Layer]) -> None:
+
+        # --- Parsing the faceting/pairing parameterization to specify figure grid
+
+        subplot_spec = p._subplot_spec.copy()
+        facet_spec = p._facet_spec.copy()
+        pair_spec = p._pair_spec.copy()
+
+        for axis in "xy":
+            if axis in p._shares:
+                subplot_spec[f"share{axis}"] = p._shares[axis]
+
+        for dim in ["col", "row"]:
+            if dim in common.frame and dim not in facet_spec["structure"]:
+                order = categorical_order(common.frame[dim])
+                facet_spec["structure"][dim] = order
+
+        self._subplots = subplots = Subplots(subplot_spec, facet_spec, pair_spec)
+
+        # --- Figure initialization
+        self._figure = subplots.init_figure(
+            pair_spec, self._pyplot, p._figure_spec, p._target,
+        )
+
+        # --- Figure annotation
+        for sub in subplots:
+            ax = sub["ax"]
+            for axis in "xy":
+                axis_key = sub[axis]
+
+                # ~~ Axis labels
+
+                # TODO Should we make it possible to use only one x/y label for
+                # all rows/columns in a faceted plot? Maybe using sub{axis}label,
+                # although the alignments of the labels from that method leaves
+                # something to be desired (in terms of how it defines 'centered').
+                names = [
+                    common.names.get(axis_key),
+                    *(layer["data"].names.get(axis_key) for layer in layers)
+                ]
+                auto_label = next((name for name in names if name is not None), None)
+                label = self._resolve_label(p, axis_key, auto_label)
+                ax.set(**{f"{axis}label": label})
+
+                # ~~ Decoration visibility
+
+                # TODO there should be some override (in Plot.layout?) so that
+                # axis / tick labels can be shown on interior shared axes if desired
+
+                axis_obj = getattr(ax, f"{axis}axis")
+                visible_side = {"x": "bottom", "y": "left"}.get(axis)
+                show_axis_label = (
+                    sub[visible_side]
+                    or not p._pair_spec.get("cross", True)
+                    or (
+                        axis in p._pair_spec.get("structure", {})
+                        and bool(p._pair_spec.get("wrap"))
+                    )
+                )
+                axis_obj.get_label().set_visible(show_axis_label)
+
+                show_tick_labels = (
+                    show_axis_label
+                    or subplot_spec.get(f"share{axis}") not in (
+                        True, "all", {"x": "col", "y": "row"}[axis]
+                    )
+                )
+                for group in ("major", "minor"):
+                    for t in getattr(axis_obj, f"get_{group}ticklabels")():
+                        t.set_visible(show_tick_labels)
+
+            # TODO we want right-side titles for row facets in most cases?
+            # Let's have what we currently call "margin titles" but properly using the
+            # ax.set_title interface (see my gist)
+            title_parts = []
+            for dim in ["col", "row"]:
+                if sub[dim] is not None:
+                    val = self._resolve_label(p, "title", f"{sub[dim]}")
+                    if dim in p._labels:
+                        key = self._resolve_label(p, dim, common.names.get(dim))
+                        val = f"{key} {val}"
+                    title_parts.append(val)
+
+            has_col = sub["col"] is not None
+            has_row = sub["row"] is not None
+            show_title = (
+                has_col and has_row
+                or (has_col or has_row) and p._facet_spec.get("wrap")
+                or (has_col and sub["top"])
+                # TODO or has_row and sub["right"] and <right titles>
+                or has_row  # TODO and not <right titles>
+            )
+            if title_parts:
+                title = " | ".join(title_parts)
+                title_text = ax.set_title(title)
+                title_text.set_visible(show_title)
+            elif not (has_col or has_row):
+                title = self._resolve_label(p, "title", None)
+                title_text = ax.set_title(title)
+
+    def _compute_stats(self, spec: Plot, layers: list[Layer]) -> None:
+
+        grouping_vars = [v for v in PROPERTIES if v not in "xy"]
+        grouping_vars += ["col", "row", "group"]
+
+        pair_vars = spec._pair_spec.get("structure", {})
+
+        for layer in layers:
+
+            data = layer["data"]
+            mark = layer["mark"]
+            stat = layer["stat"]
+
+            if stat is None:
+                continue
+
+            iter_axes = itertools.product(*[
+                pair_vars.get(axis, [axis]) for axis in "xy"
+            ])
+
+            old = data.frame
+
+            if pair_vars:
+                data.frames = {}
+                data.frame = data.frame.iloc[:0]  # TODO to simplify typing
+
+            for coord_vars in iter_axes:
+
+                pairings = "xy", coord_vars
+
+                df = old.copy()
+                scales = self._scales.copy()
+
+                for axis, var in zip(*pairings):
+                    if axis != var:
+                        df = df.rename(columns={var: axis})
+                        drop_cols = [x for x in df if re.match(rf"{axis}\d+", x)]
+                        df = df.drop(drop_cols, axis=1)
+                        scales[axis] = scales[var]
+
+                orient = layer["orient"] or mark._infer_orient(scales)
+
+                if stat.group_by_orient:
+                    grouper = [orient, *grouping_vars]
+                else:
+                    grouper = grouping_vars
+                groupby = GroupBy(grouper)
+                res = stat(df, groupby, orient, scales)
+
+                if pair_vars:
+                    data.frames[coord_vars] = res
+                else:
+                    data.frame = res
+
+    def _get_scale(
+        self, spec: Plot, var: str, prop: Property, values: Series
+    ) -> Scale:
+
+        if var in spec._scales:
+            arg = spec._scales[var]
+            if arg is None or isinstance(arg, Scale):
+                scale = arg
+            else:
+                scale = prop.infer_scale(arg, values)
+        else:
+            scale = prop.default_scale(values)
+
+        return scale
+
+    def _get_subplot_data(self, df, var, view, share_state):
+
+        if share_state in [True, "all"]:
+            # The all-shared case is easiest, every subplot sees all the data
+            seed_values = df[var]
+        else:
+            # Otherwise, we need to setup separate scales for different subplots
+            if share_state in [False, "none"]:
+                # Fully independent axes are also easy: use each subplot's data
+                idx = self._get_subplot_index(df, view)
+            elif share_state in df:
+                # Sharing within row/col is more complicated
+                use_rows = df[share_state] == view[share_state]
+                idx = df.index[use_rows]
+            else:
+                # This configuration doesn't make much sense, but it's fine
+                idx = df.index
+
+            seed_values = df.loc[idx, var]
+
+        return seed_values
+
+    def _setup_scales(
+        self, p: Plot,
+        common: PlotData,
+        layers: list[Layer],
+        variables: list[str] | None = None,
+    ) -> None:
+
+        if variables is None:
+            # Add variables that have data but not a scale, which happens
+            # because this method can be called multiple time, to handle
+            # variables added during the Stat transform.
+            variables = []
+            for layer in layers:
+                variables.extend(layer["data"].frame.columns)
+                for df in layer["data"].frames.values():
+```
+
+--- seaborn/_stats/regression.py (lines 1-47 of 47) ---
+```python
+from __future__ import annotations
+from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+
+from seaborn._stats.base import Stat
+
+
+@dataclass
+class PolyFit(Stat):
+    """
+    Fit a polynomial of the given order and resample data onto predicted curve.
+    """
+    # This is a provisional class that is useful for building out functionality.
+    # It may or may not change substantially in form or dissappear as we think
+    # through the organization of the stats subpackage.
+
+    order: int = 2
+    gridsize: int = 100
+
+    def _fit_predict(self, data):
+
+        x = data["x"]
+        y = data["y"]
+        if x.nunique() <= self.order:
+            # TODO warn?
+            xx = yy = []
+        else:
+            p = np.polyfit(x, y, self.order)
+            xx = np.linspace(x.min(), x.max(), self.gridsize)
+            yy = np.polyval(p, xx)
+
+        return pd.DataFrame(dict(x=xx, y=yy))
+
+    # TODO we should have a way of identifying the method that will be applied
+    # and then only define __call__ on a base-class of stats with this pattern
+
+    def __call__(self, data, groupby, orient, scales):
+
+        return groupby.apply(data, self._fit_predict)
+
+
+@dataclass
+class OLSFit(Stat):
+
+    ...
+```
+
+--- seaborn/_core/groupby.py (lines 1-124 of 124) ---
+```python
+"""Simplified split-apply-combine paradigm on dataframes for internal use."""
+from __future__ import annotations
+
+import pandas as pd
+
+from seaborn._core.rules import categorical_order
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Callable
+    from pandas import DataFrame, MultiIndex, Index
+
+
+class GroupBy:
+    """
+    Interface for Pandas GroupBy operations allowing specified group order.
+
+    Writing our own class to do this has a few advantages:
+    - It constrains the interface between Plot and Stat/Move objects
+    - It allows control over the row order of the GroupBy result, which is
+      important when using in the context of some Move operations (dodge, stack, ...)
+    - It simplifies some complexities regarding the return type and Index contents
+      one encounters with Pandas, especially for DataFrame -> DataFrame applies
+    - It increases future flexibility regarding alternate DataFrame libraries
+
+    """
+    def __init__(self, order: list[str] | dict[str, list | None]):
+        """
+        Initialize the GroupBy from grouping variables and optional level orders.
+
+        Parameters
+        ----------
+        order
+            List of variable names or dict mapping names to desired level orders.
+            Level order values can be None to use default ordering rules. The
+            variables can include names that are not expected to appear in the
+            data; these will be dropped before the groups are defined.
+
+        """
+        if not order:
+            raise ValueError("GroupBy requires at least one grouping variable")
+
+        if isinstance(order, list):
+            order = {k: None for k in order}
+        self.order = order
+
+    def _get_groups(self, data: DataFrame) -> MultiIndex:
+        """Return index with Cartesian product of ordered grouping variable levels."""
+        levels = {}
+        for var, order in self.order.items():
+            if var in data:
+                if order is None:
+                    order = categorical_order(data[var])
+                levels[var] = order
+
+        grouper: str | list[str]
+        groups: Index | MultiIndex | None
+        if not levels:
+            grouper = []
+            groups = None
+        elif len(levels) > 1:
+            grouper = list(levels)
+            groups = pd.MultiIndex.from_product(levels.values(), names=grouper)
+        else:
+            grouper, = list(levels)
+            groups = pd.Index(levels[grouper], name=grouper)
+        return grouper, groups
+
+    def _reorder_columns(self, res, data):
+        """Reorder result columns to match original order with new columns appended."""
+        cols = [c for c in data if c in res]
+        cols += [c for c in res if c not in data]
+        return res.reindex(columns=pd.Index(cols))
+
+    def agg(self, data: DataFrame, *args, **kwargs) -> DataFrame:
+        """
+        Reduce each group to a single row in the output.
+
+        The output will have a row for each unique combination of the grouping
+        variable levels with null values for the aggregated variable(s) where
+        those combinations do not appear in the dataset.
+
+        """
+        grouper, groups = self._get_groups(data)
+
+        if not grouper:
+            # We will need to see whether there are valid usecases that end up here
+            raise ValueError("No grouping variables are present in dataframe")
+
+        res = (
+            data
+            .groupby(grouper, sort=False, observed=True)
+            .agg(*args, **kwargs)
+            .reindex(groups)
+            .reset_index()
+            .pipe(self._reorder_columns, data)
+        )
+
+        return res
+
+    def apply(
+        self, data: DataFrame, func: Callable[..., DataFrame],
+        *args, **kwargs,
+    ) -> DataFrame:
+        """Apply a DataFrame -> DataFrame mapping to each group."""
+        grouper, groups = self._get_groups(data)
+
+        if not grouper:
+            return self._reorder_columns(func(data, *args, **kwargs), data)
+
+        parts = {}
+        for key, part_df in data.groupby(grouper, sort=False):
+            parts[key] = func(part_df, *args, **kwargs)
+        stack = []
+        for key in groups:
+            if key in parts:
+                if isinstance(grouper, list):
+                    group_ids = dict(zip(grouper, key))
+                else:
+                    group_ids = {grouper: key}
+                stack.append(parts[key].assign(**group_ids))
+
+        res = pd.concat(stack, ignore_index=True)
+        return self._reorder_columns(res, data)
+```
+
+--- seaborn/categorical.py (lines 1744-2049 of 3542; not shown in this file: <module header>, _CategoricalPlotterNew, _CategoricalFacetPlotter, _CategoricalPlotter, _BoxPlotter, _ViolinPlotter, _CategoricalStatPlotter, _BarPlotter, _PointPlotter, _CountPlotter, boxplot, violinplot, boxenplot, stripplot, swarmplot, barplot, pointplot, countplot, catplot, Beeswarm) ---
+```python
+class _LVPlotter(_CategoricalPlotter):
+
+    def __init__(self, x, y, hue, data, order, hue_order,
+                 orient, color, palette, saturation,
+                 width, dodge, k_depth, linewidth, scale, outlier_prop,
+                 trust_alpha, showfliers=True):
+
+        self.width = width
+        self.dodge = dodge
+        self.saturation = saturation
+
+        k_depth_methods = ['proportion', 'tukey', 'trustworthy', 'full']
+        if not (k_depth in k_depth_methods or isinstance(k_depth, Number)):
+            msg = (f'k_depth must be one of {k_depth_methods} or a number, '
+                   f'but {k_depth} was passed.')
+            raise ValueError(msg)
+        self.k_depth = k_depth
+
+        if linewidth is None:
+            linewidth = mpl.rcParams["lines.linewidth"]
+        self.linewidth = linewidth
+
+        scales = ['linear', 'exponential', 'area']
+        if scale not in scales:
+            msg = f'scale must be one of {scales}, but {scale} was passed.'
+            raise ValueError(msg)
+        self.scale = scale
+
+        if ((outlier_prop > 1) or (outlier_prop <= 0)):
+            msg = f'outlier_prop {outlier_prop} not in range (0, 1]'
+            raise ValueError(msg)
+        self.outlier_prop = outlier_prop
+
+        if not 0 < trust_alpha < 1:
+            msg = f'trust_alpha {trust_alpha} not in range (0, 1)'
+            raise ValueError(msg)
+        self.trust_alpha = trust_alpha
+
+        self.showfliers = showfliers
+
+        self.establish_variables(x, y, hue, data, orient, order, hue_order)
+        self.establish_colors(color, palette, saturation)
+
+    def _lv_box_ends(self, vals):
+        """Get the number of data points and calculate `depth` of
+        letter-value plot."""
+        vals = np.asarray(vals)
+        # Remove infinite values while handling a 'object' dtype
+        # that can come from pd.Float64Dtype() input
+        with pd.option_context('mode.use_inf_as_null', True):
+            vals = vals[~pd.isnull(vals)]
+        n = len(vals)
+        p = self.outlier_prop
+
+        # Select the depth, i.e. number of boxes to draw, based on the method
+        if self.k_depth == 'full':
+            # extend boxes to 100% of the data
+            k = int(np.log2(n)) + 1
+        elif self.k_depth == 'tukey':
+            # This results with 5-8 points in each tail
+            k = int(np.log2(n)) - 3
+        elif self.k_depth == 'proportion':
+            k = int(np.log2(n)) - int(np.log2(n * p)) + 1
+        elif self.k_depth == 'trustworthy':
+            point_conf = 2 * _normal_quantile_func(1 - self.trust_alpha / 2) ** 2
+            k = int(np.log2(n / point_conf)) + 1
+        else:
+            k = int(self.k_depth)  # allow having k as input
+        # If the number happens to be less than 1, set k to 1
+        if k < 1:
+            k = 1
+
+        # Calculate the upper end for each of the k boxes
+        upper = [100 * (1 - 0.5 ** (i + 1)) for i in range(k, 0, -1)]
+        # Calculate the lower end for each of the k boxes
+        lower = [100 * (0.5 ** (i + 1)) for i in range(k, 0, -1)]
+        # Stitch the box ends together
+        percentile_ends = [(i, j) for i, j in zip(lower, upper)]
+        box_ends = [np.percentile(vals, q) for q in percentile_ends]
+        return box_ends, k
+
+    def _lv_outliers(self, vals, k):
+        """Find the outliers based on the letter value depth."""
+        box_edge = 0.5 ** (k + 1)
+        perc_ends = (100 * box_edge, 100 * (1 - box_edge))
+        edges = np.percentile(vals, perc_ends)
+        lower_out = vals[np.where(vals < edges[0])[0]]
+        upper_out = vals[np.where(vals > edges[1])[0]]
+        return np.concatenate((lower_out, upper_out))
+
+    def _width_functions(self, width_func):
+        # Dictionary of functions for computing the width of the boxes
+        width_functions = {'linear': lambda h, i, k: (i + 1.) / k,
+                           'exponential': lambda h, i, k: 2**(-k + i - 1),
+                           'area': lambda h, i, k: (1 - 2**(-k + i - 2)) / h}
+        return width_functions[width_func]
+
+    def _lvplot(self, box_data, positions,
+                color=[255. / 256., 185. / 256., 0.],
+                widths=1, ax=None, box_kws=None,
+                flier_kws=None,
+                line_kws=None):
+
+        # -- Default keyword dicts - based on
+        # distributions.plot_univariate_histogram
+        box_kws = {} if box_kws is None else box_kws.copy()
+        flier_kws = {} if flier_kws is None else flier_kws.copy()
+        line_kws = {} if line_kws is None else line_kws.copy()
+
+        # Set the default kwargs for the boxes
+        box_default_kws = dict(edgecolor=self.gray,
+                               linewidth=self.linewidth)
+        for k, v in box_default_kws.items():
+            box_kws.setdefault(k, v)
+
+        # Set the default kwargs for the lines denoting medians
+        line_default_kws = dict(
+            color=".15", alpha=0.45, solid_capstyle="butt", linewidth=self.linewidth
+        )
+        for k, v in line_default_kws.items():
+            line_kws.setdefault(k, v)
+
+        # Set the default kwargs for the outliers scatterplot
+        flier_default_kws = dict(marker='d', color=self.gray)
+        for k, v in flier_default_kws.items():
+            flier_kws.setdefault(k, v)
+
+        vert = self.orient == "v"
+        x = positions[0]
+        box_data = np.asarray(box_data)
+
+        # If we only have one data point, plot a line
+        if len(box_data) == 1:
+            line_kws.update({
+                'color': box_kws['edgecolor'],
+                'linestyle': box_kws.get('linestyle', '-'),
+                'linewidth': max(box_kws["linewidth"], line_kws["linewidth"])
+            })
+            ys = [box_data[0], box_data[0]]
+            xs = [x - widths / 2, x + widths / 2]
+            if vert:
+                xx, yy = xs, ys
+            else:
+                xx, yy = ys, xs
+            ax.plot(xx, yy, **line_kws)
+        else:
+            # Get the number of data points and calculate "depth" of
+            # letter-value plot
+            box_ends, k = self._lv_box_ends(box_data)
+
+            # Anonymous functions for calculating the width and height
+            # of the letter value boxes
+            width = self._width_functions(self.scale)
+
+            # Function to find height of boxes
+            def height(b):
+                return b[1] - b[0]
+
+            # Functions to construct the letter value boxes
+            def vert_perc_box(x, b, i, k, w):
+                rect = Patches.Rectangle((x - widths * w / 2, b[0]),
+                                         widths * w,
+                                         height(b), fill=True)
+                return rect
+
+            def horz_perc_box(x, b, i, k, w):
+                rect = Patches.Rectangle((b[0], x - widths * w / 2),
+                                         height(b), widths * w,
+                                         fill=True)
+                return rect
+
+            # Scale the width of the boxes so the biggest starts at 1
+            w_area = np.array([width(height(b), i, k)
+                               for i, b in enumerate(box_ends)])
+            w_area = w_area / np.max(w_area)
+
+            # Calculate the medians
+            y = np.median(box_data)
+
+            # Calculate the outliers and plot (only if showfliers == True)
+            outliers = []
+            if self.showfliers:
+                outliers = self._lv_outliers(box_data, k)
+            hex_color = mpl.colors.rgb2hex(color)
+
+            if vert:
+                box_func = vert_perc_box
+                xs_median = [x - widths / 2, x + widths / 2]
+                ys_median = [y, y]
+                xs_outliers = np.full(len(outliers), x)
+                ys_outliers = outliers
+
+            else:
+                box_func = horz_perc_box
+                xs_median = [y, y]
+                ys_median = [x - widths / 2, x + widths / 2]
+                xs_outliers = outliers
+                ys_outliers = np.full(len(outliers), x)
+
+            # Plot the medians
+            ax.plot(
+                xs_median,
+                ys_median,
+                **line_kws
+            )
+
+            # Plot outliers (if any)
+            if len(outliers) > 0:
+                ax.scatter(xs_outliers, ys_outliers,
+                           **flier_kws
+                           )
+
+            # Construct a color map from the input color
+            rgb = [hex_color, (1, 1, 1)]
+            cmap = mpl.colors.LinearSegmentedColormap.from_list('new_map', rgb)
+            # Make sure that the last boxes contain hue and are not pure white
+            rgb = [hex_color, cmap(.85)]
+            cmap = mpl.colors.LinearSegmentedColormap.from_list('new_map', rgb)
+
+            # Update box_kws with `cmap` if not defined in dict until now
+            box_kws.setdefault('cmap', cmap)
+
+            boxes = [box_func(x, b[0], i, k, b[1])
+                     for i, b in enumerate(zip(box_ends, w_area))]
+
+            collection = PatchCollection(boxes, **box_kws)
+
+            # Set the color gradation, first box will have color=hex_color
+            collection.set_array(np.array(np.linspace(1, 0, len(boxes))))
+
+            # Plot the boxes
+            ax.add_collection(collection)
+
+    def draw_letter_value_plot(self, ax, box_kws=None, flier_kws=None,
+                               line_kws=None):
+        """Use matplotlib to draw a letter value plot on an Axes."""
+
+        for i, group_data in enumerate(self.plot_data):
+
+            if self.plot_hues is None:
+
+                # Handle case where there is data at this level
+                if group_data.size == 0:
+                    continue
+
+                # Draw a single box or a set of boxes
+                # with a single level of grouping
+                box_data = remove_na(group_data)
+
+                # Handle case where there is no non-null data
+                if box_data.size == 0:
+                    continue
+
+                color = self.colors[i]
+
+                self._lvplot(box_data,
+                             positions=[i],
+                             color=color,
+                             widths=self.width,
+                             ax=ax,
+                             box_kws=box_kws,
+                             flier_kws=flier_kws,
+                             line_kws=line_kws)
+
+            else:
+                # Draw nested groups of boxes
+                offsets = self.hue_offsets
+                for j, hue_level in enumerate(self.hue_names):
+
+                    # Add a legend for this hue level
+                    if not i:
+                        self.add_legend_data(ax, self.colors[j], hue_level)
+
+                    # Handle case where there is data at this level
+                    if group_data.size == 0:
+                        continue
+
+                    hue_mask = self.plot_hues[i] == hue_level
+                    box_data = remove_na(group_data[hue_mask])
+
+                    # Handle case where there is no non-null data
+                    if box_data.size == 0:
+                        continue
+
+                    color = self.colors[j]
+                    center = i + offsets[j]
+                    self._lvplot(box_data,
+                                 positions=[center],
+                                 color=color,
+                                 widths=self.nested_width,
+                                 ax=ax,
+                                 box_kws=box_kws,
+                                 flier_kws=flier_kws,
+                                 line_kws=line_kws)
+
+        # Autoscale the values axis to make sure all patches are visible
+        ax.autoscale_view(scalex=self.orient == "h", scaley=self.orient == "v")
+
+    def plot(self, ax, box_kws, flier_kws, line_kws):
+        """Make the plot."""
+        self.draw_letter_value_plot(ax, box_kws, flier_kws, line_kws)
+        self.annotate_axes(ax)
+        if self.orient == "h":
+            ax.invert_yaxis()
+
+
+```
+
+--- seaborn/distributions.py (lines 99-407 of 2552; not shown in this file: <module header>, _DistributionFacetPlotter, histplot, kdeplot, ecdfplot, rugplot, displot, _freedman_diaconis_bins, distplot) ---
+```python
+class _DistributionPlotter(VectorPlotter):
+
+    semantics = "x", "y", "hue", "weights"
+
+    wide_structure = {"x": "@values", "hue": "@columns"}
+    flat_structure = {"x": "@values"}
+
+    def __init__(
+        self,
+        data=None,
+        variables={},
+    ):
+
+        super().__init__(data=data, variables=variables)
+
+    @property
+    def univariate(self):
+        """Return True if only x or y are used."""
+        # TODO this could go down to core, but putting it here now.
+        # We'd want to be conceptually clear that univariate only applies
+        # to x/y and not to other semantics, which can exist.
+        # We haven't settled on a good conceptual name for x/y.
+        return bool({"x", "y"} - set(self.variables))
+
+    @property
+    def data_variable(self):
+        """Return the variable with data for univariate plots."""
+        # TODO This could also be in core, but it should have a better name.
+        if not self.univariate:
+            raise AttributeError("This is not a univariate plot")
+        return {"x", "y"}.intersection(self.variables).pop()
+
+    @property
+    def has_xy_data(self):
+        """Return True at least one of x or y is defined."""
+        # TODO see above points about where this should go
+        return bool({"x", "y"} & set(self.variables))
+
+    def _add_legend(
+        self,
+        ax_obj, artist, fill, element, multiple, alpha, artist_kws, legend_kws,
+    ):
+        """Add artists that reflect semantic mappings and put then in a legend."""
+        # TODO note that this doesn't handle numeric mappings like the relational plots
+        handles = []
+        labels = []
+        for level in self._hue_map.levels:
+            color = self._hue_map(level)
+
+            kws = self._artist_kws(
+                artist_kws, fill, element, multiple, color, alpha
+            )
+
+            # color gets added to the kws to workaround an issue with barplot's color
+            # cycle integration but it causes problems in this context where we are
+            # setting artist properties directly, so pop it off here
+            if "facecolor" in kws:
+                kws.pop("color", None)
+
+            handles.append(artist(**kws))
+            labels.append(level)
+
+        if isinstance(ax_obj, mpl.axes.Axes):
+            ax_obj.legend(handles, labels, title=self.variables["hue"], **legend_kws)
+        else:  # i.e. a FacetGrid. TODO make this better
+            legend_data = dict(zip(labels, handles))
+            ax_obj.add_legend(
+                legend_data,
+                title=self.variables["hue"],
+                label_order=self.var_levels["hue"],
+                **legend_kws
+            )
+
+    def _artist_kws(self, kws, fill, element, multiple, color, alpha):
+        """Handle differences between artists in filled/unfilled plots."""
+        kws = kws.copy()
+        if fill:
+            kws = _normalize_kwargs(kws, mpl.collections.PolyCollection)
+            kws.setdefault("facecolor", to_rgba(color, alpha))
+
+            if element == "bars":
+                # Make bar() interface with property cycle correctly
+                # https://github.com/matplotlib/matplotlib/issues/19385
+                kws["color"] = "none"
+
+            if multiple in ["stack", "fill"] or element == "bars":
+                kws.setdefault("edgecolor", mpl.rcParams["patch.edgecolor"])
+            else:
+                kws.setdefault("edgecolor", to_rgba(color, 1))
+        elif element == "bars":
+            kws["facecolor"] = "none"
+            kws["edgecolor"] = to_rgba(color, alpha)
+        else:
+            kws["color"] = to_rgba(color, alpha)
+        return kws
+
+    def _quantile_to_level(self, data, quantile):
+        """Return data levels corresponding to quantile cuts of mass."""
+        isoprop = np.asarray(quantile)
+        values = np.ravel(data)
+        sorted_values = np.sort(values)[::-1]
+        normalized_values = np.cumsum(sorted_values) / values.sum()
+        idx = np.searchsorted(normalized_values, 1 - isoprop)
+        levels = np.take(sorted_values, idx, mode="clip")
+        return levels
+
+    def _cmap_from_color(self, color):
+        """Return a sequential colormap given a color seed."""
+        # Like so much else here, this is broadly useful, but keeping it
+        # in this class to signify that I haven't thought overly hard about it...
+        r, g, b, _ = to_rgba(color)
+        h, s, _ = husl.rgb_to_husl(r, g, b)
+        xx = np.linspace(-1, 1, int(1.15 * 256))[:256]
+        ramp = np.zeros((256, 3))
+        ramp[:, 0] = h
+        ramp[:, 1] = s * np.cos(xx)
+        ramp[:, 2] = np.linspace(35, 80, 256)
+        colors = np.clip([husl.husl_to_rgb(*hsl) for hsl in ramp], 0, 1)
+        return mpl.colors.ListedColormap(colors[::-1])
+
+    def _default_discrete(self):
+        """Find default values for discrete hist estimation based on variable type."""
+        if self.univariate:
+            discrete = self.var_types[self.data_variable] == "categorical"
+        else:
+            discrete_x = self.var_types["x"] == "categorical"
+            discrete_y = self.var_types["y"] == "categorical"
+            discrete = discrete_x, discrete_y
+        return discrete
+
+    def _resolve_multiple(self, curves, multiple):
+        """Modify the density data structure to handle multiple densities."""
+
+        # Default baselines have all densities starting at 0
+        baselines = {k: np.zeros_like(v) for k, v in curves.items()}
+
+        # TODO we should have some central clearinghouse for checking if any
+        # "grouping" (terminnology?) semantics have been assigned
+        if "hue" not in self.variables:
+            return curves, baselines
+
+        if multiple in ("stack", "fill"):
+
+            # Setting stack or fill means that the curves share a
+            # support grid / set of bin edges, so we can make a dataframe
+            # Reverse the column order to plot from top to bottom
+            curves = pd.DataFrame(curves).iloc[:, ::-1]
+
+            # Find column groups that are nested within col/row variables
+            column_groups = {}
+            for i, keyd in enumerate(map(dict, curves.columns.tolist())):
+                facet_key = keyd.get("col", None), keyd.get("row", None)
+                column_groups.setdefault(facet_key, [])
+                column_groups[facet_key].append(i)
+
+            baselines = curves.copy()
+            for cols in column_groups.values():
+
+                norm_constant = curves.iloc[:, cols].sum(axis="columns")
+
+                # Take the cumulative sum to stack
+                curves.iloc[:, cols] = curves.iloc[:, cols].cumsum(axis="columns")
+
+                # Normalize by row sum to fill
+                if multiple == "fill":
+                    curves.iloc[:, cols] = (curves
+                                            .iloc[:, cols]
+                                            .div(norm_constant, axis="index"))
+
+                # Define where each segment starts
+                baselines.iloc[:, cols] = (curves
+                                           .iloc[:, cols]
+                                           .shift(1, axis=1)
+                                           .fillna(0))
+
+        if multiple == "dodge":
+
+            # Account for the unique semantic (non-faceting) levels
+            # This will require rethiniking if we add other semantics!
+            hue_levels = self.var_levels["hue"]
+            n = len(hue_levels)
+            for key in curves:
+                level = dict(key)["hue"]
+                hist = curves[key].reset_index(name="heights")
+                level_idx = hue_levels.index(level)
+                if self._log_scaled(self.data_variable):
+                    log_min = np.log10(hist["edges"])
+                    log_max = np.log10(hist["edges"] + hist["widths"])
+                    log_width = (log_max - log_min) / n
+                    new_min = np.power(10, log_min + level_idx * log_width)
+                    new_max = np.power(10, log_min + (level_idx + 1) * log_width)
+                    hist["widths"] = new_max - new_min
+                    hist["edges"] = new_min
+                else:
+                    hist["widths"] /= n
+                    hist["edges"] += level_idx * hist["widths"]
+
+                curves[key] = hist.set_index(["edges", "widths"])["heights"]
+
+        return curves, baselines
+
+    # -------------------------------------------------------------------------------- #
+    # Computation
+    # -------------------------------------------------------------------------------- #
+
+    def _compute_univariate_density(
+        self,
+        data_variable,
+        common_norm,
+        common_grid,
+        estimate_kws,
+        log_scale,
+        warn_singular=True,
+    ):
+
+        # Initialize the estimator object
+        estimator = KDE(**estimate_kws)
+
+        if set(self.variables) - {"x", "y"}:
+            if common_grid:
+                all_observations = self.comp_data.dropna()
+                estimator.define_support(all_observations[data_variable])
+        else:
+            common_norm = False
+
+        all_data = self.plot_data.dropna()
+        if common_norm and "weights" in all_data:
+            whole_weight = all_data["weights"].sum()
+        else:
+            whole_weight = len(all_data)
+
+        densities = {}
+
+        for sub_vars, sub_data in self.iter_data("hue", from_comp_data=True):
+
+            # Extract the data points from this sub set and remove nulls
+            observations = sub_data[data_variable]
+
+            # Extract the weights for this subset of observations
+            if "weights" in self.variables:
+                weights = sub_data["weights"]
+                part_weight = weights.sum()
+            else:
+                weights = None
+                part_weight = len(sub_data)
+
+            # Estimate the density of observations at this level
+            variance = np.nan_to_num(observations.var())
+            singular = len(observations) < 2 or math.isclose(variance, 0)
+            try:
+                if not singular:
+                    # Convoluted approach needed because numerical failures
+                    # can manifest in a few different ways.
+                    density, support = estimator(observations, weights=weights)
+            except np.linalg.LinAlgError:
+                singular = True
+
+            if singular:
+                msg = (
+                    "Dataset has 0 variance; skipping density estimate. "
+                    "Pass `warn_singular=False` to disable this warning."
+                )
+                if warn_singular:
+                    warnings.warn(msg, UserWarning, stacklevel=4)
+                continue
+
+            if log_scale:
+                support = np.power(10, support)
+
+            # Apply a scaling factor so that the integral over all subsets is 1
+            if common_norm:
+                density *= part_weight / whole_weight
+
+            # Store the density for this level
+            key = tuple(sub_vars.items())
+            densities[key] = pd.Series(density, index=support)
+
+        return densities
+
+    # -------------------------------------------------------------------------------- #
+    # Plotting
+    # -------------------------------------------------------------------------------- #
+
+    def plot_univariate_histogram(
+        self,
+        multiple,
+        element,
+        fill,
+        common_norm,
+        common_bins,
+        shrink,
+        kde,
+        kde_kws,
+        color,
+        legend,
+        line_kws,
+        estimate_kws,
+        **plot_kws,
+    ):
+
+        # -- Default keyword dicts
+        kde_kws = {} if kde_kws is None else kde_kws.copy()
+        line_kws = {} if line_kws is None else line_kws.copy()
+        estimate_kws = {} if estimate_kws is None else estimate_kws.copy()
+
+        # --  Input checking
+        _check_argument("multiple", ["layer", "stack", "fill", "dodge"], multiple)
+        _check_argument("element", ["bars", "step", "poly"], element)
+
+```
+
+--- seaborn/_oldcore.py (lines 613-915 of 1771; not shown in this file: <module header>, SemanticMapping, HueMapping, SizeMapping, StyleMapping, VariableType, variable_type, infer_orient, unique_dashes, unique_markers, categorical_order) ---
+```python
+class VectorPlotter:
+    """Base class for objects underlying *plot functions."""
+
+    _semantic_mappings = {
+        "hue": HueMapping,
+        "size": SizeMapping,
+        "style": StyleMapping,
+    }
+
+    # TODO units is another example of a non-mapping "semantic"
+    # we need a general name for this and separate handling
+    semantics = "x", "y", "hue", "size", "style", "units"
+    wide_structure = {
+        "x": "@index", "y": "@values", "hue": "@columns", "style": "@columns",
+    }
+    flat_structure = {"x": "@index", "y": "@values"}
+
+    _default_size_range = 1, 2  # Unused but needed in tests, ugh
+
+    def __init__(self, data=None, variables={}):
+
+        self._var_levels = {}
+        # var_ordered is relevant only for categorical axis variables, and may
+        # be better handled by an internal axis information object that tracks
+        # such information and is set up by the scale_* methods. The analogous
+        # information for numeric axes would be information about log scales.
+        self._var_ordered = {"x": False, "y": False}  # alt., used DefaultDict
+        self.assign_variables(data, variables)
+
+        for var, cls in self._semantic_mappings.items():
+
+            # Create the mapping function
+            map_func = partial(cls.map, plotter=self)
+            setattr(self, f"map_{var}", map_func)
+
+            # Call the mapping function to initialize with default values
+            getattr(self, f"map_{var}")()
+
+    @classmethod
+    def get_semantics(cls, kwargs, semantics=None):
+        """Subset a dictionary arguments with known semantic variables."""
+        # TODO this should be get_variables since we have included x and y
+        if semantics is None:
+            semantics = cls.semantics
+        variables = {}
+        for key, val in kwargs.items():
+            if key in semantics and val is not None:
+                variables[key] = val
+        return variables
+
+    @property
+    def has_xy_data(self):
+        """Return True at least one of x or y is defined."""
+        return bool({"x", "y"} & set(self.variables))
+
+    @property
+    def var_levels(self):
+        """Property interface to ordered list of variables levels.
+
+        Each time it's accessed, it updates the var_levels dictionary with the
+        list of levels in the current semantic mappers. But it also allows the
+        dictionary to persist, so it can be used to set levels by a key. This is
+        used to track the list of col/row levels using an attached FacetGrid
+        object, but it's kind of messy and ideally fixed by improving the
+        faceting logic so it interfaces better with the modern approach to
+        tracking plot variables.
+
+        """
+        for var in self.variables:
+            try:
+                map_obj = getattr(self, f"_{var}_map")
+                self._var_levels[var] = map_obj.levels
+            except AttributeError:
+                pass
+        return self._var_levels
+
+    def assign_variables(self, data=None, variables={}):
+        """Define plot variables, optionally using lookup from `data`."""
+        x = variables.get("x", None)
+        y = variables.get("y", None)
+
+        if x is None and y is None:
+            self.input_format = "wide"
+            plot_data, variables = self._assign_variables_wideform(
+                data, **variables,
+            )
+        else:
+            self.input_format = "long"
+            plot_data, variables = self._assign_variables_longform(
+                data, **variables,
+            )
+
+        self.plot_data = plot_data
+        self.variables = variables
+        self.var_types = {
+            v: variable_type(
+                plot_data[v],
+                boolean_type="numeric" if v in "xy" else "categorical"
+            )
+            for v in variables
+        }
+
+        return self
+
+    def _assign_variables_wideform(self, data=None, **kwargs):
+        """Define plot variables given wide-form data.
+
+        Parameters
+        ----------
+        data : flat vector or collection of vectors
+            Data can be a vector or mapping that is coerceable to a Series
+            or a sequence- or mapping-based collection of such vectors, or a
+            rectangular numpy array, or a Pandas DataFrame.
+        kwargs : variable -> data mappings
+            Behavior with keyword arguments is currently undefined.
+
+        Returns
+        -------
+        plot_data : :class:`pandas.DataFrame`
+            Long-form data object mapping seaborn variables (x, y, hue, ...)
+            to data vectors.
+        variables : dict
+            Keys are defined seaborn variables; values are names inferred from
+            the inputs (or None when no name can be determined).
+
+        """
+        # Raise if semantic or other variables are assigned in wide-form mode
+        assigned = [k for k, v in kwargs.items() if v is not None]
+        if any(assigned):
+            s = "s" if len(assigned) > 1 else ""
+            err = f"The following variable{s} cannot be assigned with wide-form data: "
+            err += ", ".join(f"`{v}`" for v in assigned)
+            raise ValueError(err)
+
+        # Determine if the data object actually has any data in it
+        empty = data is None or not len(data)
+
+        # Then, determine if we have "flat" data (a single vector)
+        if isinstance(data, dict):
+            values = data.values()
+        else:
+            values = np.atleast_1d(np.asarray(data, dtype=object))
+        flat = not any(
+            isinstance(v, Iterable) and not isinstance(v, (str, bytes))
+            for v in values
+        )
+
+        if empty:
+
+            # Make an object with the structure of plot_data, but empty
+            plot_data = pd.DataFrame()
+            variables = {}
+
+        elif flat:
+
+            # Handle flat data by converting to pandas Series and using the
+            # index and/or values to define x and/or y
+            # (Could be accomplished with a more general to_series() interface)
+            flat_data = pd.Series(data).copy()
+            names = {
+                "@values": flat_data.name,
+                "@index": flat_data.index.name
+            }
+
+            plot_data = {}
+            variables = {}
+
+            for var in ["x", "y"]:
+                if var in self.flat_structure:
+                    attr = self.flat_structure[var]
+                    plot_data[var] = getattr(flat_data, attr[1:])
+                    variables[var] = names[self.flat_structure[var]]
+
+            plot_data = pd.DataFrame(plot_data)
+
+        else:
+
+            # Otherwise assume we have some collection of vectors.
+
+            # Handle Python sequences such that entries end up in the columns,
+            # not in the rows, of the intermediate wide DataFrame.
+            # One way to accomplish this is to convert to a dict of Series.
+            if isinstance(data, Sequence):
+                data_dict = {}
+                for i, var in enumerate(data):
+                    key = getattr(var, "name", i)
+                    # TODO is there a safer/more generic way to ensure Series?
+                    # sort of like np.asarray, but for pandas?
+                    data_dict[key] = pd.Series(var)
+
+                data = data_dict
+
+            # Pandas requires that dict values either be Series objects
+            # or all have the same length, but we want to allow "ragged" inputs
+            if isinstance(data, Mapping):
+                data = {key: pd.Series(val) for key, val in data.items()}
+
+            # Otherwise, delegate to the pandas DataFrame constructor
+            # This is where we'd prefer to use a general interface that says
+            # "give me this data as a pandas DataFrame", so we can accept
+            # DataFrame objects from other libraries
+            wide_data = pd.DataFrame(data, copy=True)
+
+            # At this point we should reduce the dataframe to numeric cols
+            numeric_cols = [
+                k for k, v in wide_data.items() if variable_type(v) == "numeric"
+            ]
+            wide_data = wide_data[numeric_cols]
+
+            # Now melt the data to long form
+            melt_kws = {"var_name": "@columns", "value_name": "@values"}
+            use_index = "@index" in self.wide_structure.values()
+            if use_index:
+                melt_kws["id_vars"] = "@index"
+                try:
+                    orig_categories = wide_data.columns.categories
+                    orig_ordered = wide_data.columns.ordered
+                    wide_data.columns = wide_data.columns.add_categories("@index")
+                except AttributeError:
+                    category_columns = False
+                else:
+                    category_columns = True
+                wide_data["@index"] = wide_data.index.to_series()
+
+            plot_data = wide_data.melt(**melt_kws)
+
+            if use_index and category_columns:
+                plot_data["@columns"] = pd.Categorical(plot_data["@columns"],
+                                                       orig_categories,
+                                                       orig_ordered)
+
+            # Assign names corresponding to plot semantics
+            for var, attr in self.wide_structure.items():
+                plot_data[var] = plot_data[attr]
+
+            # Define the variable names
+            variables = {}
+            for var, attr in self.wide_structure.items():
+                obj = getattr(wide_data, attr[1:])
+                variables[var] = getattr(obj, "name", None)
+
+            # Remove redundant columns from plot_data
+            plot_data = plot_data[list(variables)]
+
+        return plot_data, variables
+
+    def _assign_variables_longform(self, data=None, **kwargs):
+        """Define plot variables given long-form data and/or vector inputs.
+
+        Parameters
+        ----------
+        data : dict-like collection of vectors
+            Input data where variable names map to vector values.
+        kwargs : variable -> data mappings
+            Keys are seaborn variables (x, y, hue, ...) and values are vectors
+            in any format that can construct a :class:`pandas.DataFrame` or
+            names of columns or index levels in ``data``.
+
+        Returns
+        -------
+        plot_data : :class:`pandas.DataFrame`
+            Long-form data object mapping seaborn variables (x, y, hue, ...)
+            to data vectors.
+        variables : dict
+            Keys are defined seaborn variables; values are names inferred from
+            the inputs (or None when no name can be determined).
+
+        Raises
+        ------
+        ValueError
+            When variables are strings that don't appear in ``data``.
+
+        """
+        plot_data = {}
+        variables = {}
+
+        # Data is optional; all variables can be defined as vectors
+        if data is None:
+            data = {}
+
+        # TODO should we try a data.to_dict() or similar here to more
+        # generally accept objects with that interface?
+        # Note that dict(df) also works for pandas, and gives us what we
+        # want, whereas DataFrame.to_dict() gives a nested dict instead of
+        # a dict of series.
+
+        # Variables can also be extracted from the index attribute
+        # TODO is this the most general way to enable it?
+        # There is no index.to_dict on multiindex, unfortunately
+        try:
+            index = data.index.to_frame()
+        except AttributeError:
+            index = {}
+
+        # The caller will determine the order of variables in plot_data
+        for key, val in kwargs.items():
+
+            # First try to treat the argument as a key for the data collection.
+            # But be flexible about what can be used as a key.
+            # Usually it will be a string, but allow numbers or tuples too when
+            # taking from the main data object. Only allow strings to reference
+            # fields in the index, because otherwise there is too much ambiguity.
+            try:
+```
+
+--- seaborn/matrix.py (lines 793-959 of 1421; not shown in this file: <module header>, _index_to_label, _index_to_ticklabels, _convert_colors, _matrix_mask, _HeatMapper, heatmap, _DendrogramPlotter, dendrogram, clustermap) ---
+```python
+class ClusterGrid(Grid):
+
+    def __init__(self, data, pivot_kws=None, z_score=None, standard_scale=None,
+                 figsize=None, row_colors=None, col_colors=None, mask=None,
+                 dendrogram_ratio=None, colors_ratio=None, cbar_pos=None):
+        """Grid object for organizing clustered heatmap input on to axes"""
+        if _no_scipy:
+            raise RuntimeError("ClusterGrid requires scipy to be available")
+
+        if isinstance(data, pd.DataFrame):
+            self.data = data
+        else:
+            self.data = pd.DataFrame(data)
+
+        self.data2d = self.format_data(self.data, pivot_kws, z_score,
+                                       standard_scale)
+
+        self.mask = _matrix_mask(self.data2d, mask)
+
+        self._figure = plt.figure(figsize=figsize)
+
+        self.row_colors, self.row_color_labels = \
+            self._preprocess_colors(data, row_colors, axis=0)
+        self.col_colors, self.col_color_labels = \
+            self._preprocess_colors(data, col_colors, axis=1)
+
+        try:
+            row_dendrogram_ratio, col_dendrogram_ratio = dendrogram_ratio
+        except TypeError:
+            row_dendrogram_ratio = col_dendrogram_ratio = dendrogram_ratio
+
+        try:
+            row_colors_ratio, col_colors_ratio = colors_ratio
+        except TypeError:
+            row_colors_ratio = col_colors_ratio = colors_ratio
+
+        width_ratios = self.dim_ratios(self.row_colors,
+                                       row_dendrogram_ratio,
+                                       row_colors_ratio)
+        height_ratios = self.dim_ratios(self.col_colors,
+                                        col_dendrogram_ratio,
+                                        col_colors_ratio)
+
+        nrows = 2 if self.col_colors is None else 3
+        ncols = 2 if self.row_colors is None else 3
+
+        self.gs = gridspec.GridSpec(nrows, ncols,
+                                    width_ratios=width_ratios,
+                                    height_ratios=height_ratios)
+
+        self.ax_row_dendrogram = self._figure.add_subplot(self.gs[-1, 0])
+        self.ax_col_dendrogram = self._figure.add_subplot(self.gs[0, -1])
+        self.ax_row_dendrogram.set_axis_off()
+        self.ax_col_dendrogram.set_axis_off()
+
+        self.ax_row_colors = None
+        self.ax_col_colors = None
+
+        if self.row_colors is not None:
+            self.ax_row_colors = self._figure.add_subplot(
+                self.gs[-1, 1])
+        if self.col_colors is not None:
+            self.ax_col_colors = self._figure.add_subplot(
+                self.gs[1, -1])
+
+        self.ax_heatmap = self._figure.add_subplot(self.gs[-1, -1])
+        if cbar_pos is None:
+            self.ax_cbar = self.cax = None
+        else:
+            # Initialize the colorbar axes in the gridspec so that tight_layout
+            # works. We will move it where it belongs later. This is a hack.
+            self.ax_cbar = self._figure.add_subplot(self.gs[0, 0])
+            self.cax = self.ax_cbar  # Backwards compatibility
+        self.cbar_pos = cbar_pos
+
+        self.dendrogram_row = None
+        self.dendrogram_col = None
+
+    def _preprocess_colors(self, data, colors, axis):
+        """Preprocess {row/col}_colors to extract labels and convert colors."""
+        labels = None
+
+        if colors is not None:
+            if isinstance(colors, (pd.DataFrame, pd.Series)):
+
+                # If data is unindexed, raise
+                if (not hasattr(data, "index") and axis == 0) or (
+                    not hasattr(data, "columns") and axis == 1
+                ):
+                    axis_name = "col" if axis else "row"
+                    msg = (f"{axis_name}_colors indices can't be matched with data "
+                           f"indices. Provide {axis_name}_colors as a non-indexed "
+                           "datatype, e.g. by using `.to_numpy()``")
+                    raise TypeError(msg)
+
+                # Ensure colors match data indices
+                if axis == 0:
+                    colors = colors.reindex(data.index)
+                else:
+                    colors = colors.reindex(data.columns)
+
+                # Replace na's with white color
+                # TODO We should set these to transparent instead
+                colors = colors.astype(object).fillna('white')
+
+                # Extract color values and labels from frame/series
+                if isinstance(colors, pd.DataFrame):
+                    labels = list(colors.columns)
+                    colors = colors.T.values
+                else:
+                    if colors.name is None:
+                        labels = [""]
+                    else:
+                        labels = [colors.name]
+                    colors = colors.values
+
+            colors = _convert_colors(colors)
+
+        return colors, labels
+
+    def format_data(self, data, pivot_kws, z_score=None,
+                    standard_scale=None):
+        """Extract variables from data or use directly."""
+
+        # Either the data is already in 2d matrix format, or need to do a pivot
+        if pivot_kws is not None:
+            data2d = data.pivot(**pivot_kws)
+        else:
+            data2d = data
+
+        if z_score is not None and standard_scale is not None:
+            raise ValueError(
+                'Cannot perform both z-scoring and standard-scaling on data')
+
+        if z_score is not None:
+            data2d = self.z_score(data2d, z_score)
+        if standard_scale is not None:
+            data2d = self.standard_scale(data2d, standard_scale)
+        return data2d
+
+    @staticmethod
+    def z_score(data2d, axis=1):
+        """Standarize the mean and variance of the data axis
+
+        Parameters
+        ----------
+        data2d : pandas.DataFrame
+            Data to normalize
+        axis : int
+            Which axis to normalize across. If 0, normalize across rows, if 1,
+            normalize across columns.
+
+        Returns
+        -------
+        normalized : pandas.DataFrame
+            Noramlized data with a mean of 0 and variance of 1 across the
+            specified axis.
+        """
+        if axis == 1:
+            z_scored = data2d
+        else:
+            z_scored = data2d.T
+
+        z_scored = (z_scored - z_scored.mean()) / z_scored.std()
+
+        if axis == 1:
+            return z_scored
+```
+
+=== REQUIRED OUTPUT ===
+Your answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two
+patch markers:
+
+*** PATCH START ***
+path/to/file.py
+<<<<<<< SEARCH
+<the exact lines currently in the file>
+=======
+<the lines that replace them>
+>>>>>>> REPLACE
+*** PATCH END ***
+
+Rules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per
+edit; paths are relative to the repository root; SEARCH must be whole lines copied from
+the file; an empty SEARCH section creates a new file.
+
+Only what lies between *** PATCH START *** and *** PATCH END *** is graded.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+The full format specification, with worked examples and every failure code, is published
+as `docs/contracts/patch-format.md`.

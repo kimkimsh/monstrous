@@ -62,5 +62,17 @@
     ],
     "createdAt": "2026-08-22T08:29:03.643360Z",
     "completedAt": "2026-08-22T08:32:49.308535Z"
+  },
+  {
+    "id": "9ed43ed2-2809-4826-9340-c8bf9cf02a6b",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "076f36a5-7d9d-4bef-92f8-3bbdfaeba79d",
+    "title": "Write solution.py",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T09:22:24.983140Z",
+    "completedAt": "2026-08-22T09:22:47.840903Z"
   }
 ]

@@ -1,0 +1,23 @@
+According to Stevenson, moral disagreements involve:
+
+Options:
+A. disagreement in principles.
+B. disagreement in understanding.
+C. disagreement in experience.
+D. disagreement in practice.
+E. disagreement in interest.
+F. disagreement in theory.
+G. disagreement in attitude.
+H. disagreement in perception.
+I. disagreement in belief.
+J. disagreement in values.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

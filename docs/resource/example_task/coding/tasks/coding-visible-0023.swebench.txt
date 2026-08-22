@@ -1,0 +1,1688 @@
+You are resolving an issue in an existing repository. The issue report comes
+first, then the parts of the repository the judge retrieved for it.
+
+## Issue
+
+"--notes" option ignores note tags that are entirely punctuation
+### Bug description
+
+If a note tag specified with the `--notes` option is entirely punctuation, pylint won't report a fixme warning (W0511).
+
+```python
+# YES: yes
+# ???: no
+```
+
+`pylint test.py --notes="YES,???"` will return a fixme warning (W0511) for the first line, but not the second.
+
+### Configuration
+
+```ini
+Default
+```
+
+
+### Command used
+
+```shell
+pylint test.py --notes="YES,???"
+```
+
+
+### Pylint output
+
+```shell
+************* Module test
+test.py:1:1: W0511: YES: yes (fixme)
+```
+
+
+### Expected behavior
+
+```
+************* Module test
+test.py:1:1: W0511: YES: yes (fixme)
+test.py:2:1: W0511: ???: no (fixme)
+```
+
+### Pylint version
+
+```shell
+pylint 2.12.2
+astroid 2.9.0
+Python 3.10.2 (main, Feb  2 2022, 05:51:25) [Clang 13.0.0 (clang-1300.0.29.3)]
+```
+
+
+### OS / Environment
+
+macOS 11.6.1
+
+### Additional dependencies
+
+_No response_
+
+## Repository context
+
+Repository: pylint-dev/pylint at commit 182cc539b8154c0710fcea7e522267e42eba8899
+Retrieved 6 of 138 candidate source files.
+You cannot browse the repository. The excerpts below are the whole of the
+code you have been given; anything not shown, you do not have.
+
+--- pylint/checkers/misc.py (lines 1-203 of 203) ---
+```python
+# Copyright (c) 2006, 2009-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 glegoux <gilles.legoux@gmail.com>
+# Copyright (c) 2017-2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2018 Rogalski, Lukasz <lukasz.rogalski@intel.com>
+# Copyright (c) 2018 Lucas Cimon <lucas.cimon@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 wtracy <afishionado@gmail.com>
+# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
+# Copyright (c) 2021 Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
+# Copyright (c) 2021 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
+
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+
+
+"""Check source code is ascii only or has an encoding declaration (PEP 263)."""
+
+import re
+import tokenize
+from typing import TYPE_CHECKING, List, Optional
+
+from astroid import nodes
+
+from pylint.checkers import BaseChecker
+from pylint.interfaces import IRawChecker, ITokenChecker
+from pylint.typing import ManagedMessage
+from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
+
+
+class ByIdManagedMessagesChecker(BaseChecker):
+
+    """Checks for messages that are enabled or disabled by id instead of symbol."""
+
+    __implements__ = IRawChecker
+    name = "miscellaneous"
+    msgs = {
+        "I0023": (
+            "%s",
+            "use-symbolic-message-instead",
+            "Used when a message is enabled or disabled by id.",
+        )
+    }
+    options = ()
+
+    def _clear_by_id_managed_msgs(self) -> None:
+        self.linter._by_id_managed_msgs.clear()
+
+    def _get_by_id_managed_msgs(self) -> List[ManagedMessage]:
+        return self.linter._by_id_managed_msgs
+
+    def process_module(self, node: nodes.Module) -> None:
+        """Inspect the source file to find messages activated or deactivated by id."""
+        managed_msgs = self._get_by_id_managed_msgs()
+        for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
+            if mod_name == node.name:
+                verb = "disable" if is_disabled else "enable"
+                txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"
+                self.add_message("use-symbolic-message-instead", line=lineno, args=txt)
+        self._clear_by_id_managed_msgs()
+
+
+class EncodingChecker(BaseChecker):
+
+    """Checks for:
+    * warning notes in the code like FIXME, XXX
+    * encoding issues.
+    """
+
+    __implements__ = (IRawChecker, ITokenChecker)
+
+    # configuration section name
+    name = "miscellaneous"
+    msgs = {
+        "W0511": (
+            "%s",
+            "fixme",
+            "Used when a warning note as FIXME or XXX is detected.",
+        )
+    }
+
+    options = (
+        (
+            "notes",
+            {
+                "type": "csv",
+                "metavar": "<comma separated values>",
+                "default": ("FIXME", "XXX", "TODO"),
+                "help": (
+                    "List of note tags to take in consideration, "
+                    "separated by a comma."
+                ),
+            },
+        ),
+        (
+            "notes-rgx",
+            {
+                "type": "string",
+                "metavar": "<regexp>",
+                "help": "Regular expression of note tags to take in consideration.",
+            },
+        ),
+    )
+
+    def open(self):
+        super().open()
+
+        notes = "|".join(re.escape(note) for note in self.config.notes)
+        if self.config.notes_rgx:
+            regex_string = rf"#\s*({notes}|{self.config.notes_rgx})\b"
+        else:
+            regex_string = rf"#\s*({notes})\b"
+
+        self._fixme_pattern = re.compile(regex_string, re.I)
+
+    def _check_encoding(
+        self, lineno: int, line: bytes, file_encoding: str
+    ) -> Optional[str]:
+        try:
+            return line.decode(file_encoding)
+        except UnicodeDecodeError:
+            pass
+        except LookupError:
+            if (
+                line.startswith(b"#")
+                and "coding" in str(line)
+                and file_encoding in str(line)
+            ):
+                msg = f"Cannot decode using encoding '{file_encoding}', bad encoding"
+                self.add_message("syntax-error", line=lineno, args=msg)
+        return None
+
+    def process_module(self, node: nodes.Module) -> None:
+        """Inspect the source file to find encoding problem."""
+        encoding = node.file_encoding if node.file_encoding else "ascii"
+
+        with node.stream() as stream:
+            for lineno, line in enumerate(stream):
+                self._check_encoding(lineno + 1, line, encoding)
+
+    def process_tokens(self, tokens):
+        """Inspect the source to find fixme problems."""
+        if not self.config.notes:
+            return
+        comments = (
+            token_info for token_info in tokens if token_info.type == tokenize.COMMENT
+        )
+        for comment in comments:
+            comment_text = comment.string[1:].lstrip()  # trim '#' and whitespaces
+
+            # handle pylint disable clauses
+            disable_option_match = OPTION_PO.search(comment_text)
+            if disable_option_match:
+                try:
+                    values = []
+                    try:
+                        for pragma_repr in (
+                            p_rep
+                            for p_rep in parse_pragma(disable_option_match.group(2))
+                            if p_rep.action == "disable"
+                        ):
+                            values.extend(pragma_repr.messages)
+                    except PragmaParserError:
+                        # Printing useful information dealing with this error is done in the lint package
+                        pass
+                    if set(values) & set(self.config.notes):
+                        continue
+                except ValueError:
+                    self.add_message(
+                        "bad-inline-option",
+                        args=disable_option_match.group(1).strip(),
+                        line=comment.start[0],
+                    )
+                    continue
+
+            # emit warnings if necessary
+            match = self._fixme_pattern.search("#" + comment_text.lower())
+            if match:
+                self.add_message(
+                    "fixme",
+                    col_offset=comment.start[1] + 1,
+                    args=comment_text,
+                    line=comment.start[0],
+                )
+
+
+def register(linter: "PyLinter") -> None:
+    linter.register_checker(EncodingChecker(linter))
+    linter.register_checker(ByIdManagedMessagesChecker(linter))
+```
+
+--- pylint/lint/pylinter.py (lines 191-480 of 1821; not shown in this file: <module header>, _read_stdin, _load_reporter_by_class) ---
+```python
+class PyLinter(
+    config.OptionsManagerMixIn,
+    reporters.ReportsHandlerMixIn,
+    checkers.BaseTokenChecker,
+):
+    """Lint Python modules using external checkers.
+
+    This is the main checker controlling the other ones and the reports
+    generation. It is itself both a raw checker and an astroid checker in order
+    to:
+    * handle message activation / deactivation at the module level
+    * handle some basic but necessary stats'data (number of classes, methods...)
+
+    IDE plugin developers: you may have to call
+    `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
+    to ensure the latest code version is actually checked.
+
+    This class needs to support pickling for parallel linting to work. The exception
+    is reporter member; see check_parallel function for more details.
+    """
+
+    __implements__ = (interfaces.ITokenChecker,)
+
+    name = MAIN_CHECKER_NAME
+    priority = 0
+    level = 0
+    msgs = MSGS
+    # Will be used like this : datetime.now().strftime(crash_file_path)
+    crash_file_path: str = "pylint-crash-%Y-%m-%d-%H.txt"
+
+    @staticmethod
+    def make_options() -> Tuple[Tuple[str, OptionDict], ...]:
+        return (
+            (
+                "ignore",
+                {
+                    "type": "csv",
+                    "metavar": "<file>[,<file>...]",
+                    "dest": "black_list",
+                    "default": ("CVS",),
+                    "help": "Files or directories to be skipped. "
+                    "They should be base names, not paths.",
+                },
+            ),
+            (
+                "ignore-patterns",
+                {
+                    "type": "regexp_csv",
+                    "metavar": "<pattern>[,<pattern>...]",
+                    "dest": "black_list_re",
+                    "default": (r"^\.#",),
+                    "help": "Files or directories matching the regex patterns are"
+                    " skipped. The regex matches against base names, not paths. The default value "
+                    "ignores emacs file locks",
+                },
+            ),
+            (
+                "ignore-paths",
+                {
+                    "type": "regexp_paths_csv",
+                    "metavar": "<pattern>[,<pattern>...]",
+                    "default": [],
+                    "help": "Add files or directories matching the regex patterns to the "
+                    "ignore-list. The regex matches against paths and can be in "
+                    "Posix or Windows format.",
+                },
+            ),
+            (
+                "persistent",
+                {
+                    "default": True,
+                    "type": "yn",
+                    "metavar": "<y or n>",
+                    "level": 1,
+                    "help": "Pickle collected data for later comparisons.",
+                },
+            ),
+            (
+                "load-plugins",
+                {
+                    "type": "csv",
+                    "metavar": "<modules>",
+                    "default": (),
+                    "level": 1,
+                    "help": "List of plugins (as comma separated values of "
+                    "python module names) to load, usually to register "
+                    "additional checkers.",
+                },
+            ),
+            (
+                "output-format",
+                {
+                    "default": "text",
+                    "type": "string",
+                    "metavar": "<format>",
+                    "short": "f",
+                    "group": "Reports",
+                    "help": "Set the output format. Available formats are text,"
+                    " parseable, colorized, json and msvs (visual studio)."
+                    " You can also give a reporter class, e.g. mypackage.mymodule."
+                    "MyReporterClass.",
+                },
+            ),
+            (
+                "reports",
+                {
+                    "default": False,
+                    "type": "yn",
+                    "metavar": "<y or n>",
+                    "short": "r",
+                    "group": "Reports",
+                    "help": "Tells whether to display a full report or only the "
+                    "messages.",
+                },
+            ),
+            (
+                "evaluation",
+                {
+                    "type": "string",
+                    "metavar": "<python_expression>",
+                    "group": "Reports",
+                    "level": 1,
+                    "default": "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + "
+                    "convention) / statement) * 10))",
+                    "help": "Python expression which should return a score less "
+                    "than or equal to 10. You have access to the variables 'fatal', "
+                    "'error', 'warning', 'refactor', 'convention', and 'info' which "
+                    "contain the number of messages in each category, as well as "
+                    "'statement' which is the total number of statements "
+                    "analyzed. This score is used by the global "
+                    "evaluation report (RP0004).",
+                },
+            ),
+            (
+                "score",
+                {
+                    "default": True,
+                    "type": "yn",
+                    "metavar": "<y or n>",
+                    "short": "s",
+                    "group": "Reports",
+                    "help": "Activate the evaluation score.",
+                },
+            ),
+            (
+                "fail-under",
+                {
+                    "default": 10,
+                    "type": "float",
+                    "metavar": "<score>",
+                    "help": "Specify a score threshold to be exceeded before program exits with error.",
+                },
+            ),
+            (
+                "fail-on",
+                {
+                    "default": "",
+                    "type": "csv",
+                    "metavar": "<msg ids>",
+                    "help": "Return non-zero exit code if any of these messages/categories are detected,"
+                    " even if score is above --fail-under value. Syntax same as enable."
+                    " Messages specified are enabled, while categories only check already-enabled messages.",
+                },
+            ),
+            (
+                "confidence",
+                {
+                    "type": "multiple_choice",
+                    "metavar": "<levels>",
+                    "default": "",
+                    "choices": [c.name for c in interfaces.CONFIDENCE_LEVELS],
+                    "group": "Messages control",
+                    "help": "Only show warnings with the listed confidence levels."
+                    f" Leave empty to show all. Valid levels: {', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS)}.",
+                },
+            ),
+            (
+                "enable",
+                {
+                    "type": "csv",
+                    "metavar": "<msg ids>",
+                    "short": "e",
+                    "group": "Messages control",
+                    "help": "Enable the message, report, category or checker with the "
+                    "given id(s). You can either give multiple identifier "
+                    "separated by comma (,) or put this option multiple time "
+                    "(only on the command line, not in the configuration file "
+                    "where it should appear only once). "
+                    'See also the "--disable" option for examples.',
+                },
+            ),
+            (
+                "disable",
+                {
+                    "type": "csv",
+                    "metavar": "<msg ids>",
+                    "short": "d",
+                    "group": "Messages control",
+                    "help": "Disable the message, report, category or checker "
+                    "with the given id(s). You can either give multiple identifiers "
+                    "separated by comma (,) or put this option multiple times "
+                    "(only on the command line, not in the configuration file "
+                    "where it should appear only once). "
+                    'You can also use "--disable=all" to disable everything first '
+                    "and then re-enable specific checks. For example, if you want "
+                    "to run only the similarities checker, you can use "
+                    '"--disable=all --enable=similarities". '
+                    "If you want to run only the classes checker, but have no "
+                    "Warning level messages displayed, use "
+                    '"--disable=all --enable=classes --disable=W".',
+                },
+            ),
+            (
+                "msg-template",
+                {
+                    "type": "string",
+                    "metavar": "<template>",
+                    "group": "Reports",
+                    "help": (
+                        "Template used to display messages. "
+                        "This is a python new-style format string "
+                        "used to format the message information. "
+                        "See doc for all details."
+                    ),
+                },
+            ),
+            (
+                "jobs",
+                {
+                    "type": "int",
+                    "metavar": "<n-processes>",
+                    "short": "j",
+                    "default": 1,
+                    "help": "Use multiple processes to speed up Pylint. Specifying 0 will "
+                    "auto-detect the number of processors available to use.",
+                },
+            ),
+            (
+                "unsafe-load-any-extension",
+                {
+                    "type": "yn",
+                    "metavar": "<y or n>",
+                    "default": False,
+                    "hide": True,
+                    "help": (
+                        "Allow loading of arbitrary C extensions. Extensions"
+                        " are imported into the active Python interpreter and"
+                        " may run arbitrary code."
+                    ),
+                },
+            ),
+            (
+                "limit-inference-results",
+                {
+                    "type": "int",
+                    "metavar": "<number-of-results>",
+                    "default": 100,
+                    "help": (
+                        "Control the amount of potential inferred values when inferring "
+                        "a single object. This can help the performance when dealing with "
+                        "large functions or complex, nested conditions. "
+                    ),
+                },
+            ),
+            (
+                "extension-pkg-allow-list",
+                {
+                    "type": "csv",
+                    "metavar": "<pkg[,pkg]>",
+                    "default": [],
+                    "help": (
+                        "A comma-separated list of package or module names"
+                        " from where C extensions may be loaded. Extensions are"
+                        " loading into the active Python interpreter and may run"
+                        " arbitrary code."
+                    ),
+                },
+            ),
+            (
+                "extension-pkg-whitelist",
+                {
+                    "type": "csv",
+                    "metavar": "<pkg[,pkg]>",
+                    "default": [],
+                    "help": (
+                        "A comma-separated list of package or module names"
+                        " from where C extensions may be loaded. Extensions are"
+                        " loading into the active Python interpreter and may run"
+                        " arbitrary code. (This is an alternative name to"
+                        " extension-pkg-allow-list for backward compatibility.)"
+```
+
+--- pylint/utils/utils.py (lines 1-406 of 406) ---
+`````python
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+
+
+try:
+    import isort.api
+
+    HAS_ISORT_5 = True
+except ImportError:  # isort < 5
+    import isort
+
+    HAS_ISORT_5 = False
+
+import codecs
+import os
+import re
+import sys
+import textwrap
+import tokenize
+from io import BufferedReader, BytesIO
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+    Pattern,
+    TextIO,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
+
+from astroid import Module, modutils, nodes
+
+from pylint.constants import PY_EXTS
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    from pylint.checkers.base_checker import BaseChecker
+
+DEFAULT_LINE_LENGTH = 79
+
+# These are types used to overload get_global_option() and refer to the options type
+GLOBAL_OPTION_BOOL = Literal[
+    "ignore-mixin-members",
+    "suggestion-mode",
+    "analyse-fallback-blocks",
+    "allow-global-unused-variables",
+]
+GLOBAL_OPTION_INT = Literal["max-line-length", "docstring-min-length"]
+GLOBAL_OPTION_LIST = Literal["ignored-modules"]
+GLOBAL_OPTION_PATTERN = Literal[
+    "no-docstring-rgx",
+    "dummy-variables-rgx",
+    "ignored-argument-names",
+    "mixin-class-rgx",
+]
+GLOBAL_OPTION_PATTERN_LIST = Literal["exclude-too-few-public-methods", "ignore-paths"]
+GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
+GLOBAL_OPTION_NAMES = Union[
+    GLOBAL_OPTION_BOOL,
+    GLOBAL_OPTION_INT,
+    GLOBAL_OPTION_LIST,
+    GLOBAL_OPTION_PATTERN,
+    GLOBAL_OPTION_PATTERN_LIST,
+    GLOBAL_OPTION_TUPLE_INT,
+]
+T_GlobalOptionReturnTypes = TypeVar(
+    "T_GlobalOptionReturnTypes",
+    bool,
+    int,
+    List[str],
+    Pattern[str],
+    List[Pattern[str]],
+    Tuple[int, ...],
+)
+
+
+def normalize_text(text, line_len=DEFAULT_LINE_LENGTH, indent=""):
+    """Wrap the text on the given line length."""
+    return "\n".join(
+        textwrap.wrap(
+            text, width=line_len, initial_indent=indent, subsequent_indent=indent
+        )
+    )
+
+
+CMPS = ["=", "-", "+"]
+
+
+# py3k has no more cmp builtin
+def cmp(a, b):
+    return (a > b) - (a < b)
+
+
+def diff_string(old, new):
+    """Given an old and new int value, return a string representing the
+    difference
+    """
+    diff = abs(old - new)
+    diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
+    return diff_str
+
+
+def get_module_and_frameid(node):
+    """Return the module name and the frame id in the module."""
+    frame = node.frame(future=True)
+    module, obj = "", []
+    while frame:
+        if isinstance(frame, Module):
+            module = frame.name
+        else:
+            obj.append(getattr(frame, "name", "<lambda>"))
+        try:
+            frame = frame.parent.frame(future=True)
+        except AttributeError:
+            break
+    obj.reverse()
+    return module, ".".join(obj)
+
+
+def get_rst_title(title, character):
+    """Permit to get a title formatted as ReStructuredText test (underlined with a chosen character)."""
+    return f"{title}\n{character * len(title)}\n"
+
+
+def get_rst_section(section, options, doc=None):
+    """Format an option's section using as a ReStructuredText formatted output."""
+    result = ""
+    if section:
+        result += get_rst_title(section, "'")
+    if doc:
+        formatted_doc = normalize_text(doc)
+        result += f"{formatted_doc}\n\n"
+    for optname, optdict, value in options:
+        help_opt = optdict.get("help")
+        result += f":{optname}:\n"
+        if help_opt:
+            formatted_help = normalize_text(help_opt, indent="  ")
+            result += f"{formatted_help}\n"
+        if value and optname != "py-version":
+            value = str(_format_option_value(optdict, value))
+            result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
+    return result
+
+
+def decoding_stream(
+    stream: Union[BufferedReader, BytesIO],
+    encoding: str,
+    errors: Literal["strict"] = "strict",
+) -> codecs.StreamReader:
+    try:
+        reader_cls = codecs.getreader(encoding or sys.getdefaultencoding())
+    except LookupError:
+        reader_cls = codecs.getreader(sys.getdefaultencoding())
+    return reader_cls(stream, errors)
+
+
+def tokenize_module(node: nodes.Module) -> List[tokenize.TokenInfo]:
+    with node.stream() as stream:
+        readline = stream.readline
+        return list(tokenize.tokenize(readline))
+
+
+def register_plugins(linter, directory):
+    """Load all module and package in the given directory, looking for a
+    'register' function in each one, used to register pylint checkers
+    """
+    imported = {}
+    for filename in os.listdir(directory):
+        base, extension = os.path.splitext(filename)
+        if base in imported or base == "__pycache__":
+            continue
+        if (
+            extension in PY_EXTS
+            and base != "__init__"
+            or (
+                not extension
+                and os.path.isdir(os.path.join(directory, base))
+                and not filename.startswith(".")
+            )
+        ):
+            try:
+                module = modutils.load_module_from_file(
+                    os.path.join(directory, filename)
+                )
+            except ValueError:
+                # empty module name (usually emacs auto-save files)
+                continue
+            except ImportError as exc:
+                print(f"Problem importing module {filename}: {exc}", file=sys.stderr)
+            else:
+                if hasattr(module, "register"):
+                    module.register(linter)
+                    imported[base] = 1
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker", option: GLOBAL_OPTION_BOOL, default: Optional[bool] = None
+) -> bool:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker", option: GLOBAL_OPTION_INT, default: Optional[int] = None
+) -> int:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_LIST,
+    default: Optional[List[str]] = None,
+) -> List[str]:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_PATTERN,
+    default: Optional[Pattern[str]] = None,
+) -> Pattern[str]:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_PATTERN_LIST,
+    default: Optional[List[Pattern[str]]] = None,
+) -> List[Pattern[str]]:
+    ...
+
+
+@overload
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_TUPLE_INT,
+    default: Optional[Tuple[int, ...]] = None,
+) -> Tuple[int, ...]:
+    ...
+
+
+def get_global_option(
+    checker: "BaseChecker",
+    option: GLOBAL_OPTION_NAMES,
+    default: Optional[T_GlobalOptionReturnTypes] = None,
+) -> Optional[T_GlobalOptionReturnTypes]:
+    """Retrieve an option defined by the given *checker* or
+    by all known option providers.
+
+    It will look in the list of all options providers
+    until the given *option* will be found.
+    If the option wasn't found, the *default* value will be returned.
+    """
+    # First, try in the given checker's config.
+    # After that, look in the options providers.
+
+    try:
+        return getattr(checker.config, option.replace("-", "_"))
+    except AttributeError:
+        pass
+    for provider in checker.linter.options_providers:
+        for options in provider.options:
+            if options[0] == option:
+                return getattr(provider.config, option.replace("-", "_"))
+    return default
+
+
+def _splitstrip(string, sep=","):
+    """Return a list of stripped string by splitting the string given as
+    argument on `sep` (',' by default). Empty string are discarded.
+
+    >>> _splitstrip('a, b, c   ,  4,,')
+    ['a', 'b', 'c', '4']
+    >>> _splitstrip('a')
+    ['a']
+    >>> _splitstrip('a,\nb,\nc,')
+    ['a', 'b', 'c']
+
+    :type string: str or unicode
+    :param string: a csv line
+
+    :type sep: str or unicode
+    :param sep: field separator, default to the comma (',')
+
+    :rtype: str or unicode
+    :return: the unquoted string (or the input string if it wasn't quoted)
+    """
+    return [word.strip() for word in string.split(sep) if word.strip()]
+
+
+def _unquote(string):
+    """Remove optional quotes (simple or double) from the string.
+
+    :type string: str or unicode
+    :param string: an optionally quoted string
+
+    :rtype: str or unicode
+    :return: the unquoted string (or the input string if it wasn't quoted)
+    """
+    if not string:
+        return string
+    if string[0] in "\"'":
+        string = string[1:]
+    if string[-1] in "\"'":
+        string = string[:-1]
+    return string
+
+
+def _check_csv(value):
+    if isinstance(value, (list, tuple)):
+        return value
+    return _splitstrip(value)
+
+
+def _comment(string: str) -> str:
+    """Return string as a comment."""
+    lines = [line.strip() for line in string.splitlines()]
+    sep = "\n"
+    return "# " + f"{sep}# ".join(lines)
+
+
+def _format_option_value(optdict, value):
+    """Return the user input's value from a 'compiled' value."""
+    if optdict.get("type", None) == "py_version":
+        value = ".".join(str(item) for item in value)
+    elif isinstance(value, (list, tuple)):
+        value = ",".join(_format_option_value(optdict, item) for item in value)
+    elif isinstance(value, dict):
+        value = ",".join(f"{k}:{v}" for k, v in value.items())
+    elif hasattr(value, "match"):  # optdict.get('type') == 'regexp'
+        # compiled regexp
+        value = value.pattern
+    elif optdict.get("type") == "yn":
+        value = "yes" if value else "no"
+    elif isinstance(value, str) and value.isspace():
+        value = f"'{value}'"
+    return value
+
+
+def format_section(
+    stream: TextIO, section: str, options: List[Tuple], doc: Optional[str] = None
+) -> None:
+    """Format an option's section using the INI format."""
+    if doc:
+        print(_comment(doc), file=stream)
+    print(f"[{section}]", file=stream)
+    _ini_format(stream, options)
+
+
+def _ini_format(stream: TextIO, options: List[Tuple]) -> None:
+    """Format options using the INI format."""
+    for optname, optdict, value in options:
+        value = _format_option_value(optdict, value)
+        help_opt = optdict.get("help")
+        if help_opt:
+            help_opt = normalize_text(help_opt, indent="# ")
+            print(file=stream)
+            print(help_opt, file=stream)
+        else:
+            print(file=stream)
+        if value is None:
+            print(f"#{optname}=", file=stream)
+        else:
+            value = str(value).strip()
+            if re.match(r"^([\w-]+,)+[\w-]+$", str(value)):
+                separator = "\n " + " " * len(optname)
+                value = separator.join(x + "," for x in str(value).split(","))
+                # remove trailing ',' from last element of the list
+                value = value[:-1]
+            print(f"{optname}={value}", file=stream)
+
+
+class IsortDriver:
+    """A wrapper around isort API that changed between versions 4 and 5."""
+
+    def __init__(self, config):
+        if HAS_ISORT_5:
+            self.isort5_config = isort.api.Config(
+                # There is no typo here. EXTRA_standard_library is
+                # what most users want. The option has been named
+                # KNOWN_standard_library for ages in pylint, and we
+                # don't want to break compatibility.
+                extra_standard_library=config.known_standard_library,
+                known_third_party=config.known_third_party,
+            )
+        else:
+            self.isort4_obj = isort.SortImports(  # pylint: disable=no-member
+                file_contents="",
+                known_standard_library=config.known_standard_library,
+                known_third_party=config.known_third_party,
+            )
+
+    def place_module(self, package):
+        if HAS_ISORT_5:
+            return isort.api.place_module(package, self.isort5_config)
+        return self.isort4_obj.place_module(package)
+`````
+
+--- pylint/config/option_manager_mixin.py (lines 59-342 of 389; not shown in this file: <module header>, _expand_default, _patch_optparse) ---
+```python
+class OptionsManagerMixIn:
+    """Handle configuration from both a configuration file and command line options."""
+
+    def __init__(self, usage, config_file=None):
+        self.config_file = config_file
+        self.reset_parsers(usage)
+        # list of registered options providers
+        self.options_providers = []
+        # dictionary associating option name to checker
+        self._all_options = collections.OrderedDict()
+        self._short_options = {}
+        self._nocallback_options = {}
+        self._mygroups = {}
+        # verbosity
+        self._maxlevel = 0
+
+    def reset_parsers(self, usage=""):
+        # configuration file parser
+        self.cfgfile_parser = configparser.ConfigParser(
+            inline_comment_prefixes=("#", ";")
+        )
+        # command line parser
+        self.cmdline_parser = OptionParser(Option, usage=usage)
+        self.cmdline_parser.options_manager = self
+        self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
+
+    def register_options_provider(self, provider, own_group=True):
+        """Register an options provider."""
+        assert provider.priority <= 0, "provider's priority can't be >= 0"
+        for i, options_provider in enumerate(self.options_providers):
+            if provider.priority > options_provider.priority:
+                self.options_providers.insert(i, provider)
+                break
+        else:
+            self.options_providers.append(provider)
+        non_group_spec_options = [
+            option for option in provider.options if "group" not in option[1]
+        ]
+        groups = getattr(provider, "option_groups", ())
+        if own_group and non_group_spec_options:
+            self.add_option_group(
+                provider.name.upper(),
+                provider.__doc__,
+                non_group_spec_options,
+                provider,
+            )
+        else:
+            for opt, optdict in non_group_spec_options:
+                self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
+        for gname, gdoc in groups:
+            gname = gname.upper()
+            goptions = [
+                option
+                for option in provider.options
+                if option[1].get("group", "").upper() == gname
+            ]
+            self.add_option_group(gname, gdoc, goptions, provider)
+
+    def add_option_group(self, group_name, _, options, provider):
+        # add option group to the command line parser
+        if group_name in self._mygroups:
+            group = self._mygroups[group_name]
+        else:
+            group = optparse.OptionGroup(
+                self.cmdline_parser, title=group_name.capitalize()
+            )
+            self.cmdline_parser.add_option_group(group)
+            group.level = provider.level
+            self._mygroups[group_name] = group
+            # add section to the config file
+            if (
+                group_name != "DEFAULT"
+                and group_name not in self.cfgfile_parser._sections
+            ):
+                self.cfgfile_parser.add_section(group_name)
+        # add provider's specific options
+        for opt, optdict in options:
+            self.add_optik_option(provider, group, opt, optdict)
+
+    def add_optik_option(self, provider, optikcontainer, opt, optdict):
+        args, optdict = self.optik_option(provider, opt, optdict)
+        option = optikcontainer.add_option(*args, **optdict)
+        self._all_options[opt] = provider
+        self._maxlevel = max(self._maxlevel, option.level or 0)
+
+    def optik_option(self, provider, opt, optdict):
+        """Get our personal option definition and return a suitable form for
+        use with optik/optparse
+        """
+        optdict = copy.copy(optdict)
+        if "action" in optdict:
+            self._nocallback_options[provider] = opt
+        else:
+            optdict["action"] = "callback"
+            optdict["callback"] = self.cb_set_provider_option
+        # default is handled here and *must not* be given to optik if you
+        # want the whole machinery to work
+        if "default" in optdict:
+            if (
+                "help" in optdict
+                and optdict.get("default") is not None
+                and optdict["action"] not in ("store_true", "store_false")
+            ):
+                optdict["help"] += " [current: %default]"
+            del optdict["default"]
+        args = ["--" + str(opt)]
+        if "short" in optdict:
+            self._short_options[optdict["short"]] = opt
+            args.append("-" + optdict["short"])
+            del optdict["short"]
+        # cleanup option definition dict before giving it to optik
+        for key in list(optdict.keys()):
+            if key not in self._optik_option_attrs:
+                optdict.pop(key)
+        return args, optdict
+
+    def cb_set_provider_option(self, option, opt, value, parser):
+        """Optik callback for option setting."""
+        if opt.startswith("--"):
+            # remove -- on long option
+            opt = opt[2:]
+        else:
+            # short option, get its long equivalent
+            opt = self._short_options[opt[1:]]
+        # trick since we can't set action='store_true' on options
+        if value is None:
+            value = 1
+        self.global_set_option(opt, value)
+
+    def global_set_option(self, opt, value):
+        """Set option on the correct option provider."""
+        self._all_options[opt].set_option(opt, value)
+
+    def generate_config(
+        self, stream: Optional[TextIO] = None, skipsections: Tuple[str, ...] = ()
+    ) -> None:
+        """Write a configuration file according to the current configuration
+        into the given stream or stdout
+        """
+        options_by_section: Dict[str, List[Tuple]] = {}
+        sections = []
+        for provider in self.options_providers:
+            for section, options in provider.options_by_section():
+                if section is None:
+                    section = provider.name
+                if section in skipsections:
+                    continue
+                options = [
+                    (n, d, v)
+                    for (n, d, v) in options
+                    if d.get("type") is not None and not d.get("deprecated")
+                ]
+                if not options:
+                    continue
+                if section not in sections:
+                    sections.append(section)
+                all_options = options_by_section.setdefault(section, [])
+                all_options += options
+        stream = stream or sys.stdout
+        printed = False
+        for section in sections:
+            if printed:
+                print("\n", file=stream)
+            utils.format_section(
+                stream, section.upper(), sorted(options_by_section[section])
+            )
+            printed = True
+
+    def generate_manpage(
+        self, pkginfo: ModuleType, section: int = 1, stream: TextIO = sys.stdout
+    ) -> None:
+        with _patch_optparse():
+            formatter = _ManHelpFormatter()
+            formatter.output_level = self._maxlevel
+            formatter.parser = self.cmdline_parser
+            print(
+                formatter.format_head(self.cmdline_parser, pkginfo, section),
+                file=stream,
+            )
+            print(self.cmdline_parser.format_option_help(formatter), file=stream)
+            print(formatter.format_tail(pkginfo), file=stream)
+
+    def load_provider_defaults(self):
+        """Initialize configuration using default values."""
+        for provider in self.options_providers:
+            provider.load_defaults()
+
+    def read_config_file(self, config_file=None, verbose=None):
+        """Read the configuration file but do not load it (i.e. dispatching
+        values to each option's provider)
+        """
+        for help_level in range(1, self._maxlevel + 1):
+            opt = "-".join(["long"] * help_level) + "-help"
+            if opt in self._all_options:
+                break  # already processed
+            help_function = functools.partial(self.helpfunc, level=help_level)
+            help_msg = f"{' '.join(['more'] * help_level)} verbose help."
+            optdict = {
+                "action": "callback",
+                "callback": help_function,
+                "help": help_msg,
+            }
+            provider = self.options_providers[0]
+            self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
+            provider.options += ((opt, optdict),)
+
+        if config_file is None:
+            config_file = self.config_file
+        if config_file is not None:
+            config_file = os.path.expandvars(os.path.expanduser(config_file))
+            if not os.path.exists(config_file):
+                raise OSError(f"The config file {config_file} doesn't exist!")
+
+        use_config_file = config_file and os.path.exists(config_file)
+        if use_config_file:
+            self.set_current_module(config_file)
+            parser = self.cfgfile_parser
+            if config_file.endswith(".toml"):
+                try:
+                    self._parse_toml(config_file, parser)
+                except toml.TomlDecodeError as e:
+                    self.add_message("config-parse-error", line=0, args=str(e))
+            else:
+                # Use this encoding in order to strip the BOM marker, if any.
+                with open(config_file, encoding="utf_8_sig") as fp:
+                    parser.read_file(fp)
+                # normalize each section's title
+                for sect, values in list(parser._sections.items()):
+                    if sect.startswith("pylint."):
+                        sect = sect[len("pylint.") :]
+                    if not sect.isupper() and values:
+                        parser._sections[sect.upper()] = values
+        if not verbose:
+            return
+        if use_config_file:
+            msg = f"Using config file {os.path.abspath(config_file)}"
+        else:
+            msg = "No config file found, using default configuration"
+        print(msg, file=sys.stderr)
+
+    def _parse_toml(
+        self, config_file: Union[Path, str], parser: configparser.ConfigParser
+    ) -> None:
+        """Parse and handle errors of a toml configuration file."""
+        with open(config_file, encoding="utf-8") as fp:
+            content = toml.load(fp)
+        try:
+            sections_values = content["tool"]["pylint"]
+        except KeyError:
+            return
+        for section, values in sections_values.items():
+            section_name = section.upper()
+            # TOML has rich types, convert values to
+            # strings as ConfigParser expects.
+            if not isinstance(values, dict):
+                # This class is a mixin: add_message comes from the `PyLinter` class
+                self.add_message(  # type: ignore[attr-defined]
+                    "bad-configuration-section", line=0, args=(section, values)
+                )
+                continue
+            for option, value in values.items():
+                if isinstance(value, bool):
+                    values[option] = "yes" if value else "no"
+                elif isinstance(value, list):
+                    values[option] = ",".join(value)
+                else:
+                    values[option] = str(value)
+            for option, value in values.items():
+                try:
+                    parser.set(section_name, option, value=value)
+                except configparser.NoSectionError:
+                    parser.add_section(section_name)
+                    parser.set(section_name, option, value=value)
+
+    def load_config_file(self):
+        """Dispatch values previously read from a configuration file to each
+        option's provider
+        """
+        parser = self.cfgfile_parser
+        for section in parser.sections():
+            for option, value in parser.items(section):
+                try:
+                    self.global_set_option(option, value)
+                except (KeyError, optparse.OptionError):
+```
+
+--- pylint/checkers/imports.py (lines 304-615 of 1022; not shown in this file: <module header>, _qualified_names, _get_first_import, _ignore_import_failure, _make_tree_defs, _repr_tree_defs, _dependencies_graph, _make_graph, register) ---
+```python
+class ImportsChecker(DeprecatedMixin, BaseChecker):
+    """Checks for
+    * external modules dependencies
+    * relative / wildcard imports
+    * cyclic imports
+    * uses of deprecated modules
+    * uses of modules instead of preferred modules
+    """
+
+    __implements__ = IAstroidChecker
+
+    name = "imports"
+    msgs = MSGS
+    priority = -2
+    default_deprecated_modules = ()
+
+    options = (
+        (
+            "deprecated-modules",
+            {
+                "default": default_deprecated_modules,
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Deprecated modules which should not be used,"
+                " separated by a comma.",
+            },
+        ),
+        (
+            "preferred-modules",
+            {
+                "default": DEFAULT_PREFERRED_MODULES,
+                "type": "csv",
+                "metavar": "<module:preferred-module>",
+                "help": "Couples of modules and preferred modules,"
+                " separated by a comma.",
+            },
+        ),
+        (
+            "import-graph",
+            {
+                "default": "",
+                "type": "string",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format) of"
+                " all (i.e. internal and external) dependencies to the given file"
+                " (report RP0402 must not be disabled).",
+            },
+        ),
+        (
+            "ext-import-graph",
+            {
+                "default": "",
+                "type": "string",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format)"
+                " of external dependencies to the given file"
+                " (report RP0402 must not be disabled).",
+            },
+        ),
+        (
+            "int-import-graph",
+            {
+                "default": "",
+                "type": "string",
+                "metavar": "<file.gv>",
+                "help": "Output a graph (.gv or any supported image format)"
+                " of internal dependencies to the given file"
+                " (report RP0402 must not be disabled).",
+            },
+        ),
+        (
+            "known-standard-library",
+            {
+                "default": DEFAULT_STANDARD_LIBRARY,
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Force import order to recognize a module as part of "
+                "the standard compatibility libraries.",
+            },
+        ),
+        (
+            "known-third-party",
+            {
+                "default": DEFAULT_KNOWN_THIRD_PARTY,
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Force import order to recognize a module as part of "
+                "a third party library.",
+            },
+        ),
+        (
+            "allow-any-import-level",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": (
+                    "List of modules that can be imported at any level, not just "
+                    "the top level one."
+                ),
+            },
+        ),
+        (
+            "analyse-fallback-blocks",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Analyse import fallback blocks. This can be used to "
+                "support both Python 2 and 3 compatible code, which "
+                "means that the block might have code that exists "
+                "only in one or another interpreter, leading to false "
+                "positives when analysed.",
+            },
+        ),
+        (
+            "allow-wildcard-with-all",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Allow wildcard imports from modules that define __all__.",
+            },
+        ),
+    )
+
+    def __init__(self, linter: Optional["PyLinter"] = None) -> None:
+        BaseChecker.__init__(self, linter)
+        self.import_graph: collections.defaultdict = collections.defaultdict(set)
+        self._imports_stack: List[Tuple[Any, Any]] = []
+        self._first_non_import_node = None
+        self._module_pkg: Dict[
+            Any, Any
+        ] = {}  # mapping of modules to the pkg they belong in
+        self._allow_any_import_level: Set[Any] = set()
+        self.reports = (
+            ("RP0401", "External dependencies", self._report_external_dependencies),
+            ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
+        )
+
+        self._site_packages = self._compute_site_packages()
+
+    @staticmethod
+    def _compute_site_packages():
+        def _normalized_path(path):
+            return os.path.normcase(os.path.abspath(path))
+
+        paths = set()
+        real_prefix = getattr(sys, "real_prefix", None)
+        for prefix in filter(None, (real_prefix, sys.prefix)):
+            path = sysconfig.get_python_lib(prefix=prefix)
+            path = _normalized_path(path)
+            paths.add(path)
+
+        # Handle Debian's derivatives /usr/local.
+        if os.path.isfile("/etc/debian_version"):
+            for prefix in filter(None, (real_prefix, sys.prefix)):
+                libpython = os.path.join(
+                    prefix,
+                    "local",
+                    "lib",
+                    "python" + sysconfig.get_python_version(),
+                    "dist-packages",
+                )
+                paths.add(libpython)
+        return paths
+
+    def open(self):
+        """Called before visiting project (i.e set of modules)."""
+        self.linter.stats.dependencies = {}
+        self.linter.stats = self.linter.stats
+        self.import_graph = collections.defaultdict(set)
+        self._module_pkg = {}  # mapping of modules to the pkg they belong in
+        self._excluded_edges = collections.defaultdict(set)
+        self._ignored_modules = get_global_option(self, "ignored-modules", default=[])
+        # Build a mapping {'module': 'preferred-module'}
+        self.preferred_modules = dict(
+            module.split(":")
+            for module in self.config.preferred_modules
+            if ":" in module
+        )
+        self._allow_any_import_level = set(self.config.allow_any_import_level)
+
+    def _import_graph_without_ignored_edges(self):
+        filtered_graph = copy.deepcopy(self.import_graph)
+        for node in filtered_graph:
+            filtered_graph[node].difference_update(self._excluded_edges[node])
+        return filtered_graph
+
+    def close(self):
+        """Called before visiting project (i.e set of modules)."""
+        if self.linter.is_message_enabled("cyclic-import"):
+            graph = self._import_graph_without_ignored_edges()
+            vertices = list(graph)
+            for cycle in get_cycles(graph, vertices=vertices):
+                self.add_message("cyclic-import", args=" -> ".join(cycle))
+
+    def deprecated_modules(self):
+        """Callback returning the deprecated modules."""
+        return self.config.deprecated_modules
+
+    @check_messages(*MSGS)
+    def visit_import(self, node: nodes.Import) -> None:
+        """Triggered when an import statement is seen."""
+        self._check_reimport(node)
+        self._check_import_as_rename(node)
+        self._check_toplevel(node)
+
+        names = [name for name, _ in node.names]
+        if len(names) >= 2:
+            self.add_message("multiple-imports", args=", ".join(names), node=node)
+
+        for name in names:
+            self.check_deprecated_module(node, name)
+            self._check_preferred_module(node, name)
+            imported_module = self._get_imported_module(node, name)
+            if isinstance(node.parent, nodes.Module):
+                # Allow imports nested
+                self._check_position(node)
+            if isinstance(node.scope(), nodes.Module):
+                self._record_import(node, imported_module)
+
+            if imported_module is None:
+                continue
+
+            self._add_imported_module(node, imported_module.name)
+
+    @check_messages(*MSGS)
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
+        """Triggered when a from statement is seen."""
+        basename = node.modname
+        imported_module = self._get_imported_module(node, basename)
+
+        self._check_import_as_rename(node)
+        self._check_misplaced_future(node)
+        self.check_deprecated_module(node, basename)
+        self._check_preferred_module(node, basename)
+        self._check_wildcard_imports(node, imported_module)
+        self._check_same_line_imports(node)
+        self._check_reimport(node, basename=basename, level=node.level)
+        self._check_toplevel(node)
+
+        if isinstance(node.parent, nodes.Module):
+            # Allow imports nested
+            self._check_position(node)
+        if isinstance(node.scope(), nodes.Module):
+            self._record_import(node, imported_module)
+        if imported_module is None:
+            return
+        for name, _ in node.names:
+            if name != "*":
+                self._add_imported_module(node, f"{imported_module.name}.{name}")
+            else:
+                self._add_imported_module(node, imported_module.name)
+
+    @check_messages(*MSGS)
+    def leave_module(self, node: nodes.Module) -> None:
+        # Check imports are grouped by category (standard, 3rd party, local)
+        std_imports, ext_imports, loc_imports = self._check_imports_order(node)
+
+        # Check that imports are grouped by package within a given category
+        met_import: Set[str] = set()  # set for 'import x' style
+        met_from: Set[str] = set()  # set for 'from x import y' style
+        current_package = None
+        for import_node, import_name in std_imports + ext_imports + loc_imports:
+            if not self.linter.is_message_enabled(
+                "ungrouped-imports", import_node.fromlineno
+            ):
+                continue
+            met = met_from if isinstance(import_node, nodes.ImportFrom) else met_import
+            package, _, _ = import_name.partition(".")
+            if (
+                current_package
+                and current_package != package
+                and package in met
+                and is_node_in_guarded_import_block(import_node) is False
+            ):
+                self.add_message("ungrouped-imports", node=import_node, args=package)
+            current_package = package
+            met.add(package)
+
+        self._imports_stack = []
+        self._first_non_import_node = None
+
+    def compute_first_non_import_node(self, node):
+        if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
+            return
+        # if the node does not contain an import instruction, and if it is the
+        # first node of the module, keep a track of it (all the import positions
+        # of the module will be compared to the position of this first
+        # instruction)
+        if self._first_non_import_node:
+            return
+        if not isinstance(node.parent, nodes.Module):
+            return
+        nested_allowed = [nodes.TryExcept, nodes.TryFinally]
+        is_nested_allowed = [
+            allowed for allowed in nested_allowed if isinstance(node, allowed)
+        ]
+        if is_nested_allowed and any(
+            node.nodes_of_class((nodes.Import, nodes.ImportFrom))
+        ):
+            return
+        if isinstance(node, nodes.Assign):
+            # Add compatibility for module level dunder names
+            # https://www.python.org/dev/peps/pep-0008/#module-level-dunder-names
+            valid_targets = [
+                isinstance(target, nodes.AssignName)
+                and target.name.startswith("__")
+                and target.name.endswith("__")
+                for target in node.targets
+            ]
+```
+
+--- pylint/checkers/stdlib.py (lines 348-446 of 793; not shown in this file: <module header>, _check_mode_str, register) ---
+```python
+class StdlibChecker(DeprecatedMixin, BaseChecker):
+    __implements__ = (IAstroidChecker,)
+    name = "stdlib"
+
+    msgs = {
+        "W1501": (
+            '"%s" is not a valid mode for open.',
+            "bad-open-mode",
+            "Python supports: r, w, a[, x] modes with b, +, "
+            "and U (only with r) options. "
+            "See https://docs.python.org/2/library/functions.html#open",
+        ),
+        "W1502": (
+            "Using datetime.time in a boolean context.",
+            "boolean-datetime",
+            "Using datetime.time in a boolean context can hide "
+            "subtle bugs when the time they represent matches "
+            "midnight UTC. This behaviour was fixed in Python 3.5. "
+            "See https://bugs.python.org/issue13936 for reference.",
+            {"maxversion": (3, 5)},
+        ),
+        "W1503": (
+            "Redundant use of %s with constant value %r",
+            "redundant-unittest-assert",
+            "The first argument of assertTrue and assertFalse is "
+            "a condition. If a constant is passed as parameter, that "
+            "condition will be always true. In this case a warning "
+            "should be emitted.",
+        ),
+        "W1505": (
+            "Using deprecated method %s()",
+            "deprecated-method",
+            "The method is marked as deprecated and will be removed in "
+            "a future version of Python. Consider looking for an "
+            "alternative in the documentation.",
+        ),
+        "W1506": (
+            "threading.Thread needs the target function",
+            "bad-thread-instantiation",
+            "The warning is emitted when a threading.Thread class "
+            "is instantiated without the target function being passed. "
+            "By default, the first parameter is the group param, not the target param.",
+        ),
+        "W1507": (
+            "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
+            "shallow-copy-environ",
+            "os.environ is not a dict object but proxy object, so "
+            "shallow copy has still effects on original object. "
+            "See https://bugs.python.org/issue15373 for reference.",
+        ),
+        "E1507": (
+            "%s does not support %s type argument",
+            "invalid-envvar-value",
+            "Env manipulation functions support only string type arguments. "
+            "See https://docs.python.org/3/library/os.html#os.getenv.",
+        ),
+        "W1508": (
+            "%s default type is %s. Expected str or None.",
+            "invalid-envvar-default",
+            "Env manipulation functions return None or str values. "
+            "Supplying anything different as a default may cause bugs. "
+            "See https://docs.python.org/3/library/os.html#os.getenv.",
+        ),
+        "W1509": (
+            "Using preexec_fn keyword which may be unsafe in the presence "
+            "of threads",
+            "subprocess-popen-preexec-fn",
+            "The preexec_fn parameter is not safe to use in the presence "
+            "of threads in your application. The child process could "
+            "deadlock before exec is called. If you must use it, keep it "
+            "trivial! Minimize the number of libraries you call into."
+            "https://docs.python.org/3/library/subprocess.html#popen-constructor",
+        ),
+        "W1510": (
+            "Using subprocess.run without explicitly set `check` is not recommended.",
+            "subprocess-run-check",
+            "The check parameter should always be used with explicitly set "
+            "`check` keyword to make clear what the error-handling behavior is."
+            "https://docs.python.org/3/library/subprocess.html#subprocess.run",
+        ),
+        "W1511": (
+            "Using deprecated argument %s of method %s()",
+            "deprecated-argument",
+            "The argument is marked as deprecated and will be removed in the future.",
+        ),
+        "W1512": (
+            "Using deprecated class %s of module %s",
+            "deprecated-class",
+            "The class is marked as deprecated and will be removed in the future.",
+        ),
+        "W1513": (
+            "Using deprecated decorator %s()",
+            "deprecated-decorator",
+            "The decorator is marked as deprecated and will be removed in the future.",
+        ),
+        "W1514": (
+            "Using open without explicitly specifying an encoding",
+            "unspecified-encoding",
+            "It is better to specify an encoding when opening documents. "
+```

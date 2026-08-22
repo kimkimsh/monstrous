@@ -1,0 +1,105 @@
+{
+  "grading": {
+    "livecodebench": "livecodebench_tests",
+    "swebench": "swebench_docker"
+  },
+  "item_count": 20,
+  "items_per_dataset": {
+    "livecodebench-v6": 7,
+    "swebench-lite": 13
+  },
+  "seed": 20260819,
+  "sources": [
+    {
+      "attribution": "SWE-bench (Jimenez et al., ICLR 2024); instances derive from their upstream repositories",
+      "dataset": "swebench-lite",
+      "file": "data/test-00000-of-00001.parquet",
+      "license": null,
+      "native_ids": [
+        "astropy__astropy-14182",
+        "django__django-10914",
+        "django__django-11099",
+        "matplotlib__matplotlib-23476",
+        "matplotlib__matplotlib-24149",
+        "mwaskom__seaborn-3010",
+        "psf__requests-863",
+        "pydata__xarray-4493",
+        "pylint-dev__pylint-5859",
+        "pytest-dev__pytest-7220",
+        "scikit-learn__scikit-learn-10297",
+        "sphinx-doc__sphinx-7738",
+        "sympy__sympy-12481"
+      ],
+      "permalink": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/blob/6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2/data/test-00000-of-00001.parquet",
+      "repo_id": "princeton-nlp/SWE-bench_Lite",
+      "revision": "6ec7bb89b9342f664a54a6e0a6ea6501d3437cc2",
+      "selected": 13,
+      "selection": {
+        "excludes": null,
+        "size": 40,
+        "strata": [
+          "repo"
+        ],
+        "strategy": "stratified-hash"
+      }
+    },
+    {
+      "attribution": "LiveCodeBench (Jain et al., 2024); problem statements scraped from LeetCode / AtCoder / CodeForces",
+      "dataset": "livecodebench-v6",
+      "file": "test6.jsonl",
+      "license": "cc",
+      "native_ids": [
+        "atcoder/abc387_b",
+        "atcoder/abc387_c",
+        "atcoder/abc388_a",
+        "atcoder/abc388_b",
+        "leetcode/3708",
+        "leetcode/3714",
+        "leetcode/3720"
+      ],
+      "permalink": "https://huggingface.co/datasets/livecodebench/code_generation_lite/blob/0fe84c3912ea0c4d4a78037083943e8f0c4dd505/test6.jsonl",
+      "repo_id": "livecodebench/code_generation_lite",
+      "revision": "0fe84c3912ea0c4d4a78037083943e8f0c4dd505",
+      "selected": 7,
+      "selection": {
+        "contest_date_from": "2025-01-01",
+        "contest_date_to": "2025-01-31",
+        "difficulties": [
+          "easy",
+          "medium"
+        ],
+        "size": 20,
+        "strata": [
+          "platform",
+          "difficulty"
+        ],
+        "strategy": "stratified-hash"
+      }
+    }
+  ],
+  "track": "coding",
+  "trim": {
+    "drawn": 60,
+    "per_stratum": {
+      "astropy/astropy": 1,
+      "atcoder": 4,
+      "django/django": 2,
+      "leetcode": 3,
+      "matplotlib/matplotlib": 2,
+      "mwaskom/seaborn": 1,
+      "psf/requests": 1,
+      "pydata/xarray": 1,
+      "pylint-dev/pylint": 1,
+      "pytest-dev/pytest": 1,
+      "scikit-learn/scikit-learn": 1,
+      "sphinx-doc/sphinx": 1,
+      "sympy/sympy": 1
+    },
+    "reason": "the visible practice set was reduced to roughly one third; the hidden set is unchanged, and a subset of the original draw cannot overlap it",
+    "retained": 20,
+    "rule": "round-robin over the draw's strata, in item-file order, until the target is reached",
+    "script": "scripts/trim_visible_set.py",
+    "strata": "SWE-bench by repository; LiveCodeBench by platform \u2014 the strata each draw used"
+  },
+  "visibility": "visible"
+}

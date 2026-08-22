@@ -1,0 +1,22 @@
+=== REQUIRED OUTPUT ===
+Your answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two
+patch markers:
+
+*** PATCH START ***
+path/to/file.py
+<<<<<<< SEARCH
+<the exact lines currently in the file>
+=======
+<the lines that replace them>
+>>>>>>> REPLACE
+*** PATCH END ***
+
+Rules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per
+edit; paths are relative to the repository root; SEARCH must be whole lines copied from
+the file; an empty SEARCH section creates a new file.
+
+Only what lies between *** PATCH START *** and *** PATCH END *** is graded.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+The full format specification, with worked examples and every failure code, is published
+as `docs/contracts/patch-format.md`.

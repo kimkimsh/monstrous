@@ -1,0 +1,12 @@
+The smallest distance between the origin and a point on the graph of $y=\frac{1}{\sqrt{2}}\left(x^2-3\right)$ can be expressed as $\sqrt{a}/b$, where $a$ and $b$ are positive integers such that $a$ is not divisible by the square of any integer greater than one.  Find $a+b$.
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

@@ -1,0 +1,13 @@
+Suppose a hologram is made with light of wavelength 600 nm (orange) and then viewed with light of wavelength 500 nm (green) . How will the images differ from those that would be formed with the orange light?
+
+Options:
+A. The reconstructed image distance = (3 / 2) the object distance
+B. the reconstructed image distance = (6 / 5) the object distance
+C. The reconstructed image distance = (4 / 5) the object distance
+D. the reconstructed image distance = 2 times the object distance
+E. the reconstructed image distance = the object distance
+F. the reconstructed image distance = (5 / 6) the object distance
+G. The reconstructed image distance = 3 times the object distance
+H. The reconstructed image distance is the same as when viewed with orange light
+I. The reconstructed image distance = (5 / 4) the object distance
+J. The reconstructed image distance = (2 / 3) the object distance

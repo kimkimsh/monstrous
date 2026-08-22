@@ -1,0 +1,10 @@
+Point $A$ lies somewhere within or on the square which has opposite corners at $(0,0)$ and $(2,2)$. Point $B$ lies somewhere within or on the square which has opposite corners at points $(4,2)$ and $(5,3)$. What is the greatest possible value of the slope of the line containing points $A$ and $B$? Express your answer as a common fraction.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

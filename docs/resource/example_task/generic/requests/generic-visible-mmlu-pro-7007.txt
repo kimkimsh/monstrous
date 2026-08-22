@@ -1,0 +1,23 @@
+How are craft unions different from industrial unions?
+
+Options:
+A. Industrial unions require a higher level of education for membership, while craft unions do not have educational requirements.
+B. Craft unions join together workers with one particular skill, while industrial unions include workers in a particular plant or industry.
+C. Craft unions are for skilled workers while industrial unions are for unskilled workers
+D. Craft unions include workers from multiple industries, while industrial unions are specific to one craft or trade.
+E. Craft unions are found only in the manufacturing sector, while industrial unions can be found in all sectors.
+F. Industrial unions negotiate for individual workers, while craft unions negotiate for all workers within an industry.
+G. Craft unions are smaller than industrial unions
+H. Industrial unions are more powerful than craft unions
+I. Craft unions focus on broad political agendas, while industrial unions focus solely on workplace conditions and pay.
+J. Industrial unions represent freelance workers, while craft unions represent salaried employees.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

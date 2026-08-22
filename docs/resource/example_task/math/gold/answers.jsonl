@@ -1,0 +1,59 @@
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{11}{2}", "gold_latex": "$\\boxed{\\frac{11}{2}}$", "checks": ["math_verify"], "item_id": "math-visible-0001"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "(-\\sqrt{3}, \\sqrt{3})", "gold_latex": "$\\boxed{(-\\sqrt{3}, \\sqrt{3})}$", "checks": ["math_verify"], "item_id": "math-visible-0002"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "17", "gold_latex": "$\\boxed{17}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0003"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "11", "gold_latex": "$\\boxed{11}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0004"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "600", "gold_latex": "$\\boxed{600}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0005"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "2\\sqrt{5}", "gold_latex": "$\\boxed{2\\sqrt{5}}$", "checks": ["math_verify"], "item_id": "math-visible-0006"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "5", "gold_latex": "$\\boxed{5}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0007"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "(-\\infty, 2) \\cup (3, \\infty)", "gold_latex": "$\\boxed{(-\\infty, 2) \\cup (3, \\infty)}$", "checks": ["math_verify"], "item_id": "math-visible-0008"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "81", "gold_latex": "$\\boxed{81}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0009"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "3", "gold_latex": "$\\boxed{3}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0010"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "x=5", "gold_latex": "$\\boxed{x=5}$", "checks": ["math_verify"], "item_id": "math-visible-0011"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "1+2i", "gold_latex": "$\\boxed{1+2i}$", "checks": ["math_verify"], "item_id": "math-visible-0012"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "0", "gold_latex": "$\\boxed{0}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0013"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "10", "gold_latex": "$\\boxed{10}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0014"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\left(\\frac{3}{5},\\frac{8}{3}\\right]", "gold_latex": "$\\boxed{\\left(\\frac{3}{5},\\frac{8}{3}\\right]}$", "checks": ["math_verify"], "item_id": "math-visible-0015"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "-\\frac{35}{9}", "gold_latex": "$\\boxed{-\\frac{35}{9}}$", "checks": ["math_verify"], "item_id": "math-visible-0016"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\$32,\\!348", "gold_latex": "$\\boxed{\\$32,\\!348}$", "checks": ["math_verify"], "item_id": "math-visible-0017"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{3}{2}", "gold_latex": "$\\boxed{\\frac{3}{2}}$", "checks": ["math_verify"], "item_id": "math-visible-0018"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "20", "gold_latex": "$\\boxed{20}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0019"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\$18.90", "gold_latex": "$\\boxed{\\$18.90}$", "checks": ["math_verify"], "item_id": "math-visible-0020"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{2}{3}", "gold_latex": "$\\boxed{\\frac{2}{3}}$", "checks": ["math_verify"], "item_id": "math-visible-0021"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "1736", "gold_latex": "$\\boxed{1736}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0022"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "5", "gold_latex": "$\\boxed{5}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0023"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{13}{6}", "gold_latex": "$\\boxed{\\frac{13}{6}}$", "checks": ["math_verify"], "item_id": "math-visible-0024"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "4", "gold_latex": "$\\boxed{4}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0025"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "6", "gold_latex": "$\\boxed{6}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0026"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "-2", "gold_latex": "$\\boxed{-2}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0027"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "12", "gold_latex": "$\\boxed{12}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0028"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "2", "gold_latex": "$\\boxed{2}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0029"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "-4", "gold_latex": "$\\boxed{-4}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0030"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "29", "gold_latex": "$\\boxed{29}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0031"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "28", "gold_latex": "$\\boxed{28}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0032"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "28800", "gold_latex": "$\\boxed{28800}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0033"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "19", "gold_latex": "$\\boxed{19}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0034"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{1}{2}", "gold_latex": "$\\boxed{\\frac{1}{2}}$", "checks": ["math_verify"], "item_id": "math-visible-0035"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "1940", "gold_latex": "$\\boxed{1940}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0036"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{13}{18}", "gold_latex": "$\\boxed{\\frac{13}{18}}$", "checks": ["math_verify"], "item_id": "math-visible-0037"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "144", "gold_latex": "$\\boxed{144}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0038"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{1}{2}", "gold_latex": "$\\boxed{\\frac{1}{2}}$", "checks": ["math_verify"], "item_id": "math-visible-0039"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "110", "gold_latex": "$\\boxed{110}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0040"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{1}{3}", "gold_latex": "$\\boxed{\\frac{1}{3}}$", "checks": ["math_verify"], "item_id": "math-visible-0041"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{3840}{289}", "gold_latex": "$\\boxed{\\frac{3840}{289}}$", "checks": ["math_verify"], "item_id": "math-visible-0043"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "145^\\circ", "gold_latex": "$\\boxed{145^\\circ}$", "checks": ["math_verify"], "item_id": "math-visible-0045"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{7}{2}", "gold_latex": "$\\boxed{\\frac{7}{2}}$", "checks": ["math_verify"], "item_id": "math-visible-0047"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "18+2\\pi", "gold_latex": "$\\boxed{18+2\\pi}$", "checks": ["math_verify"], "item_id": "math-visible-0048"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "1+2\\sqrt{3}", "gold_latex": "$\\boxed{1+2\\sqrt{3}}$", "checks": ["math_verify"], "item_id": "math-visible-0050"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "\\frac{14}{3}", "gold_latex": "$\\boxed{\\frac{14}{3}}$", "checks": ["math_verify"], "item_id": "math-visible-0051"}
+{"grader": "math_answer", "answer_format": "expression", "gold": "1\\frac{4}{5}", "gold_latex": "$\\boxed{1\\frac{4}{5}}$", "checks": ["math_verify"], "item_id": "math-visible-0052"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "204", "gold_latex": "$\\boxed{204}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0135"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "113", "gold_latex": "$\\boxed{113}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0136"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "371", "gold_latex": "$\\boxed{371}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0137"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "385", "gold_latex": "$\\boxed{385}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0138"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "110", "gold_latex": "$\\boxed{110}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0139"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "104", "gold_latex": "$\\boxed{104}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0140"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "721", "gold_latex": "$\\boxed{721}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0141"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "25", "gold_latex": "$\\boxed{25}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0142"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "809", "gold_latex": "$\\boxed{809}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0143"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "116", "gold_latex": "$\\boxed{116}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0144"}
+{"grader": "math_answer", "answer_format": "integer", "gold": "104", "gold_latex": "$\\boxed{104}$", "checks": ["integer_exact", "math_verify"], "item_id": "math-visible-0145"}

@@ -1,0 +1,3 @@
+For how many real values of $x$ is $\sqrt{120-\sqrt{x}}$ an integer?
+
+This problem's answer is an integer.

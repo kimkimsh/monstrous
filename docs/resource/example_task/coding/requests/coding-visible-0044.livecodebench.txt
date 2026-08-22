@@ -1,0 +1,88 @@
+## Problem: Heavy Snake
+
+There are N snakes.
+Initially, the thickness of the i-th snake is T_i, and its length is L_i.
+The weight of a snake is defined as the product of its thickness and length.
+For each integer k satisfying 1 \leq k \leq D, find the weight of the heaviest snake when every snake's length has increased by k.
+
+Input
+
+The input is given from Standard Input in the following format:
+N D
+T_1 L_1
+T_2 L_2
+\vdots
+T_N L_N
+
+Output
+
+Print D lines. The k-th line should contain the weight of the heaviest snake when every snake's length has increased by k.
+
+Constraints
+
+
+- 1 \leq N, D \leq 100
+- 1 \leq T_i, L_i \leq 100
+- All input values are integers.
+
+Sample Input 1
+
+4 3
+3 3
+5 1
+2 4
+1 10
+
+Sample Output 1
+
+12
+15
+20
+
+When every snake’s length has increased by 1, the snakes' weights become 12, 10, 10, 11, so print 12 on the first line.
+When every snake’s length has increased by 2, the snakes' weights become 15, 15, 12, 12, so print 15 on the second line.
+When every snake’s length has increased by 3, the snakes' weights become 18, 20, 14, 13, so print 20 on the third line.
+
+Sample Input 2
+
+1 4
+100 100
+
+Sample Output 2
+
+10100
+10200
+10300
+10400
+
+## How your solution is run
+
+Your answer is a single new file, `solution.py`. The judge
+starts from an empty repository, so create it with an edit block whose SEARCH
+section is empty, and make it complete and self-contained.
+
+The judge runs your file as a program. It reads its input from standard
+input and writes its answer to standard output, and nothing else.
+
+=== REQUIRED OUTPUT ===
+Your answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two
+patch markers:
+
+*** PATCH START ***
+path/to/file.py
+<<<<<<< SEARCH
+<the exact lines currently in the file>
+=======
+<the lines that replace them>
+>>>>>>> REPLACE
+*** PATCH END ***
+
+Rules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per
+edit; paths are relative to the repository root; SEARCH must be whole lines copied from
+the file; an empty SEARCH section creates a new file.
+
+Only what lies between *** PATCH START *** and *** PATCH END *** is graded.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+The full format specification, with worked examples and every failure code, is published
+as `docs/contracts/patch-format.md`.

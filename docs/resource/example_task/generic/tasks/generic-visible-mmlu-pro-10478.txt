@@ -1,0 +1,31 @@
+The procedure below is intended to display the index in a list of unique names (nameList) where a particular name (targetName) is found. lf targetName is not found in nameList, the code should display 0.
+ PROCEDURE FindName (nameList, targetName)
+ {
+  index ← 0
+  FOR EACH name IN nameList
+  {
+   index ← index + 1
+   IF (name = targetName)
+   {
+   foundIndex ← index
+   }
+   ELSE
+   {
+   foundIndex ← 0
+   }
+  }
+  DISPLAY (foundIndex)
+ }
+ Which of the following procedure calls can be used to demonstrate that the procedure does NOT Work as intended?
+
+Options:
+A. FindName (["Andrea", "Ben", "Chris", "Diane", "Eva", "Frank", "Grace", "Hannah", "Igor"], "Igor" )
+B. FindName (["Andrea", "Ben", "Chris", "Diane"], "Diane" )
+C. FindName (["Andrea", "Ben", "Chris", "Diane", "Eva", "Frank"], "Frank" )
+D. FindName (["Andrea", "Ben"], "Ben" )
+E. FindName (["Andrea", "Chris", "Diane"], "Ben")
+F. FindName (["Andrea", "Ben" ], "Diane" )
+G. FindName (["Andrea", "Ben", "Chris"], "Ben")
+H. FindName (["Andrea", "Ben", "Chris", "Diane", "Eva"], "Eva" )
+I. FindName (["Andrea", "Ben", "Chris", "Diane", "Eva", "Frank", "Grace", "Hannah"], "Hannah" )
+J. FindName (["Andrea", "Ben", "Chris", "Diane", "Eva", "Frank", "Grace"], "Grace" )

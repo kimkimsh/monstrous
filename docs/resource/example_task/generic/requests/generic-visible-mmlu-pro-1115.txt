@@ -1,0 +1,23 @@
+A man is the owner of record of a parcel of land designated as "A. " It is the highest of three neighboring properties on a mountain. The man's friend is the owner of parcel "B," which is situated lower than "A" on the mountainside. The man's cousin owns parcel "C," which lies below parcels "A" and "B" on the mountain slope. In 2000, the man who originally owned all three parcels of land constructed a private drainage system. This system consisted of an underground pipeline that extended across all three parcels of land. Sewage from parcel "A" drained through the system to a municipal sewer, which was located at the bottom of the mountain. In 2005, the man sold parcel "B" to his friend. The following year, the cousin purchased parcel "C" from the man. The deeds to the friend and the cousin did not contain any mention of the man's drainage system. Located on each of the parcels are large ranch-style homes occupied by the respective owners. From the standpoint of the friend and the cousin, thedrainage system would most likely be defined as a(an)
+
+Options:
+A. easement by necessity.
+B. profit à prendre.
+C. easement by implication.
+D. easement in gross.
+E. express easement.
+F. license.
+G. equitable servitude.
+H. easement appurtenant.
+I. natural easement.
+J. prescriptive easement.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

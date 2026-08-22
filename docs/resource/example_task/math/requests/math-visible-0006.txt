@@ -1,0 +1,10 @@
+What is the shortest distance from the point $(6, 0)$ to the line $y = 2x-2$? Express your answer in simplest radical form.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

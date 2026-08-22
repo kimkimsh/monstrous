@@ -1,0 +1,24 @@
+Construct a complete truth table for the following argument. Then, using the truth table, determine whether the argument is valid or invalid. If the argument is invalid, choose an option which presents a counterexample. (There may be other counterexamples as well.)
+~A · ~B
+(A ∨ C) ∨ B / C
+
+Options:
+A. Invalid. Counterexample when A, B, and C are all true
+B. Invalid. Counterexample when A, B, and C are all false
+C. Invalid. Counterexample when A and B are true and C is false
+D. Invalid. Counterexample when B is true and A and C are false
+E. Invalid. Counterexample when A and C are true and B is false
+F. Invalid. Counterexample when A is true and B and C are false
+G. Invalid. Counterexample when A is false and B and C are true
+H. Valid
+I. Invalid. Counterexample when C is true and A and B are false
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

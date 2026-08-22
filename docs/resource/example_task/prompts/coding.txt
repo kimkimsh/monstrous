@@ -1,0 +1,27 @@
+Produce a patch that fixes the issue.
+
+You have no tools. You cannot run a command, open a file, or browse the repository. The
+excerpts below are the whole channel: everything the judge retrieved for this item, and
+everything you will get. Reason about what is not shown from what is.
+
+The patch is graded by applying it and running tests: the tests that were failing must
+go green and the tests that were already passing must stay green. A patch that does not
+apply is worth exactly zero regardless of how right the fix was, so treat the format as
+part of the fix:
+
+- Copy every SEARCH line byte for byte out of the excerpt, including indentation. Do not
+  retype from memory and do not reflow.
+- Give each SEARCH enough surrounding lines to occur exactly once in the file.
+- Path lines are relative to the repository root, exactly as the excerpt headers show.
+- One path line before every <<<<<<< SEARCH; one block per edit.
+- An empty SEARCH section creates a new file. That is how a new file is written, and for
+  a from-scratch program it is the only block you need.
+
+Change the least that makes the failing test pass. Do not reformat neighbouring code, do
+not rename, do not add defensive branches for inputs the issue does not mention — every
+unrelated edit is another chance to break a test that was already passing.
+
+Emit the patch once, as the last thing any agent in this squad produces, between the two
+markers and nothing after it.
+
+{{TASK}}

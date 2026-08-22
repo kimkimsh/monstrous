@@ -1,0 +1,23 @@
+Mr. Torres owns 350 shares of Krescostock paying a quarterly dividend of $1.20 per share, with an extra year-end dividend of $.30 per share. What was his total income from the stock for the year?
+
+Options:
+A. $1,920
+B. $1,710
+C. $1,470
+D. $1,680
+E. $1,595
+F. $1,260
+G. $1,890
+H. $1,785
+I. $2,000
+J. $1,650
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

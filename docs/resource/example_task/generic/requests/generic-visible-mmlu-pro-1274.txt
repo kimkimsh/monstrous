@@ -1,0 +1,22 @@
+A state's constitution reserves to the people of each municipality in the state the power of referendum with respect to all questions that the municipality is authorized to control by legislation. A real estate developer applied for a zoning change to permit construction of a water park on land he owned in a city within the state. While the application was pending, the city's charter was amended by popular vote so as to require that any changes in land use agreed to by the city council be approved by a 55% vote in a referendum. The city planning commission and the city council both approved the proposed zoning change. However, the commission rejected the developer's subsequent application for "recreational area" approval for the proposed water park on the grounds that the council's rezoning action had not been submitted to a referendum. Assume that while the action was pending in the state court, the proposed zoning change was defeated in a referendum. Which would be the most applicable rule of constitutional law with respect to the referendum procedure when applied to a rezoning ordinance?
+
+Options:
+A. The referendum procedure is violative of the due process clause of the FourteenthAmendment.
+B. The referendum procedure is arbitrary and capricious and thus should be held invalid as an unlawful delegation of legislative power.
+C. The referendum procedure is not applicable in this context as it is only for state-wide legislation.
+D. The referendum procedure as a basic instrument of the democratic process does not violate the due process clause of the Fourteenth Amendment.
+E. The referendum procedure is a violation of the equal protection clause of the Fourteenth Amendment.
+F. The referendum procedure is valid only if it is not influenced by external factors.
+G. The referendum procedure is unconstitutional as it infringes on the rights of property owners.
+H. The referendum procedure is only applicable in cases of major legislative changes, not zoning changes.
+I. The referendum procedure in this context is invalid as against publicpolicy.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

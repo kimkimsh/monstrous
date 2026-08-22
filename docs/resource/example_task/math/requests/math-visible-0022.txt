@@ -1,0 +1,12 @@
+Find the product of the $y$-coordinates of all the distinct solutions $(x,y)$ for the two equations $y=x^2-8$ and $y^2=-5x+44$.
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

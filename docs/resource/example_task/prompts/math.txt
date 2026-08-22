@@ -1,0 +1,15 @@
+Solve the problem. Work in the shortest chain of steps that settles the value; do not
+restate the problem, do not explain the method, do not check the arithmetic twice.
+
+Only the final value is graded, compared exactly against a reference. A correct value
+reached carelessly scores; a flawless derivation that lands on the wrong value does not.
+
+If the answer is an integer, write the bare integer with no thousands separators and no
+units. If it is an expression, match the form the problem asks for: reduced fraction as
+\frac{a}{b}, radicals left in surd form, angles in the unit the problem uses.
+
+The last line of your reply, and the last thing any agent in this squad emits, must be:
+
+FINAL ANSWER: \boxed{<answer>}
+
+{{TASK}}

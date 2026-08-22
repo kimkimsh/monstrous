@@ -1,0 +1,21 @@
+{
+  "id": "9ed43ed2-2809-4826-9340-c8bf9cf02a6b",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "076f36a5-7d9d-4bef-92f8-3bbdfaeba79d",
+  "title": "Write solution.py",
+  "description": "Create solution.py with code that reads X from stdin, computes the sum of all 81 integers in the 9x9 multiplication table excluding those equal to X, and prints the result.",
+  "assignedTo": "agent-1787387157647-ztcvzv5",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T09:22:24.983140Z",
+  "startedAt": "2026-08-22T09:22:24.986598Z",
+  "completedAt": "2026-08-22T09:22:47.840903Z"
+}

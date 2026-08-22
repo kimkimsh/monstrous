@@ -1,0 +1,13 @@
+Determine whether the polynomial in Z[x] satisfies an Eisenstein criterion for irreducibility over Q. x^2 - 12
+
+Options:
+A. Yes, with p=4.
+B. No, because the polynomial is reducible.
+C. Yes, with p=1.
+D. No, because the polynomial does not satisfy the Eisenstein criterion.
+E. No.
+F. Yes, with p=12.
+G. Yes, with p=3.
+H. Yes, with p=5.
+I. Yes, with p=6.
+J. Yes, with p=2.

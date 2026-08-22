@@ -1,0 +1,13 @@
+Choose the correct option.
+
+Only the letter is graded. Reasoning you print is neither read nor rewarded, so print as
+little as you need to settle the choice — for most questions that is nothing.
+
+Choose only from the letters listed in the Options block above. The count varies by
+question and is not always A through J.
+
+The last line of your reply, and the last thing any agent in this squad emits, must be:
+
+ANSWER: <letter>
+
+{{TASK}}

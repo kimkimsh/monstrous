@@ -1,0 +1,23 @@
+Milgram (1965) found that participants in his study were more willing to administer electric shocks to another person when they couldn't see the victim and the victim couldn't see them. This ﬁnding is predicted by Zimbardo’s notion of:
+
+Options:
+A. bystander effect.
+B. conformity.
+C. psychological reactance.
+D. self-perception.
+E. self-verification.
+F. groupthink.
+G. deindividuation.
+H. social facilitation.
+I. cognitive dissonance.
+J. pluralistic ignorance.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

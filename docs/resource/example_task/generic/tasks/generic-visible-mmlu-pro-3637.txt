@@ -1,0 +1,13 @@
+Nitronyl nitroxides are stable radicals in which the unpaired electron is coupled to two equivalent nitrogen nuclei. How many lines will appear in the EPR spectrum of a solution of a rigid nitronyl nitroxide diradical with J >> a?
+
+Options:
+A. 8 lines
+B. 5 lines
+C. 2 lines
+D. 12 lines
+E. 9 lines
+F. 3 lines
+G. 4 lines
+H. 7 lines
+I. 10 lines
+J. 6 lines

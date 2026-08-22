@@ -1,0 +1,13 @@
+Which one of the following factors is likely to lead to a relatively high degree of out-of-sample forecast accuracy?
+
+Options:
+A. A model that contains many variables
+B. A model that is based on financial theory
+C. A model whose dependent variable has recently exhibited a structural change
+D. A model that heavily relies on subjective judgment
+E. A model that does not consider economic indicators
+F. A model that is entirely statistical in nature with no room for judgmental modification of forecasts
+G. A model that is based on a single variable
+H. A model that predicts based on historical trends only
+I. A model with a high degree of complexity
+J. A model that ignores market volatility

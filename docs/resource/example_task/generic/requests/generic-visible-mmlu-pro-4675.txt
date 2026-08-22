@@ -1,0 +1,23 @@
+In primates, the location of which of the following determines if it is a quadruped or biped?
+
+Options:
+A. the foramen magnum
+B. the skull
+C. the feet
+D. the femur
+E. the spine
+F. the pelvis
+G. the clavicle
+H. the vertebrae
+I. the ulna
+J. the radius
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.

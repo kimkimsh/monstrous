@@ -1,0 +1,13 @@
+In a nonrelativistic, one-dimensional collision, a particle of mass 2m collides with a particle of mass m at rest. If the particles stick together after the collision, what fraction of the initial kinetic energy is lost in the collision?
+
+Options:
+A. 2/5
+B. 1/2
+C. 4/5
+D. 1/5
+E. 3/4
+F. 1/4
+G. 1/3
+H. 2/3
+I. 0
+J. 3/5
