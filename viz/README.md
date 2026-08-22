@@ -100,33 +100,122 @@ bash viz/tools/snapshot-logs.sh squad/test viz/runs --watch 5
 판정은 응답 텍스트 검사로만 한다. **LLM 호출 0회.**
 AI:GO 는 에이전트가 응답을 반환하면 성공으로 보지만, judge 는 요구된 형식 안쪽만 읽는다.
 
-### 출력 계약은 문항마다 다르다
+### 트랙이 셋이고, 트랙마다 계약이 다르다
 
-요청 지문의 `=== REQUIRED OUTPUT ===` 절에서 읽는다. 실측된 두 가지:
+벤치마크는 `coding` · `math` · `generic` 세 트랙이다. 출처는 `auto_test/test_sample/` (121문항).
 
-| 계약 | 형식 | 트랙 |
-|---|---|---|
-| `patch` | `*** PATCH START ***` … SEARCH/REPLACE … `*** PATCH END ***` | coding |
-| `boxed` | `FINAL ANSWER: \boxed{<answer>}` | math |
+| 트랙 | 문항 | `kind` | 출력 계약 | grader |
+|---|---|---|---|---|
+| **coding** | 20 | `swebench` 13 · `livecodebench` 7 | `*** PATCH START ***` … SEARCH/REPLACE … `*** PATCH END ***` | `swebench_docker` · `livecodebench_tests` |
+| **math** | 59 | `math` | `FINAL ANSWER: \boxed{<answer>}` | `math_answer` |
+| **generic** | 42 | `letter_match` | `ANSWER: <letter>` (MMLU-Pro 객관식) | 보기 문자 대조 |
+
+트랙은 셋인데 **계약도 정확히 셋**이다. coding 은 swebench / livecodebench 로 갈리지만 계약은 patch 로 같다.
+
+**채점 가능 여부는 트랙마다 다르다.** generic 42/42, math 59/59, **coding 은 7/20**.
+swebench 13개는 데이터셋 자체가 `gradable: false` 이고 이유가 파일에 적혀 있다 —
+로컬에 Docker 이미지가 없어 채점이 불가능하다. 우리가 어떻게 할 수 있는 영역이 아니다.
 
 **계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판된다.**
 `\boxed{}` 안에는 `\frac{a}{b}` 같은 중첩 중괄호가 흔해서 정규식으로 못 자른다 — 짝을 세어 읽는다.
 
-`boxed` 의 `FINAL ANSWER:` 접두사는 **권장으로만** 본다. 지문은 요구하지만
-"여러 개면 마지막 것을 쓴다"는 규칙이 `\boxed{}` 를 가리키는 것으로 읽히고
-math_verify 계열 채점기는 보통 마지막 `\boxed{}` 만 뽑는다. 실제로 필수인지는 확인되지 않았으므로
-이것 하나로 "채점 불가"를 단정하지 않는다.
+접두사·대소문자처럼 **확인되지 않은 요구는 권장으로만** 본다.
+`boxed` 의 `FINAL ANSWER:` 접두사는 지문이 요구하지만, "여러 개면 마지막 것을 쓴다"는 규칙이
+`\boxed{}` 를 가리키는 것으로 읽히고 math_verify 계열 채점기는 보통 마지막 `\boxed{}` 만 뽑는다.
+`letter` 의 대문자 표기도 같다 — 채점기가 대소문자를 구분하는지는 확인되지 않았다.
+확인 안 된 것 하나로 "채점 불가"를 단정하지 않는다.
 
-**0점을 두 종류로 나눈다** — 합치면 "무엇을 고쳐야 하는가"가 화면에서 사라지기 때문이다.
+### 객관식은 보기 목록이 곧 계약이다
+
+`generic` 은 MMLU-Pro 객관식이다. 지문에 `Options:` 절과 `A.` … `J.` 가 붙어 있다.
+**그 절이 있다는 것 자체가 계약이다** — 보기 중 하나의 문자를 내면 되고, 채점기(`letter_match`)가
+보는 것도 그것뿐이다. 그래서 `=== REQUIRED OUTPUT ===` 절이 잘려 나갔어도 판정을 미루지 않는다.
+
+계약의 본문은 지문이 그대로 적어 준다.
+
+```
+End your answer with a line of exactly this form:
+ANSWER: <letter>
+Replace <letter> with the single letter of the option you choose,
+and write nothing else on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+```
+
+그래서 검사도 이 문장 그대로다.
+
+| 검사 | 근거 |
+|---|---|
+| `ANSWER:` 로 시작하는 줄이 있는가 (여러 개면 마지막) | "a line of exactly this form" · "the last one is used" |
+| 그 줄에 보기 문자 하나만 있는가 | "write nothing else on that line" |
+| 그 문자가 보기 목록 안에 있는가 | 목록 밖 문자는 채점되지 않는다 |
+| 대문자인가 — **권장** | 보기는 `A.`…`J.` 로 대문자다. 채점기가 구분하는지는 확인되지 않았다 |
+
+**앞에 다른 텍스트가 오는 것은 계약이 허용한다** ("ignored, not penalised"). 풀이를 길게 쓰고
+마지막에 `ANSWER: D` 를 붙이면 통과다.
+
+반대로 `ANSWER:` 줄 없이 문자만 덜렁 있는 것은 계약이 아니다 — "a line of exactly this form"
+이라고 못박혀 있다. 통과로 세지 않고 **"문자는 냈는데 줄 형태가 아니다"** 라고 따로 짚는다.
+
+**값은 맞히고 문자를 안 낸 경우를 따로 짚는다.**
+
+실측: 보기가 `D. $1,680` 인 문항에 스쿼드가 `FINAL ANSWER: \boxed{1680}` 을 냈다.
+계산은 맞았는데 `letter_match` 는 값이 아니라 문자를 보므로 0점이다.
+`D` 한 글자만 냈으면 점수가 됐다. 응답의 숫자를 보기 목록과 맞춰 보고 이 자리를 화면에 세운다.
+
+### 트랙은 계약이 없어도 알아본다
+
+계약이 있으면 계약이 곧 트랙이다. 문제는 **계약이 잘려 나간 지문**이다.
+
+실측: `squad/ikkim` 의 실행 13개 중 **6개가 `=== REQUIRED OUTPUT ===` 절 없이** 실행됐다.
+
+```
+Let $f(x)=\left\lfloor\left(-\frac58\right)^x\right\rfloor$ …
+What is the maximum value of $4(x + 7)(2 - x)$ … This problem's answer is an integer.
+The value of $y$ varies inversely as $\sqrt x$ …
+```
+
+원본 문항에는 boxed 계약이 분명히 붙어 있는데 실행에 들어간 지문에서만 빠졌다.
+`"This problem's answer is an integer."` 같은 꼬리는 남아 있으니 원본에서 **계약 절만** 잘린 것이다.
+
+모델은 `\boxed{}` 로 답하라는 말을 들은 적이 없다. 응답에 그 형식이 없는 게 당연하고 채점기는 0점을 준다.
+그래서 트랙은 남은 수식과 꼬리 문장으로도 찍는다 — 트랙을 알아야 **"어느 계약이 빠졌는지"** 를 말할 수 있다.
+
+**0점을 네 종류로 나눈다** — 합치면 "무엇을 고쳐야 하는가"가 화면에서 사라지기 때문이다.
 
 | | 뜻 | 고칠 수 있나 |
 |---|---|---|
-| **호출 거부** | 모델이 요청을 받지도 못했다 (컨텍스트 초과·인프라 오류) | 프롬프트·형식으로는 불가. 설정 문제 |
-| **마커 없음** | 실행됐고 답도 나왔는데 패치 마커가 없어 0점 | **★ 여기가 우리 영역** |
+| **호출 거부** | 모델이 요청을 받지도 못했다 (컨텍스트 초과·인프라 오류) | 프롬프트·형식으로는 불가. **설정** 문제 |
+| **계약 미전송** | 지문에 `=== REQUIRED OUTPUT ===` 절 자체가 없었다 | **★ 러너에서 고친다** |
+| **판정 보류** | 계약 절은 있는데 우리가 못 알아봤다 | **★ 검사기를 고친다** |
+| **답 형식 없음** | 계약도 보냈고 실행도 됐는데 형식이 안 나왔다 | **★ 프롬프트로 고친다** |
 
-비율은 **호출 거부를 분모에서 뺀 위에서만** 낸다.
+앞의 셋은 분모에서 뺀다. 비율은 **네 번째 위에서만** 낸다.
 
-(SWE-bench 2건은 컨텍스트 초과로 호출 거부 — 분모에서 빠진다)
+"계약 미전송"과 "판정 보류"를 합치면 안 된다. 하나는 러너가 보내지 않은 것이고
+다른 하나는 우리가 못 읽은 것이다. 고칠 사람이 다르다.
+
+실측 28개 실행: 호출 거부 5 · 계약 미전송 8 · 답 형식 없음 9 · 채점 적격 6.
+트랙은 coding 4 · math 22 · generic 2 로 갈린다.
+
+## 스쿼드가 스스로 찍은 트랙
+
+`LEDGER Squad` 는 응답 끝에 이런 줄을 남긴다.
+
+```
+{"a":"Reasoner","track":"math","conf":0.99}
+```
+
+스쿼드가 그 문항을 어느 트랙으로 봤는지가 여기 적혀 있고, **그게 곧 어느 출력 계약을 쓸지를 정한다.**
+그래서 지문에서 우리가 읽은 트랙과 나란히 놓는다. 전체 분석의 「스쿼드 라우팅」 카드다.
+
+실측 4건 중 **1건이 어긋났다.** MMLU-Pro 객관식 문항(`Options: A.`…`J.`)을 `math` 로 찍고
+`\boxed{1680}` 을 냈다. `conf` 는 **0.99** 였다.
+
+**확신도로는 이 오류를 걸러낼 수 없다.** 스쿼드는 확신했고, 확신한 채로 다른 트랙의 형식을 냈다.
+`Options:` 절이 있는지 같은 **지문의 모양으로 먼저 갈라야** 한다.
+
+마커를 남기는 스쿼드가 있을 때만 카드가 뜬다. 없는 데이터에 카드를 세우지 않는다.
 
 주의: 실패한 태스크도 `output` 에 `"Task assigned to \`X\` failed."` 라는 자리표시 문자열이 들어간다.
 출력 유무가 아니라 **태스크 상태**로 판정해야 한다.
