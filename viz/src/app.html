@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LEDGER · AI:GO Squad Trace Viewer</title>
+<title>monstrous · AI:GO Squad Trace Viewer</title>
 <style>
 :root{
   --bg:#0e1116; --panel:#151a21; --panel-2:#1b212a; --line:#242c37;
@@ -321,11 +321,15 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
   max-width:760px;animation:drop-in .5s cubic-bezier(.2,.8,.3,1) both}
 @keyframes drop-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-.mark{display:flex;align-items:center;gap:14px}
-.mark h1{font-size:34px;letter-spacing:.16em;line-height:1;margin:0;
+.mark{display:flex;align-items:center;gap:14px;margin-top:22px}
+/* 좁은 창에서 워드마크가 언어 콤보 밑으로 파고들지 않게 폭에 맞춰 줄인다. */
+.mark h1{font-size:clamp(21px,6.4vw,34px);letter-spacing:.04em;line-height:1;margin:0;
   background:linear-gradient(100deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;
   color:transparent}
 .mark-sub{font-size:10.5px;letter-spacing:.22em;color:var(--fg-faint);margin-top:5px;text-transform:uppercase}
+/* 만든 사람들. 화면을 차지하면 안 되므로 맨 아래에 흐리게 둔다. 메일은 title 로 넘긴다. */
+.drop-team{margin-top:20px;font-size:9.5px;letter-spacing:.08em;color:var(--fg-faint);opacity:.55}
+.drop-team:hover{opacity:1}
 .mark-dot{width:13px;height:13px;border-radius:50%;background:var(--accent);
   box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent);animation:mark-pulse 2.4s ease-out infinite}
 @keyframes mark-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
@@ -363,7 +367,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 <body>
 <div class="app">
   <header>
-    <div class="brand">LEDGER<small id="src">no logs loaded</small></div>
+    <div class="brand">monstrous<small id="src">no logs loaded</small></div>
     <div class="stat"><span>실행</span><b id="s-exec">—</b><em id="s-exec-d"></em></div>
     <div class="stat"><span>AI:GO 성공</span><b id="s-aigo">—</b><em>AI:GO 자체 판정</em></div>
     <div class="stat"><span>채점 적격</span><b id="s-grad">—</b><em id="s-grad-d">요구된 답 형식 검사 · LLM 호출 0회</em></div>
@@ -467,7 +471,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="mark">
       <span class="mark-dot"></span>
       <div>
-        <h1>LEDGER</h1>
+        <h1>monstrous</h1>
         <div class="mark-sub">AI:GO Squad Trace Viewer</div>
       </div>
     </div>
@@ -498,6 +502,11 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
       <div><code>artifacts/</code> 에이전트가 워크스페이스에 쓴 파일</div>
       <div class="muted"><code>logs/index.json</code> 은 history.json 에서 유도할 수 있어 무시합니다</div>
     </details>
+
+    <div class="drop-team" translate="no">Team Monstrous ·
+      <span title="shkimkim1919@gmail.com">SEONGHYEON KIM</span> ·
+      <span title="2543kt@gmail.com">JUHYEONG LEE</span> ·
+      <span title="xhtlal123@gmail.com">ILKWON KIM</span></div>
   </div>
   <div class="err" id="derr"></div>
   <div class="files" id="dfiles"></div>
@@ -2606,7 +2615,12 @@ $("#btn-dir").onclick=()=>$("#in-dir").click();
 $("#btn-file").onclick=()=>$("#in-file").click();
 $("#in-dir").onchange=e=>loadEntries(asEntries(e.target.files));
 $("#in-file").onchange=e=>loadEntries(asEntries(e.target.files));
-$("#btn-load").onclick=()=>{$("#drop").hidden=false;setDerr(null);};
+/* 폴더 다시 고르기 = 처음 화면으로. 주소에 붙은 인자는 이전 폴더의 실행 id 를 가리키고 있어
+   새 폴더에서는 맞지 않는다. 그대로 두면 링크를 건넸을 때 없는 실행을 찾는다. */
+$("#btn-load").onclick=()=>{
+  $("#drop").hidden=false; setDerr(null);
+  try{ history.replaceState(null,"",location.pathname+location.search); }catch{}
+};
 ["dragenter","dragover"].forEach(t=>document.addEventListener(t,ev=>{
   ev.preventDefault(); $("#drop").hidden=false; $("#drop").classList.add("over");}));
 document.addEventListener("dragleave",ev=>{ev.preventDefault();$("#drop").classList.remove("over");});
@@ -2859,7 +2873,7 @@ $("#btn-export").onclick=()=>{
   const rect=svg.getBoundingClientRect();
   if(!c.getAttribute("viewBox")&&rect.width) c.setAttribute("viewBox",`0 0 ${rect.width} ${rect.height}`);
   c.setAttribute("style",`background:${cs.getPropertyValue("--bg").trim()}`);
-  download("ledger-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
+  download("monstrous-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
 };
 $("#btn-json").onclick=()=>{
   const out={
@@ -2877,7 +2891,7 @@ $("#btn-json").onclick=()=>{
         durationMs:t.durationMs,tokenEstimated:t.tok||0,gradable:t.answer.gradable,
         checks:t.answer.checks.map(k=>({check:k.k,ok:k.ok,detail:k.d}))}))
     }))};
-  download("ledger-normalized.json",JSON.stringify(out,null,2),"application/json");
+  download("monstrous-normalized.json",JSON.stringify(out,null,2),"application/json");
 };
 </script>
 </body>
