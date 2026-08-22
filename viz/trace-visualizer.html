@@ -587,6 +587,7 @@ const CONTRACT={
   boxed  :{label:"FINAL ANSWER",  spec:"FINAL ANSWER: \\boxed{<answer>}"},
   letter :{label:"ANSWER: <보기>", spec:"ANSWER: <letter> (줄에 다른 것 없이)"},
   missing:{label:"계약 미전송",   spec:"요청 지문에 === REQUIRED OUTPUT === 절이 없음"},
+  none   :{label:"문항 아님",     spec:"세 트랙 중 어느 형식도 아닙니다"},
   unknown:{label:"출력 계약 불명", spec:"요청 지문에서 계약을 찾지 못함"}
 };
 const REQOUT="=== REQUIRED OUTPUT ===";
@@ -603,6 +604,11 @@ function contractOf(request){
   // 보기 중 하나의 문자 하나이고, 채점기(letter_match)가 보는 것도 그것뿐이다.
   // 그래서 이 경우는 판정을 미루지 않는다.
   if(/^Options:\s*$/m.test(r)&&optionsOf(r).length>=2) return "letter";
+  // 세 트랙 중 어느 것으로도 안 보이면 벤치마크 문항이 아니다.
+  // 실측: test_4 의 실행 10건이 전부 "안녕" 두 글자였다. 스모크 테스트다.
+  // 이걸 "계약 미전송"으로 세면 러너가 계약을 빠뜨린 건수가 부풀려진다 —
+  // 아무도 빠뜨리지 않았고, 애초에 채점 대상이 아니다.
+  if(trackOf(r)==="unknown") return "none";
   // 계약 절이 통째로 없으면 모델이 형식을 들은 적이 없다는 뜻이다. 못 알아본 것과 구분한다.
   if(!r.includes(REQOUT)) return "missing";
   return "unknown";
@@ -698,9 +704,10 @@ function inspectLetter(text,options){
 
 /* 채점 판정 한 줄. 같은 분기를 곳곳에 복사해 두면 분류가 하나 늘 때마다 어긋난다.
    실제로 "계약 미전송"을 넣으면서 여덟 군데가 동시에 틀렸다. */
-const UNDECIDED=new Set(["blocked","unknown","nocontract"]);
+const UNDECIDED=new Set(["blocked","unknown","nocontract","notitem"]);
 function verdictOf(e){
   if(e.gradable)               return {k:"ok",  label:"채점 적격"};
+  if(e.blocker==="notitem")    return {k:"",    label:"문항 아님"};
   if(e.blocker==="blocked")    return {k:"warn",label:"실행 불가"};
   if(e.blocker==="nocontract") return {k:"warn",label:"계약 미전송"};
   if(e.partial)                return {k:"",    label:"부분 기록"};
@@ -745,13 +752,14 @@ function inspectBoxed(text){
 function inspectAnswer(text,kind,options){
   if(kind==="boxed")  return inspectBoxed(text);
   if(kind==="letter") return inspectLetter(text,options);
-  if(kind==="unknown"||kind==="missing"){
+  if(kind==="unknown"||kind==="missing"||kind==="none"){
     // 계약을 모르면 판정하지 않는다. 모르는 것을 "불합격"으로 적으면 화면이 거짓말을 한다.
-    // 다만 두 경우의 이유는 다르다 — 못 알아본 것과, 애초에 보내지 않은 것.
+    // 세 경우의 이유가 서로 다르다 — 못 알아본 것, 보내지 않은 것, 애초에 문항이 아닌 것.
     const t=String(text||"");
     return {gradable:null, kind, text:t, si:-1, ei:-1, body:"",
       checks:[{k:CONTRACT[kind].label, ok:null,
         d:kind==="missing"?"요청 지문에 출력 계약이 없어 모델이 형식을 들은 적이 없습니다"
+         :kind==="none"?"세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다"
                           :"이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다"}]};
   }
   const t=String(text||""), checks=[];
@@ -1146,6 +1154,7 @@ function build(){
     // "Task assigned to `X` failed." 라는 자리표시 문자열이 들어간다. 상태로 판단한다.
     const anyDone=tasks.some(t=>t.status==="completed"||t.status==="done");
     const blocker=grad?null
+      :contract==="none"?"notitem"                                // 벤치마크 문항이 아니다
       :contract==="missing"?"nocontract"                          // 계약을 안 보냈다
       :contract==="unknown"?"unknown"                             // 계약을 못 알아봤다
       :(!anyDone&&tasks.some(t=>t.fail))?"blocked":"markers";
@@ -1508,6 +1517,15 @@ const EN={
   "에는 결과가 들어 있는데 응답 텍스트에는 채점기가 가져갈 형식이 없습니다. 이 실행은 애초에 형식을 요구받지 않았습니다.":
     "holds the result, but the response text carries no format for the grader to take. This run was never asked for one.",
   "계약 미전송 {0}건 제외":"{0} with no contract sent excluded",
+  // 벤치마크 문항이 아닌 실행 ("안녕" 같은 스모크 테스트)
+  "문항 아님":"not an item","벤치마크 문항 아님":"not a benchmark item",
+  "문항 아님 {0}건 제외":"{0} not benchmark items excluded","문항 아님 {0}":"{0} not items",
+  "벤치마크 문항 형식이 아님":"not in any benchmark item format",
+  "세 트랙 중 어느 형식도 아닙니다":"matches none of the three track formats",
+  "세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다":
+    "matches none of the three track formats, so it is not up for grading",
+  ". 세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다":
+    ". It matches none of the three track formats, so it is not up for grading",
   "계약 미전송 {0}":"{0} no contract sent",
   "ANSWER: 줄":"ANSWER: line","보기 문자 하나":"a single option letter",
   "대문자 표기 (권장)":"uppercase form (advisory)",
@@ -1904,10 +1922,12 @@ function renderHeader(){
   const nBlocked=S.execs.filter(e=>e.blocker==="blocked").length;
   const nUnknown=S.execs.filter(e=>e.blocker==="unknown").length;
   const nNoCtr =S.execs.filter(e=>e.blocker==="nocontract").length;
+  const nNotItem=S.execs.filter(e=>e.blocker==="notitem").length;
   $("#s-grad").textContent=gradRan+" / "+ran.length;
   $("#s-grad").style.color=ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)";
   $("#s-grad-d").textContent=[
     nBlocked?tn("실행 불가 {0}건 제외",nBlocked):"",
+    nNotItem?tn("문항 아님 {0}건 제외",nNotItem):"",
     nNoCtr?tn("계약 미전송 {0}건 제외",nNoCtr):"",
     nUnknown?tn("계약 불명 {0}건 제외",nUnknown):"",
     tn("답 형식 없음 {0}건",ran.length-gradRan)
@@ -1994,6 +2014,7 @@ function runSummaryCard(inner){
   const blocked=S.execs.filter(x=>x.blocker==="blocked");
   const unk=S.execs.filter(x=>x.blocker==="unknown");
   const noctr=S.execs.filter(x=>x.blocker==="nocontract");
+  const notitem=S.execs.filter(x=>x.blocker==="notitem");
   const gradRan=ran.filter(x=>x.gradable).length;
   const rows=S.execs.map(x=>{
     const dim=UNDECIDED.has(x.blocker);
@@ -2001,6 +2022,7 @@ function runSummaryCard(inner){
     const pill=[v.k, v.label==="채점 적격"?"적격":v.label];
     const why=x.gradable?"—"
       :x.blocker==="blocked"?t("호출 거부")+(x.blockKind?" · "+x.blockKind:"")
+      :x.blocker==="notitem"?t("벤치마크 문항 형식이 아님")
       :x.blocker==="nocontract"?t("지문에 === REQUIRED OUTPUT === 절이 없음")
       :x.partial?t("부분 기록. history.json 에 없음"):x.blocker==="unknown"?t("출력 계약을 못 읽음")
       :REAL_CONTRACT.has(x.contract)?`${t(CONTRACT[x.contract].label)} 없음`:t("형식 없음");
@@ -2027,6 +2049,7 @@ function runSummaryCard(inner){
       <div class="stat"><span>AI:GO 성공</span><b style="font-size:19px">${aigo} / ${n}</b><em>태스크 실패 0건</em></div>
       <div class="stat"><span>판정 가능</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${
         [blocked.length?tn("호출 거부 {0}",blocked.length):"",
+         notitem.length?tn("문항 아님 {0}",notitem.length):"",
          noctr.length?tn("계약 미전송 {0}",noctr.length):"",
          unk.length?tn("계약 불명 {0}",unk.length):""].filter(Boolean).join(" · ")||t("전부 판정됨")} ${t("제외")}</em></div>
       <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
@@ -2064,6 +2087,7 @@ function paneOverview(P,e){
       })()}</dd>`:""}
       <dt>채점 적격</dt><dd>${e.gradable
         ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있습니다`
+        :e.blocker==="notitem"?`<span class="pill">문항 아님</span>. 세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다`
         :e.blocker==="nocontract"?`<span class="pill warn">계약 미전송</span>. 요청 지문에 <code>=== REQUIRED OUTPUT ===</code> 절이 없어 모델이 형식을 들은 적이 없습니다`
         :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었습니다`
         :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span>. 호출이 거부돼 응답 자체가 없습니다`
@@ -2156,6 +2180,8 @@ const svgEl=(t,a={},kids=[])=>{const n=document.createElementNS(NS,t);
    트랙마다 출력 계약이 다르므로, 전체를 한 숫자로 합치면 어느 트랙이 새는지가 사라진다.
    문항 수도 트랙마다 다르다 (실측 데이터셋: coding 20 · math 59 · generic 42). */
 function trackCard(X){
+  // 트랙이 unknown 인 것은 벤치마크 문항이 아니다(실측: "안녕" 두 글자 스모크 테스트).
+  // 트랙 표에 한 줄로 세우되 적격률은 내지 않는다 — 분모에 넣으면 숫자가 거짓말을 한다.
   const keys=["coding","math","generic","unknown"].filter(k=>X.some(e=>e.track===k));
   if(keys.length<1) return "";
   const rows=keys.map(k=>{
@@ -2164,8 +2190,9 @@ function trackCard(X){
     const grad=ran.filter(e=>e.gradable).length;
     const noctr=mine.filter(e=>e.blocker==="nocontract").length;
     const blocked=mine.filter(e=>e.blocker==="blocked").length;
+    const notitem=mine.filter(e=>e.blocker==="notitem").length;
     const tok=mine.reduce((s,e)=>s+billed(e),0);
-    return {k, n:mine.length, ran:ran.length, grad, noctr, blocked, tok};
+    return {k, n:mine.length, ran:ran.length, grad, noctr, blocked, notitem, tok};
   });
   const maxN=Math.max(1,...rows.map(r=>r.n));
   return `<div class="card"><h2>${t("트랙별")}</h2>
@@ -2178,7 +2205,7 @@ function trackCard(X){
           <th class="n">${t("토큰")}</th><th></th></tr>`+
     rows.map(r=>`<tr>
       <td><span class="pill trk" style="border-color:${TRACK[r.k].c};color:${TRACK[r.k].c}">${TRACK[r.k].label}</span></td>
-      <td><code style="font-size:10px">${esc(t(CONTRACT[TRACK[r.k].contract].spec))}</code></td>
+      <td><code style="font-size:10px">${r.k==="unknown"?esc(t("벤치마크 문항 아님")):esc(t(CONTRACT[TRACK[r.k].contract].spec))}</code></td>
       <td class="n">${r.n}</td><td class="n">${r.ran}</td>
       <td class="n"${r.ran&&r.grad<r.ran?' style="color:var(--bad)"':""}>${r.ran?`${r.grad} / ${r.ran}`:"—"}</td>
       <td class="n"${r.noctr?' style="color:var(--warn)"':""}>${r.noctr||"—"}</td>
