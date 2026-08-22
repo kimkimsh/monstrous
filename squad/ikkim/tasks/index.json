@@ -96,5 +96,41 @@
     ],
     "createdAt": "2026-08-22T12:19:16.092982081Z",
     "completedAt": "2026-08-22T12:19:45.633055990Z"
+  },
+  {
+    "id": "5bc968a0-e034-4cad-8678-375a308e216a",
+    "squadId": "a9b9db2b-694f-44e6-9a2a-0dd8ece6b36a",
+    "planId": "33f1e322-7b90-4852-b9b8-5ea7ea8012f3",
+    "title": "보안 리뷰어: For how many real values of $x$ is $\\sqrt{120-\\sqrt{x}}$ an integer?\n\nThis problem's answer is an in",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787401886360-pqmj5t6",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T12:39:06.104989868Z",
+    "completedAt": "2026-08-22T12:48:07.664892135Z"
+  },
+  {
+    "id": "4d09f00b-13e8-45c1-870b-18a1e39d3f6b",
+    "squadId": "a9b9db2b-694f-44e6-9a2a-0dd8ece6b36a",
+    "planId": "33f1e322-7b90-4852-b9b8-5ea7ea8012f3",
+    "title": "성능 리뷰어: For how many real values of $x$ is $\\sqrt{120-\\sqrt{x}}$ an integer?\n\nThis problem's answer is an in",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787401886360-9104zod",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T12:39:06.105790028Z",
+    "completedAt": "2026-08-22T12:42:06.425079524Z"
+  },
+  {
+    "id": "4fd69115-972a-44de-8ea9-d2e4ab10bd8a",
+    "squadId": "a9b9db2b-694f-44e6-9a2a-0dd8ece6b36a",
+    "planId": "33f1e322-7b90-4852-b9b8-5ea7ea8012f3",
+    "title": "스타일 리뷰어: For how many real values of $x$ is $\\sqrt{120-\\sqrt{x}}$ an integer?\n\nThis problem's answer is an in",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787401886360-lvc4m09",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T12:39:06.106691391Z",
+    "completedAt": "2026-08-22T12:45:07.042007720Z"
   }
 ]
