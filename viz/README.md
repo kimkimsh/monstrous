@@ -1,19 +1,19 @@
 # viz — LEDGER: AI:GO Squad Trace Viewer
 
-AI:GO 워크스페이스의 `logs/` 폴더를 고르면 실행 목록이 뜨고, 그중 하나를 골라 분석하는 **단일 HTML 파일**.
+AI:GO **워크스페이스 폴더**를 고르면 실행 목록이 뜨고, 그중 하나를 골라 분석하는 **단일 HTML 파일**.
 백엔드 없음, 빌드 도구 없음, CDN 없음, 네트워크 의존 0.
 
 ```bash
 bash viz/tools/build.sh                    # → viz/trace-visualizer.html
-bash viz/tools/build.sh path/to/logs       # 다른 로그를 샘플로 임베드
 ```
 
-`viz/trace-visualizer.html`을 더블클릭하면 끝이다. 샘플이 파일 안에 들어 있어 첫 화면에서 바로 열린다.
+`viz/trace-visualizer.html` 을 더블클릭한 뒤 **AI:GO 워크스페이스 폴더**를 고르면 된다.
+`logs/` 가 아니라 그 상위 폴더다. `.squad.json` 과 `tasks/`, `artifacts/` 가 거기 있다.
 
 | 파일 | 역할 |
 |---|---|
 | `src/app.html` | 앱 원본 |
-| `tools/build.sh` | 샘플을 끼워 단일 파일로 합침 |
+| `tools/build.sh` | 산출물 생성 + 외부 요청·잔재 마커 검사 |
 | `tools/snapshot-logs.sh` | **로그 스냅샷** — 아래 "로그는 덮어써진다" 참고 |
 | `trace-visualizer.html` | **산출물.** 이것만 있으면 된다 |
 | `runs/` | 스냅샷 보관 디렉토리 (gitignore 대상) |
@@ -22,7 +22,7 @@ bash viz/tools/build.sh path/to/logs       # 다른 로그를 샘플로 임베�
 
 ## 입력
 
-**폴더를 고르거나 끌어다 놓는다.** 파일 개수가 실행 수에 따라 변하기 때문에 개수를 세지 않는다.
+**워크스페이스 폴더를 고르거나 끌어다 놓는다.** `logs/` 만 넣으면 `.squad.json` 과 `artifacts/` 를 놓친다.
 스냅샷 폴더 여러 개를 한꺼번에 넣어도 되고, **`executionId` 로 중복을 제거해 병합**한다.
 
 읽는 파일 (이름으로 판별):
@@ -33,7 +33,8 @@ bash viz/tools/build.sh path/to/logs       # 다른 로그를 샘플로 임베�
 | `events.jsonl` | **★ 필수** | **웨이브 구조**, `plannerWarning`, 토큰 시계열, 실패 에러 |
 | `<executionId>.jsonl` | 선택 | 사람이 읽는 로그 (`level` 구분) |
 | `tasks/*.json` | 선택 | `dependsOn` (태스크 의존 관계) |
-| **Squad Template JSON** | 선택 | **스쿼드 구성(로스터)** — 아래 참고 |
+| **`.squad.json`** | **★ 강력 권장** | **스쿼드 구성·모델·도구·시스템 프롬프트** (아래 참고) |
+| `artifacts/*` | 선택 | 에이전트가 워크스페이스에 쓴 파일 (아래 참고) |
 | `index.json` | 무시 | `history.json` 에서 전부 유도 가능 |
 
 ### 스쿼드 구성은 로그에 없다
@@ -45,13 +46,21 @@ bash viz/tools/build.sh path/to/logs       # 다른 로그를 샘플로 임베�
 3명뿐인데 실제 스쿼드는 **4명**이었다. 4번째는 플래너다 — 계획만 세우고 태스크를 받지 않으므로
 `agentId` 도 `agentName` 도 로그에 없고, `plan-ready` 이벤트가 났다는 사실로만 존재를 안다.
 
-그래서 뷰어는 두 가지를 한다.
+`.squad.json` 이 없으면 전 실행에 걸친 합집합으로 로스터를 만들고, 계획 이벤트가 있으면
+`(플래너)` 자리만 세운다. 추론이라 이름도 모델도 알 수 없다.
 
-1. **전 실행에 걸친 합집합**으로 로스터를 만든다 — 한 실행만 봐도 전원이 보인다
-2. 계획 이벤트가 있으면 `(플래너)` 자리를 세운다
+**`.squad.json` 이 답이다.** 워크스페이스 최상위에 있고 여기에 전부 들어 있다.
 
-정확한 구성을 보려면 제출용 **Squad Template JSON** 을 같이 넣어라. `agents` 배열이 있으면
-그것을 권위 있는 로스터로 삼고 역할·모델까지 표시한다. 그 파일이 로스터의 유일한 출처다.
+| 필드 | 내용 |
+|---|---|
+| `config.agents[].name` / `.icon` | 이름과 아이콘 |
+| `config.agents[].role` | `{type:"planner"}` 또는 `{type:"custom", value:"Backend Developer"}` |
+| `config.agents[].modelPreferences.preferredModelId` | **모델 이름.** 로그에는 없다 |
+| `config.agents[].toolConfig.enabledTools` | 그 에이전트가 쓸 수 있는 도구 |
+| `config.agents[].systemPrompt` | 시스템 프롬프트 전문 |
+| `config.plannerAgentId` | 플래너가 누구인지 |
+
+실측값: 8개 에이전트 전부 `unsloth/gpt-oss-20b`.
 
 둘 다 없으면 안 된다 — `events.jsonl` 에는 `agentName` 이 없고(`agentId` 만), `history.json` 에는 웨이브와 `plannerWarning` 이 없다. 실측으로 확인했다.
 
@@ -114,7 +123,7 @@ math_verify 계열 채점기는 보통 마지막 `\boxed{}` 만 뽑는다. 실�
 | **마커 없음** | 실행됐고 답도 나왔는데 패치 마커가 없어 0점 | **★ 여기가 우리 영역** |
 
 비율은 **호출 거부를 분모에서 뺀 위에서만** 낸다.
-현재 샘플 기준: 실행된 것 1/3 · **그중 채점 적격 0/1**.
+
 (SWE-bench 2건은 컨텍스트 초과로 호출 거부 — 분모에서 빠진다)
 
 주의: 실패한 태스크도 `output` 에 `"Task assigned to \`X\` failed."` 라는 자리표시 문자열이 들어간다.
@@ -207,3 +216,27 @@ judge 에게 실제로 전달되는 것이 어느 쪽인지 아직 확인되지 
 2. **출력 계약 강제.** 워크스페이스에 파일을 쓰지 말고 최종 응답 텍스트에 패치 블록을 낼 것 — judge 는 워크스페이스를 보지 않는다
 3. 로그에 모델 이름 남기기
 4. 태스크 완료 시 에이전트별 토큰 델타 기록 (지금은 일부 에이전트가 업데이트를 아예 못 받는다)
+
+---
+
+## artifacts/ — 답을 파일에만 쓴 경우
+
+에이전트에게 `write_file` 도구가 열려 있으면 결과를 워크스페이스 파일로 쓴다.
+**judge 는 워크스페이스를 읽지 않는다. 응답 텍스트만 읽는다.**
+
+실측: `squad/test_2/artifacts/final_answer.txt` 에
+
+```
+Final amount: **≈ $32,328**
+```
+
+가 들어 있는데 응답 텍스트에는 `FINAL ANSWER: \boxed{}` 가 없다. 답은 나왔지만 0점이다.
+같은 일이 `solution.py`, `distance_squared.py`, `final_amount.txt` 에서도 일어났다.
+
+뷰어는 `artifacts/` 를 읽어 파일 목록을 보여주고, 이름에 `final` / `answer` / `solution` / `result`
+가 들어간 파일이 있는데 응답이 채점 불가면 **경고를 띄운다.**
+`artifacts/reports/` 는 AI:GO 가 만든 실행 요약이라 제외한다. 에이전트가 쓴 것이 아니다.
+
+원인은 프롬프트에 있다. `.squad.json` 의 `systemPrompt` 는 "구현하세요", "작성하세요"라고만
+말하고 출력 계약을 한 번도 언급하지 않는다. 도구가 열려 있고 프롬프트가 파일 작업을 시키면
+파일을 쓰는 쪽이 자연스러운 행동이다.
