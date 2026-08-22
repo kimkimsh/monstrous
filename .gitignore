@@ -66,3 +66,6 @@ docs/resource/example_task/runs/*
 
 # 로그 스냅샷 (원본은 squad/ 에 있다)
 viz/runs/
+
+# Browser console logs from MCP browser tooling
+.playwright-mcp/
