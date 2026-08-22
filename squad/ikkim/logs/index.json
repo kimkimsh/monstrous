@@ -89,5 +89,47 @@
     "startedAt": "2026-08-22T13:36:46.990309918Z",
     "lastUpdatedAt": "2026-08-22T13:36:54.061376112Z",
     "entryCount": 5
+  },
+  {
+    "executionId": "7794a4e8-4b01-4c49-9693-87c3dc97a74f",
+    "squadId": "a9b9db2b-694f-44e6-9a2a-0dd8ece6b36a",
+    "startedAt": "2026-08-22T14:32:20.792326734Z",
+    "lastUpdatedAt": "2026-08-22T14:40:57.453856289Z",
+    "entryCount": 10
+  },
+  {
+    "executionId": "8560ac50-d03f-47e7-aeb7-be796d3316a1",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "startedAt": "2026-08-22T14:47:05.323252614Z",
+    "lastUpdatedAt": "2026-08-22T14:48:17.241658730Z",
+    "entryCount": 7
+  },
+  {
+    "executionId": "39c5fa9c-d0c4-484d-a3cf-1fa29e781cf1",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "startedAt": "2026-08-22T14:54:11.339007686Z",
+    "lastUpdatedAt": "2026-08-22T14:55:09.664643954Z",
+    "entryCount": 13
+  },
+  {
+    "executionId": "1e7fc033-39a7-43f8-bbba-3f9cb968c4ce",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "startedAt": "2026-08-22T14:57:34.290892191Z",
+    "lastUpdatedAt": "2026-08-22T14:57:37.033269752Z",
+    "entryCount": 9
+  },
+  {
+    "executionId": "24a7f551-f28b-4c5e-bef3-ab911c5c56b8",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "startedAt": "2026-08-22T14:59:21.186255178Z",
+    "lastUpdatedAt": "2026-08-22T14:59:57.012214623Z",
+    "entryCount": 14
+  },
+  {
+    "executionId": "7a00a4d5-40b8-4e1a-9352-95460844ad7f",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "startedAt": "2026-08-22T15:08:07.712163242Z",
+    "lastUpdatedAt": "2026-08-22T15:09:44.420699020Z",
+    "entryCount": 13
   }
 ]

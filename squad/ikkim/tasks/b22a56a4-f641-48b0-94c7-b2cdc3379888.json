@@ -1,0 +1,21 @@
+{
+  "id": "b22a56a4-f641-48b0-94c7-b2cdc3379888",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "d668297d-c530-4e0b-a247-0c82450ae664",
+  "title": "Determine domain of (-5/8)^x",
+  "description": "Determine the domain of real numbers x≥0 for which the expression (-5/8)^x is defined as a real number. Identify the set of such x values, including any restrictions on rational exponents with odd denominators.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T14:54:11.346818468Z",
+  "startedAt": "2026-08-22T14:54:44.287196168Z",
+  "completedAt": "2026-08-22T14:55:00.498264691Z"
+}

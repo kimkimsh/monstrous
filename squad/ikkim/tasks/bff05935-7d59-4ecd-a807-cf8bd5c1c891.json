@@ -1,0 +1,21 @@
+{
+  "id": "bff05935-7d59-4ecd-a807-cf8bd5c1c891",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "18ead8dc-af41-460d-9fe7-7e1a86f9affb",
+  "title": "Find integer k values",
+  "description": "Determine the integer values of k such that sqrt(120 - sqrt(x)) = k is integer, and express x in terms of k.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T14:47:05.326527401Z",
+  "startedAt": "2026-08-22T14:47:05.329841659Z",
+  "completedAt": "2026-08-22T14:47:44.009367468Z"
+}

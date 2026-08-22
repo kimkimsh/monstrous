@@ -1,0 +1,21 @@
+{
+  "id": "dd71a215-58d1-4af2-a72d-2bf5635da4c7",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "9beef237-85c4-495d-b2d0-c77818ece69f",
+  "title": "Extract Key Facts",
+  "description": "Extract key facts from the scenario, including ownership, drainage system details, and transaction dates.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T15:08:07.721143488Z",
+  "startedAt": "2026-08-22T15:09:31.716950388Z",
+  "completedAt": "2026-08-22T15:09:43.613834715Z"
+}
