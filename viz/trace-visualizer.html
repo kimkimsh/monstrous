@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LEDGER — AI:GO Squad Trace Viewer</title>
+<title>LEDGER · AI:GO Squad Trace Viewer</title>
 <style>
 :root{
   --bg:#0e1116; --panel:#151a21; --panel-2:#1b212a; --line:#242c37;
@@ -252,7 +252,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="brand">LEDGER<small id="src">no logs loaded</small></div>
     <div class="stat"><span>실행</span><b id="s-exec">—</b><em id="s-exec-d"></em></div>
     <div class="stat"><span>AI:GO 성공</span><b id="s-aigo">—</b><em>AI:GO 자체 판정</em></div>
-    <div class="stat"><span>채점 적격</span><b id="s-grad">—</b><em id="s-grad-d">패치 마커 검사 · LLM 호출 0회</em></div>
+    <div class="stat"><span>채점 적격</span><b id="s-grad">—</b><em id="s-grad-d">요구된 답 형식 검사 · LLM 호출 0회</em></div>
     <div class="stat"><span>총 토큰</span><b id="s-tok">—</b><em id="s-tok-d"></em></div>
     <div class="stat"><span>총 시간</span><b id="s-wall">—</b><em id="s-wall-d"></em></div>
     <div class="spacer"></div>
@@ -291,9 +291,9 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 </div>
 
 <div class="drop" id="drop">
-  <h1>LEDGER — AI:GO Squad Trace Viewer</h1>
+  <h1>LEDGER · AI:GO Squad Trace Viewer</h1>
   <p>AI:GO 워크스페이스의 <code>logs/</code> 폴더를 고르거나 이 창에 끌어다 놓으세요.
-     스냅샷 폴더 여러 개를 한꺼번에 넣어도 됩니다 — <b>executionId 로 중복을 제거해 병합</b>합니다.<br>
+     스냅샷 폴더 여러 개를 한꺼번에 넣어도 됩니다. <b>executionId 로 중복을 제거해 병합</b>합니다.<br>
      읽는 파일: <code>history.json</code> · <code>events.jsonl</code> · <code>&lt;executionId&gt;.jsonl</code> · <code>tasks/*.json</code>
      &nbsp;(<code>index.json</code> 은 history.json 에서 유도 가능해 무시합니다)</p>
   <div class="row">
@@ -461,7 +461,7 @@ function lastBoxed(t){
 function inspectBoxed(text){
   const t=String(text||""), checks=[];
   const b=lastBoxed(t);
-  checks.push({k:"\\boxed{} 존재", ok:!!b, d:b?"발견 (마지막 것 사용)":"없음 — judge 가 추출할 것이 없다"});
+  checks.push({k:"\\boxed{} 존재", ok:!!b, d:b?"발견 (마지막 것 사용)":"없음. judge 가 추출할 것이 없다"});
   checks.push({k:"중괄호 짝", ok:!!(b&&b.end>0), d:b?(b.end>0?"닫힘":"열린 채로 끝남"):"—"});
   const body=b&&b.body!=null?b.body.trim():"";
   checks.push({k:"답이 비어있지 않음", ok:body.length>0, d:body?`"${body.slice(0,28)}"`:"빈 값"});
@@ -474,7 +474,7 @@ function inspectBoxed(text){
   const prefix=/FINAL ANSWER:\s*\\boxed\{/.test(t);
   const required=checks.every(c=>c.ok);
   checks.push({k:"FINAL ANSWER: 접두사 (권장)", ok:prefix||null,
-    d:prefix?"있음":"없음 — 지문은 요구하지만 채점기가 실제로 요구하는지는 미확인"});
+    d:prefix?"있음":"없음. 지문은 요구하지만 채점기가 실제로 요구하는지는 확인되지 않았다"});
   return {gradable:required, advisory:!prefix, checks, body,
           si:b?b.start:-1, ei:b?b.end:-1, text:t, kind:"boxed"};
 }
@@ -489,7 +489,7 @@ function inspectAnswer(text,kind){
   }
   const t=String(text||""), checks=[];
   const si=t.lastIndexOf(PS);                       // 규칙: 여러 개면 마지막 것
-  checks.push({k:"*** PATCH START *** 마커", ok:si>=0, d:si>=0?"발견 (마지막 것 사용)":"없음 — judge 가 추출할 것이 없다"});
+  checks.push({k:"*** PATCH START *** 마커", ok:si>=0, d:si>=0?"발견 (마지막 것 사용)":"없음. judge 가 추출할 것이 없다"});
   const ei=si>=0?t.indexOf(PE,si+PS.length):-1;
   checks.push({k:"*** PATCH END *** 마커", ok:ei>=0, d:ei>=0?"START 뒤에 있음":"없음"});
   const body=(si>=0&&ei>=0)?t.slice(si+PS.length,ei):"";
@@ -515,7 +515,7 @@ function inspectAnswer(text,kind){
 /* 실패 분류 — 규칙표를 화면에 그대로 노출한다. 추측이 아니라 규칙임을 보이기 위해. */
 const RULES=[
   {re:/exceeds the available context size/i, kind:"context_overflow", owner:"configuration",
-   why:"컨텍스트 상한 초과. 설정에서 늘리면 해결된다 — 우리가 고칠 수 있다"},
+   why:"컨텍스트 상한 초과. 설정에서 늘리면 해결된다. 우리가 고칠 수 있다"},
   {re:/HTTP 5\d\d/,                          kind:"upstream_error",   owner:"organizer",
    why:"모델 서버 오류. 팀 책임이 아니다"},
   {re:/HTTP 429|rate.?limit/i,               kind:"rate_limit",       owner:"policy",
@@ -937,7 +937,7 @@ function runSummaryCard(){
               :x.partial?["","부분 기록"]:x.blocker==="unknown"?["","판정 보류"]:["bad","답 형식 없음"];
     const why=x.gradable?"—"
       :x.blocker==="blocked"?"호출 거부"+(x.blockKind?" · "+x.blockKind:"")
-      :x.partial?"부분 기록 — history.json 에 없음":x.blocker==="unknown"?"출력 계약을 못 읽음"
+      :x.partial?"부분 기록. history.json 에 없음":x.blocker==="unknown"?"출력 계약을 못 읽음"
       :`${CONTRACT[x.contract].label} 없음`;
     return `<tr${dim?' style="opacity:.55"':""}><td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
       `<td><span class="pill">${esc(CONTRACT[x.contract].label)}</span></td>`+
@@ -952,9 +952,9 @@ function runSummaryCard(){
        <ul style="font-size:11.5px;color:var(--fg-dim);margin:0;padding-left:18px">`+
        S.missing.map(m=>`<li>${esc(m)}</li>`).join("")+`</ul>
        <p class="note"><code>logs/</code> 폴더를 통째로 고르면 전부 들어옵니다.</p></div>`:"";
-  return warn+`<div class="card"><h2>채점 적격성 — 전체 실행</h2>
-    <p class="q">이 화면이 답하는 질문: <b>"우리 스쿼드가 성공했다고 보고한 것 중 실제로 점수가 되는 건 몇 개인가?"</b>
-    판정은 응답 텍스트의 패치 마커 검사로만 한다. <b>LLM 호출 0회.</b></p>
+  return warn+`<div class="card"><h2>채점 적격성 · 전체 실행</h2>
+    <p class="q"><b>AI:GO 가 성공이라고 보고한 실행 중 실제로 점수가 되는 것이 몇 개인지 센다.</b>
+    판정은 그 문항이 요구한 답 형식이 응답에 있는지만 본다. <b>LLM 호출 0회.</b></p>
     <div class="readout">
       <div class="stat"><span>AI:GO 성공</span><b style="font-size:19px">${aigo} / ${n}</b><em>태스크 실패 0건</em></div>
       <div class="stat"><span>판정 가능</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${
@@ -966,8 +966,8 @@ function runSummaryCard(){
     실측된 두 가지: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) 과
     <code>FINAL ANSWER: \\boxed{…}</code> (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판된다.<br>
     <b>0점을 세 가지로 구분한다.</b>
-    <b>호출 거부</b>는 모델이 요청을 받지도 못한 것 — 컨텍스트 초과·인프라. 프롬프트나 형식으로 고칠 수 없다.
-    <b>판정 보류</b>는 지문에서 계약을 못 읽은 것 — 모르는 것을 불합격으로 적지 않는다.
+    <b>호출 거부</b>는 모델이 요청을 받지도 못한 것이다. 컨텍스트 초과나 인프라 오류다. 프롬프트나 형식으로 고칠 수 없다.
+    <b>판정 보류</b>는 지문에서 계약을 못 읽은 것이다. 모르는 것을 불합격으로 적지 않는다.
     <b>답 형식 없음</b>은 실행도 됐고 답도 나왔는데 요구된 형식을 안 내서 0점이 된 것이다.
     <b>여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 낸다.</b></p></div>`;
 }
@@ -977,13 +977,13 @@ function paneOverview(P,e){
   let h=`<div class="card"><h2>${esc(e.squadName)} · ${esc(e.id.slice(0,8))}</h2>
     <p class="q">${esc(one(e.request).slice(0,220))}${one(e.request).length>220?"…":""}</p>
     <dl class="kv">
-      <dt>AI:GO 판정</dt><dd>${esc(e.aigoStatus)} — 태스크 ${e.counts.total-e.counts.failed}/${e.counts.total} 성공</dd>
+      <dt>AI:GO 판정</dt><dd>${esc(e.aigoStatus)} · 태스크 ${e.counts.total-e.counts.failed}/${e.counts.total} 성공</dd>
       <dt>출력 계약</dt><dd><code>${esc(CONTRACT[e.contract].spec)}</code></dd>
       <dt>채점 적격</dt><dd>${e.gradable
-        ?`<span class="pill ok">적격</span> — <code>${esc(e.gradCarrier.who)}</code> 안에 있다`
-        :e.blocker==="unknown"?`<span class="pill">판정 보류</span> — 지문에서 출력 계약을 못 읽었다`
-        :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span> — 호출이 거부돼 응답 자체가 없다`
-        :`<span class="pill bad">불가</span> — 어떤 응답에도 ${esc(CONTRACT[e.contract].label)} 가 없다`}</dd>
+        ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있다`
+        :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었다`
+        :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span>. 호출이 거부돼 응답 자체가 없다`
+        :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(CONTRACT[e.contract].label)} 가 없다`}</dd>
       <dt>토큰</dt><dd>${fmt(tokTotal)} (in ${fmt(e.tokens.promptTokens)} · out ${fmt(e.tokens.completionTokens)})</dd>
       <dt>소요</dt><dd>${secs(e.durationMs)}</dd>
       <dt>웨이브</dt><dd>${e.waves.length?e.waves.map((w,i)=>`W${i+1}: ${w.length}개`).join(" · "):"—"}</dd>
@@ -1021,17 +1021,17 @@ function rosterCard(e){
       <td class="n">${r.tasks||"—"}</td>
       <td class="n">${r.failed?`<span style="color:var(--bad)">${r.failed}</span>`:"0"}</td>
       <td class="n">${r.tok?fmt(r.tok):"—"}</td></tr>`;}).join("");
-  return `<div class="card"><h2>스쿼드 구성 — ${R.length}명</h2>
+  return `<div class="card"><h2>스쿼드 구성 · ${R.length}명</h2>
     <p class="q">이 실행에서 동작한 에이전트는 <b>${[...worked].length + (e.events.some(v=>v.eventType==="squad:plan-ready")?1:0)}명</b>이다.
     나머지는 스쿼드에 있지만 이번엔 태스크를 받지 않았다.</p>
     <table><tr><th>에이전트</th><th>역할</th><th>이 실행</th><th class="n">참여 실행</th>
       <th class="n">태스크</th><th class="n">실패</th><th class="n">토큰(추정)</th></tr>${rows}</table>
-    <p class="note"><b>로스터는 로그에 없다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남는다 —
+    <p class="note"><b>로스터는 로그에 없다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남는다.
     한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없다.
     ${S.rosterSource==="template"
       ? "지금은 <b>Squad Template JSON</b> 을 읽어 정확한 로스터를 쓰고 있다."
       : `그래서 위 표는 <b>전 실행에 걸쳐 등장한 에이전트의 합집합</b> + 계획 이벤트로 추론한 플래너 자리다.
-         정확한 구성을 보려면 제출용 <b>Squad Template JSON</b> 을 같이 넣어라 — 그 파일이 로스터의 유일한 출처다.`}
+         정확한 구성을 보려면 제출용 <b>Squad Template JSON</b> 을 같이 넣어라. 그 파일이 로스터의 유일한 출처다.`}
     </p></div>`;
 }
 
@@ -1063,8 +1063,8 @@ function stopReplay(){
 function paneReplay(P,e){
   const dur=Math.max(1,(e.t1??0)-(e.t0??0));
   const lanes=laneRows(e);
-  P.innerHTML=`<div class="card"><h2>재생 — 이 실행을 시간순으로</h2>
-    <p class="q">이 화면이 답하는 질문: <b>"시간과 토큰이 실제로 언제 쓰였나?"</b>
+  P.innerHTML=`<div class="card"><h2>재생 · 이 실행을 시간순으로</h2>
+    <p class="q"><b>시간과 토큰이 실제로 언제 쓰였는지 되짚는다.</b>
     녹화된 로그만으로 재생한다. <b>모델 호출 0회</b>이므로 몇 번을 돌려도 비용이 0이다.</p>
     <div class="rp-ctl">
       <button id="rp-play">▶ 재생</button>
@@ -1108,7 +1108,7 @@ function paneReplay(P,e){
          그래서 누적 곡선의 증분을 그 시각에 돌던 태스크에 귀속시켰다.
          ${e.tokUnattributed?`동시에 여러 태스크가 돌던 구간의 <b>${fmt(e.tokUnattributed)} 토큰은 나누지 않고 미귀속</b>으로 남겼다.`
            :`이 실행은 태스크가 순차로 돌아 귀속이 정확히 떨어진다.`}
-         상단 "누적 토큰"은 보고된 시점에만 계단식으로 오른다 — 사이를 보간하면 로그에 없는 숫자를 지어내게 된다.</p>`
+         상단 "누적 토큰"은 보고된 시점에만 계단식으로 오른다. 사이를 보간하면 로그에 없는 숫자를 지어내게 된다.</p>`
       : `<p class="note">이 실행에는 <code>execution-token-usage</code> 이벤트가 없다.
          요청이 거부돼(HTTP 400) 토큰이 청구되지 않았기 때문이다. 누적 토큰은 0이다.</p>`}
     </div>`;
@@ -1154,7 +1154,7 @@ function paneReplay(P,e){
       $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 지점으로 이동 (+${(nt.a/1000).toFixed(1)}s)`;
     }else{
       RP.until=nt.b; setPlay(true);
-      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 구간 재생 — +${(nt.a/1000).toFixed(1)}s ~ +${(nt.b/1000).toFixed(1)}s (${secs(len)})`;
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 구간 재생 · +${(nt.a/1000).toFixed(1)}s ~ +${(nt.b/1000).toFixed(1)}s (${secs(len)})`;
     }
     $("#rp-focus").classList.add("on");
     frame(0);
@@ -1321,7 +1321,7 @@ function squadMap(e){
   const nWaves=Math.max(1,e.waves.length||1);
   const cols=[];
   cols.push([{id:"req", label:"요청", sub:one(e.request).slice(0,20)||"—", kind:"io"}]);
-  cols.push([{id:"planner", label:"플래너", sub:e.plannerWarning?"폴백 — 분해 실패":`태스크 ${e.tasks.length}개`,
+  cols.push([{id:"planner", label:"플래너", sub:e.plannerWarning?"폴백 · 분해 실패":`태스크 ${e.tasks.length}개`,
               kind:e.plannerWarning?"warnnode":"sys"}]);
 
   // 이 실행에서 일한 에이전트
@@ -1413,7 +1413,7 @@ function squadMap(e){
       ${key("var(--ok)","완료")}${key("var(--bad)","실패")}${key("var(--accent)","실행 중")}
       ${n>act?key("var(--fg-faint)","미참여 (점선)"):""}
       <span class="sm-src">${S.rosterSource==="template"?"Squad Template JSON 기준":
-        "로그에서 추린 것 — 로그에는 태스크를 배정받은 에이전트만 남는다. 플래너는 이름이 없어 자리만 세웠다"}</span>
+        "로그에서 추린 것이다. 로그에는 태스크를 배정받은 에이전트만 남는다. 플래너는 이름이 없어 자리만 세웠다"}</span>
     </div>`;
 }
 
@@ -1457,9 +1457,9 @@ function paneLedger(P,e){
     .replace(/(=== REQUIRED OUTPUT ===[\s\S]*?)(?=\n\n## |$)/, m=>`<mark>${m}</mark>`)
     .replace(/(\*\*\* PATCH (?:START|END) \*\*\*|FINAL ANSWER:|\\boxed\{[^}]*\})/g,'<mark class="g">$1</mark>');
 
-  let h=`<div class="card"><h2>장부 대조 — 채점기가 읽는 바이트</h2>
+  let h=`<div class="card"><h2>장부 대조 · 채점기가 읽는 바이트</h2>
     <p class="q">왼쪽은 judge 가 보낸 요청 원문, 오른쪽은 우리가 낸 응답이다.
-    <b>화면이 렌더링하는 바이트는 로그에 기록된 그 바이트다</b> — 옆에서 따로 수집한 요약이 아니다.</p>
+    <b>화면이 렌더링하는 바이트는 로그에 기록된 그 바이트다</b>. 옆에서 따로 수집한 요약이 아니다.</p>
     <div class="ledger">
       <div class="col"><h3>요청 <span style="color:var(--fg-faint);font-weight:400">${req.length.toLocaleString()}자</span></h3>
         <div class="scroll"><pre>${reqHtml}</pre></div></div>
@@ -1483,7 +1483,7 @@ function paneLedger(P,e){
   }
   h+=`</div></div>
     <p class="note"><b>이 문항의 출력 계약: <code>${esc(CONTRACT[e.contract].spec)}</code></b>
-    — 요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽었다. 계약은 문항마다 다르므로
+    요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽었다. 계약은 문항마다 다르므로
     한쪽만 검사하면 다른 쪽이 통째로 오판된다.<br>
     <b>이 검사가 곧 Preflight 다.</b> 정규식 몇 개로 끝나고 <b>LLM 호출이 0회</b>다.
     돌려주는 것이 "다시 해봐"가 아니라 어느 검사가 왜 실패했는지이므로, 재시도에 실제로 쓸 수 있는 신호가 된다.<br>
@@ -1564,7 +1564,7 @@ function finish(){
   }
   // 부분 로드 경고 — 되는 만큼은 그리되, 무엇이 빠졌는지 화면에 남긴다
   const miss=[];
-  if(!SEEN.kinds["history.json"]) miss.push("history.json (응답 본문·에이전트 이름 — 장부 대조와 채점 적격성 검사가 불가)");
+  if(!SEEN.kinds["history.json"]) miss.push("history.json (응답 본문과 에이전트 이름. 없으면 장부 대조와 채점 적격성 검사를 못 한다)");
   if(!SEEN.kinds["events.jsonl"]) miss.push("events.jsonl (웨이브·위상·토큰 시계열)");
   S.missing=miss;
   S.sel=null;
