@@ -1,4 +1,4 @@
-# viz — LEDGER: AI:GO Squad Trace Viewer
+# viz — monstrous: AI:GO Squad Trace Viewer
 
 AI:GO **워크스페이스 폴더**를 고르면 실행 목록이 뜨고, 그중 하나를 골라 분석하는 **단일 HTML 파일**.
 백엔드 없음, 빌드 도구 없음, CDN 없음, 네트워크 의존 0.
@@ -139,7 +139,7 @@ judge 에게 실제로 전달되는 것이 어느 쪽인지 아직 확인되지 
 
 검사 항목: START 마커 · END 마커 · `SEARCH`/`=======`/`REPLACE` 짝 · 블록마다 경로 줄.
 돌려주는 것이 "다시 해봐"가 아니라 **어느 검사가 왜 실패했는지**라서, 재시도에 실제로 쓸 수 있는 신호가 된다.
-이게 곧 LEDGER 주제의 Preflight 다.
+이게 곧 이 뷰어가 하는 Preflight 다.
 
 ### ▶ 재생
 

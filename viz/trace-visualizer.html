@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LEDGER · AI:GO Squad Trace Viewer</title>
+<title>monstrous · AI:GO Squad Trace Viewer</title>
 <style>
 :root{
   --bg:#0e1116; --panel:#151a21; --panel-2:#1b212a; --line:#242c37;
@@ -321,11 +321,15 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
   max-width:760px;animation:drop-in .5s cubic-bezier(.2,.8,.3,1) both}
 @keyframes drop-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-.mark{display:flex;align-items:center;gap:14px}
-.mark h1{font-size:34px;letter-spacing:.16em;line-height:1;margin:0;
+.mark{display:flex;align-items:center;gap:14px;margin-top:22px}
+/* 좁은 창에서 워드마크가 언어 콤보 밑으로 파고들지 않게 폭에 맞춰 줄인다. */
+.mark h1{font-size:clamp(21px,6.4vw,34px);letter-spacing:.04em;line-height:1;margin:0;
   background:linear-gradient(100deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;
   color:transparent}
 .mark-sub{font-size:10.5px;letter-spacing:.22em;color:var(--fg-faint);margin-top:5px;text-transform:uppercase}
+/* 만든 사람들. 화면을 차지하면 안 되므로 맨 아래에 흐리게 둔다. 메일은 title 로 넘긴다. */
+.drop-team{margin-top:20px;font-size:9.5px;letter-spacing:.08em;color:var(--fg-faint);opacity:.55}
+.drop-team:hover{opacity:1}
 .mark-dot{width:13px;height:13px;border-radius:50%;background:var(--accent);
   box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent);animation:mark-pulse 2.4s ease-out infinite}
 @keyframes mark-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
@@ -363,7 +367,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 <body>
 <div class="app">
   <header>
-    <div class="brand">LEDGER<small id="src">no logs loaded</small></div>
+    <div class="brand">monstrous<small id="src">no logs loaded</small></div>
     <div class="stat"><span>실행</span><b id="s-exec">—</b><em id="s-exec-d"></em></div>
     <div class="stat"><span>AI:GO 성공</span><b id="s-aigo">—</b><em>AI:GO 자체 판정</em></div>
     <div class="stat"><span>채점 적격</span><b id="s-grad">—</b><em id="s-grad-d">요구된 답 형식 검사 · LLM 호출 0회</em></div>
@@ -467,7 +471,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="mark">
       <span class="mark-dot"></span>
       <div>
-        <h1>LEDGER</h1>
+        <h1>monstrous</h1>
         <div class="mark-sub">AI:GO Squad Trace Viewer</div>
       </div>
     </div>
@@ -498,6 +502,11 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
       <div><code>artifacts/</code> 에이전트가 워크스페이스에 쓴 파일</div>
       <div class="muted"><code>logs/index.json</code> 은 history.json 에서 유도할 수 있어 무시합니다</div>
     </details>
+
+    <div class="drop-team" translate="no">Team Monstrous ·
+      <span title="shkimkim1919@gmail.com">SEONGHYEON KIM</span> ·
+      <span title="2543kt@gmail.com">JUHYEONG LEE</span> ·
+      <span title="xhtlal123@gmail.com">ILKWON KIM</span></div>
   </div>
   <div class="err" id="derr"></div>
   <div class="files" id="dfiles"></div>
@@ -1120,8 +1129,12 @@ const EN={
   ". 어떤 응답에도 FINAL ANSWER 가 없습니다":". No response contains FINAL ANSWER",
   "이 실행에서 씀":"used in this run",
   "답이 파일에만 있습니다.":"The answer lives only in a file.",
-  "에는 결과가 들어 있는데 응답 텍스트에는 패치 마커 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.":"holds the result, but the response text has no patch marker. The judge has nothing to take, so it scores 0.",
-  "에는 결과가 들어 있는데 응답 텍스트에는 FINAL ANSWER 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.":"holds the result, but the response text has no FINAL ANSWER. The judge has nothing to take, so it scores 0.",
+  // 출력 계약 이름은 문장 안으로 들어간다. 이름만 사전에 두고 문장은 규칙으로 잡는다.
+  "출력 계약 불명":"unknown output contract","보기 문자":"option letter",
+  // 로그에 이름이 없는 플래너 자리에 뷰어가 붙이는 표기. 로그의 값이 아니라 UI 다.
+  "(플래너)":"(planner)",
+  ". 지문에서 출력 계약을 못 읽었습니다":". the output contract could not be read from the prompt",
+  "이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다":"the output contract for this item could not be determined, so judging is on hold",
   "에이전트에게":"With",
   "이 열려 있고 시스템 프롬프트가 \"구현하세요\"라고만 말하면 파일을 쓰는 쪽이 자연스러운 행동입니다. 출력 계약을 프롬프트에 넣어야 고쳐집니다.":"enabled and a system prompt that only says “implement it”, writing a file is the natural move. The fix is to put the output contract in the prompt.",
   "\"승인 대기\"는 사람이 계획을 승인하기까지 걸린 시간이므로 시스템 성능이 아닙니다. 자동으로 도는 벤치마크 실행에서는 이 구간이 사라집니다.":"“Awaiting approval” is time spent waiting on a human, not system performance. It disappears in an unattended benchmark run.",
@@ -1171,8 +1184,19 @@ const EN={
   "으로 남겼습니다. 상단 \"누적 토큰\"은 보고된 시점에만 계단식으로 오릅니다. 사이를 보간하면 로그에 없는 숫자를 지어내게 됩니다.":". The “cumulative tokens” readout only steps up at reported points; interpolating between them would invent numbers the log never had.",
   "형식 때문에 놓친 실행이 없습니다.":"No run missed the format.",
   "completed · 태스크 {0}/{1} 성공":"completed · {0}/{1} tasks succeeded",
-  "실행 불가 {0}건 제외 · 답 형식 없음 {1}건":"{0} rejected excluded · no answer format ×{1}",
-  "계약 불명 {0}건 제외 · 답 형식 없음 {1}건":"{0} unknown contract excluded · no answer format ×{1}",
+  // 폴더를 읽는 동안 나오는 표시. 사전이 닿기 전에 계속 덮어써지므로 직접 태운다.
+  "읽는 중…":"reading…","폴더를 훑는 중…":"scanning the folder…",
+  "읽은 것:":"read:","인식된 파일 없음":"no recognized files",
+  "읽기 실패 {0}개":"{0} failed to read","건너뜀:":"skipped:",
+  // 조각이 조건부로 붙는 라벨. tn() 으로 조각마다 채운다.
+  "호출 거부 {0}":"{0} rejected","계약 불명 {0}":"{0} unknown contract",
+  "전부 판정됨":"all decided","제외":"excluded",
+  // 탭 설명 (#pane 밖이라 순회가 닿지 않는다)
+  "이 실행이 무엇을 했고 점수가 되는가":"what this run did, and whether it scores",
+  "실행을 시간순으로 되돌려 봅니다 · 모델 호출 0회":"step back through the run in time order · zero model calls",
+  "시간이 어디에 쓰였는가":"where the time went",
+  "우리 잘못인가 인프라 잘못인가":"our fault or the infrastructure's",
+  "AI:GO 가 남긴 원문":"what AI:GO actually wrote",
   "{0} files · 워크스페이스 {1}개 · ":"{0} files · {1} workspaces · ",
   "이 문항의 출력 계약:":"This item's output contract:",
   "요청 지문의":"Read from the","절에서 읽었습니다. 계약은 문항마다 다르므로 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.":
@@ -1248,6 +1272,20 @@ const EN={
 const PHASE_EN={"플래닝":"Planning","승인 대기":"Approval wait","실행":"Execution","집계":"Aggregation"};
 let LANG="ko";
 function t(s){ return LANG==="en"?(EN[s]??s):s; }
+
+/* 자리표시자가 든 사전 키를 숫자로 채운다.
+   "실행 불가 4건 제외 · 계약 불명 6건 제외 · 답 형식 없음 6건" 처럼 조각이 조건부로 붙는 라벨은
+   문장을 통째로 사전에 넣으면 조각 조합마다 키가 하나씩 필요해진다. 조각 단위로 바꾼다. */
+function tn(key,...v){ return t(key).replace(/\{(\d+)\}/g,(_,i)=>v[i]??""); }
+
+/* 오프닝의 상태 줄. 읽는 도중에도 언어가 바뀔 수 있으므로
+   "무엇을 쓸지"를 함수로 들고 있다가 그때그때 다시 그린다. */
+let DF=null, DE=null;
+function renderDfiles(){ const f=$("#dfiles"), e=$("#derr");
+  if(f) f.textContent=DF?DF():"";
+  if(e) e.textContent=DE?DE():""; }
+function setDfiles(fn){ DF=fn; renderDfiles(); }
+function setDerr(fn){ DE=fn; renderDfiles(); }
 
 /* 헤더의 출처 줄. 언어를 바꾸면 다시 그려야 하므로 finish() 밖으로 빼 둔다. */
 function renderSrc(){
@@ -1341,6 +1379,11 @@ const EN_RE=[
   [/^(.*) · 태스크 (\d+)\/(\d+) 성공$/,"$1 · $2/$3 tasks succeeded"],
   [/^waves: (.+) ⚠ 플래너 폴백$/,"waves: $1 ⚠ planner fallback"],
   [/^(.*) · 로그에서 추정$/,"$1 · inferred from the log"],
+  // 출력 계약 이름이 가운데 끼는 문장. 계약이 넷이라 통짜 키로는 넷씩 늘어난다.
+  [/^에는 결과가 들어 있는데 응답 텍스트에는 (.+) 가 없습니다\. judge 가 가져갈 것이 없으므로 0점입니다\.$/,
+   "holds the result, but the response text has no $1. The judge has nothing to take, so it scores 0."],
+  [/^\. 어떤 응답에도 (.+) 가 없습니다$/,". No response contains $1"],
+  [/^(.+) 없음$/,"no $1"],
   [/^W\d+: \d+개( · W\d+: \d+개)*$/,m=>m.replace(/개/g,"")],
 ];
 /* 긴 문장부터 시도해야 짧은 조각이 먼저 걸려 문장을 반쪽만 바꾸는 일이 없다. */
@@ -1393,9 +1436,9 @@ function renderHeader(){
   $("#s-grad").textContent=gradRan+" / "+ran.length;
   $("#s-grad").style.color=ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)";
   $("#s-grad-d").textContent=[
-    nBlocked?`실행 불가 ${nBlocked}건 제외`:"",
-    nUnknown?`계약 불명 ${nUnknown}건 제외`:"",
-    `답 형식 없음 ${ran.length-gradRan}건`
+    nBlocked?tn("실행 불가 {0}건 제외",nBlocked):"",
+    nUnknown?tn("계약 불명 {0}건 제외",nUnknown):"",
+    tn("답 형식 없음 {0}건",ran.length-gradRan)
   ].filter(Boolean).join(" · ");
   $("#s-tok").textContent=fmt(pt+ct);
   $("#s-tok-d").textContent="in "+fmt(pt)+" · out "+fmt(ct);
@@ -1457,7 +1500,7 @@ function renderPane(){
            timeline:"시간이 어디에 쓰였는가",
            failure:"우리 잘못인가 인프라 잘못인가",
            raw:"AI:GO 가 남긴 원문"}[S.tab];
-  $("#tab-hint").textContent=H||"";
+  $("#tab-hint").textContent=H?t(H):"";
   // 아무것도 안 골랐으면 안내만 낸다. 요약을 자동으로 띄우면 "고른 것"과 "전체"가 섞여 읽힌다.
   if(!e){
     P.innerHTML=`<div class="card"><h2>${t("실행을 고르세요")}</h2>
@@ -1485,9 +1528,9 @@ function runSummaryCard(inner){
     const why=x.gradable?"—"
       :x.blocker==="blocked"?"호출 거부"+(x.blockKind?" · "+x.blockKind:"")
       :x.partial?"부분 기록. history.json 에 없음":x.blocker==="unknown"?"출력 계약을 못 읽음"
-      :`${CONTRACT[x.contract].label} 없음`;
+      :`${t(CONTRACT[x.contract].label)} 없음`;
     return `<tr${dim?' style="opacity:.55"':""}><td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
-      `<td><span class="pill">${esc(CONTRACT[x.contract].label)}</span></td>`+
+      `<td><span class="pill">${esc(t(CONTRACT[x.contract].label))}</span></td>`+
       `<td><span class="pill ${x.counts.failed?"bad":"ok"}">${x.counts.total-x.counts.failed}/${x.counts.total}</span></td>`+
       `<td><span class="pill ${pill[0]}">${pill[1]}</span></td>`+
       `<td style="color:var(--fg-dim)">${esc(why)}</td>`+
@@ -1507,7 +1550,7 @@ function runSummaryCard(inner){
     <div class="readout">
       <div class="stat"><span>AI:GO 성공</span><b style="font-size:19px">${aigo} / ${n}</b><em>태스크 실패 0건</em></div>
       <div class="stat"><span>판정 가능</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${
-        [blocked.length?`호출 거부 ${blocked.length}`:"",unk.length?`계약 불명 ${unk.length}`:""].filter(Boolean).join(" · ")||"전부 판정됨"} 제외</em></div>
+        [blocked.length?tn("호출 거부 {0}",blocked.length):"",unk.length?tn("계약 불명 {0}",unk.length):""].filter(Boolean).join(" · ")||t("전부 판정됨")} ${t("제외")}</em></div>
       <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
     </div>
     <table><tr><th>${t("요청")}</th><th>${t("출력 계약")}</th><th>AI:GO</th><th>채점</th><th>${t("불가 사유")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th></tr>${rows}</table>
@@ -1532,7 +1575,7 @@ function paneOverview(P,e){
         ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있습니다`
         :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었습니다`
         :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span>. 호출이 거부돼 응답 자체가 없습니다`
-        :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(CONTRACT[e.contract].label)} 가 없습니다`}</dd>
+        :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다`}</dd>
       <dt>토큰</dt><dd>${fmt(tokTotal)} (in ${fmt(e.tokens.promptTokens)} · out ${fmt(e.tokens.completionTokens)})</dd>
       <dt>소요</dt><dd>${secs(e.durationMs)}</dd>
       <dt>웨이브</dt><dd>${e.waves.length?e.waves.map((w,i)=>`W${i+1}: ${w.length}개`).join(" · "):"—"}</dd>
@@ -1547,20 +1590,20 @@ function paneOverview(P,e){
 
   h+=`<div class="card"><h2>${t("태스크")} ${e.tasks.length}</h2><table>
     <tr><th>${t("제목")}</th><th>${t("에이전트")}</th><th>${t("상태")}</th><th>${t("채점 적격")}</th><th>${t("시도 기록")}</th><th class="n">${t("소요")}</th></tr>`;
-  for(const t of e.tasks){
+  for(const tk of e.tasks){
     // tasks/*.md 의 Progress Log. 시도 번호는 events.jsonl 에 없고 여기에만 있다.
-    const md=t.taskId?RAW.taskmd.get(t.taskId):null;
+    const md=tk.taskId?RAW.taskmd.get(tk.taskId):null;
     const attempts=md?Math.max(0,...md.log.map(l=>l.attempt||0)):0;
     h+=`<tr>
-      <td>${esc(one(t.title).slice(0,52))}</td>
-      <td>${esc(t.agentName||t.agentId||"—")}</td>
-      <td><span class="pill ${t.status==="failed"?"bad":"ok"}">${esc(t.status)}</span></td>
-      <td>${t.output?`<span class="pill ${t.answer.gradable?"ok":"bad"}">${t.answer.gradable?"적격":CONTRACT[e.contract].label+" 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
+      <td>${esc(one(tk.title).slice(0,52))}</td>
+      <td>${esc(tk.agentName||tk.agentId||"—")}</td>
+      <td><span class="pill ${tk.status==="failed"?"bad":"ok"}">${esc(tk.status)}</span></td>
+      <td>${tk.output?`<span class="pill ${tk.answer.gradable?"ok":"bad"}">${tk.answer.gradable?"적격":t(CONTRACT[e.contract].label)+" 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
       <td style="font-size:10px;color:var(--fg-dim)">${md
         ? md.log.map(l=>`${esc(l.at)} ${esc(l.what)}`).join("<br>")+
           (attempts>1?` <span class="pill warn">시도 ${attempts}회</span>`:"")
         : "—"}</td>
-      <td class="n">${secs(t.durationMs)}</td></tr>`;
+      <td class="n">${secs(tk.durationMs)}</td></tr>`;
   }
   h+=`</table>${[...RAW.taskmd.values()].length?"":`<p class="note"><code>tasks/*.md</code> 를 같이 넣으면 시도별 기록이 나옵니다. 시도 번호는 <code>events.jsonl</code> 에 없고 그 파일에만 있습니다.</p>`}</div>`;
   P.innerHTML=h;
@@ -1827,7 +1870,7 @@ function paneCmp(P){
           <td class="n"${mark(tp,bTok)}>${fmt(tp)}</td>
           <td class="n"${mark(dp,bDur)}>${secs(dp)}</td>
           <td class="n">${secs(r.X.length?r.exec/r.X.length:0)}</td>
-          <td style="font-size:10.5px;color:var(--fg-dim)">${r.contracts.map(c=>CONTRACT[c].label).join("<br>")}</td>
+          <td style="font-size:10.5px;color:var(--fg-dim)">${r.contracts.map(c=>t(CONTRACT[c].label)).join("<br>")}</td>
         </tr>`;}).join("")}
     </table>
     <p class="note"><b>문항당 시간</b>에는 승인 대기가 들어 있습니다. <code>autoApprove:false</code> 인 실행에서는
@@ -1909,7 +1952,7 @@ function artifactCard(e){
     ${answerish.length&&!e.gradable
       ? `<p class="note"><b>답이 파일에만 있습니다.</b>
          <code>${answerish.map(r=>esc(r.a.name)).join("</code>, <code>")}</code> 에는 결과가 들어 있는데
-         응답 텍스트에는 ${esc(CONTRACT[e.contract].label)} 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.<br>
+         응답 텍스트에는 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.<br>
          에이전트에게 <code>write_file</code> 이 열려 있고 시스템 프롬프트가 "구현하세요"라고만 말하면
          파일을 쓰는 쪽이 자연스러운 행동입니다. 출력 계약을 프롬프트에 넣어야 고쳐집니다.</p>`
       : ""}</div>`;
@@ -2516,11 +2559,11 @@ function readText(file){
 
 async function loadEntries(entries){
   reset();
-  if(!entries.length){ $("#derr").textContent="파일이 없습니다. 폴더를 고르거나 파일을 끌어다 놓으세요."; return; }
-  $("#derr").textContent="";
+  if(!entries.length){ setDfiles(null); setDerr(()=>t("파일이 없습니다. 폴더를 고르거나 파일을 끌어다 놓으세요.")); return; }
+  setDerr(null);
   let done=0;
-  const tick=()=>{ $("#dfiles").textContent=`읽는 중… ${++done} / ${entries.length}`; };
-  $("#dfiles").textContent=`읽는 중… 0 / ${entries.length}`;
+  const tick=()=>{ done++; renderDfiles(); };
+  setDfiles(()=>`${t("읽는 중…")} ${done} / ${entries.length}`);
 
   // allSettled 라서 개별 실패가 전체를 멈추지 못한다.
   const res=await Promise.allSettled(entries.map(async ({file,path})=>{
@@ -2535,11 +2578,13 @@ async function loadEntries(entries){
 }
 
 function showLoadError(err,bad){
-  $("#derr").textContent=err.message;
-  const kinds=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ")||"인식된 파일 없음";
-  $("#dfiles").textContent="읽은 것: "+kinds+
-    (bad?`  |  읽기 실패 ${bad}개`:"")+
-    (SEEN.skipped.length?"  |  건너뜀: "+SEEN.skipped.slice(0,8).join(", "):"");
+  setDerr(()=>err.message);        // 예외 메시지는 로그 쪽 값이라 번역하지 않는다
+  setDfiles(()=>{
+    const kinds=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ")||t("인식된 파일 없음");
+    return t("읽은 것:")+" "+kinds+
+      (bad?"  |  "+tn("읽기 실패 {0}개",bad):"")+
+      (SEEN.skipped.length?"  |  "+t("건너뜀:")+" "+SEEN.skipped.slice(0,8).join(", "):"");
+  });
 }
 
 const asEntries=fileList=>[...fileList].map(f=>({file:f, path:f.webkitRelativePath||f.name}));
@@ -2570,13 +2615,18 @@ $("#btn-dir").onclick=()=>$("#in-dir").click();
 $("#btn-file").onclick=()=>$("#in-file").click();
 $("#in-dir").onchange=e=>loadEntries(asEntries(e.target.files));
 $("#in-file").onchange=e=>loadEntries(asEntries(e.target.files));
-$("#btn-load").onclick=()=>{$("#drop").hidden=false;$("#derr").textContent="";};
+/* 폴더 다시 고르기 = 처음 화면으로. 주소에 붙은 인자는 이전 폴더의 실행 id 를 가리키고 있어
+   새 폴더에서는 맞지 않는다. 그대로 두면 링크를 건넸을 때 없는 실행을 찾는다. */
+$("#btn-load").onclick=()=>{
+  $("#drop").hidden=false; setDerr(null);
+  try{ history.replaceState(null,"",location.pathname+location.search); }catch{}
+};
 ["dragenter","dragover"].forEach(t=>document.addEventListener(t,ev=>{
   ev.preventDefault(); $("#drop").hidden=false; $("#drop").classList.add("over");}));
 document.addEventListener("dragleave",ev=>{ev.preventDefault();$("#drop").classList.remove("over");});
 document.addEventListener("drop",async ev=>{
-  ev.preventDefault(); $("#drop").classList.remove("over"); $("#derr").textContent="";
-  $("#dfiles").textContent="폴더를 훑는 중…";
+  ev.preventDefault(); $("#drop").classList.remove("over"); setDerr(null);
+  setDfiles(()=>t("폴더를 훑는 중…"));
   try{
     // getAsEntry 는 drop 이벤트가 끝나기 전에 동기로 불러야 한다
     const items=[...(ev.dataTransfer.items||[])]
@@ -2673,7 +2723,7 @@ function applyStaticI18n(){
 function setLang(l){
   LANG=l==="en"?"en":"ko";
   ["#lang","#lang2"].forEach(s=>{ const el=$(s); if(el) el.value=LANG; });
-  applyStaticI18n(); renderSrc();
+  applyStaticI18n(); renderSrc(); renderDfiles();
   if(S.execs.length){ renderHeader(); renderList(); renderPane();
     if(S.mode==="all") paneAll($("#pane-all"));
     if(S.mode==="cmp") paneCmp($("#pane-cmp")); }
@@ -2823,7 +2873,7 @@ $("#btn-export").onclick=()=>{
   const rect=svg.getBoundingClientRect();
   if(!c.getAttribute("viewBox")&&rect.width) c.setAttribute("viewBox",`0 0 ${rect.width} ${rect.height}`);
   c.setAttribute("style",`background:${cs.getPropertyValue("--bg").trim()}`);
-  download("ledger-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
+  download("monstrous-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
 };
 $("#btn-json").onclick=()=>{
   const out={
@@ -2841,7 +2891,7 @@ $("#btn-json").onclick=()=>{
         durationMs:t.durationMs,tokenEstimated:t.tok||0,gradable:t.answer.gradable,
         checks:t.answer.checks.map(k=>({check:k.k,ok:k.ok,detail:k.d}))}))
     }))};
-  download("ledger-normalized.json",JSON.stringify(out,null,2),"application/json");
+  download("monstrous-normalized.json",JSON.stringify(out,null,2),"application/json");
 };
 </script>
 </body>
