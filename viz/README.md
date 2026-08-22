@@ -131,9 +131,31 @@ swebench 13개는 데이터셋 자체가 `gradable: false` 이고 이유가 파�
 **그 절이 있다는 것 자체가 계약이다** — 보기 중 하나의 문자를 내면 되고, 채점기(`letter_match`)가
 보는 것도 그것뿐이다. 그래서 `=== REQUIRED OUTPUT ===` 절이 잘려 나갔어도 판정을 미루지 않는다.
 
-보기 문자는 두 경로로 찾는다. 지문이 온전하면 `ANSWER: X` 줄이고, 계약이 잘린 실행에서는
-마지막 비어 있지 않은 줄이 문자 하나인지 본다. `ANSWER:` 줄이 실제로 필수인지는 확인되지 않았으므로
-그 형태는 **권장으로만** 본다.
+계약의 본문은 지문이 그대로 적어 준다.
+
+```
+End your answer with a line of exactly this form:
+ANSWER: <letter>
+Replace <letter> with the single letter of the option you choose,
+and write nothing else on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+```
+
+그래서 검사도 이 문장 그대로다.
+
+| 검사 | 근거 |
+|---|---|
+| `ANSWER:` 로 시작하는 줄이 있는가 (여러 개면 마지막) | "a line of exactly this form" · "the last one is used" |
+| 그 줄에 보기 문자 하나만 있는가 | "write nothing else on that line" |
+| 그 문자가 보기 목록 안에 있는가 | 목록 밖 문자는 채점되지 않는다 |
+| 대문자인가 — **권장** | 보기는 `A.`…`J.` 로 대문자다. 채점기가 구분하는지는 확인되지 않았다 |
+
+**앞에 다른 텍스트가 오는 것은 계약이 허용한다** ("ignored, not penalised"). 풀이를 길게 쓰고
+마지막에 `ANSWER: D` 를 붙이면 통과다.
+
+반대로 `ANSWER:` 줄 없이 문자만 덜렁 있는 것은 계약이 아니다 — "a line of exactly this form"
+이라고 못박혀 있다. 통과로 세지 않고 **"문자는 냈는데 줄 형태가 아니다"** 라고 따로 짚는다.
 
 **값은 맞히고 문자를 안 낸 경우를 따로 짚는다.**
 
