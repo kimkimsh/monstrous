@@ -1130,7 +1130,20 @@ const EN={
   "이 실행에서 씀":"used in this run",
   "답이 파일에만 있습니다.":"The answer lives only in a file.",
   // 출력 계약 이름은 문장 안으로 들어간다. 이름만 사전에 두고 문장은 규칙으로 잡는다.
+  // 채점 적격성 카드 — 접혀 있어 처음 그릴 때 DOM 에 없다. 문단 통째로 잡는다.
+  "채점":"Graded","호출 거부":"call rejected",
+  "부분 기록. history.json 에 없음":"partial record — not in history.json",
+  "출력 계약을 못 읽음":"output contract unreadable",
+  "AI:GO 가 성공이라고 보고한 실행 중 실제로 점수가 되는 것이 몇 개인지 셉니다. 판정은 그 문항이 요구한 답 형식이 응답에 있는지만 봅니다. LLM 호출 0회.":
+    "<b>Counts how many of the runs AI:GO called successful would actually score.</b> The check is only whether the response carries the answer format that item asked for. <b>Zero LLM calls.</b>",
+  "출력 계약은 문항마다 다릅니다. 요청 지문의 === REQUIRED OUTPUT === 절에서 읽습니다. 실측된 두 가지: *** PATCH START *** … *** PATCH END *** (coding) 과 FINAL ANSWER: \\boxed{…} (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다. 0점을 세 가지로 구분합니다. 호출 거부는 모델이 요청을 받지도 못한 것입니다. 컨텍스트 초과나 인프라 오류입니다. 프롬프트나 형식으로 고칠 수 없습니다. 판정 보류는 지문에서 계약을 못 읽은 것입니다. 모르는 것을 불합격으로 적지 않습니다. 답 형식 없음은 실행도 됐고 답도 나왔는데 요구된 형식을 안 내서 0점이 된 것입니다. 여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 냅니다.":
+    "<b>The output contract differs per item.</b> It is read from the <code>=== REQUIRED OUTPUT ===</code> section of the prompt. Two were observed: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) and <code>FINAL ANSWER: \\boxed{…}</code> (math). Checking only one of them without reading the contract misjudges every item of the other kind.<br> <b>A zero splits three ways.</b> <b>Call rejected</b> means the model never received the request — a context overflow or an infrastructure error. No prompt or format change fixes it. <b>Undecided</b> means the contract could not be read from the prompt; we do not record what we do not know as a failure. <b>No answer format</b> means the run executed and produced an answer, but not in the required shape, so it scores 0. <b>That last one is ours to fix, and the rate is computed on it alone.</b>",
+  "일부 파일이 빠졌습니다":"Some files are missing",
+  "되는 만큼만 그렸습니다. 빠진 것:":"Drew what could be drawn. Missing:",
   "출력 계약 불명":"unknown output contract","보기 문자":"option letter",
+  // 이 계약만 spec 이 형식이 아니라 설명문이다. <code> 안이라 순회가 닿지 않아 여기서 태운다.
+  "요청 지문에서 계약을 찾지 못함":"no contract found in the prompt",
+  "단일 보기 문자":"a single option letter",
   // 로그에 이름이 없는 플래너 자리에 뷰어가 붙이는 표기. 로그의 값이 아니라 UI 다.
   "(플래너)":"(planner)",
   ". 지문에서 출력 계약을 못 읽었습니다":". the output contract could not be read from the prompt",
@@ -1314,7 +1327,10 @@ function paraKey(el){ return el.textContent.replace(/\s+/g," ").trim(); }
 const ORIG_HTML=new WeakMap(), ORIG_TEXT=new WeakMap();
 
 function translateParas(root){
-  root.querySelectorAll(PARA_SEL).forEach(el=>{
+  // root 자신이 문단일 수 있다. 감시자가 붙은 조각을 그대로 넘겨주기 때문이다.
+  const els=[...root.querySelectorAll(PARA_SEL)];
+  if(root.matches&&root.matches(PARA_SEL)) els.unshift(root);
+  els.forEach(el=>{
     if(LANG!=="en"){ const o=ORIG_HTML.get(el); if(o!=null) el.innerHTML=o; return; }
     const key=paraKey(el);
     if(!key||!/[가-힣]/.test(key)) return;
@@ -1328,6 +1344,9 @@ function translateParas(root){
 
 function translateDOM(root){
   if(!root) return;
+  // 원문 덤프 안쪽이면 통째로 건너뛴다. 아래 순회는 조상을 root 까지만 훑으므로
+  // 덤프 안의 노드가 root 로 들어오면 제외 규칙이 걸리지 않는다. 22개 실행에서 1초가 걸렸다.
+  if(root.closest&&root.closest(I18N_SKIP)) return;
   translateParas(root);
   if(LANG!=="en"){                      // 한국어로 되돌리기
     const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
@@ -1383,7 +1402,8 @@ const EN_RE=[
   [/^에는 결과가 들어 있는데 응답 텍스트에는 (.+) 가 없습니다\. judge 가 가져갈 것이 없으므로 0점입니다\.$/,
    "holds the result, but the response text has no $1. The judge has nothing to take, so it scores 0."],
   [/^\. 어떤 응답에도 (.+) 가 없습니다$/,". No response contains $1"],
-  [/^(.+) 없음$/,"no $1"],
+  // 짧은 라벨만 잡는다. 문장 끝의 "없음" 까지 삼키면 "no 부분 기록. history.json 에" 같은 게 나온다.
+  [/^([^.,·]{1,24}) 없음$/,"no $1"],
   [/^W\d+: \d+개( · W\d+: \d+개)*$/,m=>m.replace(/개/g,"")],
 ];
 /* 긴 문장부터 시도해야 짧은 조각이 먼저 걸려 문장을 반쪽만 바꾸는 일이 없다. */
@@ -1393,6 +1413,31 @@ function rebuildLong(){ EN_LONG=Object.entries(EN).filter(([k])=>k.length>=12)
 rebuildLong();
 
 /* 지금 화면에 남은 한국어를 뽑는다. 사전을 채울 때 쓴다. */
+/* 늦게 그려지는 조각을 위한 안전망.
+   화면을 새로 붙일 때마다 호출부에서 translateDOM 을 부르는 방식은 반드시 빠뜨린다.
+   접힌 카드를 펴는 순간처럼 처음 그릴 때는 DOM 에 없던 조각이 특히 그렇다.
+   그래서 붙는 것을 보고 바꾼다. 이미 영어인 조각은 사전에 걸리지 않으므로 두 번 돌아도 그대로다. */
+const I18N_SKIP=".scroll,[data-raw],pre,code,script,style,textarea";
+let I18N_BUSY=false;
+const i18nWatch=new MutationObserver(ms=>{
+  if(LANG!=="en"||I18N_BUSY) return;
+  const roots=new Set();
+  for(const m of ms) for(const n of m.addedNodes){
+    // 붙은 것만 훑는다. m.target 을 훑으면 이미 바꾼 형제까지 매번 다시 돈다.
+    const r=n.nodeType===1?n:m.target;
+    if(r&&r.nodeType===1&&r.isConnected) roots.add(r);
+  }
+  if(!roots.size) return;
+  I18N_BUSY=true;
+  // 조상이 이미 목록에 있으면 자손은 버린다. 같은 자리를 두 번 돌 이유가 없다.
+  try{ for(const r of roots){
+    let nested=false;
+    for(const o of roots) if(o!==r&&o.contains(r)){ nested=true; break; }
+    if(!nested) translateDOM(r);
+  } } finally{ I18N_BUSY=false; }
+});
+i18nWatch.observe(document.body,{childList:true,subtree:true});
+
 function i18nAudit(){
   const out=new Set();
   for(const root of [document.querySelector("header"),document.querySelector(".modes"),
@@ -1526,8 +1571,8 @@ function runSummaryCard(inner){
     const pill=x.gradable?["ok","적격"]:x.blocker==="blocked"?["warn","실행 불가"]
               :x.partial?["","부분 기록"]:x.blocker==="unknown"?["","판정 보류"]:["bad","답 형식 없음"];
     const why=x.gradable?"—"
-      :x.blocker==="blocked"?"호출 거부"+(x.blockKind?" · "+x.blockKind:"")
-      :x.partial?"부분 기록. history.json 에 없음":x.blocker==="unknown"?"출력 계약을 못 읽음"
+      :x.blocker==="blocked"?t("호출 거부")+(x.blockKind?" · "+x.blockKind:"")
+      :x.partial?t("부분 기록. history.json 에 없음"):x.blocker==="unknown"?t("출력 계약을 못 읽음")
       :`${t(CONTRACT[x.contract].label)} 없음`;
     return `<tr${dim?' style="opacity:.55"':""}><td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
       `<td><span class="pill">${esc(t(CONTRACT[x.contract].label))}</span></td>`+
@@ -1553,7 +1598,7 @@ function runSummaryCard(inner){
         [blocked.length?tn("호출 거부 {0}",blocked.length):"",unk.length?tn("계약 불명 {0}",unk.length):""].filter(Boolean).join(" · ")||t("전부 판정됨")} ${t("제외")}</em></div>
       <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
     </div>
-    <table><tr><th>${t("요청")}</th><th>${t("출력 계약")}</th><th>AI:GO</th><th>채점</th><th>${t("불가 사유")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th></tr>${rows}</table>
+    <table><tr><th>${t("요청")}</th><th>${t("출력 계약")}</th><th>AI:GO</th><th>${t("채점")}</th><th>${t("불가 사유")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th></tr>${rows}</table>
     <p class="note"><b>출력 계약은 문항마다 다릅니다.</b> 요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽습니다.
     실측된 두 가지: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) 과
     <code>FINAL ANSWER: \\boxed{…}</code> (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.<br>
@@ -1570,7 +1615,7 @@ function paneOverview(P,e){
     <p class="q">${esc(one(e.request).slice(0,220))}${one(e.request).length>220?"…":""}</p>
     <dl class="kv">
       <dt>AI:GO 판정</dt><dd>${esc(e.aigoStatus)} · 태스크 ${e.counts.total-e.counts.failed}/${e.counts.total} 성공</dd>
-      <dt>출력 계약</dt><dd><code>${esc(CONTRACT[e.contract].spec)}</code></dd>
+      <dt>출력 계약</dt><dd><code>${esc(t(CONTRACT[e.contract].spec))}</code></dd>
       <dt>채점 적격</dt><dd>${e.gradable
         ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있습니다`
         :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었습니다`
@@ -2435,7 +2480,7 @@ function paneLedger(P,e){
         `</div></div>`;
   }
   h+=`</div></div>
-    <p class="note"><b>이 문항의 출력 계약: <code>${esc(CONTRACT[e.contract].spec)}</code></b>
+    <p class="note"><b>이 문항의 출력 계약: <code>${esc(t(CONTRACT[e.contract].spec))}</code></b>
     요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽었습니다. 계약은 문항마다 다르므로
     한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.<br>
     <b>이 검사가 곧 Preflight 다.</b> 정규식 몇 개로 끝나고 <b>LLM 호출이 0회</b>다.
