@@ -1,5 +1,7 @@
 # 03. AI:GO (Backend.AI GO) Squad 완전 가이드
 
+> **[갱신됨 2026-08-23]** 스키마·도구·예산 필드 설명은 여전히 유효하다. 다만 메모리 권고("Planner는 항상 켤 것", "prefix cache에 유리할 수도")는 이후 실측으로 뒤집혔다 — 메모리 블록은 `assemble_agent_chat_system_prompt`가 **시스템 프롬프트 안으로** 넣어서 프리픽스 캐시를 그 자리에서 끊는다. 최종 템플릿은 다섯 자리 전부 `memoryEnabled: false`, `enabledTools: []`다. 근거는 `docs/ideation/final_final_ideation/plan/01-JSON-필드-결정표.md`.
+
 > 출처: 공식 매뉴얼 `https://go.backend.ai/en/manual/` 전 섹션을 크롤링해 정리했다.
 > 릴리스 저장소: `https://github.com/lablup/backend.ai-go-releases` (2026-08 기준 최신 v1.12.x 계열)
 > 이 트랙의 **필수 제약**이 "문제 해결 과정의 결정적 부분은 AI:GO의 agent squad 기능 위에 구현할 것"이므로, 이 문서가 사실상 구현 매뉴얼이다.

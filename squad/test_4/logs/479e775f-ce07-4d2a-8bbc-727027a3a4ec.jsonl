@@ -1,0 +1,13 @@
+{"timestamp":"2026-08-22T18:38:32.392637Z","level":"info","agentId":"system","message":"Execution started: 안녕"}
+{"timestamp":"2026-08-22T18:38:32.392902Z","level":"info","agentId":"system","message":"Plan generated: Plan for: 안녕 with 4 task(s)"}
+{"timestamp":"2026-08-22T18:38:32.397708Z","level":"info","agentId":"system","message":"Starting wave 1/1 with 4 task(s)"}
+{"timestamp":"2026-08-22T18:38:32.397825Z","level":"info","agentId":"agent-1787422824471-6c9caxa","message":"Task 'Editor: 안녕' assigned to agent 'Editor'"}
+{"timestamp":"2026-08-22T18:38:33.014221Z","level":"error","agentId":"agent-1787422824471-6c9caxa","message":"Task 'Editor: 안녕' failed: LLM call failed: API error: HTTP 503 Service Unavailable: {\"error\":{\"message\":\"All backends are temporarily unavailable. Please try again later.\",\"type\":\"service_unavailable\",\"code\":503}} (code: Some(\"503\"))"}
+{"timestamp":"2026-08-22T18:38:33.317869Z","level":"info","agentId":"agent-1787422824471-p5dwvja","message":"Task 'Architect: 안녕' assigned to agent 'Architect'"}
+{"timestamp":"2026-08-22T18:38:33.938269Z","level":"error","agentId":"agent-1787422824471-p5dwvja","message":"Task 'Architect: 안녕' failed: LLM call failed: API error: HTTP 503 Service Unavailable: {\"error\":{\"message\":\"All backends are temporarily unavailable. Please try again later.\",\"type\":\"service_unavailable\",\"code\":503}} (code: Some(\"503\"))"}
+{"timestamp":"2026-08-22T18:38:34.242421Z","level":"info","agentId":"agent-1787422824471-sjq2o22","message":"Task 'Reviewer: 안녕' assigned to agent 'Reviewer'"}
+{"timestamp":"2026-08-22T18:38:34.877045Z","level":"error","agentId":"agent-1787422824471-sjq2o22","message":"Task 'Reviewer: 안녕' failed: LLM call failed: API error: HTTP 503 Service Unavailable: {\"error\":{\"message\":\"All backends are temporarily unavailable. Please try again later.\",\"type\":\"service_unavailable\",\"code\":503}} (code: Some(\"503\"))"}
+{"timestamp":"2026-08-22T18:38:35.180450Z","level":"info","agentId":"agent-1787422824471-pkozq7y","message":"Task 'Solver: 안녕' assigned to agent 'Solver'"}
+{"timestamp":"2026-08-22T18:38:35.786632Z","level":"error","agentId":"agent-1787422824471-pkozq7y","message":"Task 'Solver: 안녕' failed: LLM call failed: API error: HTTP 503 Service Unavailable: {\"error\":{\"message\":\"All backends are temporarily unavailable. Please try again later.\",\"type\":\"service_unavailable\",\"code\":503}} (code: Some(\"503\"))"}
+{"timestamp":"2026-08-22T18:38:36.091795Z","level":"info","agentId":"system","message":"Wave 1/1 completed"}
+{"timestamp":"2026-08-22T18:38:36.596694Z","level":"info","agentId":"system","message":"Execution completed successfully"}

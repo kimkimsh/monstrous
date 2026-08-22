@@ -28,12 +28,24 @@ import json
 import sys
 from pathlib import Path
 
-# Output cap per call. 8192 is not a tuned value — it is the smallest cap measured
-# to produce zero unfinished answers. At 2,048, 49 of 450 math responses (10.9%)
-# ended with no final answer; at 8,192, none did. A truncated answer is a
-# team-owned zero, an oversized cap is only tokens, so the error is taken on the
-# safe side until the max_tokens sweep (plan/03 §4) says otherwise.
-MAX_TOKENS = 8192
+# Output cap per call, per seat. A truncated answer is a team-owned zero and an
+# oversized cap costs only the tokens actually spent, so every value here is the
+# safe side of that asymmetry until the max_tokens sweep (plan/03 §4) narrows it.
+#
+# 8192 is the floor: it is the smallest cap measured to produce zero unfinished
+# answers (arXiv 2607.24268 — at 2,048, 49 of 450 math responses ended with no
+# final answer; at 8,192, none did).
+#
+# Three seats sit above it. The leaderboard reports per_run_token_cap: null, so
+# nothing external punishes a high ceiling, and both assigned models are reasoning
+# models — the organiser measured one of the three spending 97% of its output
+# budget on reasoning before it answered, which at 8,192 leaves a few hundred
+# tokens for the answer itself. Solver takes the highest because the 13 math items
+# are HMMT Feb 2026 and AIME 2026, worth 1.92%p of the total score each; Editor and
+# Reviewer take the middle because they write and then re-emit a patch on the
+# 0.5-weight track. maxTokensPerTask (40,000) still bounds each of these.
+DEFAULT_MAX_TOKENS = 8192
+MAX_TOKENS = {"Solver": 24576, "Editor": 16384, "Reviewer": 16384}
 
 # Tool rounds. Every agent runs with enabledTools: [] and gets no tools at all, so
 # the workers' cap is a statement rather than a control — harmless whether the app
@@ -57,7 +69,7 @@ def overrides_for(name):
         "maxToolCalls": MAX_TOOL_CALLS.get(name, WORKER_MAX_TOOL_CALLS),
         "defaultTimeout": None,
         "contextCompressionThreshold": None,
-        "maxTokens": MAX_TOKENS,
+        "maxTokens": MAX_TOKENS.get(name, DEFAULT_MAX_TOKENS),
         "allowedPaths": None,
     }
 

@@ -1,6 +1,8 @@
 # Lablup 트랙 주제 5개 — 요약
 
 JUNCTIONX Korea 2026 · "Build the Ultimate Agent Squad" (Lablup + FuriosaAI)
+
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 아래 5개 주제는 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../final_final_ideation/spec/`이다. `Preflight`(러너 레벨 검사·재시도)와 `Qwen3-30B-A3B-Instruct-2507` 기준선은 최종 설계에 남지 않았다.
 배점: 벤치마크 40 + 시각화 30 + 토큰 효율 30
 
 ---

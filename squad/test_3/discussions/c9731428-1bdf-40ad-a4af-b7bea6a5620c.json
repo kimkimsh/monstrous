@@ -11,7 +11,7 @@
   ],
   "mode": "moderated",
   "strategy": "roundRobin",
-  "status": "awaitingUser",
+  "status": "completed",
   "turnBudget": 3,
   "turnsTaken": 3,
   "messages": [
@@ -80,6 +80,10 @@
       "completionTokens": 319
     }
   },
+  "terminationReason": {
+    "type": "idleTimeout",
+    "idleDurationSecs": 326
+  },
   "strategyHistory": [
     {
       "strategy": "roundRobin",
@@ -88,5 +92,5 @@
     }
   ],
   "createdAt": "2026-08-22T17:16:12.426965Z",
-  "updatedAt": "2026-08-22T17:17:15.907910Z"
+  "updatedAt": "2026-08-22T17:22:42.502582Z"
 }

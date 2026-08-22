@@ -1,0 +1,21 @@
+{
+  "id": "70308c3d-8f63-447a-9e18-05cc1f9a4e9f",
+  "squadId": "2a7090c0-5184-4e8b-b2ce-9d72ff249346",
+  "planId": "aad8a9b2-a2a0-4d93-b9e8-c011f3539dce",
+  "title": "Reviewer: 안녕",
+  "description": "안녕",
+  "assignedTo": "agent-1787422824471-sjq2o22",
+  "createdBy": "planner",
+  "status": "failed",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T18:38:32.396942Z",
+  "startedAt": "2026-08-22T18:38:34.244631Z",
+  "completedAt": "2026-08-22T18:38:34.877311Z"
+}

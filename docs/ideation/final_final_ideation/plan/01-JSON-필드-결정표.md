@@ -137,7 +137,7 @@ diff_files) must be RELATIVE to the workspace root. Do NOT use absolute paths.
 Use list_files with path "." to see the workspace root contents.
 ```
 
-같은 이름들이 **[바이너리]** Planner의 팀 명단 줄(`Tools: …`)에도 한 번 더 실린다. 도구 0개면 이 텍스트가 사라지거나 비어서, 889회 실행 × 3~4 호출에서 매번 조금씩 아낀다.
+같은 이름들이 **[바이너리]** Planner의 팀 명단 줄(`Tools: …`)에도 한 번 더 실린다. 도구 0개면 이 텍스트가 사라지거나 비어서, 147문항 × 3~4 호출(총 479회)에서 매번 조금씩 아낀다.
 
 **③ 그리고 도구는 실측에서 답을 죽였다 — 이것이 결정적이다.** **[디스크]** `squad/test_2` 실행 `13a35667`은 정답을 워크스페이스 파일에 썼다.
 
@@ -341,7 +341,7 @@ memory.extractionTriggerInterval    = 5
 memory.layerABudgetFraction         = 0.6
 ```
 
-읽기 배수 1.0에 상한 2,000이므로 **태스크 시작마다 최대 2,000 입력 토큰**이 붙는다. 889회 실행 × 3~4 호출 × 2,000 × 배율 2 = 최악 **10M 이상**이다. §4-4 총액 40.0M의 4분의 1이다.
+읽기 배수 1.0에 상한 2,000이므로 **태스크 시작마다 최대 2,000 입력 토큰**이 붙는다. 479 호출 × 2,000 × 배율 2 = 최악 **약 1.9M**이고, 실측 문항 수 기준 총액 7.1M의 **4분의 1**이다. (초안은 889 실행으로 10M 이상으로 잡았다. 비율은 같다.)
 
 **입력 토큰만 드는 것이 아니다 — LLM 호출이 추가로 나간다.** 공식 매뉴얼 [Workspace & Memory](https://go.backend.ai/ko/manual/squad/workspace-memory/) 원문:
 
@@ -387,17 +387,17 @@ for this squad.
 ### Layer B — Workspace Memory
 ```
 
-즉 메모리 블록은 별도 메시지가 아니라 **시스템 프롬프트 문자열의 일부**가 된다. 그런데 이 스쿼드의 캐시 설계 전체가 *"다섯 에이전트의 시스템 프롬프트 Layer 1이 바이트 단위로 같다"*에 걸려 있다(`sha256 126b9dab…`). **메모리는 문항마다 달라진다.** 켜는 순간 그 에이전트의 시스템 프롬프트가 매 문항 달라지고, 프리픽스 캐시는 달라지는 지점부터 전부 재계산된다.
+즉 메모리 블록은 별도 메시지가 아니라 **시스템 프롬프트 문자열의 일부**가 된다. 그런데 이 스쿼드의 캐시 설계 전체가 *"다섯 에이전트의 시스템 프롬프트 Layer 1이 바이트 단위로 같다"*에 걸려 있다(`sha256 c5fec0a2…`). **메모리는 문항마다 달라진다.** 켜는 순간 그 에이전트의 시스템 프롬프트가 매 문항 달라지고, 프리픽스 캐시는 달라지는 지점부터 전부 재계산된다.
 
-**② Planner는 889회 전부 도는 자리다 — 비용이 가장 크다.**
+**② Planner는 147문항 전부 도는 자리다 — 비용이 가장 크다.**
 
 읽기 상한 2,000 × 배수 1.0이므로 호출당 최대 2,000 입력 토큰이다. Router는 coding·math·generic 전 트랙에서 돌므로:
 
 ```
-889 실행 × 2,000 토큰 × 배율 2 = 약 3.56M
+147문항 × 2,000 토큰 × 배율 2 = 약 0.59M  (초안은 889 실행으로 3.56M)
 ```
 
-§6의 총액 40.0M의 **약 9%**다. 절약 계단 S3(Architect 제거)가 아끼는 2.28M보다 크다. **한 자리만 켠다면 하필 가장 비싼 자리를 켜는 것이다.**
+총액의 **약 8%**다. 절약 계단 S3(Architect 제거)가 아끼는 0.46M보다 크다. **한 자리만 켠다면 하필 가장 비싼 자리를 켜는 것이다.**
 
 **③ 벤치마크 문항은 서로 독립이고, 실측에서는 오히려 오염됐다.**
 
@@ -425,9 +425,9 @@ squad/test_2/memory/researcher.md
 | 필드 | 값 | 근거 |
 |---|---|---|
 | `schemaVersion` | `1` | **[바이너리]** 상위 버전이면 *"declares schema version … which is newer than the supported version"*로 거부 |
-| `id` | `user-monstrous-ledger-squad-v1` | **[바이너리]** ≤200자, 제한된 문자셋. 폴더 이름(`monstrous_squad`)과 스쿼드 정체성(LEDGER)을 둘 다 담는다 |
-| `name` | `LEDGER Squad` | **[바이너리]** ≤200자. 제출 카피(`docs/ideation/final_ideation/submission-copy.md`)가 이 이름으로 쓰여 있다 |
-| `description` | 아래 | **[바이너리]** ≤5,000자 |
+| `id` | `user-monstrous-squad-v1` | **[바이너리]** ≤200자, 제한된 문자셋. 폴더 이름(`monstrous_squad`)과 스쿼드 이름이 같아졌으므로 하나로 줄였다 |
+| `name` | `Monstrous Squad` | **[바이너리]** ≤200자. 프롬프트 안의 `THE LEDGER LINE`은 스쿼드 이름이 아니라 **응답 첫 줄에 남기는 장부 한 줄**의 이름이라 그대로 둔다 |
+| `description` | `squad-template.json` 안의 값이 원본이다 (현재 786자) | **[바이너리]** ≤5,000자. 도구를 왜 안 쓰는지, ledger 줄이 왜 있는지, 포기가 왜 판정인지가 JSON만 읽어도 보이게 썼다 |
 | `icon` | `📒` | 장부(ledger) |
 | `category` | `custom` | **[문서]** 닫힌 열거형 `development` / `content` / `research` / `review` / `custom`. **[디스크]** 빌트인 5개가 앞의 넷을 쓴다. 우리는 어느 쪽도 아니다 |
 | `isBuiltin` | `false` | **[문서]** 임포트가 어차피 `false`로 덮어쓴다. 명시해 둔다 |
@@ -469,7 +469,7 @@ Writer      — creates documentation and content
 
 1. Router의 Layer 3이 세 플랜 모두에서 `T -> Reviewer`를 **명시적으로** 지정한다. 명단 한 줄보다 강한 지시다.
 2. custom으로 바꾸면 설명이 "틀린 한 줄"에서 **`No description`**으로 바뀔 뿐, 우리가 원하는 문장이 들어가지는 않는다. 위 리터럴 넷 밖의 값을 넣을 통로가 없다.
-3. 바꾸는 것 자체가 되돌리기 쉬운 한 단어짜리 변경이라, **먼저 재고 나서 바꾸는 것이 옳다.** 점검표 15번이 그 측정이다.
+3. 바꾸는 것 자체가 되돌리기 쉬운 한 단어짜리 변경이라, **먼저 재고 나서 바꾸는 것이 옳다.** `03-검증과-배포.md` 점검표 9번이 그 측정이다.
 
 ### 5-3. `icon`
 
@@ -477,11 +477,11 @@ Router 🗺 / Architect 📐 / Editor 🔧 / Solver 🧮 / Reviewer 📤. 시각
 
 ### 5-4. `systemPrompt` — 3층 배치를 바이트 단위로 유지한다
 
-**[바이너리]** 상한은 에이전트당 50,000자다. 현재 최대는 Architect 14,019자.
+**[바이너리]** 상한은 에이전트당 50,000자다. 현재 최대는 Architect 15,073자.
 
-Layer 1(공통 계약)은 **9,510자**이고 다섯 에이전트가 **바이트 단위로 같다** — `sha256` 앞 16자리 `126b9dab97c5231e`. `tools/validate_template.py`가 매번 이것을 검사한다.
+Layer 1(공통 계약)은 **10,292자**이고 다섯 에이전트가 **바이트 단위로 같다** — `sha256` 앞 16자리 `c5fec0a204c33189`. `tools/validate_template.py`가 매번 이것을 검사한다.
 
-프롬프트 본문은 `docs/ideation/final_final_ideation/spec/squad-template.json`에서 **한 글자도 바꾸지 않고** 가져왔다. 이 문서의 작업 범위는 JSON 설정 계층이고, 프롬프트는 스펙의 산출물이다. 프롬프트에 대한 제안은 `00-기획안.md` §6에 **제안으로만** 적었다.
+**프롬프트 본문은 `squad-template.json` 안에만 있다.** 설계 사본(`spec/squad-template.json`)은 2026-08-23에 삭제했다 — 같은 프롬프트가 두 파일에 살면 어느 쪽이 제출물인지가 매번 다시 물음이 되고, 한쪽만 고치는 사고가 난다. 프롬프트를 고칠 자리는 이제 한 곳이다.
 
 ---
 
@@ -526,7 +526,7 @@ aigo squad update <ID> <BODY_JSON>     # BODY_JSON matching `UpdateSquadRequest`
 ```bash
 # 1. 템플릿으로 스쿼드를 만든다 (프롬프트·모델·도구·메모리가 들어간다)
 aigo squad template import squad-template.json
-aigo squad create '{"name":"LEDGER Squad","workspacePath":"…","templateId":"user-monstrous-ledger-squad-v1"}'
+aigo squad create '{"name":"Monstrous Squad","workspacePath":"…","templateId":"user-monstrous-squad-v1"}'
 
 # 2. 만들어진 스쿼드를 읽어 update 본문을 만든다
 aigo squad show <SQUAD_ID> > squad.json
@@ -589,6 +589,6 @@ aigo squad budget set <SQUAD_ID> "$(cat budget.json)"
 | 2 | 임포트·생성 후 `preferredModelId`가 우리 값으로 남는가 | **[디스크]** 이 PC의 기존 스쿼드 8개는 템플릿에 모델이 없었는데도 전부 `unsloth/gpt-oss-20b`로 채워져 있었다. 앱이 생성 시점에 값을 **만들어 넣는다** |
 | 3 | `enabledTools: []`가 워커 프롬프트의 `## Important: File Tool Paths` 블록을 없애는가 | 실행 후 세션 파일 `messages[0].content` 확인 |
 | 4 | `role: "Reviewer"`의 설명 줄이 Planner 프롬프트에 실제로 들어가는가 | math 문항 1건 실행 후 플랜 확인 |
-| 5 | 템플릿 `id` 길이 상한 | `name` ≤200은 `0x101da5828`에서 상수 `0xc8`로 확인했지만, `id` 검사는 다른 함수에 있고 상수를 못 짚었다. 현재 값 `user-monstrous-ledger-squad-v1`은 30자라 어느 상한이든 안전하다 |
+| 5 | 템플릿 `id` 길이 상한 | `name` ≤200은 `0x101da5828`에서 상수 `0xc8`로 확인했지만, `id` 검사는 다른 함수에 있고 상수를 못 짚었다. 현재 값 `user-monstrous-squad-v1`은 23자라 어느 상한이든 안전하다 |
 
 **닫힌 질문 둘도 적어 둔다.** ① `minContextWindow`가 배선돼 있는가 — **아니다.** `resolve_agent_readiness` 디스어셈블리로 확정(§2-0). ② 포털이 hidden 실행의 per-item 응답 본문을 돌려주는가 — **아니다.** `BreakdownRow`가 스키마 주석에 *"Aggregated across items on purpose"*라고 적어 두었다.

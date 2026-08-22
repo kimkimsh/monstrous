@@ -69,3 +69,4 @@ viz/runs/
 
 # Browser console logs from MCP browser tooling
 .playwright-mcp/
+.regression-input/

@@ -1,4 +1,6 @@
 # 주제 2: Adaptive-Budget Squad & Pareto Frontier Visualizer
+
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../../final_final_ideation/spec/`이다. **이 문서가 전제한 Unified Diff 출력은 틀렸다** — coding 출력은 SEARCH/REPLACE 블록이고, `git diff`를 내면 전 문항 `extraction_failed`다.
 > **"불확실성 기반 3단계 조기 포기 및 토큰 한계효용 파레토 최적화 시스템"**
 
 ---

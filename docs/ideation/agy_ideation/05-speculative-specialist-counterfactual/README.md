@@ -1,4 +1,6 @@
 # 주제 5: Speculative-Specialist Squad & Counterfactual Decision Matrix
+
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../../final_final_ideation/spec/`이다. **이 문서가 전제한 Unified Diff 출력은 틀렸다** — coding 출력은 SEARCH/REPLACE 블록이고, `git diff`를 내면 전 문항 `extraction_failed`다.
 > **"사변적(Speculative) 하이브리드 전문가 스쿼드 및 반사실적(What-If) 의사결정 분석 시스템"**
 
 ---

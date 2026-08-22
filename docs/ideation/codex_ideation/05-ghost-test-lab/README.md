@@ -1,5 +1,7 @@
 # Ghost Test Lab — 실행할 수 없는 테스트를 먼저 설계하는 Coding Squad
 
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../../final_final_ideation/spec/`이다. 최종 스쿼드는 Router · Architect · Editor · Solver · Reviewer 5인이고, 여기 나오는 그 밖의 에이전트 이름은 채택되지 않았다.
+
 > patch부터 쓰지 않고, issue가 요구하는 fail-to-pass 행동과 regression 금지 조건을 먼저 만든 뒤 그 조건을 가장 잘 만족하는 patch를 고르는 주제.
 
 ## 간단한 설명

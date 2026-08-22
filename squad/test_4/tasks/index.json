@@ -1,0 +1,50 @@
+[
+  {
+    "id": "4134a667-32df-4b59-9075-93e440bcc41c",
+    "squadId": "2a7090c0-5184-4e8b-b2ce-9d72ff249346",
+    "planId": "aad8a9b2-a2a0-4d93-b9e8-c011f3539dce",
+    "title": "Architect: 안녕",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787422824471-p5dwvja",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T18:38:32.393217Z",
+    "completedAt": "2026-08-22T18:38:33.938509Z"
+  },
+  {
+    "id": "0c0852db-ea4f-48f3-b5de-b8187513e959",
+    "squadId": "2a7090c0-5184-4e8b-b2ce-9d72ff249346",
+    "planId": "aad8a9b2-a2a0-4d93-b9e8-c011f3539dce",
+    "title": "Editor: 안녕",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787422824471-6c9caxa",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T18:38:32.395039Z",
+    "completedAt": "2026-08-22T18:38:33.014447Z"
+  },
+  {
+    "id": "fd2919a8-b212-40b8-8128-833d98322afe",
+    "squadId": "2a7090c0-5184-4e8b-b2ce-9d72ff249346",
+    "planId": "aad8a9b2-a2a0-4d93-b9e8-c011f3539dce",
+    "title": "Solver: 안녕",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787422824471-pkozq7y",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T18:38:32.396155Z",
+    "completedAt": "2026-08-22T18:38:35.787095Z"
+  },
+  {
+    "id": "70308c3d-8f63-447a-9e18-05cc1f9a4e9f",
+    "squadId": "2a7090c0-5184-4e8b-b2ce-9d72ff249346",
+    "planId": "aad8a9b2-a2a0-4d93-b9e8-c011f3539dce",
+    "title": "Reviewer: 안녕",
+    "status": "failed",
+    "priority": "medium",
+    "assignedTo": "agent-1787422824471-sjq2o22",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T18:38:32.396942Z",
+    "completedAt": "2026-08-22T18:38:34.877311Z"
+  }
+]

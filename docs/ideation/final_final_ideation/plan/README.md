@@ -2,6 +2,12 @@
 
 JUNCTIONX Korea 2026 · Lablup + FuriosaAI 트랙 "Build the Ultimate Agent Squad"
 
+> **[2026-08-23] 먼저 읽을 것 — 리더보드 API가 인증 없이 열려 있다.**
+> `https://submission.jxc.events.lablup.ai:8444/api/leaderboard`가 hidden 세트를 **147문항**(coding 38 / math 13 / generic 96, 반복 없음)으로,
+> 토큰·시간 캡을 **둘 다 `null`**로, 평가 모델을 `providers.json`의 셋으로 확정해 준다. math는 **HMMT Feb 2026 + AIME 2026**, generic에는 **GPQA가 섞여 있다.**
+> 그 결과 비용 모델이 40.0M → 약 **7.1M**이고, 1위 팀은 **gpt-oss-120b 하나로 2.53M**을 써서 0.4261을 냈다.
+> 자세히는 `spec/00-스쿼드-스펙.md` §1-2와 부록 A-15.
+
 `spec/`가 **무엇을 만들지**를 정했다. 이 폴더는 그 위에서 **JSON 설정 계층을 다시 정한다.** 산출물은 `squad/squad_template/monstrous_squad/`에 있다.
 
 | 문서 | 내용 |

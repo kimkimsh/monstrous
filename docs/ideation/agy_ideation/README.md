@@ -1,6 +1,8 @@
 # Lablup & FuriosaAI 트랙 1등 전략 주제 기획 (Top 5 Ideation)
 
 > **트랙명**: Build the Ultimate Agent Squad (Lablup + FuriosaAI)  
+
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../final_final_ideation/spec/`이다. **아래 다섯 주제가 전제한 Unified Diff 출력은 틀렸다** — 이 트랙의 coding 출력은 SEARCH/REPLACE 블록이고, `git diff`를 내면 전 문항 `extraction_failed`다.
 > **핵심 질문**: *"How far can you go with a model you can actually hold in your hands?"*  
 > **배점 구조**: 벤치마크 정확도 40% + 트레이스 시각화 30% + 토큰 효율 30% (동점 판정 1순위: 총 토큰 수)  
 > **핵심 가중치**: Coding (0.5), Generic (0.25), Math (0.25)

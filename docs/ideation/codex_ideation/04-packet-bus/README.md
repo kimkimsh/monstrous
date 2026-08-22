@@ -1,5 +1,7 @@
 # PacketBus — 자연어 회의를 버린 Agent 통신 규약
 
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../../final_final_ideation/spec/`이다. 최종 스쿼드는 Router · Architect · Editor · Solver · Reviewer 5인이고, 여기 나오는 그 밖의 에이전트 이름은 채택되지 않았다.
+
 > agent 사이의 장문 대화를 고정 schema의 작은 판단 packet으로 바꿔, 의미 변질과 token 중복을 동시에 줄이는 주제.
 
 ## 간단한 설명

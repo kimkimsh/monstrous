@@ -1,4 +1,4 @@
-# 제출 폼 원고 — LEDGER Squad
+# 제출 폼 원고 — Monstrous Squad
 
 바로 붙여넣는 평문은 `submission-copy-ko.txt`에 따로 있다.
 폼이 국문이면 국문판, 영문이면 영문판을 쓴다.

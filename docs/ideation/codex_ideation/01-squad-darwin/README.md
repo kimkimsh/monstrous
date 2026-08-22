@@ -1,5 +1,7 @@
 # Squad Darwin — 스스로 작아지는 Agent Squad
 
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../../final_final_ideation/spec/`이다. 최종 스쿼드는 Router · Architect · Editor · Solver · Reviewer 5인이고, 여기 나오는 그 밖의 에이전트 이름은 채택되지 않았다.
+
 > 연습 실행의 실제 점수와 token을 기준으로 agent·연결·model 배치를 진화시켜, 가장 작은 고득점 Squad 하나만 제출하는 주제.
 
 ## 간단한 설명

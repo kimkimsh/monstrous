@@ -1,4 +1,6 @@
 # 주제 4: Failure-Attribution Squad & Root-Cause Intelligence Dashboard
+
+> **[갱신됨 2026-08-23 · 이 문서는 역사 기록이다]** 2026-08-22 발상 단계의 기록이고 최종 설계가 아니다. 현행은 `../../final_final_ideation/spec/`이다. **이 문서가 전제한 Unified Diff 출력은 틀렸다** — coding 출력은 SEARCH/REPLACE 블록이고, `git diff`를 내면 전 문항 `extraction_failed`다.
 > **"결정론적 채점기 규격 대응 자가 치유 스쿼드 및 책임 주체 분리형 옵저버빌리티"**
 
 ---

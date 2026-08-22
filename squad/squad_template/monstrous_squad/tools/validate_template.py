@@ -68,6 +68,13 @@ EVALUATION_MODELS = {
 }
 
 LAYER_BOUNDARY = "=== END SQUAD CONTRACT ==="
+# squad-template.min.json is the import fallback: the same template with these two
+# fields emptied. Any other divergence means the fallback is not a fallback.
+MIN_EMPTIED = ("disabledTools", "toolPermissionOverrides")
+# The three one-shot prompts are submitted alongside the template. add_prompt/ is the
+# source; example_task/prompts/ is where compose.py looks by default. Two copies of the
+# same submitted text is exactly the drift the deleted spec template used to cause.
+PROMPT_TRACKS = ("coding", "math", "generic")
 STATUS_SUMMARY = re.compile(r"^\s*\*\*Execution (complete|failed)\*\*\s*—", re.MULTILINE)
 
 failures = []
@@ -265,6 +272,67 @@ BUDGET_KEYS = {
 }
 
 
+def check_min_variant(path):
+    """The fallback must differ from the submission template in two fields, no more."""
+    full, minimal = path.parent / "squad-template.json", path.parent / "squad-template.min.json"
+    if path.name != full.name or not minimal.exists():
+        return
+    a, b = json.loads(full.read_text()), json.loads(minimal.read_text())
+    for agent in b.get("agents", []):
+        for field in MIN_EMPTIED:
+            if agent.get("toolConfig", {}).get(field):
+                fail(f"{agent.get('name')}: min variant still carries {field}")
+    grafted = json.loads(minimal.read_text())
+    for src, dst in zip(a.get("agents", []), grafted.get("agents", [])):
+        for field in MIN_EMPTIED:
+            dst["toolConfig"][field] = src["toolConfig"][field]
+    if grafted != a:
+        fail("squad-template.min.json differs from squad-template.json outside "
+             f"{list(MIN_EMPTIED)} — rerun tools/make_min_template.py")
+    else:
+        note(f"min variant matches, emptying only {', '.join(MIN_EMPTIED)}")
+
+
+def check_tool_denials(t):
+    """disabledTools and toolPermissionOverrides are a record, so keep them coherent."""
+    for a in t.get("agents") or []:
+        cfg = a.get("toolConfig") or {}
+        denied, perms = cfg.get("disabledTools") or [], cfg.get("toolPermissionOverrides") or {}
+        if set(denied) != set(perms):
+            fail(f"{a.get('name')}: disabledTools and toolPermissionOverrides list "
+                 f"different tools ({len(denied)} vs {len(perms)})")
+        wrong = sorted(k for k, v in perms.items() if v != "never_allow")
+        if wrong:
+            fail(f"{a.get('name')}: toolPermissionOverrides not never_allow for {wrong}")
+
+
+def check_one_shot_prompts(path):
+    """add_prompt/ is the submitted set; the harness copy must not drift from it."""
+    src = path.parent / "add_prompt"
+    harness = REPO / "docs" / "resource" / "example_task" / "prompts"
+    if not src.is_dir():
+        note("no add_prompt/ beside the template; one-shot prompts not checked")
+        return
+    for track in PROMPT_TRACKS:
+        a = src / f"{track}.txt"
+        if not a.exists():
+            fail(f"add_prompt/{track}.txt is missing")
+            continue
+        text = a.read_text()
+        if text.count("{{TASK}}") != 1:
+            fail(f"add_prompt/{track}.txt has {text.count('{{TASK}}')} {{{{TASK}}}} "
+                 f"placeholders; the composer substitutes every one, so two doubles the item")
+        if not text.rstrip().endswith("{{TASK}}"):
+            fail(f"add_prompt/{track}.txt does not end with {{{{TASK}}}}; the item has to "
+                 f"land last so the stable prefix stays cacheable")
+        b = harness / f"{track}.txt"
+        if b.exists() and b.read_text() != text:
+            fail(f"docs/resource/example_task/prompts/{track}.txt differs from "
+                 f"add_prompt/{track}.txt — the submitted prompt and the one the local "
+                 f"harness measures are not the same text")
+    note(f"one-shot prompts: {len(PROMPT_TRACKS)} tracks, one {{{{TASK}}}} each, harness copy in sync")
+
+
 def check_budget(path):
     """budget.json ships beside the template; the app rejects it out of order."""
     if not path.exists():
@@ -304,6 +372,9 @@ def main():
     check_agents(template)
     check_layer_one(template)
     check_against_grader(template)
+    check_tool_denials(template)
+    check_one_shot_prompts(Path(sys.argv[1]))
+    check_min_variant(Path(sys.argv[1]))
     check_budget(path.parent / "budget.json")
 
     print(f"{path.name}: {len(template.get('agents') or [])} agents, "
