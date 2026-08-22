@@ -10,18 +10,25 @@
   --fg:#e6edf3; --fg-dim:#8b98a8; --fg-faint:#5b6675;
   --accent:#4cc2ff; --ok:#3fb950; --warn:#d29922; --bad:#f85149; --prog:#a371f7;
   --mono:ui-monospace,"Cascadia Mono","JetBrains Mono",Consolas,"DejaVu Sans Mono",monospace;
+  /* 네이티브 컨트롤(셀렉트 드롭다운·스크롤바·슬라이더 손잡이)이 테마를 따라오게 한다.
+     이게 없으면 select 만 밝은 시스템 기본색으로 튄다. */
+  color-scheme:dark;
 }
 html[data-theme="light"]{
   --bg:#f6f8fa; --panel:#fff; --panel-2:#f0f3f6; --line:#d6dde5;
   --fg:#1c2128; --fg-dim:#57606a; --fg-faint:#8c959f;
   --accent:#0969da; --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e; --prog:#8250df;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.55 var(--mono);overflow:hidden}
 button,select,input{font:inherit;color:inherit}
-button{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
-button:hover{border-color:var(--accent)}
+button,select{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button:hover,select:hover{border-color:var(--accent)}
+select{padding-right:6px}
+select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=range]{accent-color:var(--accent)}
 button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 .app{display:flex;flex-direction:column;height:100%}
 
@@ -38,7 +45,7 @@ main{flex:1;display:flex;min-height:0}
 /* 좌 — 실행 선택 */
 .side{width:310px;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
 .side .h{padding:8px 10px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center}
-.side .h select{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:3px 6px;flex:1;min-width:0}
+.side .h select{padding:3px 6px;flex:1;min-width:0}   /* 색·테두리는 전역 select 규칙을 따른다 */
 .side ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
 .side li{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer}
 .side li:hover{background:var(--panel-2)}
@@ -109,21 +116,52 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .chk.ok b{color:var(--ok)} .chk.no b{color:var(--bad)}
 
 /* ── 스쿼드 맵 ── */
-.sm-wrap{border:1px solid var(--line);border-radius:8px;background:var(--panel-2);padding:8px;margin-bottom:12px;overflow:hidden}
-.sm-edge{fill:none;stroke:var(--line);stroke-width:1.6;stroke-dasharray:5 4;opacity:.45;transition:opacity .3s,stroke .3s}
-.sm-edge.on{stroke:var(--accent);opacity:1;animation:sm-flow .8s linear infinite}
-@keyframes sm-flow{to{stroke-dashoffset:-18}}
-.sm-node rect{transition:filter .3s,stroke-width .3s}
-.sm-node{opacity:.32;transition:opacity .35s}
+.sm-wrap{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb,var(--accent) 7%, transparent), transparent 70%),
+    var(--panel-2);
+  background-image:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb,var(--accent) 7%, transparent), transparent 70%),
+    linear-gradient(color-mix(in srgb,var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb,var(--line) 55%, transparent) 1px, transparent 1px);
+  background-size:100% 100%, 22px 22px, 22px 22px}
+
+/* 간선 — 바탕선 위로 밝은 펄스가 흐른다.
+   pathLength=1000 으로 정규화해서 경로 길이와 무관하게 같은 속도로 흐르게 한다. */
+.sm-edge{fill:none;stroke:var(--line);stroke-width:1.5;opacity:.5;transition:stroke .35s,opacity .35s}
+.sm-edge.on{stroke:color-mix(in srgb,var(--accent) 45%, var(--line));opacity:1}
+.sm-flow{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;
+  stroke-dasharray:26 974;opacity:0;transition:opacity .3s}
+.sm-flow.on{opacity:.95;animation:sm-travel 1.5s linear infinite}
+@keyframes sm-travel{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
+
+/* 포트 — 간선이 노드에 붙는 지점 */
+.sm-port{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:fill .3s,stroke .3s}
+.sm-node.seen .sm-port{stroke:var(--nc)}
+.sm-node.run  .sm-port{fill:var(--nc)}
+
+.sm-node{--nc:var(--fg-faint);opacity:.3;transition:opacity .4s}
 .sm-node.seen{opacity:1}
-.sm-node.run rect{stroke-width:2.5;animation:sm-glow 1.1s ease-in-out infinite}
-@keyframes sm-glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+.sm-node .box{transition:stroke-width .3s,filter .35s}
+.sm-node.seen .box{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--nc) 28%, transparent))}
+.sm-node.run  .box{stroke-width:2.4;filter:drop-shadow(0 0 11px color-mix(in srgb,var(--nc) 60%, transparent))}
+.sm-dot{transition:opacity .3s}
+.sm-node.run .sm-dot{animation:sm-blink 1.15s ease-in-out infinite}
+@keyframes sm-blink{0%,100%{opacity:1;r:4}50%{opacity:.35;r:5.2}}
 .sm-node .sm-mark{font-weight:700}
-.sm-node.idle{opacity:.4}
-.sm-node.idle.seen{opacity:.4}      /* 미참여는 재생이 지나가도 켜지지 않는다 */
-.sm-cap{font-size:10.5px;color:var(--fg-dim);padding:6px 4px 0}
+.sm-node.idle,.sm-node.idle.seen{opacity:.38}   /* 미참여는 재생이 지나가도 켜지지 않는다 */
+.sm-node.idle .box{filter:none}
+
+.sm-cap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:10.5px;color:var(--fg-dim);padding:8px 4px 0}
 .sm-cap b{color:var(--fg)}
-.sm-src{display:block;color:var(--fg-faint);font-size:10px;margin-top:2px}
+.sm-key{display:inline-flex;gap:5px;align-items:center}
+.sm-key i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sm-src{flex-basis:100%;color:var(--fg-faint);font-size:10px;margin-top:-2px}
+
+@media (prefers-reduced-motion:reduce){
+  .sm-flow.on{animation:none;opacity:.7;stroke-dasharray:none}
+  .sm-node.run .sm-dot{animation:none}
+}
 
 /* ── 재생 ── */
 .rp-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
@@ -993,7 +1031,14 @@ function paneReplay(P,e){
       if(run) running.add(id);
       const mark=g.querySelector(".sm-mark"), tok=g.querySelector(".sm-tok");
       const fin=t>=nt.b;
+      // 노드 색은 결과에 따라 바뀐다 — 도는 중엔 파랑, 끝나면 초록/빨강.
+      // --nc 하나만 바꾸면 테두리·점·글로우·포트가 한꺼번에 따라온다.
+      const paint=c=>{ g.style.setProperty("--nc",c);
+        g.querySelector(".box").setAttribute("stroke",c);
+        g.querySelector(".sm-dot").setAttribute("fill",c); };
       if(nt.task){
+        if(fin) paint(nt.ok?"var(--ok)":"var(--bad)");
+        else if(run) paint("var(--accent)");
         mark.textContent=fin?(nt.ok?"✓":"✗"):"";
         mark.setAttribute("fill",nt.ok?"var(--ok)":"var(--bad)");
         let v=0; for(const p of (nt.task.tokAt||[])) if(p.t-e.t0<=t) v=p.tok;
@@ -1003,9 +1048,10 @@ function paneReplay(P,e){
         mark.setAttribute("fill",e.gradable?"var(--ok)":"var(--bad)");
       } else if(id==="planner"&&fin&&e.plannerWarning){
         mark.textContent="⚠"; mark.setAttribute("fill","var(--warn)");
+        paint("var(--warn)");
       }
     });
-    P.querySelectorAll(".sm-edge").forEach(p=>p.classList.toggle("on",running.has(p.dataset.to)));
+    P.querySelectorAll(".sm-edge,.sm-flow").forEach(p=>p.classList.toggle("on",running.has(p.dataset.to)));
 
     // 이벤트 티커 — 재생선이 지나간 것만 하나씩 나타난다
     const box=$("#rp-tick");
@@ -1035,7 +1081,7 @@ function paneReplay(P,e){
 /* 스쿼드 맵 — 노드는 실제로 동작한 것만 나온다.
    좌표는 고정 viewBox 로 잡고 SVG 가 알아서 축소/확대하게 둔다.
    폭을 재지 않는 이유는 앞서 재생선에서 겪은 것과 같다(합성 안 되면 0 이 나온다). */
-const NW=158, NH=54, CW=206, RH=78;
+const NW=172, NH=62, CW=224, RH=88;
 function squadMap(e){
   // 열 구성: 요청 → 플래너 → 웨이브별 에이전트 → 집계 → 결과
   const waveOf=new Map();
@@ -1081,27 +1127,39 @@ function squadMap(e){
   const NC={io:"var(--fg-faint)", sys:"var(--prog)", agent:"var(--accent)", idle:"var(--fg-faint)",
             warnnode:"var(--warn)", good:"var(--ok)", badnode:"var(--bad)"};
 
+  // 간선은 바탕선 + 흐르는 펄스 두 겹으로 그린다.
   const ePaths=edges.map(({from,to})=>{
     const a=pos[from], b=pos[to];
     const x1=a.x+NW, y1=a.y+NH/2, x2=b.x, y2=b.y+NH/2, mx=(x1+x2)/2;
-    return `<path class="sm-edge" data-to="${to}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`;
+    const d=`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    return `<path class="sm-edge" data-to="${to}" d="${d}"/>`+
+           `<path class="sm-flow" data-to="${to}" d="${d}" pathLength="1000"/>`;
   }).join("");
 
+  const hasIn=id=>edges.some(e=>e.to===id), hasOut=id=>edges.some(e=>e.from===id);
+
   const nodes=Object.values(pos).map(({x,y,n})=>`
-    <g class="sm-node${n.kind==="idle"?" idle":""}" data-id="${n.id}" transform="translate(${x},${y})">
-      <rect width="${NW}" height="${NH}" rx="9" fill="var(--panel-2)" stroke="${NC[n.kind]}"
-            ${n.kind==="idle"?'stroke-dasharray="5 4"':""}/>
-      <text x="11" y="20" font-size="12" font-weight="700" fill="var(--fg)">${esc(n.label).slice(0,20)}</text>
-      <text x="11" y="34" font-size="9" fill="var(--fg-dim)">${esc(n.sub)}</text>
-      <text x="11" y="47" font-size="9" fill="var(--fg-faint)" class="sm-tok"></text>
-      <text x="${NW-11}" y="20" font-size="12" text-anchor="end" class="sm-mark"></text>
+    <g class="sm-node${n.kind==="idle"?" idle":""}" data-id="${n.id}"
+       style="--nc:${NC[n.kind]}" transform="translate(${x},${y})">
+      <rect class="box" width="${NW}" height="${NH}" rx="10" fill="var(--panel)" stroke="${NC[n.kind]}"
+            stroke-width="1.4" ${n.kind==="idle"?'stroke-dasharray="5 4"':""}/>
+      <circle class="sm-dot" cx="15" cy="19" r="4" fill="${NC[n.kind]}"/>
+      <text x="27" y="23" font-size="12" font-weight="700" fill="var(--fg)">${esc(n.label).slice(0,19)}</text>
+      <text x="15" y="39" font-size="9" fill="var(--fg-dim)">${esc(n.sub)}</text>
+      <text x="15" y="52" font-size="9" fill="var(--fg-faint)" class="sm-tok"></text>
+      <text x="${NW-12}" y="23" font-size="13" text-anchor="end" class="sm-mark"></text>
+      ${hasIn(n.id) ?`<circle class="sm-port" cx="0"    cy="${NH/2}" r="3.5"/>`:""}
+      ${hasOut(n.id)?`<circle class="sm-port" cx="${NW}" cy="${NH/2}" r="3.5"/>`:""}
     </g>`).join("");
 
   const n=(S.roster||[]).length, act=worked.size+1;   // +1 = 플래너
+  const key=(c,t)=>`<span class="sm-key"><i style="background:${c}"></i>${t}</span>`;
   return `<svg class="sm" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
-             style="width:100%;height:${Math.min(H,280)}px">${ePaths}${nodes}</svg>
-    <div class="sm-cap">스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b>
-      ${n>act?` · 점선 = 미참여`:""}
+             style="width:100%;height:${Math.min(H,290)}px">${ePaths}${nodes}</svg>
+    <div class="sm-cap">
+      <span>스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b></span>
+      ${key("var(--ok)","완료")}${key("var(--bad)","실패")}${key("var(--accent)","실행 중")}
+      ${n>act?key("var(--fg-faint)","미참여 (점선)"):""}
       <span class="sm-src">${S.rosterSource==="template"?"Squad Template JSON 기준":
         "로그에서 추린 것 — 로그에는 태스크를 배정받은 에이전트만 남는다. 플래너는 이름이 없어 자리만 세웠다"}</span>
     </div>`;
