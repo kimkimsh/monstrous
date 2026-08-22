@@ -149,6 +149,14 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .sm-node.run .sm-dot{animation:sm-blink 1.15s ease-in-out infinite}
 @keyframes sm-blink{0%,100%{opacity:1;r:4}50%{opacity:.35;r:5.2}}
 .sm-node .sm-mark{font-weight:700}
+.sm-node{cursor:pointer}
+.sm-node:hover .box{stroke-width:2.4}
+.sm-node.focus .box{stroke-width:3}
+.sm-node.focus .ring{opacity:1;animation:sm-ring 1.6s ease-out infinite}
+.ring{opacity:0;fill:none;stroke:var(--nc);stroke-width:1.6}
+@keyframes sm-ring{0%{opacity:.75;transform:scale(1)}100%{opacity:0;transform:scale(1.06)}}
+.sm-node:focus-visible .box{stroke:var(--accent);stroke-width:3}
+.sm-node:focus{outline:none}
 .sm-node.idle,.sm-node.idle.seen{opacity:.38}   /* 미참여는 재생이 지나가도 켜지지 않는다 */
 .sm-node.idle .box{filter:none}
 
@@ -167,6 +175,9 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .rp-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .rp-ctl input[type=range]{flex:1;min-width:140px}
 .rp-clock{font-variant-numeric:tabular-nums;color:var(--fg-dim);font-size:11px;min-width:120px;text-align:right}
+.rp-focus{font-size:10.5px;color:var(--fg-faint);margin:-4px 0 10px}
+.rp-focus b{color:var(--fg-dim)}
+.rp-focus.on{color:var(--accent)}
 .rp-stage{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);padding:10px 12px 12px;overflow:hidden}
 .rp-phases{display:flex;height:16px;border-radius:4px;overflow:hidden;margin-bottom:10px;opacity:.55}
 .rp-phases div{font-size:9px;color:var(--bg);display:flex;align-items:center;justify-content:center;white-space:nowrap}
@@ -917,6 +928,7 @@ function paneReplay(P,e){
       <input type="range" id="rp-seek" min="0" max="1000" value="0">
       <span class="rp-clock" id="rp-clock"></span>
     </div>
+    <div class="rp-focus" id="rp-focus">맵의 <b>에이전트를 클릭</b>하면 그 구간만 재생한다. 전체 재생은 ▶ 버튼.</div>
     <div class="sm-wrap">${squadMap(e)}</div>
     <div class="rp-stage" id="rp-stage">
       <div class="rp-phases" id="rp-phases">${phaseCells(e)}</div>
@@ -964,22 +976,64 @@ function paneReplay(P,e){
   e.tasks.forEach((t,i)=>nodeT["t"+i]={a:(t.start??e.t0)-e.t0, b:(t.end??e.t1)-e.t0,
                                        ok:!(t.status==="failed"||t.fail), task:t});
 
-  RP.exec=e; RP.t=0; RP.playing=false; RP.shown=0;
-  $("#rp-play").onclick=()=>{ RP.playing=!RP.playing; $("#rp-play").textContent=RP.playing?"⏸ 정지":"▶ 재생";
-    if(RP.playing&&RP.t>=dur){ RP.t=0; RP.shown=0; $("#rp-tick").textContent=""; } };
-  $("#rp-reset").onclick=()=>{ RP.t=0; RP.shown=0; RP.playing=false;
-    $("#rp-play").textContent="▶ 재생"; $("#rp-tick").textContent=""; frame(0); };
+  RP.exec=e; RP.t=0; RP.playing=false; RP.shown=0; RP.until=null; RP.focus=null;
+
+  const setPlay=on=>{ RP.playing=on; $("#rp-play").textContent=on?"⏸ 정지":"▶ 재생"; };
+  const clearFocus=()=>{ RP.focus=null; RP.until=null;
+    P.querySelectorAll(".sm-node.focus").forEach(x=>x.classList.remove("focus"));
+    $("#rp-focus").classList.remove("on");
+    $("#rp-focus").innerHTML="맵의 <b>에이전트를 클릭</b>하면 그 구간만 재생한다. 전체 재생은 ▶ 버튼."; };
+  const rewind=to=>{ if(to<RP.t){ RP.shown=0; $("#rp-tick").textContent=""; } RP.t=to; };
+
+  // 노드 클릭 — 그 구간의 시작 직전으로 이동해 재생하고, 구간이 끝나면 자동 정지한다.
+  function focusNode(id){
+    const g=P.querySelector(`.sm-node[data-id="${CSS.escape(id)}"]`);
+    const label=g?.dataset.label||id;
+    const nt=nodeT[id];
+    P.querySelectorAll(".sm-node.focus").forEach(x=>x.classList.remove("focus"));
+    if(!nt){                                    // 미참여 노드 — 재생할 구간이 없다
+      RP.until=null; RP.focus=null; setPlay(false);
+      $("#rp-focus").classList.remove("on");
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 는 이 실행에서 태스크를 받지 않았다. 재생할 구간이 없다.`;
+      return;
+    }
+    g?.classList.add("focus");
+    RP.focus=id;
+    const len=nt.b-nt.a;
+    rewind(Math.max(0,nt.a-Math.min(1200,nt.a)));
+    if(len<200){                                // 순간 노드(요청·결과) — 이동만
+      RP.until=null; setPlay(false); RP.t=Math.min(dur,nt.a);
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 지점으로 이동 (+${(nt.a/1000).toFixed(1)}s)`;
+    }else{
+      RP.until=nt.b; setPlay(true);
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 구간 재생 — +${(nt.a/1000).toFixed(1)}s ~ +${(nt.b/1000).toFixed(1)}s (${secs(len)})`;
+    }
+    $("#rp-focus").classList.add("on");
+    frame(0);
+  }
+  P.querySelectorAll(".sm-node").forEach(g=>{
+    g.addEventListener("click",()=>focusNode(g.dataset.id));
+    g.addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); focusNode(g.dataset.id); } });
+  });
+
+  $("#rp-play").onclick=()=>{
+    if(!RP.playing){ clearFocus(); if(RP.t>=dur) rewind(0); }   // 수동 재생은 항상 전체 구간
+    setPlay(!RP.playing); };
+  $("#rp-reset").onclick=()=>{ clearFocus(); rewind(0); RP.t=0; RP.shown=0;
+    $("#rp-tick").textContent=""; setPlay(false); frame(0); };
   $("#rp-speed").onchange=ev=>RP.speed=Number(ev.target.value);
-  $("#rp-seek").oninput=ev=>{ const nt=Number(ev.target.value)/1000*dur;
-    if(nt<RP.t){ RP.shown=0; $("#rp-tick").textContent=""; }
-    RP.t=nt; frame(0); };
+  $("#rp-seek").oninput=ev=>{ clearFocus(); rewind(Number(ev.target.value)/1000*dur); frame(0); };
 
   let last=null;
   function loop(ts){
     if(RP.exec!==e) return;                      // 탭이 바뀌면 스스로 멈춘다
     const dt=last==null?0:ts-last; last=ts;
-    if(RP.playing){ RP.t=Math.min(dur,RP.t+dt*RP.speed);
-      if(RP.t>=dur){ RP.playing=false; $("#rp-play").textContent="▶ 재생"; } }
+    if(RP.playing){
+      RP.t=Math.min(dur,RP.t+dt*RP.speed);
+      // 구간 재생이면 그 구간 끝에서 멈춘다
+      if(RP.until!=null&&RP.t>=RP.until){ RP.t=RP.until; RP.until=null; setPlay(false); }
+      else if(RP.t>=dur) setPlay(false);
+    }
     frame(dt);
     RP.raf=requestAnimationFrame(loop);
   }
@@ -1068,10 +1122,11 @@ function paneReplay(P,e){
   // 시계를 밖에서 직접 돌릴 수 있는 진입점.
   // requestAnimationFrame 은 페이지가 합성되지 않으면(백그라운드 탭·미표시 패널) 아예 안 돈다.
   // 재생 로직을 rAF 없이도 검증하려면 이 seam 이 필요하다.
-  RP.step=dtMs=>{ RP.t=Math.max(0,Math.min(dur,RP.t+dtMs*RP.speed)); frame(0); return RP.t; };
-  RP.seek=fraction=>{ const nt=Math.max(0,Math.min(1,fraction))*dur;
-    if(nt<RP.t){ RP.shown=0; $("#rp-tick").textContent=""; }
-    RP.t=nt; frame(0); return RP.t; };
+  RP.step=dtMs=>{ RP.t=Math.max(0,Math.min(dur,RP.t+dtMs*RP.speed));
+    if(RP.until!=null&&RP.t>=RP.until){ RP.t=RP.until; RP.until=null; setPlay(false); }
+    frame(0); return RP.t; };
+  RP.seek=fraction=>{ rewind(Math.max(0,Math.min(1,fraction))*dur); frame(0); return RP.t; };
+  RP.click=id=>{ focusNode(id); return {t:RP.t, until:RP.until, playing:RP.playing}; };
   RP.dur=dur;
 
   frame(0);
@@ -1139,8 +1194,12 @@ function squadMap(e){
   const hasIn=id=>edges.some(e=>e.to===id), hasOut=id=>edges.some(e=>e.from===id);
 
   const nodes=Object.values(pos).map(({x,y,n})=>`
-    <g class="sm-node${n.kind==="idle"?" idle":""}" data-id="${n.id}"
-       style="--nc:${NC[n.kind]}" transform="translate(${x},${y})">
+    <g class="sm-node${n.kind==="idle"?" idle":""}" data-id="${n.id}" data-label="${esc(n.label)}"
+       style="--nc:${NC[n.kind]}" transform="translate(${x},${y})"
+       tabindex="0" role="button" aria-label="${esc(n.label)} 구간 재생"
+       transform-origin="${NW/2} ${NH/2}">
+      <rect class="ring" x="-4" y="-4" width="${NW+8}" height="${NH+8}" rx="13"
+            style="transform-origin:${NW/2}px ${NH/2}px"/>
       <rect class="box" width="${NW}" height="${NH}" rx="10" fill="var(--panel)" stroke="${NC[n.kind]}"
             stroke-width="1.4" ${n.kind==="idle"?'stroke-dasharray="5 4"':""}/>
       <circle class="sm-dot" cx="15" cy="19" r="4" fill="${NC[n.kind]}"/>
