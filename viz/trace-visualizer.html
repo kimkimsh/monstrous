@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LEDGER · AI:GO Squad Trace Viewer</title>
+<title>monstrous · AI:GO Squad Trace Viewer</title>
 <style>
 :root{
   --bg:#0e1116; --panel:#151a21; --panel-2:#1b212a; --line:#242c37;
@@ -272,6 +272,22 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .rp-mark.on{opacity:1}
 .rp-meters{display:flex;gap:26px;flex-wrap:wrap;margin-top:12px}
 .rp-meters .stat b{font-size:19px;font-variant-numeric:tabular-nums}
+/* 재생은 흐름과 로그를 같이 봐야 뜻이 선다.
+   맵만 보면 무엇이 켜졌는지는 알아도 왜 켜졌는지를 모르고,
+   로그만 보면 그 반대다. 넓은 화면에서는 나란히 놓고 좁아지면 위아래로 쌓는다. */
+/* 뷰포트가 아니라 이 자리의 폭에 맞춰 접혀야 한다. 창은 넓은데 패널만 좁은 경우가 있고,
+   그때 미디어 쿼리는 안 걸리면서 1fr 이 0 으로 줄어 맵이 사라진다. flex-wrap 이면
+   두 칸이 다 들어갈 때만 나란히 서고 아니면 저절로 아래로 내려간다. */
+.rp-split{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.rp-split .sm-wrap{flex:1 1 520px;min-width:0;margin-bottom:0}
+.rp-side{flex:1 1 300px;max-width:100%;align-self:stretch;
+  display:flex;flex-direction:column;min-width:0;border:1px solid var(--line);
+  border-radius:10px;background:var(--panel-2);overflow:hidden;max-height:404px}
+.rp-side-h{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-faint);
+  padding:9px 12px 7px;border-bottom:1px solid var(--line)}
+.rp-side .rp-tick{flex:1;max-height:none;margin:0;border-top:0;padding:8px 12px 12px}
+.rp-side .rp-tick .row{grid-template-columns:52px minmax(0,1fr)}
+.rp-side .rp-tick .row .de{grid-column:1 / -1;color:var(--fg-dim);padding-left:52px}
 .rp-tick{max-height:190px;overflow:auto;margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
 .rp-tick .row{display:grid;grid-template-columns:62px 170px minmax(0,1fr);gap:10px;font-size:10.5px;padding:2px 0;
   animation:rp-in .28s ease-out}
@@ -321,11 +337,15 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
   max-width:760px;animation:drop-in .5s cubic-bezier(.2,.8,.3,1) both}
 @keyframes drop-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-.mark{display:flex;align-items:center;gap:14px}
-.mark h1{font-size:34px;letter-spacing:.16em;line-height:1;margin:0;
+.mark{display:flex;align-items:center;gap:14px;margin-top:22px}
+/* 좁은 창에서 워드마크가 언어 콤보 밑으로 파고들지 않게 폭에 맞춰 줄인다. */
+.mark h1{font-size:clamp(21px,6.4vw,34px);letter-spacing:.04em;line-height:1;margin:0;
   background:linear-gradient(100deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;
   color:transparent}
 .mark-sub{font-size:10.5px;letter-spacing:.22em;color:var(--fg-faint);margin-top:5px;text-transform:uppercase}
+/* 만든 사람들. 화면을 차지하면 안 되므로 맨 아래에 흐리게 둔다. 메일은 title 로 넘긴다. */
+.drop-team{margin-top:20px;font-size:9.5px;letter-spacing:.08em;color:var(--fg-faint);opacity:.55}
+.drop-team:hover{opacity:1}
 .mark-dot{width:13px;height:13px;border-radius:50%;background:var(--accent);
   box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent);animation:mark-pulse 2.4s ease-out infinite}
 @keyframes mark-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
@@ -363,7 +383,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 <body>
 <div class="app">
   <header>
-    <div class="brand">LEDGER<small id="src">no logs loaded</small></div>
+    <div class="brand">monstrous<small id="src">no logs loaded</small></div>
     <div class="stat"><span>실행</span><b id="s-exec">—</b><em id="s-exec-d"></em></div>
     <div class="stat"><span>AI:GO 성공</span><b id="s-aigo">—</b><em>AI:GO 자체 판정</em></div>
     <div class="stat"><span>채점 적격</span><b id="s-grad">—</b><em id="s-grad-d">요구된 답 형식 검사 · LLM 호출 0회</em></div>
@@ -467,7 +487,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="mark">
       <span class="mark-dot"></span>
       <div>
-        <h1>LEDGER</h1>
+        <h1>monstrous</h1>
         <div class="mark-sub">AI:GO Squad Trace Viewer</div>
       </div>
     </div>
@@ -498,6 +518,11 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
       <div><code>artifacts/</code> 에이전트가 워크스페이스에 쓴 파일</div>
       <div class="muted"><code>logs/index.json</code> 은 history.json 에서 유도할 수 있어 무시합니다</div>
     </details>
+
+    <div class="drop-team" translate="no">Team Monstrous ·
+      <span title="shkimkim1919@gmail.com">SEONGHYEON KIM</span> ·
+      <span title="2543kt@gmail.com">JUHYEONG LEE</span> ·
+      <span title="xhtlal123@gmail.com">ILKWON KIM</span></div>
   </div>
   <div class="err" id="derr"></div>
   <div class="files" id="dfiles"></div>
@@ -624,7 +649,8 @@ function classify(err){
    ═══════════════════════════════════════════════════════════════════════ */
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), artifact:new Map(),
-           taskmd:new Map(), squad:new Map(), execWs:new Map()};
+           taskmd:new Map(), squad:new Map(), execWs:new Map(),
+           logIndex:new Map(), report:new Map()};
 const SEEN={files:0, kinds:{}, skipped:[], ws:new Set()};
 
 function ndjson(text){
@@ -673,7 +699,38 @@ function addFile(path,name,text){
       }
       bump("events.jsonl"); return;
     }
-    if(name==="index.json"){ bump("index.json (무시)"); return; }
+    // logs/index.json — 실행 목록. 값 자체는 못 믿는다: 실행 도중에 쓰이고 끝난 뒤 갱신되지
+    // 않아서 entryCount 가 실제 줄 수보다 늘 적다(실측: 21개 실행 전부). 그래서 시간이나
+    // 개수의 근거로는 쓰지 않고, 실행이 어느 스쿼드 것인지와 "얼마나 어긋났는지"만 가져온다.
+    if(name==="index.json"&&/\/logs\//.test(path)){
+      try{
+        for(const r of JSON.parse(text)) if(r&&r.executionId){
+          RAW.logIndex.set(r.executionId,{squadId:r.squadId||null, entryCount:r.entryCount??null,
+            startedAt:r.startedAt||null, lastUpdatedAt:r.lastUpdatedAt||null});
+          if(!RAW.execWs.has(r.executionId)) RAW.execWs.set(r.executionId,WS);
+        }
+      }catch{}
+      bump("logs/index.json"); return;
+    }
+    if(name==="index.json"){ bump("tasks/index.json"); return; }
+    // artifacts/reports/*.md — AI:GO 가 스스로 낸 실행 요약.
+    // 에이전트가 쓴 산출물이 아니므로 artifacts 로 세지 않는다. 대신 "AI:GO 는 뭐라고 했나"를
+    // 우리 판정 옆에 놓기 위해 따로 읽는다. 둘이 갈리는 지점이 이 도구의 논점이다.
+    if(/\/artifacts\/reports\//.test(path)&&name.endsWith(".md")){
+      const one=re=>((text.match(re)||[])[1]||"").trim();
+      const id=one(/^\|\s*Execution ID\s*\|\s*`([^`]+)`/m)||base.replace(/-report$/,"");
+      RAW.report.set(id,{
+        id, squad:one(/^\*\*Squad:\*\*\s*(.+)$/m),
+        status:one(/^\|\s*Status\s*\|\s*(.+?)\s*\|/m),
+        duration:one(/^\|\s*Duration\s*\|\s*(.+?)\s*\|/m),
+        tokens:+((text.match(/^\|\s*Total Tokens\s*\|\s*([\d,]+)/m)||[])[1]||"").replace(/,/g,"")||0,
+        // 태스크 표: | # | Title | Agent | Status | Duration | Tokens |
+        tasks:[...text.matchAll(/^\|\s*(\d+)\s*\|([\s\S]*?)\|\s*([^|]*?)\s*\|\s*([✓✗×]?\s*\w+)\s*\|\s*([^|]*?)\s*\|\s*(\d+)\s*\|\s*$/gm)]
+          .map(m=>({n:+m[1], title:m[2].replace(/\s+/g," ").trim(), agent:m[3].trim(),
+                    status:m[4].replace(/[✓✗×]/g,"").trim(), dur:m[5].trim(), tok:+m[6]})),
+        text});
+      bump("artifacts/reports/*.md"); return;
+    }
     // .squad.json — 스쿼드 구성(로스터)의 유일한 출처다.
     // 로그에는 "태스크를 배정받은 에이전트"만 나오므로, 한 번도 일하지 않은 구성원과
     // 플래너는 로그만으로는 존재 자체를 알 수 없다. 모델 이름도 로그에는 없고 여기에만 있다.
@@ -686,8 +743,13 @@ function addFile(path,name,text){
       const arr=cfg?.agents;
       if(Array.isArray(arr)&&arr.length&&arr.some(a=>a&&(a.name||a.role))){
         const plannerId=cfg.plannerAgentId||null;
-        RAW.squad.set(WS,{
-          ws:WS,
+        // 워크스페이스가 아니라 squadId 로 건다. 워크스페이스 하나에서 스쿼드가 여러 번
+        // 바뀔 수 있고(실측: ikkim 한 곳에서 스쿼드 4개), .squad.json 은 그중 마지막으로
+        // 초기화된 하나만 담는다. ws 로 걸면 예전 실행에 남의 로스터가 붙는다.
+        RAW.squad.set(j.squadId||cfg.id||WS,{
+          ws:WS, squadId:j.squadId||cfg.id||null,
+          appVersion:j.appVersion||"", initializedAt:j.initializedAt||"",
+          executionMode:cfg.executionMode||"", instructions:(cfg.instructions||"").trim(),
           name:j.squadName||cfg.name||"(스쿼드)",
           description:cfg.description||"",
           plannerId,
@@ -700,7 +762,13 @@ function addFile(path,name,text){
               role:(a.id&&a.id===plannerId)?"Planner":role,
               model:a.modelPreferences?.preferredModelId||a.model||a.modelId||"",
               tools:a.toolConfig?.enabledTools||[],
-              prompt:a.systemPrompt||""
+              prompt:a.systemPrompt||"",
+              // 컨텍스트 하한이 안 걸려 있으면 4096 짜리 모델에 긴 지문이 그대로 간다.
+              // HTTP 400 으로 죽는 실행들의 설정 쪽 근거가 여기다.
+              minCtx:a.modelPreferences?.minContextWindow??null,
+              memory:a.memoryEnabled===true,
+              mode:a.executionMode||"",
+              needsTools:a.modelPreferences?.requiresToolCalling===true
             };
           })});
         bump("squad config"); return;
@@ -918,9 +986,38 @@ function build(){
       ||{total:tasks.length,completed:tasks.filter(t=>t.status==="completed"||t.status==="done").length,
          failed:tasks.filter(t=>t.status==="failed").length};
 
+    // 웨이브 — events.jsonl 에는 시작만, <executionId>.jsonl 에는 "Wave n/m completed" 만 있다.
+    // 둘을 합쳐야 구간이 닫힌다. plan-ready 의 waves 는 계획이고 이건 실제로 돈 시각이다.
+    const waveEv=evs.filter(e=>e.eventType==="squad:task-wave-started")
+      .map(e=>({i:e.payload?.waveIndex??0, total:e.payload?.totalWaves??0,
+                taskIds:e.payload?.taskIds||[], start:ms(e.timestamp), end:null}));
+    for(const l of logLines){
+      const m=String(l.message||"").match(/^Wave (\d+)\/(\d+) completed/);
+      if(!m) continue;
+      const w=waveEv.find(x=>x.i===+m[1]-1); if(w) w.end=ms(l.timestamp);
+    }
+    // 이벤트가 없고 로그만 있으면 로그 문장만으로 세운다
+    if(!waveEv.length) for(const l of logLines){
+      const m=String(l.message||"").match(/^Starting wave (\d+)\/(\d+) with (\d+) task/);
+      if(m) waveEv.push({i:+m[1]-1, total:+m[2], taskIds:[], start:ms(l.timestamp), end:null, n:+m[3]});
+    }
+
+    // 워크스페이스 파일 쓰기 — 답이 응답이 아니라 파일로 나간 순간이 여기 찍힌다
+    const fileWrites=evs.filter(e=>e.eventType==="squad:workspace-file-changed")
+      .map(e=>({t:ms(e.timestamp), path:e.payload?.path||"", how:e.payload?.changeType||""}))
+      .filter(f=>Number.isFinite(f.t));
+
+    const idx=RAW.logIndex.get(id)||null;
+    const squadId=h.squadId||evs.find(e=>e.squadId)?.squadId||idx?.squadId||null;
+    const ws=RAW.execWs.get(id)||"(단일)";
+    // 스쿼드 단위 키. 워크스페이스 하나에 스쿼드가 여럿일 수 있으므로 ws 만으로는 못 나눈다.
+    const sq=squadId?ws+"·"+squadId:ws;
+
     return {
-      id, ws:RAW.execWs.get(id)||"(단일)",
-      squadName:h.squadName||RAW.squad.get(RAW.execWs.get(id))?.name||"—",
+      id, ws, squadId, sq,
+      squadName:h.squadName||RAW.squad.get(squadId)?.name||RAW.report.get(id)?.squad||"—",
+      waveEv, fileWrites, report:RAW.report.get(id)||null,
+      logIndex:idx&&idx.entryCount!=null?{...idx, actual:logLines.length}:null,
       request, planTitle:h.planTitle||"", partial,
       aigoStatus:h.status||pick("execution-completed")?"completed":"unknown",
       tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker, contract,
@@ -944,29 +1041,35 @@ function build(){
    실제 스쿼드는 4명이었다. 그래서 두 가지를 한다.
      1) 전 실행에 걸쳐 등장한 에이전트를 합집합으로 모은다 (한 실행만 봐도 전원이 보이게)
      2) Squad Template JSON 이 들어오면 그것을 권위 있는 로스터로 삼는다 */
-/* 로스터를 워크스페이스별로 만든다.
-   워크스페이스 하나가 스쿼드 하나다. 섞으면 "test 의 Backend Developer"와
-   "ikkim 의 백엔드 개발자"가 한 줄로 합쳐져 비교 자체가 불가능해진다. */
+/* 로스터를 스쿼드별로 만든다.
+   처음에는 워크스페이스 하나가 스쿼드 하나라고 봤는데 아니었다. 실측을 보고 고친 자리다. */
 function buildRoster(){
-  const perWs=new Map();
-  const wsList=[...new Set([...S.execs.map(e=>e.ws), ...RAW.squad.keys()])];
+  const per=new Map();
+  // 워크스페이스가 아니라 스쿼드 단위로 묶는다.
+  // 실측: squad/ikkim 한 워크스페이스에서 스쿼드 4개가 돌았다(코드 리뷰 스쿼드2 ×7,
+  // 풀스택 개발 스쿼드 ×4, 코드 리뷰 스쿼드 ×1, 풀스택 개발 스쿼드2 ×1).
+  // ws 로 묶으면 13개 실행이 한 스쿼드로 합쳐지고, 로스터도 남의 것이 붙는다.
+  const keys=[...new Set(S.execs.map(e=>e.sq))];
+  // 설정 파일만 들어오고 실행이 하나도 없는 스쿼드도 목록에는 세운다
+  for(const [k,c] of RAW.squad) if(!keys.some(x=>x.endsWith("·"+k))) keys.push(c.ws+"·"+k);
 
-  for(const ws of wsList){
+  for(const sq of keys){
     const m=new Map();
     const put=(name,src)=>{
       if(!name) return null;
-      if(!m.has(name)) m.set(name,{ws, name, id:null, role:"", model:"", icon:"", tools:[], prompt:"", src,
-        execs:new Set(), tasks:0, done:0, failed:0, tok:0});
+      if(!m.has(name)) m.set(name,{sq, name, id:null, role:"", model:"", icon:"", tools:[], prompt:"", src,
+        minCtx:null, memory:false, execs:new Set(), tasks:0, done:0, failed:0, tok:0});
       return m.get(name);
     };
-    const mine=S.execs.filter(e=>e.ws===ws);
+    const mine=S.execs.filter(e=>e.sq===sq);
     for(const e of mine) for(const t of e.tasks){
       const r=put(t.agentName||t.agentId||null,"log"); if(!r) continue;
       r.id||=t.agentId||null; r.execs.add(e.id); r.tasks++;
       if(t.status==="failed"||t.fail) r.failed++; else r.done++;
       r.tok+=t.tok||0;
     }
-    const cfg=RAW.squad.get(ws);
+    const sid=(mine[0]?.squadId)||sq.split("·")[1]||null;
+    const cfg=(sid&&RAW.squad.get(sid))||null;
     if(cfg){
       const byId=new Map([...m.values()].filter(r=>r.id).map(r=>[r.id,r]));
       for(const a of cfg.agents){
@@ -974,21 +1077,23 @@ function buildRoster(){
         if(!r) continue;
         r.name=a.name; r.id||=a.id; r.icon=a.icon; r.role=a.role||r.role;
         r.model=a.model; r.tools=a.tools; r.prompt=a.prompt; r.src="config";
+        r.minCtx=a.minCtx; r.memory=a.memory; r.needsTools=a.needsTools; r.mode=a.mode;
       }
     }else{
       // 설정이 없으면 플래너 자리만 추론한다. 플래너는 태스크를 배정받지 않아 로그에 이름이 없다.
       const planned=mine.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
-      if(planned.length&&!m.has("(플래너)")) m.set("(플래너)",{ws, name:"(플래너)", id:null, role:"Planner",
-        model:"", icon:"", tools:[], prompt:"", src:"inferred",
+      if(planned.length&&!m.has("(플래너)")) m.set("(플래너)",{sq, name:"(플래너)", id:null, role:"Planner",
+        model:"", icon:"", tools:[], prompt:"", src:"inferred", minCtx:null, memory:false,
         execs:new Set(planned.map(e=>e.id)), tasks:0, done:0, failed:0, tok:0});
     }
-    perWs.set(ws,{ws, name:cfg?.name||mine[0]?.squadName||ws, source:cfg?"config":"log",
-                  agents:[...m.values()], execs:mine});
+    per.set(sq,{sq, ws:mine[0]?.ws||cfg?.ws||sq.split("·")[0], squadId:sid,
+                name:cfg?.name||mine[0]?.squadName||sq.split("·")[0],
+                source:cfg?"config":"log", cfg, agents:[...m.values()], execs:mine});
   }
-  S.squads=[...perWs.values()].sort((a,b)=>a.ws.localeCompare(b.ws));
-  // 실행 하나를 볼 때 쓰는 값은 그 실행의 워크스페이스 것을 가리킨다.
-  S.rosterOf=ws=>perWs.get(ws)?.agents||[];
-  S.squadOf =ws=>perWs.get(ws)||null;
+  S.squads=[...per.values()].sort((a,b)=>(a.ws+a.name).localeCompare(b.ws+b.name));
+  // 실행 하나를 볼 때 쓰는 값은 그 실행이 속한 스쿼드 것을 가리킨다.
+  S.rosterOf=sq=>per.get(sq)?.agents||[];
+  S.squadOf =sq=>per.get(sq)||null;
 }
 
 function phasesOf(evs){
@@ -1120,8 +1225,102 @@ const EN={
   ". 어떤 응답에도 FINAL ANSWER 가 없습니다":". No response contains FINAL ANSWER",
   "이 실행에서 씀":"used in this run",
   "답이 파일에만 있습니다.":"The answer lives only in a file.",
-  "에는 결과가 들어 있는데 응답 텍스트에는 패치 마커 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.":"holds the result, but the response text has no patch marker. The judge has nothing to take, so it scores 0.",
-  "에는 결과가 들어 있는데 응답 텍스트에는 FINAL ANSWER 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.":"holds the result, but the response text has no FINAL ANSWER. The judge has nothing to take, so it scores 0.",
+  // 출력 계약 이름은 문장 안으로 들어간다. 이름만 사전에 두고 문장은 규칙으로 잡는다.
+  // 채점 적격성 카드 — 접혀 있어 처음 그릴 때 DOM 에 없다. 문단 통째로 잡는다.
+  "채점":"Graded","호출 거부":"call rejected",
+  "부분 기록. history.json 에 없음":"partial record — not in history.json",
+  "출력 계약을 못 읽음":"output contract unreadable",
+  "AI:GO 가 성공이라고 보고한 실행 중 실제로 점수가 되는 것이 몇 개인지 셉니다. 판정은 그 문항이 요구한 답 형식이 응답에 있는지만 봅니다. LLM 호출 0회.":
+    "<b>Counts how many of the runs AI:GO called successful would actually score.</b> The check is only whether the response carries the answer format that item asked for. <b>Zero LLM calls.</b>",
+  "출력 계약은 문항마다 다릅니다. 요청 지문의 === REQUIRED OUTPUT === 절에서 읽습니다. 실측된 두 가지: *** PATCH START *** … *** PATCH END *** (coding) 과 FINAL ANSWER: \\boxed{…} (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다. 0점을 세 가지로 구분합니다. 호출 거부는 모델이 요청을 받지도 못한 것입니다. 컨텍스트 초과나 인프라 오류입니다. 프롬프트나 형식으로 고칠 수 없습니다. 판정 보류는 지문에서 계약을 못 읽은 것입니다. 모르는 것을 불합격으로 적지 않습니다. 답 형식 없음은 실행도 됐고 답도 나왔는데 요구된 형식을 안 내서 0점이 된 것입니다. 여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 냅니다.":
+    "<b>The output contract differs per item.</b> It is read from the <code>=== REQUIRED OUTPUT ===</code> section of the prompt. Two were observed: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) and <code>FINAL ANSWER: \\boxed{…}</code> (math). Checking only one of them without reading the contract misjudges every item of the other kind.<br> <b>A zero splits three ways.</b> <b>Call rejected</b> means the model never received the request — a context overflow or an infrastructure error. No prompt or format change fixes it. <b>Undecided</b> means the contract could not be read from the prompt; we do not record what we do not know as a failure. <b>No answer format</b> means the run executed and produced an answer, but not in the required shape, so it scores 0. <b>That last one is ours to fix, and the rate is computed on it alone.</b>",
+  "일부 파일이 빠졌습니다":"Some files are missing",
+  "되는 만큼만 그렸습니다. 빠진 것:":"Drew what could be drawn. Missing:",
+  // ── AI:GO 자체 요약 대조 ──
+  "AI:GO 자체 요약과 대조":"Against AI:GO's own summary",
+  "같은 실행을 두고 판정이 갈립니다.":"The two verdicts disagree about the same run.",
+  "AI:GO 는":"AI:GO recorded",
+  "라고 적었고, 응답에는 요구된 답 형식이 없습니다. 제출 서버가 읽는 것은 뒤쪽입니다.":
+    ", and the response carries no required answer format. The submission server reads the latter.",
+  "AI:GO 의 요약과 우리 판정이 같은 방향입니다.":"AI:GO's summary and this verdict point the same way.",
+  "AI:GO 리포트":"AI:GO report","이 도구":"this tool","판정":"Verdict","보는 것":"Looks at",
+  "태스크가 끝났는가":"whether the tasks finished","응답에":"whether the response carries",
+  "가 있는가":"","리포트":"report",
+  "리포트의 태스크별":"The report's per-task","Tokens 는 전부 0":"Tokens are all 0","입니다.":".",
+  "의 태스크별":"'s per-task",
+  "와 같은 자리에서 나오고, 그 값이 채워지지 않습니다. 에이전트별 토큰을 추정으로 낼 수밖에 없는 이유가 여기 한 번 더 나옵니다.":
+    " is the same field, and it is never filled. Here is one more reason per-agent tokens can only be estimated.",
+  // ── 태스크 표 ──
+  "우선순위":"Priority","대기":"Waiting","시도":"Attempts",
+  "을 같이 넣으면 우선순위·대기 시간·시도 횟수가 나옵니다.":" alongside to get priority, queue wait and retry counts.",
+  "대기는 실행 시간이 아닙니다.":"Waiting is not execution time.",
+  "태스크가 만들어진 시각(":"It is the gap between when a task was created (",
+  ")과 실제로 시작한 시각(":") and when it actually started (",
+  ")의 차이이고,":"), and lives only in",
+  "에만 있습니다. 이 실행에서는 모두 합쳐":". In this run it added up to",
+  "이 기다리는 데 들어갔습니다. 타임라인 탭에서 어느 구간이었는지 볼 수 있습니다.":
+    "spent waiting. The timeline tab shows which stretches those were.",
+  // ── 웨이브와 태스크 ──
+  "경과 로그":"Event log","웨이브와 태스크":"Waves and tasks",
+  // 앞 조각이 <b> 로 끝나 공백이 없으므로 번역문이 공백을 들고 온다.
+  "태스크가":"When a task was","만들어진 시각":"created","과":" and",
+  "실제로 시작한 시각":"when it actually started",
+  "은 다릅니다. 그 사이가 큐에서 기다린 시간이고, 흐린 막대가 그 구간입니다.":
+    " are two different moments. The gap is time spent in the queue; the faint bar is that stretch.",
+  "이 실행에서 태스크가 기다린 시간은 모두 합쳐":"Tasks in this run waited",
+  ", 가장 오래 기다린 태스크는":" in total, and the longest single wait was",
+  "인 실행이므로 사람이 계획을 승인하기까지의 시간이 여기 섞여 있습니다. 자동으로 도는 벤치마크에서는 이 몫이 사라집니다.":
+    ", so time spent waiting on a human to approve the plan is mixed in here. That share disappears in an unattended benchmark run.",
+  "입니다. 대기가 길면 웨이브를 잘못 나눈 것입니다. 앞 웨이브가 끝나야 다음이 시작합니다.":
+    ". A long wait means the waves were cut wrong — the next wave cannot start until the previous one ends.",
+  "웨이브 시작은":"Wave starts are in",", 끝은":", wave ends only in",
+  "에만 있습니다.":".",
+  "한쪽만 읽으면 구간이 닫히지 않아 띠가 실행 끝까지 늘어납니다.":
+    "Reading only one of them leaves the band open and it stretches to the end of the run.",
+  "시각을 세울 근거가 없습니다.":"Nothing to place on a time axis.",
+  "태스크 의존":"Task dependencies",
+  "웨이브는 \"같은 층\"까지만 말해 줍니다. 어느 태스크가 어느 태스크를 기다렸는지는":
+    "Waves only tell you which tasks share a layer. Which task waited on which is in",
+  "의":"'s",
+  "태스크 id 가 없어 그래프를 세울 수 없습니다.":"No task ids, so no graph can be built.",
+  "워크스페이스 파일 쓰기":"Workspace file writes",
+  "워크스페이스 파일 쓰기 {0}건":"Workspace file writes ×{0}",
+  "judge 는 이 파일을 읽지 않습니다.":"The judge does not read these files.",
+  "답이 여기로 나갔다면 응답 텍스트에도 있어야 합니다.":"If the answer went here, it also has to be in the response text.",
+  // ── logs/index.json 대조 ──
+  "logs/index.json 대조":"logs/index.json cross-check",
+  "이 파일의 개수는 근거로 쓰지 않습니다.":"The counts in this file are not used as evidence.",
+  "실행 도중에 쓰이고 끝난 뒤 갱신되지 않습니다.":"It is written mid-run and never updated afterwards.",
+  "index.json 의 entryCount":"entryCount in index.json","실제 줄 수":"actual line count",
+  "{0}줄 모자람":"{0} lines short","index.json 의 마지막 갱신":"index.json last updated",
+  "그래서 실행 목록·시각·개수는":"So runs, timings and counts are taken only from",
+  "에서만 세고, 이 파일에서는":", and from this file we take only",
+  "이 실행이 어느 스쿼드 것인지":"which squad the run belongs to",
+  "만 가져옵니다. 이 실행의 스쿼드는":". This run's squad is",
+  // ── 스쿼드 설정 ──
+  "스쿼드 설정":"Squad settings","실행 방식":"Execution mode","AI:GO 버전":"AI:GO version",
+  "· {0}-{1}-{2} 초기화":"· initialized {0}-{1}-{2}",
+  "컨텍스트 하한":"Context floor","{0}/{1} 미설정":"{0}/{1} unset","전원 설정됨":"all set",
+  "메모리":"Memory","사용":"enabled","{0}/{1} 사용":"{0}/{1} enabled",
+  "스쿼드 지시문":"Squad instructions","비어 있음":"empty",
+  "가 {0}명에게 비어 있습니다.":"is unset for {0} of them.",
+  "이 값이 없으면 지문이 모델의 컨텍스트 상한을 넘어도 그대로 호출합니다. 이 스쿼드에서는 아직 그 때문에 끊긴 실행이 없습니다. 상한을 걸어 두면":
+    "Without it, a prompt is sent even when it exceeds the model's context limit. No run in this squad has been cut short by that yet. Setting a floor means it is caught",
+  "이 값이 없으면 지문이 모델의 컨텍스트 상한을 넘어도 그대로 호출합니다. 이 스쿼드의 실행 {0}건이 호출 거부로 끝났습니다. 상한을 걸어 두면":
+    "Without it, a prompt is sent even when it exceeds the model's context limit. {0} runs in this squad ended in a rejected call. Setting a floor means it is caught",
+  "호출 전에":"before the call",
+  "걸러지므로 토큰을 쓰지 않고 실패를 알 수 있습니다.":", so the failure is known without spending a token.",
+  "스쿼드 지시문이 비어 있습니다. 출력 계약처럼":"The squad instructions are empty. This is where a rule that applies to",
+  "모든 문항에 공통으로 적용할 규칙":"every item, such as the output contract",
+  "을 넣을 자리가 여기입니다.":", belongs.",
+  "출력 계약 불명":"unknown output contract","보기 문자":"option letter",
+  // 이 계약만 spec 이 형식이 아니라 설명문이다. <code> 안이라 순회가 닿지 않아 여기서 태운다.
+  "요청 지문에서 계약을 찾지 못함":"no contract found in the prompt",
+  "단일 보기 문자":"a single option letter",
+  // 로그에 이름이 없는 플래너 자리에 뷰어가 붙이는 표기. 로그의 값이 아니라 UI 다.
+  "(플래너)":"(planner)",
+  ". 지문에서 출력 계약을 못 읽었습니다":". the output contract could not be read from the prompt",
+  "이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다":"the output contract for this item could not be determined, so judging is on hold",
   "에이전트에게":"With",
   "이 열려 있고 시스템 프롬프트가 \"구현하세요\"라고만 말하면 파일을 쓰는 쪽이 자연스러운 행동입니다. 출력 계약을 프롬프트에 넣어야 고쳐집니다.":"enabled and a system prompt that only says “implement it”, writing a file is the natural move. The fix is to put the output contract in the prompt.",
   "\"승인 대기\"는 사람이 계획을 승인하기까지 걸린 시간이므로 시스템 성능이 아닙니다. 자동으로 도는 벤치마크 실행에서는 이 구간이 사라집니다.":"“Awaiting approval” is time spent waiting on a human, not system performance. It disappears in an unattended benchmark run.",
@@ -1171,8 +1370,19 @@ const EN={
   "으로 남겼습니다. 상단 \"누적 토큰\"은 보고된 시점에만 계단식으로 오릅니다. 사이를 보간하면 로그에 없는 숫자를 지어내게 됩니다.":". The “cumulative tokens” readout only steps up at reported points; interpolating between them would invent numbers the log never had.",
   "형식 때문에 놓친 실행이 없습니다.":"No run missed the format.",
   "completed · 태스크 {0}/{1} 성공":"completed · {0}/{1} tasks succeeded",
-  "실행 불가 {0}건 제외 · 답 형식 없음 {1}건":"{0} rejected excluded · no answer format ×{1}",
-  "계약 불명 {0}건 제외 · 답 형식 없음 {1}건":"{0} unknown contract excluded · no answer format ×{1}",
+  // 폴더를 읽는 동안 나오는 표시. 사전이 닿기 전에 계속 덮어써지므로 직접 태운다.
+  "읽는 중…":"reading…","폴더를 훑는 중…":"scanning the folder…",
+  "읽은 것:":"read:","인식된 파일 없음":"no recognized files",
+  "읽기 실패 {0}개":"{0} failed to read","건너뜀:":"skipped:",
+  // 조각이 조건부로 붙는 라벨. tn() 으로 조각마다 채운다.
+  "호출 거부 {0}":"{0} rejected","계약 불명 {0}":"{0} unknown contract",
+  "전부 판정됨":"all decided","제외":"excluded",
+  // 탭 설명 (#pane 밖이라 순회가 닿지 않는다)
+  "이 실행이 무엇을 했고 점수가 되는가":"what this run did, and whether it scores",
+  "실행을 시간순으로 되돌려 봅니다 · 모델 호출 0회":"step back through the run in time order · zero model calls",
+  "시간이 어디에 쓰였는가":"where the time went",
+  "우리 잘못인가 인프라 잘못인가":"our fault or the infrastructure's",
+  "AI:GO 가 남긴 원문":"what AI:GO actually wrote",
   "{0} files · 워크스페이스 {1}개 · ":"{0} files · {1} workspaces · ",
   "이 문항의 출력 계약:":"This item's output contract:",
   "요청 지문의":"Read from the","절에서 읽었습니다. 계약은 문항마다 다르므로 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.":
@@ -1249,6 +1459,20 @@ const PHASE_EN={"플래닝":"Planning","승인 대기":"Approval wait","실행":
 let LANG="ko";
 function t(s){ return LANG==="en"?(EN[s]??s):s; }
 
+/* 자리표시자가 든 사전 키를 숫자로 채운다.
+   "실행 불가 4건 제외 · 계약 불명 6건 제외 · 답 형식 없음 6건" 처럼 조각이 조건부로 붙는 라벨은
+   문장을 통째로 사전에 넣으면 조각 조합마다 키가 하나씩 필요해진다. 조각 단위로 바꾼다. */
+function tn(key,...v){ return t(key).replace(/\{(\d+)\}/g,(_,i)=>v[i]??""); }
+
+/* 오프닝의 상태 줄. 읽는 도중에도 언어가 바뀔 수 있으므로
+   "무엇을 쓸지"를 함수로 들고 있다가 그때그때 다시 그린다. */
+let DF=null, DE=null;
+function renderDfiles(){ const f=$("#dfiles"), e=$("#derr");
+  if(f) f.textContent=DF?DF():"";
+  if(e) e.textContent=DE?DE():""; }
+function setDfiles(fn){ DF=fn; renderDfiles(); }
+function setDerr(fn){ DE=fn; renderDfiles(); }
+
 /* 헤더의 출처 줄. 언어를 바꾸면 다시 그려야 하므로 finish() 밖으로 빼 둔다. */
 function renderSrc(){
   const p=S.srcParts; if(!p) return;
@@ -1276,7 +1500,10 @@ function paraKey(el){ return el.textContent.replace(/\s+/g," ").trim(); }
 const ORIG_HTML=new WeakMap(), ORIG_TEXT=new WeakMap();
 
 function translateParas(root){
-  root.querySelectorAll(PARA_SEL).forEach(el=>{
+  // root 자신이 문단일 수 있다. 감시자가 붙은 조각을 그대로 넘겨주기 때문이다.
+  const els=[...root.querySelectorAll(PARA_SEL)];
+  if(root.matches&&root.matches(PARA_SEL)) els.unshift(root);
+  els.forEach(el=>{
     if(LANG!=="en"){ const o=ORIG_HTML.get(el); if(o!=null) el.innerHTML=o; return; }
     const key=paraKey(el);
     if(!key||!/[가-힣]/.test(key)) return;
@@ -1290,6 +1517,9 @@ function translateParas(root){
 
 function translateDOM(root){
   if(!root) return;
+  // 원문 덤프 안쪽이면 통째로 건너뛴다. 아래 순회는 조상을 root 까지만 훑으므로
+  // 덤프 안의 노드가 root 로 들어오면 제외 규칙이 걸리지 않는다. 22개 실행에서 1초가 걸렸다.
+  if(root.closest&&root.closest(I18N_SKIP)) return;
   translateParas(root);
   if(LANG!=="en"){                      // 한국어로 되돌리기
     const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
@@ -1315,7 +1545,7 @@ function translateDOM(root){
     const pad=[raw.match(/^\s*/)[0], raw.match(/\s*$/)[0]];
     // 번역문이 문장부호로 시작하면 앞 공백을 버린다. 조각 앞에 다른 표현식이 있던 자리라
     // 공백을 그대로 두면 "verbatim ." 처럼 부호 앞이 벌어진다.
-    const put=v=>{ n.nodeValue=(/^[.,;:!?)]/.test(v)?"":pad[0])+v+pad[1]; };
+    const put=v=>{ n.nodeValue=(/^['.,;:!?)]/.test(v)?"":pad[0])+v+pad[1]; };
     const hit=EN[key];
     if(hit!=null){ keep(); put(hit); continue; }
     // 숫자가 섞인 라벨("답 형식 없음 3건")은 자리표시자 형태로 한 번 더 찾는다
@@ -1340,7 +1570,13 @@ const EN_RE=[
   [/^([\d,.]+)자$/,"$1 chars"],
   [/^(.*) · 태스크 (\d+)\/(\d+) 성공$/,"$1 · $2/$3 tasks succeeded"],
   [/^waves: (.+) ⚠ 플래너 폴백$/,"waves: $1 ⚠ planner fallback"],
-  [/^(.*) · 로그에서 추정$/,"$1 · inferred from the log"],
+  [/^(.*) · 로그에서 추정( ·)?$/,"$1 · inferred from the log$2"],
+  // 출력 계약 이름이 가운데 끼는 문장. 계약이 넷이라 통짜 키로는 넷씩 늘어난다.
+  [/^에는 결과가 들어 있는데 응답 텍스트에는 (.+) 가 없습니다\. judge 가 가져갈 것이 없으므로 0점입니다\.$/,
+   "holds the result, but the response text has no $1. The judge has nothing to take, so it scores 0."],
+  [/^\. 어떤 응답에도 (.+) 가 없습니다$/,". No response contains $1"],
+  // 짧은 라벨만 잡는다. 문장 끝의 "없음" 까지 삼키면 "no 부분 기록. history.json 에" 같은 게 나온다.
+  [/^([^.,·]{1,24}) 없음$/,"no $1"],
   [/^W\d+: \d+개( · W\d+: \d+개)*$/,m=>m.replace(/개/g,"")],
 ];
 /* 긴 문장부터 시도해야 짧은 조각이 먼저 걸려 문장을 반쪽만 바꾸는 일이 없다. */
@@ -1350,6 +1586,31 @@ function rebuildLong(){ EN_LONG=Object.entries(EN).filter(([k])=>k.length>=12)
 rebuildLong();
 
 /* 지금 화면에 남은 한국어를 뽑는다. 사전을 채울 때 쓴다. */
+/* 늦게 그려지는 조각을 위한 안전망.
+   화면을 새로 붙일 때마다 호출부에서 translateDOM 을 부르는 방식은 반드시 빠뜨린다.
+   접힌 카드를 펴는 순간처럼 처음 그릴 때는 DOM 에 없던 조각이 특히 그렇다.
+   그래서 붙는 것을 보고 바꾼다. 이미 영어인 조각은 사전에 걸리지 않으므로 두 번 돌아도 그대로다. */
+const I18N_SKIP=".scroll,[data-raw],pre,code,script,style,textarea";
+let I18N_BUSY=false;
+const i18nWatch=new MutationObserver(ms=>{
+  if(LANG!=="en"||I18N_BUSY) return;
+  const roots=new Set();
+  for(const m of ms) for(const n of m.addedNodes){
+    // 붙은 것만 훑는다. m.target 을 훑으면 이미 바꾼 형제까지 매번 다시 돈다.
+    const r=n.nodeType===1?n:m.target;
+    if(r&&r.nodeType===1&&r.isConnected) roots.add(r);
+  }
+  if(!roots.size) return;
+  I18N_BUSY=true;
+  // 조상이 이미 목록에 있으면 자손은 버린다. 같은 자리를 두 번 돌 이유가 없다.
+  try{ for(const r of roots){
+    let nested=false;
+    for(const o of roots) if(o!==r&&o.contains(r)){ nested=true; break; }
+    if(!nested) translateDOM(r);
+  } } finally{ I18N_BUSY=false; }
+});
+i18nWatch.observe(document.body,{childList:true,subtree:true});
+
 function i18nAudit(){
   const out=new Set();
   for(const root of [document.querySelector("header"),document.querySelector(".modes"),
@@ -1393,9 +1654,9 @@ function renderHeader(){
   $("#s-grad").textContent=gradRan+" / "+ran.length;
   $("#s-grad").style.color=ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)";
   $("#s-grad-d").textContent=[
-    nBlocked?`실행 불가 ${nBlocked}건 제외`:"",
-    nUnknown?`계약 불명 ${nUnknown}건 제외`:"",
-    `답 형식 없음 ${ran.length-gradRan}건`
+    nBlocked?tn("실행 불가 {0}건 제외",nBlocked):"",
+    nUnknown?tn("계약 불명 {0}건 제외",nUnknown):"",
+    tn("답 형식 없음 {0}건",ran.length-gradRan)
   ].filter(Boolean).join(" · ");
   $("#s-tok").textContent=fmt(pt+ct);
   $("#s-tok-d").textContent="in "+fmt(pt)+" · out "+fmt(ct);
@@ -1407,7 +1668,7 @@ function renderHeader(){
 function visible(){
   const f=$("#f-status").value, w=$("#f-ws")?.value||"", q=$("#q")?.value.trim()||"";
   return S.execs.filter(e=>{
-    if(w&&e.ws!==w) return false;
+    if(w&&e.sq!==w) return false;
     if(!matchQuery(e,q)) return false;
     return f==="ran"     ?e.blocker!=="blocked":
            f==="markers" ?e.blocker==="markers":
@@ -1428,14 +1689,14 @@ function renderList(){
     const title=one(e.request).slice(0,64)||e.id;
     const tw=(billed(e)/maxTok*100).toFixed(1), dw=((e.durationMs||0)/maxDur*100).toFixed(1);
     li.innerHTML=
-      `<div class="t"><span style="color:${wsColor(e.ws)}">▍</span>${esc(title)}${one(e.request).length>64?"…":""}</div>`+
+      `<div class="t"><span style="color:${wsColor(e.sq)}">▍</span>${esc(title)}${one(e.request).length>64?"…":""}</div>`+
       `<div class="m">`+
         `<span class="pill ${e.counts.failed?"bad":"ok"}">AI:GO ${e.counts.total-e.counts.failed}/${e.counts.total}</span>`+
         `<span class="pill ${e.gradable?"ok":e.blocker==="blocked"?"warn":"bad"}">`+
           `${e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":e.partial?"부분 기록":e.blocker==="unknown"?"판정 보류":"답 형식 없음"}</span>`+
         `<span>${fmt(billed(e))} tok</span><span>${secs(e.durationMs)}</span>`+
       `</div>`+
-      `<div class="mini" title="토큰 ${fmt(billed(e))}"><i style="width:${tw}%;background:${wsColor(e.ws)}"></i></div>`+
+      `<div class="mini" title="토큰 ${fmt(billed(e))}"><i style="width:${tw}%;background:${wsColor(e.sq)}"></i></div>`+
       `<div class="mini" title="시간 ${secs(e.durationMs)}"><i style="width:${dw}%;background:var(--fg-faint)"></i></div>`;
     li.onclick=()=>selectExec(e.id);
     ul.appendChild(li);
@@ -1457,7 +1718,7 @@ function renderPane(){
            timeline:"시간이 어디에 쓰였는가",
            failure:"우리 잘못인가 인프라 잘못인가",
            raw:"AI:GO 가 남긴 원문"}[S.tab];
-  $("#tab-hint").textContent=H||"";
+  $("#tab-hint").textContent=H?t(H):"";
   // 아무것도 안 골랐으면 안내만 낸다. 요약을 자동으로 띄우면 "고른 것"과 "전체"가 섞여 읽힌다.
   if(!e){
     P.innerHTML=`<div class="card"><h2>${t("실행을 고르세요")}</h2>
@@ -1483,11 +1744,11 @@ function runSummaryCard(inner){
     const pill=x.gradable?["ok","적격"]:x.blocker==="blocked"?["warn","실행 불가"]
               :x.partial?["","부분 기록"]:x.blocker==="unknown"?["","판정 보류"]:["bad","답 형식 없음"];
     const why=x.gradable?"—"
-      :x.blocker==="blocked"?"호출 거부"+(x.blockKind?" · "+x.blockKind:"")
-      :x.partial?"부분 기록. history.json 에 없음":x.blocker==="unknown"?"출력 계약을 못 읽음"
-      :`${CONTRACT[x.contract].label} 없음`;
+      :x.blocker==="blocked"?t("호출 거부")+(x.blockKind?" · "+x.blockKind:"")
+      :x.partial?t("부분 기록. history.json 에 없음"):x.blocker==="unknown"?t("출력 계약을 못 읽음")
+      :`${t(CONTRACT[x.contract].label)} 없음`;
     return `<tr${dim?' style="opacity:.55"':""}><td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
-      `<td><span class="pill">${esc(CONTRACT[x.contract].label)}</span></td>`+
+      `<td><span class="pill">${esc(t(CONTRACT[x.contract].label))}</span></td>`+
       `<td><span class="pill ${x.counts.failed?"bad":"ok"}">${x.counts.total-x.counts.failed}/${x.counts.total}</span></td>`+
       `<td><span class="pill ${pill[0]}">${pill[1]}</span></td>`+
       `<td style="color:var(--fg-dim)">${esc(why)}</td>`+
@@ -1507,10 +1768,10 @@ function runSummaryCard(inner){
     <div class="readout">
       <div class="stat"><span>AI:GO 성공</span><b style="font-size:19px">${aigo} / ${n}</b><em>태스크 실패 0건</em></div>
       <div class="stat"><span>판정 가능</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${
-        [blocked.length?`호출 거부 ${blocked.length}`:"",unk.length?`계약 불명 ${unk.length}`:""].filter(Boolean).join(" · ")||"전부 판정됨"} 제외</em></div>
+        [blocked.length?tn("호출 거부 {0}",blocked.length):"",unk.length?tn("계약 불명 {0}",unk.length):""].filter(Boolean).join(" · ")||t("전부 판정됨")} ${t("제외")}</em></div>
       <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
     </div>
-    <table><tr><th>${t("요청")}</th><th>${t("출력 계약")}</th><th>AI:GO</th><th>채점</th><th>${t("불가 사유")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th></tr>${rows}</table>
+    <table><tr><th>${t("요청")}</th><th>${t("출력 계약")}</th><th>AI:GO</th><th>${t("채점")}</th><th>${t("불가 사유")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th></tr>${rows}</table>
     <p class="note"><b>출력 계약은 문항마다 다릅니다.</b> 요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽습니다.
     실측된 두 가지: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) 과
     <code>FINAL ANSWER: \\boxed{…}</code> (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.<br>
@@ -1527,12 +1788,12 @@ function paneOverview(P,e){
     <p class="q">${esc(one(e.request).slice(0,220))}${one(e.request).length>220?"…":""}</p>
     <dl class="kv">
       <dt>AI:GO 판정</dt><dd>${esc(e.aigoStatus)} · 태스크 ${e.counts.total-e.counts.failed}/${e.counts.total} 성공</dd>
-      <dt>출력 계약</dt><dd><code>${esc(CONTRACT[e.contract].spec)}</code></dd>
+      <dt>출력 계약</dt><dd><code>${esc(t(CONTRACT[e.contract].spec))}</code></dd>
       <dt>채점 적격</dt><dd>${e.gradable
         ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있습니다`
         :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었습니다`
         :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span>. 호출이 거부돼 응답 자체가 없습니다`
-        :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(CONTRACT[e.contract].label)} 가 없습니다`}</dd>
+        :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다`}</dd>
       <dt>토큰</dt><dd>${fmt(tokTotal)} (in ${fmt(e.tokens.promptTokens)} · out ${fmt(e.tokens.completionTokens)})</dd>
       <dt>소요</dt><dd>${secs(e.durationMs)}</dd>
       <dt>웨이브</dt><dd>${e.waves.length?e.waves.map((w,i)=>`W${i+1}: ${w.length}개`).join(" · "):"—"}</dd>
@@ -1541,28 +1802,46 @@ function paneOverview(P,e){
     <br>→ 요청이 분해되지 않고 <b>모든 에이전트에게 원본이 그대로</b> 들어갔습니다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생합니다.</p>`;
   h+=`</div>`;
 
+  h+=reportCard(e);
   h+=artifactCard(e);
   h+=rosterCard(e);
   h+=`<div class="card"><h2>${t("시간이 어디에 쓰였나")}</h2>`+phaseBar(e)+`</div>`;
 
   h+=`<div class="card"><h2>${t("태스크")} ${e.tasks.length}</h2><table>
-    <tr><th>${t("제목")}</th><th>${t("에이전트")}</th><th>${t("상태")}</th><th>${t("채점 적격")}</th><th>${t("시도 기록")}</th><th class="n">${t("소요")}</th></tr>`;
-  for(const t of e.tasks){
+    <tr><th>${t("제목")}</th><th>${t("에이전트")}</th><th>${t("우선순위")}</th><th>${t("상태")}</th><th>${t("채점 적격")}</th>
+      <th class="n">${t("대기")}</th><th class="n">${t("시도")}</th><th>${t("시도 기록")}</th><th class="n">${t("소요")}</th></tr>`;
+  let anyMeta=false, waitSum=0;
+  for(const tk of e.tasks){
     // tasks/*.md 의 Progress Log. 시도 번호는 events.jsonl 에 없고 여기에만 있다.
-    const md=t.taskId?RAW.taskmd.get(t.taskId):null;
+    const md=tk.taskId?RAW.taskmd.get(tk.taskId):null;
     const attempts=md?Math.max(0,...md.log.map(l=>l.attempt||0)):0;
+    // tasks/*.json — 만들어진 시각과 시작한 시각이 따로 있다. 그 사이가 큐에서 기다린 시간이다.
+    const m=tk.meta; if(m) anyMeta=true;
+    const made=ms(m?.createdAt), began=ms(m?.startedAt);
+    const wait=(Number.isFinite(made)&&Number.isFinite(began)&&began>made)?began-made:null;
+    if(wait) waitSum+=wait;
+    const tries=m?.retryCount??null, maxTries=m?.maxRetries??null;
     h+=`<tr>
-      <td>${esc(one(t.title).slice(0,52))}</td>
-      <td>${esc(t.agentName||t.agentId||"—")}</td>
-      <td><span class="pill ${t.status==="failed"?"bad":"ok"}">${esc(t.status)}</span></td>
-      <td>${t.output?`<span class="pill ${t.answer.gradable?"ok":"bad"}">${t.answer.gradable?"적격":CONTRACT[e.contract].label+" 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
+      <td>${esc(one(tk.title).slice(0,52))}</td>
+      <td>${esc(tk.agentName||tk.agentId||"—")}</td>
+      <td>${m?.priority?`<span class="pill">${esc(m.priority)}</span>`:"—"}</td>
+      <td><span class="pill ${tk.status==="failed"?"bad":"ok"}">${esc(tk.status)}</span></td>
+      <td>${tk.output?`<span class="pill ${tk.answer.gradable?"ok":"bad"}">${tk.answer.gradable?"적격":t(CONTRACT[e.contract].label)+" 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
+      <td class="n"${wait&&wait>10000?' style="color:var(--warn)"':""}>${wait?secs(wait):"—"}</td>
+      <td class="n">${tries!=null?`${tries}${maxTries?" / "+maxTries:""}`:"—"}</td>
       <td style="font-size:10px;color:var(--fg-dim)">${md
         ? md.log.map(l=>`${esc(l.at)} ${esc(l.what)}`).join("<br>")+
           (attempts>1?` <span class="pill warn">시도 ${attempts}회</span>`:"")
         : "—"}</td>
-      <td class="n">${secs(t.durationMs)}</td></tr>`;
+      <td class="n">${secs(tk.durationMs)}</td></tr>`;
   }
-  h+=`</table>${[...RAW.taskmd.values()].length?"":`<p class="note"><code>tasks/*.md</code> 를 같이 넣으면 시도별 기록이 나옵니다. 시도 번호는 <code>events.jsonl</code> 에 없고 그 파일에만 있습니다.</p>`}</div>`;
+  h+=`</table>`;
+  if(anyMeta&&waitSum>=1000) h+=`<p class="note"><b>대기는 실행 시간이 아닙니다.</b>
+    태스크가 만들어진 시각(<code>createdAt</code>)과 실제로 시작한 시각(<code>startedAt</code>)의 차이이고,
+    <code>tasks/*.json</code> 에만 있습니다. 이 실행에서는 모두 합쳐 <b>${secs(waitSum)}</b>이
+    기다리는 데 들어갔습니다. 타임라인 탭에서 어느 구간이었는지 볼 수 있습니다.</p>`;
+  if(!anyMeta) h+=`<p class="note"><code>tasks/*.json</code> 을 같이 넣으면 우선순위·대기 시간·시도 횟수가 나옵니다.</p>`;
+  h+=`${[...RAW.taskmd.values()].length?"":`<p class="note"><code>tasks/*.md</code> 를 같이 넣으면 시도별 기록이 나옵니다. 시도 번호는 <code>events.jsonl</code> 에 없고 그 파일에만 있습니다.</p>`}</div>`;
   P.innerHTML=h;
 }
 
@@ -1665,7 +1944,7 @@ function drawGantt(host,X){
       acc+=p.ms;
     }
     g.appendChild(svgEl("text",{x:56,y:y+9,"text-anchor":"end","font-size":9,
-      fill:e.gradable?"var(--ok)":"var(--fg-faint)"},(e.ws||"").slice(0,10)));
+      fill:e.gradable?"var(--ok)":"var(--fg-faint)"},(e.squadName&&e.squadName!=="—"?e.squadName:e.ws||"").slice(0,12)));
   });
   host.appendChild(g);
 }
@@ -1688,7 +1967,7 @@ function drawWaste(host,X){
   X.forEach((e,i)=>{
     const over=billed(e)>S.cut, j=((i*37)%15-7)*1.8;
     g.appendChild(svgEl("circle",{cx:X4(billed(e)),cy:Y(e.gradable)+j,r:5,
-      fill:over?"none":wsColor(e.ws),stroke:over?"var(--fg-faint)":"none","stroke-dasharray":over?"2 2":null,
+      fill:over?"none":wsColor(e.sq),stroke:over?"var(--fg-faint)":"none","stroke-dasharray":over?"2 2":null,
       opacity:over?.5:.85},[svgEl("title",{},`${e.ws} · ${fmt(billed(e))} tok · ${e.gradable?t("적격"):t("불가")}`)]));
   });
   if(Number.isFinite(S.cut)){ const px=X4(S.cut);
@@ -1728,7 +2007,7 @@ function drawTokenCurves(host,X){
     for(const p of e.tokenCurve){ const t=Math.max(0,p.t-e.t0);
       d+=` L${px(t)},${py(last)} L${px(t)},${py(p.total)}`; last=p.total; }
     d+=` L${px(maxT)},${py(last)}`;
-    g.appendChild(svgEl("path",{d,fill:"none",stroke:wsColor(e.ws),"stroke-width":1.6,opacity:.8},
+    g.appendChild(svgEl("path",{d,fill:"none",stroke:wsColor(e.sq),"stroke-width":1.6,opacity:.8},
       [svgEl("title",{},`${e.ws} · ${fmt(last)} tok`)]));
   }
   host.appendChild(g);
@@ -1769,7 +2048,7 @@ function drawLen(host,X){
     g.appendChild(svgEl("line",{x1:P.l,y1:y,x2:W-P.r,y2:y,stroke:"var(--line)","stroke-dasharray":"3 4"}));
     g.appendChild(svgEl("text",{x:P.l-6,y:y+4,"text-anchor":"end","font-size":9,fill:"var(--fg-dim)"},lab)); }
   X.forEach((e,i)=>{const j=((i*29)%13-6)*1.9;
-    g.appendChild(svgEl("circle",{cx:px(lens[i]),cy:py(e.gradable)+j,r:5,fill:wsColor(e.ws),opacity:.8},
+    g.appendChild(svgEl("circle",{cx:px(lens[i]),cy:py(e.gradable)+j,r:5,fill:wsColor(e.sq),opacity:.8},
       [svgEl("title",{},`${e.ws} · ${lens[i].toLocaleString()} · ${e.gradable?t("적격"):t("불가")}`)]));});
   g.appendChild(svgEl("text",{x:(W+P.l)/2,y:H-6,"text-anchor":"middle","font-size":9,fill:"var(--fg-faint)"},
     `${t("응답 글자 수")} → ${maxL.toLocaleString()}`));
@@ -1779,13 +2058,13 @@ function drawLen(host,X){
 /* 워크스페이스마다 고정 색. 순서가 바뀌어도 같은 스쿼드는 같은 색이어야 비교가 된다. */
 const WSC=["var(--accent)","var(--prog)","var(--ok)","var(--warn)","var(--bad)"];
 function wsColor(ws){
-  const list=(S.squads||[]).map(s=>s.ws);
+  const list=(S.squads||[]).map(s=>s.sq);
   const i=list.indexOf(ws);
   return WSC[(i<0?0:i)%WSC.length];
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   스쿼드 비교 — 워크스페이스가 곧 스쿼드 하나다.
+   스쿼드 비교 — 스쿼드 단위로 묶는다. 워크스페이스 하나에 스쿼드가 여럿일 수 있다.
    ═══════════════════════════════════════════════════════════════════════ */
 function paneCmp(P){
   const sq=S.squads||[];
@@ -1819,15 +2098,16 @@ function paneCmp(P){
         const gr=r.ran.length?r.grad/r.ran.length:0;
         const tp=r.X.length?r.tok/r.X.length:0, dp=r.X.length?r.dur/r.X.length:0;
         return `<tr>
-          <td><b style="color:${wsColor(r.s.ws)}">${esc(r.s.name)}</b>
-            <div class="tip">${esc(r.s.ws)}${r.s.source==="config"?"":" · 로그에서 추정"}</div></td>
+          <td><b style="color:${wsColor(r.s.sq)}">${esc(r.s.name)}</b>
+            <div class="tip">${esc(r.s.ws)}${r.s.source==="config"?"":" · 로그에서 추정"}${
+              r.s.squadId?` · <code>${esc(r.s.squadId.slice(0,8))}</code>`:""}</div></td>
           <td style="font-size:10.5px">${r.s.agents.map(a=>(a.icon?a.icon:"")+esc(a.name)).join("<br>")}</td>
           <td class="n">${r.X.length}</td>
           <td class="n"${mark(gr,bGrad)}>${r.grad} / ${r.ran.length}${r.ran.length?` (${pct(gr)})`:""}</td>
           <td class="n"${mark(tp,bTok)}>${fmt(tp)}</td>
           <td class="n"${mark(dp,bDur)}>${secs(dp)}</td>
           <td class="n">${secs(r.X.length?r.exec/r.X.length:0)}</td>
-          <td style="font-size:10.5px;color:var(--fg-dim)">${r.contracts.map(c=>CONTRACT[c].label).join("<br>")}</td>
+          <td style="font-size:10.5px;color:var(--fg-dim)">${r.contracts.map(c=>t(CONTRACT[c].label)).join("<br>")}</td>
         </tr>`;}).join("")}
     </table>
     <p class="note"><b>문항당 시간</b>에는 승인 대기가 들어 있습니다. <code>autoApprove:false</code> 인 실행에서는
@@ -1839,9 +2119,9 @@ function paneCmp(P){
   </div>
   ${sameRequestCard(rows)}`;
   translateDOM(P);
-  bars($("#c-cmp-grad"),rows.map(r=>({label:r.s.name,ws:r.s.ws,
+  bars($("#c-cmp-grad"),rows.map(r=>({label:r.s.name,ws:r.s.sq,
     v:r.ran.length?r.grad/r.ran.length:0,text:`${r.grad}/${r.ran.length}`})),v=>pct(v));
-  bars($("#c-cmp-tok"),rows.map(r=>({label:r.s.name,ws:r.s.ws,
+  bars($("#c-cmp-tok"),rows.map(r=>({label:r.s.name,ws:r.s.sq,
     v:r.X.length?r.tok/r.X.length:0,text:fmt(r.X.length?r.tok/r.X.length:0)})),fmt);
   translateDOM(P);
 }
@@ -1865,7 +2145,7 @@ function sameRequestCard(rows){
     if(!byReq.has(k)) byReq.set(k,[]);
     byReq.get(k).push(e);
   }
-  const shared=[...byReq.entries()].filter(([,v])=>new Set(v.map(e=>e.ws)).size>1);
+  const shared=[...byReq.entries()].filter(([,v])=>new Set(v.map(e=>e.sq)).size>1);
   if(!shared.length) return `<div class="card"><h2>${t("같은 문항 비교")}</h2>
     <p class="q">여러 스쿼드가 <b>같은 문항</b>을 푼 경우가 없습니다.
     같은 문항을 각 스쿼드로 한 번씩 돌리면 여기에서 직접 비교됩니다.</p></div>`;
@@ -1875,7 +2155,7 @@ function sameRequestCard(rows){
       <div style="margin-bottom:12px">
         <div style="font-size:11px;color:var(--fg-dim);margin-bottom:5px">${esc(k)}…</div>
         <table><tr><th>${t("스쿼드")}</th><th>${t("결과")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th><th class="n">${t("태스크")}</th></tr>
-        ${v.map(e=>`<tr><td style="color:${wsColor(e.ws)}"><b>${esc(e.ws)}</b></td>
+        ${v.map(e=>`<tr><td style="color:${wsColor(e.sq)}"><b>${esc(e.ws)}</b></td>
           <td><span class="pill ${e.gradable?"ok":"bad"}">${e.gradable?"적격":"불가"}</span></td>
           <td class="n">${fmt(billed(e))}</td><td class="n">${secs(e.durationMs)}</td>
           <td class="n">${e.tasks.length}</td></tr>`).join("")}</table>
@@ -1885,6 +2165,38 @@ function sameRequestCard(rows){
 /* 워크스페이스에 쓴 파일.
    judge 는 이 파일들을 읽지 않는다. 응답 텍스트만 읽는다.
    그래서 "파일에는 답이 있는데 응답에는 없는" 상태가 조용히 0점이 된다. */
+/* AI:GO 가 스스로 낸 실행 요약(artifacts/reports/*.md)을 우리 판정 옆에 놓는다.
+   같은 실행을 두고 한쪽은 completed, 한쪽은 0점이라고 말하는 순간이 이 도구의 논점이다.
+   AI:GO 는 "태스크가 끝났는가"를 보고, 채점기는 "응답에 요구된 형식이 있는가"를 본다.
+   리포트의 태스크별 Tokens 는 전부 0 이다 — history.json 의 tokenUsage 와 같은 자리라 그렇다. */
+function reportCard(e){
+  const r=e.report; if(!r) return "";
+  const split=r.status==="completed"&&!e.gradable;
+  const ours=e.gradable?t("적격"):e.blocker==="blocked"?t("실행 불가")
+            :e.blocker==="unknown"?t("판정 보류"):t("답 형식 없음");
+  return `<div class="card"${split?' style="border-color:var(--warn)"':""}>
+    <h2>AI:GO 자체 요약과 대조</h2>
+    <p class="q">${split
+      ? `<b>같은 실행을 두고 판정이 갈립니다.</b> AI:GO 는 <code>${esc(r.status)}</code> 라고 적었고,
+         응답에는 요구된 답 형식이 없습니다. 제출 서버가 읽는 것은 뒤쪽입니다.`
+      : `AI:GO 의 요약과 우리 판정이 같은 방향입니다.`}</p>
+    <table>
+      <tr><th></th><th>AI:GO ${t("리포트")}</th><th>${t("이 도구")}</th></tr>
+      <tr><td>${t("판정")}</td><td><span class="pill ${r.status==="completed"?"ok":"bad"}">${esc(r.status||"—")}</span></td>
+        <td><span class="pill ${e.gradable?"ok":"bad"}">${esc(ours)}</span></td></tr>
+      <tr><td>${t("보는 것")}</td><td style="color:var(--fg-dim)">태스크가 끝났는가</td>
+        <td style="color:var(--fg-dim)">응답에 <code>${esc(t(CONTRACT[e.contract].label))}</code> 가 있는가</td></tr>
+      <tr><td>${t("토큰")}</td><td class="n">${fmt(r.tokens)}</td>
+        <td class="n">${fmt((e.tokens.promptTokens||0)+(e.tokens.completionTokens||0))}</td></tr>
+      <tr><td>${t("소요")}</td><td class="n">${esc(r.duration||"—")}</td><td class="n">${secs(e.durationMs)}</td></tr>
+      <tr><td>${t("태스크")}</td><td class="n">${r.tasks.length}</td><td class="n">${e.tasks.length}</td></tr>
+    </table>
+    ${r.tasks.length&&r.tasks.every(x=>!x.tok)?`<p class="note">리포트의 태스크별 <b>Tokens 는 전부 0</b> 입니다.
+      <code>history.json</code> 의 태스크별 <code>tokenUsage</code> 와 같은 자리에서 나오고, 그 값이 채워지지 않습니다.
+      에이전트별 토큰을 추정으로 낼 수밖에 없는 이유가 여기 한 번 더 나옵니다.</p>`:""}
+  </div>`;
+}
+
 function artifactCard(e){
   const arts=[...RAW.artifact.values()];
   if(!arts.length) return "";
@@ -1909,14 +2221,14 @@ function artifactCard(e){
     ${answerish.length&&!e.gradable
       ? `<p class="note"><b>답이 파일에만 있습니다.</b>
          <code>${answerish.map(r=>esc(r.a.name)).join("</code>, <code>")}</code> 에는 결과가 들어 있는데
-         응답 텍스트에는 ${esc(CONTRACT[e.contract].label)} 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.<br>
+         응답 텍스트에는 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.<br>
          에이전트에게 <code>write_file</code> 이 열려 있고 시스템 프롬프트가 "구현하세요"라고만 말하면
          파일을 쓰는 쪽이 자연스러운 행동입니다. 출력 계약을 프롬프트에 넣어야 고쳐집니다.</p>`
       : ""}</div>`;
 }
 
 function rosterCard(e){
-  const R=S.rosterOf(e.ws);
+  const R=S.rosterOf(e.sq);
   if(!R.length) return "";
   const worked=new Set(e.tasks.map(t=>t.agentName||t.agentId));
   const rows=R.map(r=>{
@@ -1927,7 +2239,7 @@ function rosterCard(e){
       <td>${esc(r.role||(r.name==="(플래너)"?"Planner":"—"))}</td>
       <td style="color:var(--fg-dim)">${esc(r.model||"—")}</td>
       <td>${here?'<span class="pill ok">참여</span>':'<span class="pill">미참여</span>'}</td>
-      <td class="n">${r.execs.size} / ${S.execs.length}</td>
+      <td class="n">${r.execs.size} / ${(S.squadOf(e.sq)?.execs||S.execs).length}</td>
       <td class="n">${r.tasks||"—"}</td>
       <td class="n">${r.failed?`<span style="color:var(--bad)">${r.failed}</span>`:"0"}</td>
       <td class="n">${r.tok?fmt(r.tok):"—"}</td></tr>`;}).join("");
@@ -1938,11 +2250,45 @@ function rosterCard(e){
       <th class="n">${t("태스크")}</th><th class="n">${t("실패")}</th><th class="n">${t("토큰(추정)")}</th></tr>${rows}</table>
     <p class="note"><b>로스터는 로그에 없습니다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남습니다.
     한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없습니다.
-    ${S.squadOf(e.ws)?.source==="config"
+    ${S.squadOf(e.sq)?.source==="config"
       ? "지금은 워크스페이스의 <b>.squad.json</b> 을 읽어 정확한 로스터를 쓰고 있습니다. 모델·역할·도구·시스템 프롬프트가 모두 그 파일에 있습니다."
       : `그래서 위 표는 <b>전 실행에 걸쳐 등장한 에이전트의 합집합</b> + 계획 이벤트로 추론한 플래너 자리입니다.
          정확한 구성을 보려면 워크스페이스의 <b>.squad.json</b> 을 같이 넣으세요. 그 파일이 로스터의 유일한 출처입니다.`}
-    </p></div>`;
+    </p>${squadSettings(e)}</div>`;
+}
+
+/* 스쿼드 설정 중 결과를 좌우하는 것들. .squad.json 에 있는데 지금까지 아무 데도 안 보였다.
+   특히 minContextWindow 가 비어 있으면 컨텍스트 상한을 넘는 지문이 그대로 모델로 간다.
+   HTTP 400 으로 죽는 실행들의 원인을 "설정" 쪽에서 짚을 수 있는 유일한 근거다. */
+function squadSettings(e){
+  const s=S.squadOf(e.sq); const cfg=s?.cfg; if(!cfg) return "";
+  const R=s.agents.filter(a=>a.src==="config");
+  const noCtx=R.filter(a=>a.minCtx==null).length;
+  const mem=R.filter(a=>a.memory).length;
+  const blocked=(s.execs||[]).filter(x=>x.blocker==="blocked").length;
+  return `<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+    <h2 style="font-size:12px">스쿼드 설정</h2>
+    <dl class="kv">
+      <dt>실행 방식</dt><dd>${(()=>{const v=[...new Set(R.map(a=>a.mode).filter(Boolean))];
+        return v.length?v.map(x=>`<code>${esc(x)}</code>`).join(" · "):"—";})()}</dd>
+      <dt>AI:GO 버전</dt><dd><code>${esc(cfg.appVersion||"—")}</code>${
+        cfg.initializedAt?` · ${esc(cfg.initializedAt.slice(0,10))} 초기화`:""}</dd>
+      <dt>컨텍스트 하한</dt><dd>${noCtx
+        ? `<span class="pill warn">${noCtx}/${R.length} 미설정</span>`
+        : `<span class="pill ok">전원 설정됨</span>`}</dd>
+      <dt>메모리</dt><dd>${mem}/${R.length} ${t("사용")}</dd>
+      <dt>스쿼드 지시문</dt><dd>${cfg.instructions
+        ? `<code>${esc(cfg.instructions.slice(0,80))}</code>`
+        : `<span style="color:var(--fg-faint)">비어 있음</span>`}</dd>
+    </dl>
+    ${noCtx?`<p class="note"><b><code>minContextWindow</code> 가 ${noCtx}명에게 비어 있습니다.</b>
+      이 값이 없으면 지문이 모델의 컨텍스트 상한을 넘어도 그대로 호출합니다.
+      ${blocked?`이 스쿼드의 실행 ${blocked}건이 호출 거부로 끝났습니다.`
+       :`이 스쿼드에서는 아직 그 때문에 끊긴 실행이 없습니다.`}
+      상한을 걸어 두면 <b>호출 전에</b> 걸러지므로 토큰을 쓰지 않고 실패를 알 수 있습니다.</p>`:""}
+    ${cfg.instructions?"":`<p class="note">스쿼드 지시문이 비어 있습니다.
+      출력 계약처럼 <b>모든 문항에 공통으로 적용할 규칙</b>을 넣을 자리가 여기입니다.</p>`}
+  </div>`;
 }
 
 function phaseBar(e){
@@ -1987,7 +2333,13 @@ function paneReplay(P,e){
       <span class="rp-clock" id="rp-clock"></span>
     </div>
     <div class="rp-focus" id="rp-focus">맵의 <b>에이전트를 클릭</b>하면 그 구간만 재생합니다. 전체 재생은 ▶ 버튼.</div>
-    <div class="sm-wrap">${squadMap(e)}</div>
+    <div class="rp-split">
+      <div class="sm-wrap">${squadMap(e)}</div>
+      <div class="rp-side">
+        <div class="rp-side-h">경과 로그</div>
+        <div class="rp-tick" id="rp-tick"></div>
+      </div>
+    </div>
     <div class="rp-stage" id="rp-stage">
       <div class="rp-phases" id="rp-phases">${phaseCells(e)}</div>
       ${lanes.map(l=>`<div class="rp-lane">
@@ -2010,7 +2362,6 @@ function paneReplay(P,e){
       <div class="stat"><span>실패</span><b id="rp-fail" style="color:var(--bad)">0</b><em>누적</em></div>
       <div class="stat"><span>위상</span><b id="rp-phase" style="font-size:14px">—</b><em>현재 구간</em></div>
     </div>
-    <div class="rp-tick" id="rp-tick"></div>
     ${e.tokenCurve.length
       ? `<p class="note"><b>에이전트별 토큰은 추정치입니다.</b> 로그의 <code>perAgentTokenUsage</code> 와
          태스크별 <code>tokenUsage</code> 는 전부 <code>{0,0}</code> 이고,
@@ -2246,7 +2597,7 @@ function squadMap(e){
     // id 는 이름이 아니라 로스터 인덱스로 만든다.
     // \w 는 ASCII 전용이라 "백엔드 개발자".replace(/\W/g,"") 가 빈 문자열이 되고,
     // 한국어 이름 에이전트가 둘 이상이면 id 가 충돌한다.
-    if(w===0) S.rosterOf(e.ws).forEach((r,ri)=>{
+    if(w===0) S.rosterOf(e.sq).forEach((r,ri)=>{
       if(r.role!=="Planner"&&!worked.has(r.name))
         col.push({id:"idle-"+ri, label:r.name, sub:"미참여", kind:"idle"});
     });
@@ -2258,12 +2609,25 @@ function squadMap(e){
               sub:`${e.counts.total-e.counts.failed}/${e.counts.total} 완료`,
               kind:e.gradable?"good":"badnode"}]);
 
-  const rows=Math.max(...cols.map(c=>c.length));
-  const W=cols.length*CW+20, H=rows*RH+30;
+  // 한 열에 노드가 많으면 그림이 세로로만 길어지고, viewBox 가 통째로 줄어들어
+  // 글자를 못 읽게 된다. 실측: 에이전트 7명짜리 스쿼드에서 그랬다.
+  // 그래서 긴 열은 여러 갈래로 접는다. 논리적으로는 여전히 한 열이라 간선은 그대로 잇는다.
+  const MAXROWS=4;
+  const plan=cols.map(col=>({col, sub:Math.max(1,Math.ceil(col.length/MAXROWS))}));
+  const rows=Math.max(...plan.map(p=>Math.ceil(p.col.length/p.sub)));
+  const totalSub=plan.reduce((s,p)=>s+p.sub,0);
+  const W=totalSub*CW+20, H=rows*RH+30;
   const pos={};
-  cols.forEach((col,ci)=>col.forEach((n,ri)=>{
-    pos[n.id]={x:20+ci*CW, y:15+(H-30-col.length*RH)/2+ri*RH, n, ci};
-  }));
+  let cx=0;
+  plan.forEach(({col,sub},ci)=>{
+    const per=Math.ceil(col.length/sub);
+    col.forEach((n,i)=>{
+      const s=Math.floor(i/per), r=i%per;
+      const inSub=Math.min(per,col.length-s*per);
+      pos[n.id]={x:20+(cx+s)*CW, y:15+(H-30-inSub*RH)/2+r*RH, n, ci};
+    });
+    cx+=sub;
+  });
 
   // 간선: 이전 열의 모든 노드 → 다음 열의 모든 노드
   const edges=[];
@@ -2303,7 +2667,7 @@ function squadMap(e){
       ${hasOut(n.id)?`<circle class="sm-port" cx="${NW}" cy="${NH/2}" r="3.5"/>`:""}
     </g>`).join("");
 
-  const n=S.rosterOf(e.ws).length, act=worked.size+1;   // +1 = 플래너
+  const n=S.rosterOf(e.sq).length, act=worked.size+1;   // +1 = 플래너
   const key=(c,t)=>`<span class="sm-key"><i style="background:${c}"></i>${t}</span>`;
   // 노드가 많으면 viewBox 가 통째로 축소돼 글자를 못 읽는다. 확대·이동을 붙이고
   // 스테이지 높이는 고정한다 — 내용이 커져도 화면이 밀려나지 않게.
@@ -2322,7 +2686,7 @@ function squadMap(e){
       <span>스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b></span>
       ${key("var(--ok)","완료")}${key("var(--bad)","실패")}${key("var(--accent)","실행 중")}
       ${n>act?key("var(--fg-faint)","미참여 (점선)"):""}
-      <span class="sm-src">${S.squadOf(e.ws)?.source==="config"?`.squad.json 기준 · ${esc(S.squadOf(e.ws).name)}`:
+      <span class="sm-src">${S.squadOf(e.sq)?.source==="config"?`.squad.json 기준 · ${esc(S.squadOf(e.sq).name)}`:
         "로그에서 추린 것입니다. 로그에는 태스크를 배정받은 에이전트만 남습니다. 플래너는 이름이 없어 자리만 세웠습니다"}</span>
     </div>`;
 }
@@ -2392,7 +2756,7 @@ function paneLedger(P,e){
         `</div></div>`;
   }
   h+=`</div></div>
-    <p class="note"><b>이 문항의 출력 계약: <code>${esc(CONTRACT[e.contract].spec)}</code></b>
+    <p class="note"><b>이 문항의 출력 계약: <code>${esc(t(CONTRACT[e.contract].spec))}</code></b>
     요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽었습니다. 계약은 문항마다 다르므로
     한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.<br>
     <b>이 검사가 곧 Preflight 다.</b> 정규식 몇 개로 끝나고 <b>LLM 호출이 0회</b>다.
@@ -2402,9 +2766,157 @@ function paneLedger(P,e){
   P.innerHTML=h;
 }
 
+/* 웨이브·대기·실행·파일쓰기를 한 시간축에 겹쳐 놓는다.
+   태스크 하나가 만들어진 시각(createdAt)과 실제로 시작한 시각(startedAt)이 tasks/*.json 에
+   따로 있다. 그 사이가 큐에서 기다린 시간인데, 실측 평균 33초·최대 6분이라 실행 시간만
+   보고 있으면 어디가 병목인지 완전히 놓친다. 그래서 대기를 실행 앞에 흐린 막대로 붙인다. */
+function drawWaves(host,e){
+  host.textContent="";
+  const rows=e.tasks.map(t=>{
+    const m=t.meta||{};
+    const made=ms(m.createdAt), began=ms(m.startedAt)??t.start, done=ms(m.completedAt)??t.end;
+    return {t, made, began, done,
+            wave:e.waveEv.findIndex(w=>w.taskIds.includes(t.taskId))};
+  });
+  const times=[e.t0,e.t1,...rows.flatMap(r=>[r.made,r.began,r.done]),
+               ...e.waveEv.flatMap(w=>[w.start,w.end]), ...e.fileWrites.map(f=>f.t)]
+              .filter(Number.isFinite);
+  if(!times.length){ host.innerHTML=`<p class="q">${t("시각을 세울 근거가 없습니다.")}</p>`; return; }
+  const t0=Math.min(...times), t1=Math.max(...times), span=Math.max(1,t1-t0);
+  const W=1000, rowH=20, top=32, H=top+rows.length*rowH+30;
+  const x=v=>150+(v-t0)/span*(W-170);
+  const g=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,class:"chart",style:`height:${Math.min(H,420)}px`});
+
+  // 웨이브 구간을 배경 띠로. 시작은 events.jsonl, 끝은 <executionId>.jsonl 에만 있다.
+  e.waveEv.forEach((w,i)=>{
+    if(!Number.isFinite(w.start)) return;
+    const end=Number.isFinite(w.end)?w.end:t1;
+    g.appendChild(svgEl("rect",{x:x(w.start),y:top-14,width:Math.max(1,x(end)-x(w.start)),height:H-top-8,
+      fill:i%2?"var(--panel-2)":"var(--panel)",opacity:.55},
+      [svgEl("title",{},`wave ${w.i+1}/${w.total||e.waveEv.length} · ${secs(end-w.start)}`)]));
+    g.appendChild(svgEl("text",{x:x(w.start)+4,y:top-18,"font-size":9,fill:"var(--fg-faint)"},
+      `W${w.i+1}${Number.isFinite(w.end)?" · "+secs(w.end-w.start):""}`));
+  });
+  // 눈금
+  for(let i=0;i<=6;i++){ const v=t0+span*i/6;
+    g.appendChild(svgEl("line",{x1:x(v),y1:top-6,x2:x(v),y2:H-22,stroke:"var(--line)",opacity:.4}));
+    g.appendChild(svgEl("text",{x:x(v),y:H-10,"text-anchor":"middle","font-size":9,fill:"var(--fg-faint)"},
+      ((v-t0)/1000).toFixed(0)+"s")); }
+
+  rows.forEach((r,i)=>{
+    const y=top+i*rowH;
+    // 대기 — 만들어졌지만 아직 시작하지 않은 구간
+    if(Number.isFinite(r.made)&&Number.isFinite(r.began)&&r.began>r.made)
+      g.appendChild(svgEl("rect",{x:x(r.made),y:y+4,width:Math.max(1,x(r.began)-x(r.made)),height:rowH-11,
+        rx:2,fill:"var(--fg-faint)",opacity:.28},
+        [svgEl("title",{},`${t("대기")} ${secs(r.began-r.made)}`)]));
+    // 실행
+    if(Number.isFinite(r.began)&&Number.isFinite(r.done))
+      g.appendChild(svgEl("rect",{x:x(r.began),y:y+2,width:Math.max(2,x(r.done)-x(r.began)),height:rowH-7,
+        rx:2,fill:r.t.status==="failed"?"var(--bad)":"var(--accent)",opacity:.85},
+        [svgEl("title",{},`${one(r.t.title).slice(0,60)}\n${t("실행")} ${secs(r.done-r.began)}`)]));
+    const retry=(r.t.meta?.retryCount??0)>1?` ↻${r.t.meta.retryCount}`:"";
+    g.appendChild(svgEl("text",{x:146,y:y+rowH/2+3,"text-anchor":"end","font-size":9,
+      fill:r.t.status==="failed"?"var(--bad)":"var(--fg-dim)"},
+      (r.t.agentName||one(r.t.title)||"task").slice(0,20)+retry));
+  });
+
+  // 워크스페이스에 파일이 쓰인 순간. judge 는 이 파일을 읽지 않는다.
+  for(const f of e.fileWrites){
+    g.appendChild(svgEl("line",{x1:x(f.t),y1:top-14,x2:x(f.t),y2:H-22,
+      stroke:"var(--warn)","stroke-width":1.2,"stroke-dasharray":"3 3",opacity:.9},
+      [svgEl("title",{},`${f.how} ${f.path}`)]));
+    g.appendChild(svgEl("text",{x:x(f.t)+3,y:H-24,"font-size":8.5,fill:"var(--warn)"},
+      f.path.split("/").pop().slice(0,18)));
+  }
+  host.appendChild(g);
+}
+
+/* 태스크 의존 그래프. tasks/*.json 의 dependsOn 이 유일한 출처다.
+   웨이브는 "같은 층"까지만 말해주고 어느 태스크가 어느 태스크를 기다렸는지는 말해주지 않는다. */
+function drawDeps(host,e){
+  host.textContent="";
+  const nodes=e.tasks.filter(t=>t.taskId);
+  if(!nodes.length){ host.innerHTML=`<p class="q">${t("태스크 id 가 없어 그래프를 세울 수 없습니다.")}</p>`; return; }
+  const idx=new Map(nodes.map((t,i)=>[t.taskId,i]));
+  // 층 = 의존 깊이. 순환은 로그에 없지만 들어와도 멈추지 않게 방문 표시를 둔다.
+  const depth=new Map(); const seen=new Set();
+  const dep=id=>{
+    if(depth.has(id)) return depth.get(id);
+    if(seen.has(id)) return 0;
+    seen.add(id);
+    const t=nodes[idx.get(id)];
+    const ds=(t?.meta?.dependsOn||[]).filter(d=>idx.has(d));
+    const v=ds.length?Math.max(...ds.map(dep))+1:0;
+    depth.set(id,v); return v;
+  };
+  nodes.forEach(t=>dep(t.taskId));
+  const byLayer=new Map();
+  nodes.forEach(t=>{ const d=depth.get(t.taskId)||0;
+    if(!byLayer.has(d)) byLayer.set(d,[]); byLayer.get(d).push(t); });
+  const layers=[...byLayer.keys()].sort((a,b)=>a-b);
+  const colW=210, rowH=44, W=Math.max(560,layers.length*colW+40);
+  const H=Math.max(...[...byLayer.values()].map(v=>v.length))*rowH+40;
+  const g=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,class:"chart",style:`height:${Math.min(H,380)}px`});
+  const pos=new Map();
+  layers.forEach((d,li)=>{ byLayer.get(d).forEach((t,i)=>{
+    pos.set(t.taskId,{x:24+li*colW, y:24+i*rowH}); }); });
+
+  // 간선 먼저 — 노드 밑에 깔려야 읽힌다
+  for(const t of nodes) for(const d of (t.meta?.dependsOn||[])){
+    const a=pos.get(d), b=pos.get(t.taskId); if(!a||!b) continue;
+    const x1=a.x+178, y1=a.y+13, x2=b.x, y2=b.y+13;
+    g.appendChild(svgEl("path",{d:`M${x1} ${y1} C${x1+28} ${y1} ${x2-28} ${y2} ${x2} ${y2}`,
+      fill:"none",stroke:"var(--accent)",opacity:.55,"stroke-width":1.4}));
+  }
+  for(const t of nodes){
+    const p=pos.get(t.taskId); if(!p) continue;
+    const bad=t.status==="failed";
+    g.appendChild(svgEl("rect",{x:p.x,y:p.y,width:178,height:26,rx:5,
+      fill:"var(--panel-2)",stroke:bad?"var(--bad)":"var(--line)"},
+      [svgEl("title",{},`${one(t.title)}\n${t.agentName||""}\n${t.meta?.priority||""}`)]));
+    g.appendChild(svgEl("text",{x:p.x+8,y:p.y+16,"font-size":9.5,
+      fill:bad?"var(--bad)":"var(--fg)"},(t.agentName||one(t.title)||"task").slice(0,24)));
+  }
+  host.appendChild(g);
+}
 function paneTimeline(P,e){
-  let h=`<div class="card"><h2>위상</h2>`+phaseBar(e)+`</div>
-    <div class="card"><h2>이벤트 ${e.events.length}개</h2>`;
+  const waited=e.tasks.map(x=>{const a=ms(x.meta?.createdAt),b=ms(x.meta?.startedAt);
+    return Number.isFinite(a)&&Number.isFinite(b)&&b>a?b-a:0;});
+  const waitSum=waited.reduce((a,b)=>a+b,0), waitMax=Math.max(0,...waited);
+  const deep=e.tasks.some(x=>(x.meta?.dependsOn||[]).length);
+  let h=`<div class="card"><h2>위상</h2>`+phaseBar(e)+`</div>`;
+
+  h+=`<div class="card"><h2>웨이브와 태스크</h2>
+    <p class="q">태스크가 <b>만들어진 시각</b>과 <b>실제로 시작한 시각</b>은 다릅니다.
+    그 사이가 큐에서 기다린 시간이고, 흐린 막대가 그 구간입니다.</p>
+    <div id="c-wave"></div>
+    <div class="legend-row">
+      <span><i style="background:var(--fg-faint);opacity:.4"></i>대기</span>
+      <span><i style="background:var(--accent)"></i>실행</span>
+      <span><i style="background:var(--bad)"></i>실패</span>
+      <span><i style="background:var(--warn)"></i>워크스페이스 파일 쓰기</span>
+    </div>`;
+  if(waitMax>=1000) h+=`<p class="note">이 실행에서 태스크가 기다린 시간은 모두 합쳐
+    <b>${secs(waitSum)}</b>, 가장 오래 기다린 태스크는 <b>${secs(waitMax)}</b>입니다.
+    ${e.autoApprove===false?`<code>autoApprove: false</code> 인 실행이므로 사람이 계획을 승인하기까지의
+    시간이 여기 섞여 있습니다. 자동으로 도는 벤치마크에서는 이 몫이 사라집니다.`
+    :`대기가 길면 웨이브를 잘못 나눈 것입니다. 앞 웨이브가 끝나야 다음이 시작합니다.`}</p>`;
+  h+=`<p class="note"><b>웨이브 시작은 <code>events.jsonl</code>, 끝은 <code>&lt;executionId&gt;.jsonl</code> 에만 있습니다.</b>
+    한쪽만 읽으면 구간이 닫히지 않아 띠가 실행 끝까지 늘어납니다.</p></div>`;
+
+  if(deep) h+=`<div class="card"><h2>태스크 의존</h2>
+    <p class="q">웨이브는 "같은 층"까지만 말해 줍니다. 어느 태스크가 어느 태스크를 기다렸는지는
+    <code>tasks/*.json</code> 의 <code>dependsOn</code> 에만 있습니다.</p>
+    <div id="c-dep"></div></div>`;
+
+  if(e.fileWrites.length) h+=`<div class="card"><h2>워크스페이스 파일 쓰기 ${e.fileWrites.length}건</h2>
+    <p class="q"><b>judge 는 이 파일을 읽지 않습니다.</b> 답이 여기로 나갔다면 응답 텍스트에도 있어야 합니다.</p>
+    <table><tr><th>${t("시간")}</th><th>${t("파일")}</th><th>${t("상태")}</th></tr>`+
+    e.fileWrites.map(f=>`<tr><td class="n">+${((f.t-e.t0)/1000).toFixed(1)}s</td>
+      <td><code>${esc(f.path)}</code></td><td>${esc(f.how)}</td></tr>`).join("")+`</table></div>`;
+
+  h+=`<div class="card"><h2>이벤트 ${e.events.length}개</h2>`;
   const t0=e.events.length?ms(e.events[0].timestamp):0;
   for(const ev of e.events){
     const p=ev.payload||{};
@@ -2423,6 +2935,9 @@ function paneTimeline(P,e){
   }
   h+=`</div>`;
   P.innerHTML=h;
+  drawWaves($("#c-wave"),e);
+  if(deep) drawDeps($("#c-dep"),e);
+  translateDOM(P);
 }
 
 function paneFailure(P,e){
@@ -2453,9 +2968,26 @@ function paneRaw(P,e){
   let h=`<div class="card"><h2>원문 로그 <span style="color:var(--fg-faint);font-weight:400;font-size:11px">${e.id}.jsonl</span></h2>`;
   if(!e.logs.length) h+=`<p class="q">이 실행의 <code>&lt;executionId&gt;.jsonl</code> 이 로드되지 않았습니다. 폴더에 포함해 주세요.</p>`;
   else h+=`<pre>`+e.logs.map(l=>`[${l.level}] ${l.agentId}\n  ${esc(l.message)}`).join("\n\n")+`</pre>`;
-  h+=`</div><div class="card"><h2>실행 JSON (history.json 항목)</h2>
+  h+=`</div>`;
+  // logs/index.json 은 실행 도중에 쓰이고 끝난 뒤 갱신되지 않는다.
+  // 실측: 21개 실행 전부 entryCount 가 실제 줄 수보다 적었다. 세는 근거로 쓰면 안 된다.
+  if(e.logIndex) h+=`<div class="card"><h2>logs/index.json 대조</h2>
+    <p class="q"><b>이 파일의 개수는 근거로 쓰지 않습니다.</b> 실행 도중에 쓰이고 끝난 뒤 갱신되지 않습니다.</p>
+    <dl class="kv">
+      <dt>index.json 의 entryCount</dt><dd>${e.logIndex.entryCount}</dd>
+      <dt>실제 줄 수</dt><dd>${e.logIndex.actual}${
+        e.logIndex.actual!==e.logIndex.entryCount
+          ? ` <span class="pill warn">${e.logIndex.actual-e.logIndex.entryCount}줄 모자람</span>`
+          : ` <span class="pill ok">일치</span>`}</dd>
+      <dt>index.json 의 마지막 갱신</dt><dd><code>${esc((e.logIndex.lastUpdatedAt||"").replace("T"," ").slice(0,19))}</code></dd>
+    </dl>
+    <p class="note">그래서 실행 목록·시각·개수는 <code>history.json</code> 과 <code>events.jsonl</code> 에서만 세고,
+    이 파일에서는 <b>이 실행이 어느 스쿼드 것인지</b>만 가져옵니다.
+    ${e.squadId?`이 실행의 스쿼드는 <code>${esc(e.squadId.slice(0,8))}</code> 입니다.`:""}</p></div>`;
+  h+=`<div class="card"><h2>실행 JSON (history.json 항목)</h2>
     <pre>${esc(JSON.stringify({id:e.id,squadName:e.squadName,aigoStatus:e.aigoStatus,counts:e.counts,
       tokens:e.tokens,durationMs:e.durationMs,waves:e.waves,plannerWarning:e.plannerWarning,
+      squadId:e.squadId,waveEv:e.waveEv,fileWrites:e.fileWrites,
       tasks:e.tasks.map(t=>({title:t.title,agentName:t.agentName,status:t.status,durationMs:t.durationMs,
         outputChars:(t.output||"").length,gradable:t.answer.gradable,error:t.error}))},null,1))}</pre></div>`;
   P.innerHTML=h;
@@ -2485,7 +3017,7 @@ function finish(){
   // 워크스페이스 필터 채우기. 하나뿐이면 굳이 보여주지 않는다.
   const sel=$("#f-ws");
   sel.innerHTML=`<option value="">모든 스쿼드</option>`+
-    (S.squads||[]).map(s=>`<option value="${esc(s.ws)}">${esc(s.name)} (${s.execs.length})</option>`).join("");
+    (S.squads||[]).map(s=>`<option value="${esc(s.sq)}">${esc(s.name)} (${s.execs.length})</option>`).join("");
   sel.style.display=ws.length>1?"":"none";
   sel.onchange=()=>{renderList();syncHash();};
   // 스쿼드가 둘 이상이면 비교 탭이 의미가 있다는 것을 버튼에 표시한다.
@@ -2496,6 +3028,7 @@ function finish(){
   applyHash();
 }
 function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.artifact.clear();RAW.taskmd.clear();RAW.squad.clear();RAW.execWs.clear();
+  RAW.logIndex.clear();RAW.report.clear();
   SEEN.files=0;SEEN.kinds={};SEEN.skipped=[];SEEN.ws=new Set(); }
 
 /* 파일 하나를 텍스트로 읽는다.
@@ -2516,11 +3049,11 @@ function readText(file){
 
 async function loadEntries(entries){
   reset();
-  if(!entries.length){ $("#derr").textContent="파일이 없습니다. 폴더를 고르거나 파일을 끌어다 놓으세요."; return; }
-  $("#derr").textContent="";
+  if(!entries.length){ setDfiles(null); setDerr(()=>t("파일이 없습니다. 폴더를 고르거나 파일을 끌어다 놓으세요.")); return; }
+  setDerr(null);
   let done=0;
-  const tick=()=>{ $("#dfiles").textContent=`읽는 중… ${++done} / ${entries.length}`; };
-  $("#dfiles").textContent=`읽는 중… 0 / ${entries.length}`;
+  const tick=()=>{ done++; renderDfiles(); };
+  setDfiles(()=>`${t("읽는 중…")} ${done} / ${entries.length}`);
 
   // allSettled 라서 개별 실패가 전체를 멈추지 못한다.
   const res=await Promise.allSettled(entries.map(async ({file,path})=>{
@@ -2535,11 +3068,13 @@ async function loadEntries(entries){
 }
 
 function showLoadError(err,bad){
-  $("#derr").textContent=err.message;
-  const kinds=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ")||"인식된 파일 없음";
-  $("#dfiles").textContent="읽은 것: "+kinds+
-    (bad?`  |  읽기 실패 ${bad}개`:"")+
-    (SEEN.skipped.length?"  |  건너뜀: "+SEEN.skipped.slice(0,8).join(", "):"");
+  setDerr(()=>err.message);        // 예외 메시지는 로그 쪽 값이라 번역하지 않는다
+  setDfiles(()=>{
+    const kinds=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ")||t("인식된 파일 없음");
+    return t("읽은 것:")+" "+kinds+
+      (bad?"  |  "+tn("읽기 실패 {0}개",bad):"")+
+      (SEEN.skipped.length?"  |  "+t("건너뜀:")+" "+SEEN.skipped.slice(0,8).join(", "):"");
+  });
 }
 
 const asEntries=fileList=>[...fileList].map(f=>({file:f, path:f.webkitRelativePath||f.name}));
@@ -2570,13 +3105,18 @@ $("#btn-dir").onclick=()=>$("#in-dir").click();
 $("#btn-file").onclick=()=>$("#in-file").click();
 $("#in-dir").onchange=e=>loadEntries(asEntries(e.target.files));
 $("#in-file").onchange=e=>loadEntries(asEntries(e.target.files));
-$("#btn-load").onclick=()=>{$("#drop").hidden=false;$("#derr").textContent="";};
+/* 폴더 다시 고르기 = 처음 화면으로. 주소에 붙은 인자는 이전 폴더의 실행 id 를 가리키고 있어
+   새 폴더에서는 맞지 않는다. 그대로 두면 링크를 건넸을 때 없는 실행을 찾는다. */
+$("#btn-load").onclick=()=>{
+  $("#drop").hidden=false; setDerr(null);
+  try{ history.replaceState(null,"",location.pathname+location.search); }catch{}
+};
 ["dragenter","dragover"].forEach(t=>document.addEventListener(t,ev=>{
   ev.preventDefault(); $("#drop").hidden=false; $("#drop").classList.add("over");}));
 document.addEventListener("dragleave",ev=>{ev.preventDefault();$("#drop").classList.remove("over");});
 document.addEventListener("drop",async ev=>{
-  ev.preventDefault(); $("#drop").classList.remove("over"); $("#derr").textContent="";
-  $("#dfiles").textContent="폴더를 훑는 중…";
+  ev.preventDefault(); $("#drop").classList.remove("over"); setDerr(null);
+  setDfiles(()=>t("폴더를 훑는 중…"));
   try{
     // getAsEntry 는 drop 이벤트가 끝나기 전에 동기로 불러야 한다
     const items=[...(ev.dataTransfer.items||[])]
@@ -2673,7 +3213,7 @@ function applyStaticI18n(){
 function setLang(l){
   LANG=l==="en"?"en":"ko";
   ["#lang","#lang2"].forEach(s=>{ const el=$(s); if(el) el.value=LANG; });
-  applyStaticI18n(); renderSrc();
+  applyStaticI18n(); renderSrc(); renderDfiles();
   if(S.execs.length){ renderHeader(); renderList(); renderPane();
     if(S.mode==="all") paneAll($("#pane-all"));
     if(S.mode==="cmp") paneCmp($("#pane-cmp")); }
@@ -2823,7 +3363,7 @@ $("#btn-export").onclick=()=>{
   const rect=svg.getBoundingClientRect();
   if(!c.getAttribute("viewBox")&&rect.width) c.setAttribute("viewBox",`0 0 ${rect.width} ${rect.height}`);
   c.setAttribute("style",`background:${cs.getPropertyValue("--bg").trim()}`);
-  download("ledger-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
+  download("monstrous-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
 };
 $("#btn-json").onclick=()=>{
   const out={
@@ -2841,7 +3381,7 @@ $("#btn-json").onclick=()=>{
         durationMs:t.durationMs,tokenEstimated:t.tok||0,gradable:t.answer.gradable,
         checks:t.answer.checks.map(k=>({check:k.k,ok:k.ok,detail:k.d}))}))
     }))};
-  download("ledger-normalized.json",JSON.stringify(out,null,2),"application/json");
+  download("monstrous-normalized.json",JSON.stringify(out,null,2),"application/json");
 };
 </script>
 </body>
