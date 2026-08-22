@@ -431,7 +431,7 @@ function classify(err){
    수집 — 폴더 안의 파일을 이름으로 분류해 병합한다
    ═══════════════════════════════════════════════════════════════════════ */
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), artifact:new Map(), squad:null};
+const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), artifact:new Map(), taskmd:new Map(), squad:null};
 const SEEN={files:0, kinds:{}, skipped:[]};
 
 function ndjson(text){
@@ -497,6 +497,17 @@ function addFile(path,name,text){
         bump("squad config"); return;
       }
     } catch { /* 스쿼드 설정이 아니면 아래 판별로 넘어간다 */ }
+    // tasks/*.md — 시도 단위 기록. "[08:31] Started execution (attempt 1)" 형태다.
+    // events.jsonl 에는 시도 번호가 없어서 재시도가 몇 번째였는지는 여기에만 있다.
+    if(/\/tasks\//.test(path)&&name.endsWith(".md")){
+      const id=(text.match(/^ID:\s*(\S+)/m)||[])[1];
+      const log=[...text.matchAll(/^-\s*\[(\d{2}:\d{2})\]\s*(.+)$/gm)]
+        .map(m=>({at:m[1], what:m[2].trim(),
+                  attempt:+((m[2].match(/attempt (\d+)/)||[])[1]||0) || null}));
+      if(id) RAW.taskmd.set(id,{id, title:(text.match(/^# Task:\s*(.+)$/m)||[])[1]||"", log,
+        deps:((text.match(/^Dependencies:\s*(.+)$/m)||[])[1]||"").split(/,\s*/).filter(Boolean)});
+      bump("tasks/*.md"); return;
+    }
     if(/\/tasks\//.test(path)&&name.endsWith(".json")){
       const t=JSON.parse(text);
       for(const x of (Array.isArray(t)?t:[t])) if(x&&x.id) RAW.task.set(x.id,x);
@@ -927,14 +938,23 @@ function paneOverview(P,e){
   h+=`<div class="card"><h2>시간이 어디에 쓰였나</h2>`+phaseBar(e)+`</div>`;
 
   h+=`<div class="card"><h2>태스크 ${e.tasks.length}개</h2><table>
-    <tr><th>제목</th><th>에이전트</th><th>상태</th><th>채점 적격</th><th class="n">소요</th></tr>`;
-  for(const t of e.tasks) h+=`<tr>
-    <td>${esc(one(t.title).slice(0,58))}</td>
-    <td>${esc(t.agentName||t.agentId||"—")}</td>
-    <td><span class="pill ${t.status==="failed"?"bad":"ok"}">${esc(t.status)}</span></td>
-    <td>${t.output?`<span class="pill ${t.answer.gradable?"ok":"bad"}">${t.answer.gradable?"적격":"마커 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
-    <td class="n">${secs(t.durationMs)}</td></tr>`;
-  h+=`</table></div>`;
+    <tr><th>제목</th><th>에이전트</th><th>상태</th><th>채점 적격</th><th>시도 기록</th><th class="n">소요</th></tr>`;
+  for(const t of e.tasks){
+    // tasks/*.md 의 Progress Log. 시도 번호는 events.jsonl 에 없고 여기에만 있다.
+    const md=t.taskId?RAW.taskmd.get(t.taskId):null;
+    const attempts=md?Math.max(0,...md.log.map(l=>l.attempt||0)):0;
+    h+=`<tr>
+      <td>${esc(one(t.title).slice(0,52))}</td>
+      <td>${esc(t.agentName||t.agentId||"—")}</td>
+      <td><span class="pill ${t.status==="failed"?"bad":"ok"}">${esc(t.status)}</span></td>
+      <td>${t.output?`<span class="pill ${t.answer.gradable?"ok":"bad"}">${t.answer.gradable?"적격":CONTRACT[e.contract].label+" 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
+      <td style="font-size:10px;color:var(--fg-dim)">${md
+        ? md.log.map(l=>`${esc(l.at)} ${esc(l.what)}`).join("<br>")+
+          (attempts>1?` <span class="pill warn">시도 ${attempts}회</span>`:"")
+        : "—"}</td>
+      <td class="n">${secs(t.durationMs)}</td></tr>`;
+  }
+  h+=`</table>${[...RAW.taskmd.values()].length?"":`<p class="note"><code>tasks/*.md</code> 를 같이 넣으면 시도별 기록이 나옵니다. 시도 번호는 <code>events.jsonl</code> 에 없고 그 파일에만 있습니다.</p>`}</div>`;
   P.innerHTML=h;
 }
 
@@ -1539,7 +1559,7 @@ function finish(){
   $("#drop").hidden=true;
   renderHeader(); renderList(); renderPane();
 }
-function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.artifact.clear();RAW.squad=null;
+function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.artifact.clear();RAW.taskmd.clear();RAW.squad=null;
   SEEN.files=0;SEEN.kinds={};SEEN.skipped=[]; }
 
 /* 파일 하나를 텍스트로 읽는다.
