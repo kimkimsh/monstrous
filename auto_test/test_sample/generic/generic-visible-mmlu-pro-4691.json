@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-4691",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "This question refers to the following information.\n\"In 1500 that work appeared which Erasmus had written after his misfortune at Dover, and had dedicated to Mountjoy, the Adagiorum Collectanea. It was a collection of about eight hundred proverbial sayings drawn from the Latin authors of antiquity and elucidated for the use of those who aspired to write an elegant Latin style. In the dedication Erasmus pointed out the profit an author may derive, both in ornamenting his style and in strengthening his argumentation, from having at his disposal a good supply of sentences hallowed by their antiquity. He proposes to offer such a help to his readers. What he actually gave was much more. He familiarized a much wider circle than the earlier humanists had reached with the spirit of antiquity.\nUntil this time the humanists had, to some extent, monopolized the treasures of classic culture, in order to parade their knowledge of which the multitude remained destitute, and so to become strange prodigies of learning and elegance. With his irresistible need of teaching and his sincere love for humanity and its general culture, Erasmus introduced the classic spirit, in so far as it could be reflected in the soul of a sixteenth-century Christian, among the people. Not he alone; but none more extensively and more effectively. Not among all the people, it is true, for by writing in Latin he limited his direct influence to the educated classes, which in those days were the upper classes.\nErasmus made current the classic spirit. Humanism ceased to be the exclusive privilege of a few. According to Beatus Rhenanus he had been reproached by some humanists, when about to publish the Adagia, for divulging the mysteries of their craft. But he desired that the book of antiquity should be open to all.\"\nJohan Huizinga, twentieth-century Dutch philosopher, Erasmus and the Age of Reformation, 1924\nAccording to Huizinga, Erasmus's legacy was more significant than that of earlier humanists because\n\nOptions:\nA. he wrote exclusively about religious matters\nB. he wrote a greater number of books than his predecessors\nC. he was the first to translate Latin proverbs into the vernacular\nD. he was more critical of the Church than his predecessors were\nE. he had a wider variety of interests than his predecessors had\nF. he was less interested in the pomp and circumstance of academia\nG. he had more support from the Church\nH. he made the classic spirit more accessible by teaching it\nI. he valued educating the masses more than his predecessors had\nJ. he wrote in a language that was understandable to the masses, unlike his predecessors\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "I",
+    "answer_index": 8,
+    "answer_text": "he valued educating the masses more than his predecessors had",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-4691"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "4691",
+    "prompt_bytes": 2926,
+    "prompt_sha256": "96b11b7becf5fc3c38ffa6027eb96a5f8f164016325f2a569c22b648d729f9b7",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-4691.txt"
+  }
+}

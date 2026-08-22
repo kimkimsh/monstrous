@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0029",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Consider the function \\[ f(x) =\n\\begin{cases}\nax^2 & \\text{if } x \\geq a,\\\\\nax +2a& \\text{if } x <a,\n\\end{cases}\n\\]where $a$ is some number.\n\nWhat is the largest value of $a$ such that the graph of $y=f(x)$ intersects every horizontal line at least once?\n\nThis problem's answer is an integer.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "integer",
+    "gold": "2",
+    "gold_latex": "$\\boxed{2}$",
+    "checks": [
+      "integer_exact",
+      "math_verify"
+    ],
+    "item_id": "math-visible-0029"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/algebra/892.json",
+    "prompt_bytes": 552,
+    "prompt_sha256": "1fde1d0d9e638396fdb80eb2483f32c401a8a585219e6e5f441d45680eb790e4",
+    "source": "docs/resource/example_task/math/requests/math-visible-0029.txt"
+  }
+}

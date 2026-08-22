@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-2951",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "In Japan, the frequency of the R-governed multiple drug-resistant strain ofShigella, which causes dysentery, rose from 0.2 percent in 1953 to 58 percent in 1965. Also, 84 percent of the E. coli and 90 percent of Proteus collected from affected hospital patients showed similar resistance. How could such an increase happen?\n\nOptions:\nA. The bacteria developed immunity to antibiotics\nB. The bacteria were genetically modified\nC. Transfer of resistance genes from non-pathogenic to pathogenic bacteria through horizontal gene transfer\nD. A decline in vaccination rates leading to increased bacterial spread\nE. Over-prescription of antibiotics in livestock agriculture leading to cross-species transfer of resistance\nF. Natural selection favored bacteria that were inherently resistant to antibiotics\nG. The bacteria mutated rapidly\nH. Increased use of antibacterial soaps and disinfectants in hospitals\nI. Introduction of new antibiotics that were less effective against resistant strains\nJ. Indiscriminate use of antibiotics selected for drug-resistant bacteria which can then pass their resistance to potentially harmful strains.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "J",
+    "answer_index": 9,
+    "answer_text": "Indiscriminate use of antibiotics selected for drug-resistant bacteria which can then pass their resistance to potentially harmful strains.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-2951"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "2951",
+    "prompt_bytes": 1422,
+    "prompt_sha256": "2d0a2a86ba23b7f16f17d7b5b4652594a8a6ea97f7fe00c76123df76378adab6",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-2951.txt"
+  }
+}

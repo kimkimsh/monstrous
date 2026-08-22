@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-2021",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Ryan suffers from nearly constant, low-level arousal of his autonomic nervous system. Ryan is most likely to be classified as suffering from\n\nOptions:\nA. schizophrenia.\nB. bipolar disorder.\nC. hypochondriasis.\nD. panic disorder.\nE. dissociative identity disorder.\nF. social anxiety disorder.\nG. obsessive-compulsive personality disorder.\nH. major depressive disorder.\nI. GAD.\nJ. post-traumatic stress disorder.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "I",
+    "answer_index": 8,
+    "answer_text": "GAD.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-2021"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "2021",
+    "prompt_bytes": 702,
+    "prompt_sha256": "1edfa43162dc254058fc2f1cefcd920bf81b7f6ad5b66a910899f8eb55ce6cbc",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-2021.txt"
+  }
+}

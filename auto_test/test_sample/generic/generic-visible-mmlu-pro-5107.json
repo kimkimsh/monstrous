@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-5107",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Which of the following sequences of events is consistent with the presence of a layer of sandstone in bedrock just above a layer of shale?\n\nOptions:\nA. One-celled organisms developed a colony on the seafloor. Shells made by these organisms accumulated and lithified, forming the sandstone.\nB. A meteorite impact created a crater. The impact pulverized rock into sand-sized particles that later lithified into sandstone.\nC. A forest grew, died, and decayed on top of a layer of shale. The organic material transformed into sandstone over time.\nD. The water level of a large lake lowered. A beach then formed where previously there had been lake bottom.\nE. Mud was deposited and lithified. Subsequent contact metamorphism resulted in localized recrystallization of the shale into sandstone.\nF. A volcano erupted, sending lava out over a layer of shale. The lava cooled and hardened into sandstone.\nG. A river carried silt and clay that settled over a layer of shale. Over time, this material compacted into sandstone.\nH. Tectonic activity pushed sandstone rock from deep within the Earth's surface to just above a layer of shale.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "D",
+    "answer_index": 3,
+    "answer_text": "The water level of a large lake lowered. A beach then formed where previously there had been lake bottom.",
+    "num_options": 8,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-5107"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "5107",
+    "prompt_bytes": 1419,
+    "prompt_sha256": "c031e6c62f9dc289d13a98f189d339f7084c5f17b1b2eb8d6984f9db67e3b310",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-5107.txt"
+  }
+}

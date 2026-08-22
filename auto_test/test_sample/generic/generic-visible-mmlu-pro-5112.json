@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-5112",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Who was the WNBA's Most Valuable Player of 1999?\n\nOptions:\nA. Yolanda Griffith\nB. Cynthia Cooper\nC. Dawn Staley\nD. Rebecca Lobo\nE. Tamika Catchings\nF. Sue Bird\nG. Tina Thompson\nH. Sheryl Swoopes\nI. Lauren Jackson\nJ. Lisa Leslie\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "A",
+    "answer_index": 0,
+    "answer_text": "Yolanda Griffith",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-5112"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "5112",
+    "prompt_bytes": 519,
+    "prompt_sha256": "247e4e96bdae0fb0ba9769b2e583cb04264981821df33dbf170ebbf2bc993767",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-5112.txt"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0016",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "If $-6\\leq a \\leq -2$ and $3 \\leq b \\leq 5$, what is the greatest possible value of $\\displaystyle\\left(a+\\frac{1}{b}\\right)\\left(\\frac{1}{b}-a\\right) $?  Express your answer as a common fraction.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "-\\frac{35}{9}",
+    "gold_latex": "$\\boxed{-\\frac{35}{9}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0016"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/algebra/2517.json",
+    "prompt_bytes": 456,
+    "prompt_sha256": "ec7c424fe2c5dacb9d9c642d6c38711c248597ca226aeadbbe73ad57b4072816",
+    "source": "docs/resource/example_task/math/requests/math-visible-0016.txt"
+  }
+}

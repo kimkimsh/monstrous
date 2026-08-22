@@ -1,0 +1,19 @@
+{
+  "id": "8361c9f6-fe3e-43e2-a463-42ebc1a6b77a",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "topic": "coding-visible-0017",
+  "participants": [
+    "agent-1787387157647-bt1u2c5",
+    "agent-1787387157647-3orflu2",
+    "agent-1787387157647-ztcvzv5",
+    "agent-1787387157647-5x127gz"
+  ],
+  "mode": "moderated",
+  "status": "idle",
+  "turnBudget": 1,
+  "turnsTaken": 0,
+  "messages": [],
+  "strategyHistory": [],
+  "createdAt": "2026-08-22T13:36:38.156970Z",
+  "updatedAt": "2026-08-22T13:36:38.156970Z"
+}

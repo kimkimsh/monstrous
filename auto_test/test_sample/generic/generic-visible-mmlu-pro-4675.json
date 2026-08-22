@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-4675",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "In primates, the location of which of the following determines if it is a quadruped or biped?\n\nOptions:\nA. the foramen magnum\nB. the skull\nC. the feet\nD. the femur\nE. the spine\nF. the pelvis\nG. the clavicle\nH. the vertebrae\nI. the ulna\nJ. the radius\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "A",
+    "answer_index": 0,
+    "answer_text": "the foramen magnum",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-4675"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "4675",
+    "prompt_bytes": 541,
+    "prompt_sha256": "16aa18ab85a1235cf8854260a3a3ad32e3dd43af3b4ad7173955eb7d26e14b05",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-4675.txt"
+  }
+}

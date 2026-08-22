@@ -30,7 +30,9 @@
 | 6 | **coding 트랙의 최대 레버는 localization이다.** 파일 컨텍스트가 없으면 3.6%, 있으면 56~63%. gold localization은 예측 localization보다 3.5%p 더 준다 | [arXiv 2604.05481](https://arxiv.org/html/2604.05481), [arXiv 2606.30963](https://arxiv.org/html/2606.30963v1) |
 | 7 | **generic(MMLU-Pro)에서 CoT를 끄면 크게 손해다.** GPT-4o 기준 direct 53.5 → CoT 72.6 (+19.1). "보기 문자만 뱉게 하라"는 우리 초안의 판단은 **재검토가 필요하다** | [MMLU-Pro, NeurIPS 2024](https://arxiv.org/abs/2406.01574) |
 
-7번이 이 리서치에서 나온 **가장 값비싼 발견**이다. 자세한 것은 `07`과 `10`.
+7번이 이 리서치에서 나온 **가장 값비싼 발견**이다. 그리고 그 잘못된 지시가 지금 어느 파일에 들어 있는지도 특정했다 — `../../example_task/prompts/generic.txt`의 *"print as little as you need to settle the choice — for most questions that is nothing."* 자세한 것은 `07`과 `10`.
+
+**두 번째로 값비싼 발견**은 캐시 쪽이다 — 에이전트별 `systemPrompt`가 item payload **앞**에 오는 AI:GO 구조에서는, 원 전략 문서가 계산한 "문항 내 4에이전트 캐시 공유 → 입력 비용 1/4"이 **성립하지 않을 가능성이 크다.** → `05` 2절 단서, `10` 8절 항목 4-b.
 
 ---
 

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10893",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "According to Stevenson, moral disagreements involve:\n\nOptions:\nA. disagreement in principles.\nB. disagreement in understanding.\nC. disagreement in experience.\nD. disagreement in practice.\nE. disagreement in interest.\nF. disagreement in theory.\nG. disagreement in attitude.\nH. disagreement in perception.\nI. disagreement in belief.\nJ. disagreement in values.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "E",
+    "answer_index": 4,
+    "answer_text": "disagreement in interest.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10893"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "10893",
+    "prompt_bytes": 649,
+    "prompt_sha256": "6edad1e39bf2391210dfd646744ce2f747e31189e297ed8b4cfabf1366eb1498",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10893.txt"
+  }
+}

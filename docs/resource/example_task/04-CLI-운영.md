@@ -381,3 +381,66 @@ CLI가 본문 없이 POST를 보내서 `Failed to parse the request body as JSON
 - 스쿼드가 실제로 답을 내는 것. 플래너 LLM 호출에서 멈춰서 완주를 못 봤다.
 - `provider add`로 등록한 원격 엔드포인트를 에이전트가 라우터 없이 직접 부르는지.
 - `squad execute` 응답 스키마의 나머지 필드. 접수 직후 형태만 봤다.
+
+---
+
+## 7. 실전 자동화 경로 — `tools/run_agent_batch.py`
+
+`squad execute`(플래너)가 헤드리스에서 안 도니, 에이전트를 직접 부르는 경로로 배치를 돌린다.
+
+```
+aigo squad session new  <SQUAD_ID> <AGENT_ID>     문항마다 세션 초기화
+aigo squad message      <SQUAD_ID> <AGENT_ID> "<요청>"
+aigo squad conversation <SQUAD_ID> <AGENT_ID>     마지막 assistant 메시지 회수
+```
+
+```bash
+export BACKEND_AI_GO_ENDPOINT=http://127.0.0.1:8001
+export BACKEND_AI_GO_TOKEN=sk-master-...
+python3 tools/run_agent_batch.py <SQUAD_ID> <AGENT_ID> --tracks math --limit 3 --out run.jsonl
+~/.venvs/aigo-grade/bin/python tools/grade.py run.jsonl
+```
+
+### 문항마다 세션을 새로 파는 이유
+
+세션을 재사용하면 앞 문항의 질문과 답이 컨텍스트에 그대로 남는다. math 3문항 실측:
+
+| | 문항1 | 문항2 | 문항3 | 합계 |
+|---|---|---|---|---|
+| 세션 공유 | prompt 1,021 | 1,714 | 2,551 | **7,635 tok** |
+| 세션 격리 | prompt 447 | 439 | 458 | **2,940 tok** |
+
+토큰이 문항 수에 비례해 부풀 뿐 아니라, **앞 문항의 답이 다음 문항 컨텍스트에 남는다.** 연습 점수가 의미를 잃는다.
+
+폴링에는 함정이 하나 있다. `session new` 직후 잠깐 `squad conversation`이 **이전 세션**을 돌려준다. 그래서 메시지 개수 증가로 "내 턴이 끝났다"를 판정하면 영원히 기다린다(실측: 문항당 300초 타임아웃). 요청 본문 앞부분과 대조해서 판정해야 한다.
+
+### 채점기는 venv에서 돌린다
+
+`grade.py`는 judge와 같은 `math_verify`를 쓰고, 없으면 문자열 근사로 폴백한다. 근사 경로는 **수학적으로 같은 답을 틀렸다고 센다.**
+
+같은 결과 파일을 두 방식으로 채점한 실측:
+
+| 답 | 정답 | 근사 경로 | `math_verify` |
+|---|---|---|---|
+| `5.5` | `\frac{11}{2}` | FAIL | **PASS** |
+| `\tfrac{11}{2}` | `\frac{11}{2}` | FAIL → 정규식 수정 후 PASS | PASS |
+
+macOS 시스템 python은 PEP 668로 설치가 막혀 있으니 venv를 따로 쓴다.
+
+```bash
+python3 -m venv ~/.venvs/aigo-grade
+~/.venvs/aigo-grade/bin/pip install math-verify
+```
+
+### 남은 진짜 병목은 형식이다
+
+math 3문항을 두 번 돌린 결과가 갈렸다. 정답률이 아니라 **형식 준수**에서 갈렸다.
+
+```
+1회차  3/3 PASS
+2회차  2/3   ← math-visible-0002가 (-\sqrt{3},\sqrt{3}) 를 맞게 내놓고도
+              FINAL ANSWER: \boxed{...} 줄을 안 붙여서 extraction_failed
+```
+
+`extraction_failed`는 오답과 같은 0점이다. temperature 기본값 0.7이라 실행마다 형식이 흔들린다.
+one-shot 프롬프트가 형식을 강제하지 못하면 정답률과 무관하게 점수가 샌다.

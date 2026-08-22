@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-3686",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Heating of NaNO_3 decomposed it to NaNO_2 and O_2. How much NaNO_3 would you have to decompose to produce 1.50 g of O_2 ?\n\nOptions:\nA. 8.45 g\nB. 10.34 g\nC. 5.00 g\nD. 11.67 g\nE. 6.58 g\nF. 14.29 g\nG. 9.21 g\nH. 4.75 g\nI. 12.04 g\nJ. 7.97 g\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "J",
+    "answer_index": 9,
+    "answer_text": "7.97 g",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-3686"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "3686",
+    "prompt_bytes": 527,
+    "prompt_sha256": "fa01bc550de821c3800fd7454bb7269b0b43f831e9c2032e5d2e514c1973bd04",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-3686.txt"
+  }
+}

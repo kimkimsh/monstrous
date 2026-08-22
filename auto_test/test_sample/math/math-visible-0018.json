@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0018",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Point $A$ lies somewhere within or on the square which has opposite corners at $(0,0)$ and $(2,2)$. Point $B$ lies somewhere within or on the square which has opposite corners at points $(4,2)$ and $(5,3)$. What is the greatest possible value of the slope of the line containing points $A$ and $B$? Express your answer as a common fraction.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "\\frac{3}{2}",
+    "gold_latex": "$\\boxed{\\frac{3}{2}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0018"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/algebra/2700.json",
+    "prompt_bytes": 600,
+    "prompt_sha256": "b48a69e3ac5361a76ff768449ff11f9d139d7b8b983c4be7ecf8cdc381fd67ec",
+    "source": "docs/resource/example_task/math/requests/math-visible-0018.txt"
+  }
+}

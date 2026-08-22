@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0041",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Four points, $A$, $B$, $C$, and $D$, are chosen randomly and independently on the circumference of a circle. What is the probability that segments $AB$ and $CD$ intersect?\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "\\frac{1}{3}",
+    "gold_latex": "$\\boxed{\\frac{1}{3}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0041"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/counting_and_probability/870.json",
+    "prompt_bytes": 431,
+    "prompt_sha256": "04174b165f9012d68567bf39db1d3b6e3edef601a5ec8b52b39f5d5df1f61516",
+    "source": "docs/resource/example_task/math/requests/math-visible-0041.txt"
+  }
+}

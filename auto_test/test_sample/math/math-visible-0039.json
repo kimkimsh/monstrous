@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0039",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Rectangle $ABCD$ has center $O$ and $AB/AD=k$. A point is randomly chosen from the interior of rectangle $ABCD$. What is the probability that it is closer to $O$ than to any of the four vertices?  [asy]\nsize(200);\ndraw((-250,100)--(250,100)--(250,-100)--(-250,-100)--cycle);\ndot((0,0));\nlabel(\"$O$\",(0,0),N);\nlabel(\"$A$\",(-250,100),NW); label(\"$B$\",(250,100),NE); label(\"$C$\",(250,-100),SE); label(\"$D$\",(-250,-100),SW);[/asy]\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "\\frac{1}{2}",
+    "gold_latex": "$\\boxed{\\frac{1}{2}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0039"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/counting_and_probability/731.json",
+    "prompt_bytes": 686,
+    "prompt_sha256": "21a7e90b24832aa4ceb794bb52c6ab4eb0dd37b3ef28f0752f77f2cc5eba746c",
+    "source": "docs/resource/example_task/math/requests/math-visible-0039.txt"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "coding-visible-0041",
+  "track": "coding",
+  "kind": "livecodebench",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "## Problem: 9x9 Sum\n\nAmong the 81 integers that appear in the 9-by-9 multiplication table, find the sum of those that are not X.\n\nThere is a grid of size 9 by 9.\nEach cell of the grid contains an integer: the cell at the i-th row from the top and the j-th column from the left contains i \\times j.\nYou are given an integer X. Among the 81 integers written in this grid, find the sum of those that are not X. If the same value appears in multiple cells, add it for each cell.\n\nInput\n\nThe input is given from Standard Input in the following format:\nX\n\nOutput\n\nPrint the sum of the integers that are not X among the 81 integers written in the grid.\n\nConstraints\n\n\n- X is an integer between 1 and 81, inclusive.\n\nSample Input 1\n\n1\n\nSample Output 1\n\n2024\n\nThe only cell with 1 in the grid is the cell at the 1st row from the top and 1st column from the left. Summing all integers that are not 1 yields 2024.\n\nSample Input 2\n\n11\n\nSample Output 2\n\n2025\n\nThere is no cell containing 11 in the grid. Thus, the answer is 2025, the sum of all 81 integers.\n\nSample Input 3\n\n24\n\nSample Output 3\n\n1929\n\n## How your solution is run\n\nYour answer is a single new file, `solution.py`. The judge\nstarts from an empty repository, so create it with an edit block whose SEARCH\nsection is empty, and make it complete and self-contained.\n\nThe judge runs your file as a program. It reads its input from standard\ninput and writes its answer to standard output, and nothing else.\n\n=== REQUIRED OUTPUT ===\nYour answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two\npatch markers:\n\n*** PATCH START ***\npath/to/file.py\n<<<<<<< SEARCH\n<the exact lines currently in the file>\n=======\n<the lines that replace them>\n>>>>>>> REPLACE\n*** PATCH END ***\n\nRules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per\nedit; paths are relative to the repository root; SEARCH must be whole lines copied from\nthe file; an empty SEARCH section creates a new file.\n\nOnly what lies between *** PATCH START *** and *** PATCH END *** is graded.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\nThe full format specification, with worked examples and every failure code, is published\nas `docs/contracts/patch-format.md`.\n",
+  "expected": {
+    "grader": "livecodebench_tests",
+    "question_id": "abc387_b",
+    "contest_id": "abc387",
+    "contest_date": "2025-01-04T00:00:00",
+    "platform": "atcoder",
+    "difficulty": "easy",
+    "evaluation_mode": "stdin",
+    "public_test_cases": [
+      {
+        "input": "1",
+        "output": "2024",
+        "testtype": "stdin"
+      },
+      {
+        "input": "11",
+        "output": "2025",
+        "testtype": "stdin"
+      },
+      {
+        "input": "24",
+        "output": "1929",
+        "testtype": "stdin"
+      }
+    ],
+    "metadata": "{}",
+    "item_id": "coding-visible-0041"
+  },
+  "meta": {
+    "dataset": "livecodebench",
+    "native_id": "coding-visible-0041",
+    "prompt_bytes": 2274,
+    "prompt_sha256": "5f6b9ed3c7aeb3d2d2d3f9e8b7db87e6879d966ee679a29e7eb8409fc3ee95b9",
+    "source": "docs/resource/example_task/coding/requests/coding-visible-0041.livecodebench.txt"
+  }
+}

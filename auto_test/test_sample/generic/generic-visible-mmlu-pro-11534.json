@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-11534",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Compute the rate of heat transfer by natural convection from thesurface of a horizontal, 7 in. square, plate at a temperatureof 300°F. The ambient air temperature is 80°F. EMPIRICAL EQUATIONS FOR NATURAL CONVECTION FROM HORIZONTAL PLATES TO ROOM TEMPERATURE AIR AT ATMOSPMERIC PRESSURE Configuration Equation Turbulent Region Range of X 2 × 10^7 - 3 × 10^10 Laminar Region Range of X 10^5 - 2 × 10^7 Heated horizontal plates facing upward h = 0.22\\Deltat^1/3 h = 0.27(\\Deltat/ L)^1/4 Hasted horizontal plates facing downward ... h = 0.12(\\Deltat/ L)^1/4 Cooled horizontal plates facing upward ... h = 0.12(\\Deltat/ L)^1/4 Cooled horizontal plates facing upward h = 0.22\\Deltat^1/3 h = 0.27(\\Deltat/ L)^1/4\n\nOptions:\nA. 6.88 Btu/hr\nB. 13.88 Btu/hr\nC. 10.88 Btu/hr\nD. 7.88 Btu/hr\nE. 8.88 Btu/hr\nF. 14.88 Btu/hr\nG. 12.88 Btu/hr\nH. 9.88 Btu/hr\nI. 5.88 Btu/hr\nJ. 11.88 Btu/hr\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "H",
+    "answer_index": 7,
+    "answer_text": "9.88 Btu/hr",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-11534"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "11534",
+    "prompt_bytes": 1167,
+    "prompt_sha256": "21fc6559911de8c005c43e7e91d3ade3402d20a94eafa1263bfd97c157ef1f56",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-11534.txt"
+  }
+}

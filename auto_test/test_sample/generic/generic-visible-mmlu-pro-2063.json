@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-2063",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "After World War II there was much speculation about the personalities of those who had committed atrocities. What do the findings of Milgram's studies imply about the personalities of Nazi war criminals?\n\nOptions:\nA. Only those with a high level of education and indoctrination committed the atrocities\nB. Only sociopaths would obey such harmful orders\nC. The actions were a result of a widespread cultural acceptance of violence at the time\nD. People with a predisposition to violence committed the atrocities\nE. Atrocities were committed by those who misinterpreted orders due to language barriers\nF. The atrocities were committed independently of any orders, based on personal beliefs\nG. Ordinary people would comply with the orders of a legitimate authority even to the point of committing cruel and harmful actions\nH. Only those with aggressive personalities committed atrocities\nI. Individuals who committed atrocities did so only when under direct threat to their own lives\nJ. Only those with a history of criminal behavior were capable of committing the atrocities\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "G",
+    "answer_index": 6,
+    "answer_text": "Ordinary people would comply with the orders of a legitimate authority even to the point of committing cruel and harmful actions",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-2063"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "2063",
+    "prompt_bytes": 1364,
+    "prompt_sha256": "10ffa1fedc4e2ec36fa628a583ef5be54dadf42e2b1ab3ad8de2b9ca1941be8b",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-2063.txt"
+  }
+}

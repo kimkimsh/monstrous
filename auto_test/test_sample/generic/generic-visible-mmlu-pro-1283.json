@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-1283",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "A young man called his casual friend to get together after work to go to a nearby ski lift. They each went up on the lift individually, because neither liked to share. Close to the top of the mountain, the friend fell off of his ski lift, and sustained injuries. The young man then decided he had had enough of skiing, but his friend called out, \"...you have to help! You have to call someone! I cant walk and it is your fault I am up here!\" The man did not respond and went home. His friend froze to death with no help ever coming to him. The people on the lift behind them both heard and saw everything, and the prosecutors office investigated the incident as a possible negligent homicide. What is the most likely decision of the prosecutor?\n\nOptions:\nA. The prosecutor will not file charges because the friend chose to go skiing and took on the inherent risks.\nB. The prosecutor will file charges because there are eyewitnesses who will testify to the young man's callous behavior to his friend.\nC. The prosecutor will not file charges because the friend was responsible for his own safety while skiing.\nD. The prosecutor will not file charges because the man did not cause the friend's injuries.\nE. The prosecutor will file charges because the man intentionally ignored his friend's plea for help.\nF. The prosecutor will file charges because the man had a moral duty to help his friend.\nG. The prosecutor will file charges because the man was the last person to see his friend alive.\nH. The prosecutor will not file charges because the man broke no laws when he walked away and it does not matter what the relationship was between them.\nI. The prosecutor will not file charges because the two men were not related to each other in a way that might create a duty, nor was there a special relationship that would create a duty.\nJ. The prosecutor will file charges because their friendship was a special relationship that created a legal duty for the man to act.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "I",
+    "answer_index": 8,
+    "answer_text": "The prosecutor will not file charges because the two men were not related to each other in a way that might create a duty, nor was there a special relationship that would create a duty.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-1283"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "1283",
+    "prompt_bytes": 2256,
+    "prompt_sha256": "c36ef02f1ab47b9ff6b5821bb0afafbae02252b9c337a7bc89d27c5c109467b5",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-1283.txt"
+  }
+}

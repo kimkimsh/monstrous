@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "coding-visible-0043",
+  "track": "coding",
+  "kind": "livecodebench",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "## Problem: ?UPC\n\nYou are given a string S. Here, the first character of S is an uppercase English letter, and the second and subsequent characters are lowercase English letters.\nPrint the string formed by concatenating the first character of S and UPC in this order.\n\nInput\n\nThe input is given from Standard Input in the following format:\nS\n\nOutput\n\nPrint the string formed by concatenating the first character of S and UPC in this order.\n\nConstraints\n\n\n- S is a string of length between 1 and 100, inclusive.\n- The first character of S is an uppercase English letter.\n- The second and subsequent characters of S are lowercase English letters.\n\nSample Input 1\n\nKyoto\n\nSample Output 1\n\nKUPC\n\nThe first character of Kyoto is K, so concatenate K and UPC, and print KUPC.\n\nSample Input 2\n\nTohoku\n\nSample Output 2\n\nTUPC\n\n## How your solution is run\n\nYour answer is a single new file, `solution.py`. The judge\nstarts from an empty repository, so create it with an edit block whose SEARCH\nsection is empty, and make it complete and self-contained.\n\nThe judge runs your file as a program. It reads its input from standard\ninput and writes its answer to standard output, and nothing else.\n\n=== REQUIRED OUTPUT ===\nYour answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two\npatch markers:\n\n*** PATCH START ***\npath/to/file.py\n<<<<<<< SEARCH\n<the exact lines currently in the file>\n=======\n<the lines that replace them>\n>>>>>>> REPLACE\n*** PATCH END ***\n\nRules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per\nedit; paths are relative to the repository root; SEARCH must be whole lines copied from\nthe file; an empty SEARCH section creates a new file.\n\nOnly what lies between *** PATCH START *** and *** PATCH END *** is graded.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\nThe full format specification, with worked examples and every failure code, is published\nas `docs/contracts/patch-format.md`.\n",
+  "expected": {
+    "grader": "livecodebench_tests",
+    "question_id": "abc388_a",
+    "contest_id": "abc388",
+    "contest_date": "2025-01-11T00:00:00",
+    "platform": "atcoder",
+    "difficulty": "easy",
+    "evaluation_mode": "stdin",
+    "public_test_cases": [
+      {
+        "input": "Kyoto",
+        "output": "KUPC",
+        "testtype": "stdin"
+      },
+      {
+        "input": "Tohoku",
+        "output": "TUPC",
+        "testtype": "stdin"
+      }
+    ],
+    "metadata": "{}",
+    "item_id": "coding-visible-0043"
+  },
+  "meta": {
+    "dataset": "livecodebench-v6",
+    "native_id": "atcoder/abc388_a",
+    "prompt_bytes": 2002,
+    "prompt_sha256": "e5a5fec298eb3201030284864b41d8cd551af345cfef8a8f9c7bdea40e78fa73",
+    "source": "docs/resource/example_task/coding/requests/coding-visible-0043.livecodebench.txt"
+  }
+}

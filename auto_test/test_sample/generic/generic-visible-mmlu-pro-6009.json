@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-6009",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "An action potential arriving at the motor endplate causes release of:\n\nOptions:\nA. adrenaline which speeds up muscle metabolism.\nB. noradrenaline which increases muscle metabolic activity.\nC. sodium ions which binds to sodium receptors on the muscle membrane.\nD. acetylcholine which traverses the neuromuscular junction.\nE. acetylcholine which is broken down by acetylcholinesterase in the synaptic cleft.\nF. calcium ions which initiate an action potential along the muscle fibre.\nG. dopamine which initiates muscle contraction.\nH. serotonin which reduces muscle excitability.\nI. potassium ions which hyperpolarize the muscle membrane.\nJ. glutamate which acts as a neurotransmitter at the neuromuscular junction.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "D",
+    "answer_index": 3,
+    "answer_text": "acetylcholine which traverses the neuromuscular junction.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-6009"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "6009",
+    "prompt_bytes": 1004,
+    "prompt_sha256": "dd54c43ec1b9c3755ebfebce6c8258dab39b9cbc472997795d642be23dce166e",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-6009.txt"
+  }
+}

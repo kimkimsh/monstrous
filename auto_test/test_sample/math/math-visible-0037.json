@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0037",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Paul and Jesse each choose a number at random from the first six primes. What is the probability that the sum of the numbers they choose is even?\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "\\frac{13}{18}",
+    "gold_latex": "$\\boxed{\\frac{13}{18}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0037"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/counting_and_probability/51.json",
+    "prompt_bytes": 405,
+    "prompt_sha256": "aa303c0919ab0fe6915729f61cfc4dc5a6c42f17b1a21a672899b74eb993e850",
+    "source": "docs/resource/example_task/math/requests/math-visible-0037.txt"
+  }
+}

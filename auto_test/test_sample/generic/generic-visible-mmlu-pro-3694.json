@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-3694",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "A sample of an ideal gas at 27°C and 380torroccupied a volume of 492 cm^3. What was the number of moles of gas in this sample? (R = 0.082 literatmmole^-1 deg^-1).\n\nOptions:\nA. .0150 moles\nB. .0125 moles\nC. .0300 moles\nD. .0200 moles\nE. .0075 moles\nF. .0350 moles\nG. .0100 moles\nH. .0050 moles\nI. .0025 moles\nJ. .0250 moles\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "G",
+    "answer_index": 6,
+    "answer_text": ".0100 moles",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-3694"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "3694",
+    "prompt_bytes": 615,
+    "prompt_sha256": "e0c15ae39752c24f576531d14ea2297925d82285e3a5d68d838fceaa4238d39f",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-3694.txt"
+  }
+}

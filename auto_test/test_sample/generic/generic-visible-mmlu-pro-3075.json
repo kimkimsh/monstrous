@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-3075",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Why are the stem reptiles especially important in evolution?\n\nOptions:\nA. They exclusively evolved into modern reptiles without any other descendants\nB. They were the first reptiles to return to an aquatic lifestyle\nC. They gave rise to only the dinosaurs\nD. They were the only reptiles to develop flight\nE. They existed only in the Mesozoic Era\nF. They were the last reptiles to evolve\nG. They represent the peak of reptilian evolution in terms of size and complexity\nH. They were exclusively herbivorous, unlike other reptiles\nI. They were the first reptiles to develop endothermy (warm-bloodedness)\nJ. They were the ancestral form of a variety of important animals, including the mammals.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "J",
+    "answer_index": 9,
+    "answer_text": "They were the ancestral form of a variety of important animals, including the mammals.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-3075"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "3075",
+    "prompt_bytes": 983,
+    "prompt_sha256": "0115542d6554f485e2c9617fbfcfa5c16c3f6d555c09dbfde2d06c109439081e",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-3075.txt"
+  }
+}

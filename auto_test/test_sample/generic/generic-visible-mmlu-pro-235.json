@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-235",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Mr. Atlas had a note for $45,000. He discounted it at his bank 120 days before it was due. The bank's discount rate was 6%. Find Mr. Atlas' proceeds.\n\nOptions:\nA. $44,100\nB. $43,800\nC. $45,900\nD. $44,250\nE. $43,500\nF. $900\nG. $45,000\nH. $44,500\nI. $44,700\nJ. $43,950\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "A",
+    "answer_index": 0,
+    "answer_text": "$44,100",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-235"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "235",
+    "prompt_bytes": 558,
+    "prompt_sha256": "4f40f0c56ee9f901911bfda70a042b74aa81cc2c57bcc4a4967b75c806fd8f1d",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-235.txt"
+  }
+}

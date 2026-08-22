@@ -73,6 +73,18 @@
 
 **CoD는 direct answering보다 훨씬 정확하고, CoT의 8~20% 토큰만 쓴다.** 그리고 두 개 태스크에서는 CoT보다도 정확했다.
 
+### 현재 우리 베이스라인 프롬프트가 정확히 반대로 지시하고 있다
+
+`../../example_task/prompts/generic.txt` (439바이트, 현재 활성 프롬프트) 원문:
+
+> Only the letter is graded. Reasoning you print is neither read nor rewarded, so **print as little as you need to settle the choice — for most questions that is nothing.**
+
+**이 두 줄이 MMLU-Pro에서 최대 19.1%p를 버리는 지시다.** "채점되지 않는다"는 것과 "정확도에 기여하지 않는다"는 것은 다른 말이다 — 추론은 채점되지 않지만 **정답률을 올린다**.
+
+`../../example_task/prompts/README.md`도 같은 전제 위에 있다: *"나머지 둘은 짧을수록 좋다 — 어차피 과정을 채점하지 않는다."*
+
+→ **`prompts/generic.txt`를 E1 실험 후 교체할 것.** 변종은 `prompts/variants/generic-02-cod.txt`로 보관.
+
 ### generic 트랙 권장 출력 구조
 
 ```
@@ -93,7 +105,31 @@ Answer: X
 
 ## 4. 답 추출 — 이게 틀리면 정답도 0점이다
 
-### MMLU-Pro 공식 추출 절차
+### ★ 먼저 — 이번 트랙의 실제 형식은 MMLU-Pro 공식 형식이 아니다
+
+`../../example_task/generic/required_output.txt` (judge가 모든 요청 뒤에 바이트 그대로 붙이는 289바이트 블록):
+
+```
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+ANSWER: <letter>
+
+Replace <letter> with the single letter of the option you choose, and write nothing else
+on that line.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+```
+
+math는 257바이트 블록으로 `FINAL ANSWER: \boxed{<answer>}` 를 요구한다.
+
+**즉 우리가 맞춰야 할 것은 `ANSWER: X` 이지 MMLU-Pro 공식 하네스의 `answer is (X)` 가 아니다.** 아래 공식 추출 절차는 참고용이며, 실제 grader(`letter_match`)와 다를 수 있다.
+
+그리고 마지막 두 줄이 결정적이다 — *"the last one is used. Anything before it is ignored, not penalised."* **앞에 CoT를 얼마든지 써도 감점이 없다.** 이것이 CoD 전략을 가능하게 하는 규칙이다.
+
+**추가 제약 하나** (`../../example_task/01-요청-합성-규칙.md` 3절): judge는 실행 완료 상태 요약을 답으로 인정하지 않고 **마지막 웨이브부터 거꾸로** 태스크 출력을 훑는다. 따라서 **마지막 웨이브의 태스크 출력이 답 줄로 끝나야 한다.** 마지막 웨이브가 리뷰만 하고 답을 다시 싣지 않으면 앞 웨이브의 정답을 못 읽어간다.
+
+### MMLU-Pro 공식 추출 절차 (참고)
 
 논문 원문:
 

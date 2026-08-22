@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0040",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "There are 360 people in my school.  15 take calculus, physics, and chemistry, and 15 don't take any of them.  180 take calculus.  Twice as many students take chemistry as take physics.  75 take both calculus and chemistry, and 75 take both physics and chemistry.  Only 30 take both physics and calculus.  How many students take physics?\n\nThis problem's answer is an integer.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "integer",
+    "gold": "110",
+    "gold_latex": "$\\boxed{110}$",
+    "checks": [
+      "integer_exact",
+      "math_verify"
+    ],
+    "item_id": "math-visible-0040"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/counting_and_probability/765.json",
+    "prompt_bytes": 634,
+    "prompt_sha256": "d8f618b88355a0b6a838973aa31867f7c47f0bae117f6af0076ac61bc3683333",
+    "source": "docs/resource/example_task/math/requests/math-visible-0040.txt"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "sessionId": "03e5fe7a-5695-4bf4-9736-89cd11667d58",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "agentId": "agent-1787387157647-ztcvzv5",
+  "agentName": "Backend Developer",
+  "modelId": "unsloth/gpt-oss-20b",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an expert backend developer specializing in Rust, API design, and database schemas. Implement robust, performant server-side logic with proper error handling. Write clean, well-documented code following the project's conventions and security best practices.\n\n## Squad Context\nYou are \"Backend Developer\" in squad \"Full-Stack Dev Squad-test\".\nYour role: Backend Developer\nWorkspace: /Users/mark-mac/workspace/monstrous/squad/test\nAvailable tools: read_file, write_file, list_directory\n\n## Memory\nYou can read and write to your memory bank at /Users/mark-mac/workspace/monstrous/squad/test/memory/.\nAlways update your memory with important decisions, patterns, and context.\n\n## Workspace\nYou share a workspace with other agents.\n- plans/ — Task plans\n- tasks/ — Task tracking\n- artifacts/ — Output files\n- logs/ — Execution logs\n\n## Important: File Tool Paths\nAll file tool paths (read_file, write_file, list_files, list_directory, search_files, diff_files) must be RELATIVE to the workspace root. Do NOT use absolute paths.\n- Correct: \"src/index.html\", \"artifacts/output.txt\"\n- Wrong: \"/workspace/src/index.html\", \"/src/index.html\"\nUse list_files with path \".\" to see the workspace root contents.",
+      "timestamp": "2026-08-22T13:26:03.403872+00:00"
+    },
+    {
+      "role": "user",
+      "content": "Name the capital of France. Reply with just the city.",
+      "timestamp": "2026-08-22T13:26:03.403872+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Paris",
+      "timestamp": "2026-08-22T13:26:03.403872+00:00"
+    }
+  ],
+  "tokenUsage": {
+    "promptTokens": 356,
+    "completionTokens": 47
+  },
+  "createdAt": "2026-08-22T13:25:41.184243+00:00",
+  "updatedAt": "2026-08-22T13:26:03.403872+00:00"
+}

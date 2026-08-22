@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0035",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Two numbers, $x$ and $y$ are selected at random from the interval $(0,3)$.  What is the probability that a triangle with sides of length 1, $x$, and $y$ exists?\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "\\frac{1}{2}",
+    "gold_latex": "$\\boxed{\\frac{1}{2}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0035"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/counting_and_probability/188.json",
+    "prompt_bytes": 420,
+    "prompt_sha256": "143b24dc434de219b7a3e49fcb7ff07d47d3fea2e8c006a463c46289092b6ca6",
+    "source": "docs/resource/example_task/math/requests/math-visible-0035.txt"
+  }
+}

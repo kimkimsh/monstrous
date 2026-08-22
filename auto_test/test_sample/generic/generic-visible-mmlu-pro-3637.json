@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-3637",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Nitronyl nitroxides are stable radicals in which the unpaired electron is coupled to two equivalent nitrogen nuclei. How many lines will appear in the EPR spectrum of a solution of a rigid nitronyl nitroxide diradical with J >> a?\n\nOptions:\nA. 8 lines\nB. 5 lines\nC. 2 lines\nD. 12 lines\nE. 9 lines\nF. 3 lines\nG. 4 lines\nH. 7 lines\nI. 10 lines\nJ. 6 lines\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "H",
+    "answer_index": 7,
+    "answer_text": "7 lines",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-3637"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "3637",
+    "prompt_bytes": 644,
+    "prompt_sha256": "a828b57f026a3592f31c6b0f086943ef862f3870a92f00f582dc2a93d35f72f8",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-3637.txt"
+  }
+}

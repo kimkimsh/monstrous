@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-7788",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Determine whether the polynomial in Z[x] satisfies an Eisenstein criterion for irreducibility over Q. x^2 - 12\n\nOptions:\nA. Yes, with p=4.\nB. No, because the polynomial is reducible.\nC. Yes, with p=1.\nD. No, because the polynomial does not satisfy the Eisenstein criterion.\nE. No.\nF. Yes, with p=12.\nG. Yes, with p=3.\nH. Yes, with p=5.\nI. Yes, with p=6.\nJ. Yes, with p=2.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "G",
+    "answer_index": 6,
+    "answer_text": "Yes, with p=3.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-7788"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "7788",
+    "prompt_bytes": 663,
+    "prompt_sha256": "7235438b8be2a3b334db59078298ee3961922447e3b276571ef7e5bda0a46850",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-7788.txt"
+  }
+}

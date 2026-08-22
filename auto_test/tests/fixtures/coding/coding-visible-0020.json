@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "coding-visible-0020",
+  "track": "coding",
+  "kind": "swebench",
+  "gradable": false,
+  "ungradable_reason": "swebench_docker needs the repository, the test_patch and a container",
+  "prompt": "Fix the described issue in the repository.\n\n(request body trimmed for this fixture; the deployed request is ~63 KB)\n",
+  "expected": {
+    "grader": "swebench_docker",
+    "instance_id": "mwaskom__seaborn-3010",
+    "repo": "mwaskom/seaborn",
+    "version": "0.12",
+    "base_commit": "0f5a013e2cf43562deec3b879458e59a73853813",
+    "environment_setup_commit": "d25872b0fc99dbf7e666a91f59bd4ed125186aa1",
+    "test_patch": "diff --git a/tests/_stats/test_regression.py b/tests/_stats/test_regression.py\n--- a/tests/_stats/test_regression.py\n+++ b/tests/_stats/test_regression.py\n@@ -4,6 +4,7 @@\n \n import pytest\n from numpy.testing import assert_array_equal, assert_array_almost_equal\n+from pandas.testing import assert_frame_equal\n \n from seaborn._core.groupby import GroupBy\n from seaborn._stats.regression import PolyFit\n@@ -50,3 +51,11 @@ def test_one_grouper(self, df):\n             grid = np.linspace(part[\"x\"].min(), part[\"x\"].max(), gridsize)\n             assert_array_equal(part[\"x\"], grid)\n             assert part[\"y\"].diff().diff().dropna().abs().gt(0).all()\n+\n+    def test_missing_data(self, df):\n+\n+        groupby = GroupBy([\"group\"])\n+        df.iloc[5:10] = np.nan\n+        res1 = PolyFit()(df[[\"x\", \"y\"]], groupby, \"x\", {})\n+        res2 = PolyFit()(df[[\"x\", \"y\"]].dropna(), groupby, \"x\", {})\n+        assert_frame_equal(res1, res2)\n\\ No newline at end of file\n",
+    "fail_to_pass": [
+      "tests/_stats/test_regression.py::TestPolyFit::test_missing_data"
+    ],
+    "pass_to_pass": [
+      "tests/_stats/test_regression.py::TestPolyFit::test_no_grouper",
+      "tests/_stats/test_regression.py::TestPolyFit::test_one_grouper"
+    ],
+    "item_id": "coding-visible-0020"
+  },
+  "meta": {
+    "dataset": "swebench",
+    "native_id": "coding-visible-0020",
+    "prompt_bytes": 116,
+    "prompt_sha256": "eebe9fc9acc94b81de6e61cc637e90db44f4ba95c2f081fe4f7393c284fcfe1c",
+    "source": "docs/resource/example_task/coding/requests/coding-visible-0020.swebench.txt"
+  }
+}

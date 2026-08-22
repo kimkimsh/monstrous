@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10113",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "In a nonrelativistic, one-dimensional collision, a particle of mass 2m collides with a particle of mass m at rest. If the particles stick together after the collision, what fraction of the initial kinetic energy is lost in the collision?\n\nOptions:\nA. 2/5\nB. 1/2\nC. 4/5\nD. 1/5\nE. 3/4\nF. 1/4\nG. 1/3\nH. 2/3\nI. 0\nJ. 3/5\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "G",
+    "answer_index": 6,
+    "answer_text": "1/3",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10113"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "10113",
+    "prompt_bytes": 607,
+    "prompt_sha256": "572a1fd474a4c919e5c9d0107b985e3e07dd6f25c467511d9fb9b6e5d8a06a0a",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10113.txt"
+  }
+}

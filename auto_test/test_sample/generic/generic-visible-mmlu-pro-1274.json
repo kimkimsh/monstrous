@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-1274",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "A state's constitution reserves to the people of each municipality in the state the power of referendum with respect to all questions that the municipality is authorized to control by legislation. A real estate developer applied for a zoning change to permit construction of a water park on land he owned in a city within the state. While the application was pending, the city's charter was amended by popular vote so as to require that any changes in land use agreed to by the city council be approved by a 55% vote in a referendum. The city planning commission and the city council both approved the proposed zoning change. However, the commission rejected the developer's subsequent application for \"recreational area\" approval for the proposed water park on the grounds that the council's rezoning action had not been submitted to a referendum. Assume that while the action was pending in the state court, the proposed zoning change was defeated in a referendum. Which would be the most applicable rule of constitutional law with respect to the referendum procedure when applied to a rezoning ordinance?\n\nOptions:\nA. The referendum procedure is violative of the due process clause of the FourteenthAmendment.\nB. The referendum procedure is arbitrary and capricious and thus should be held invalid as an unlawful delegation of legislative power.\nC. The referendum procedure is not applicable in this context as it is only for state-wide legislation.\nD. The referendum procedure as a basic instrument of the democratic process does not violate the due process clause of the Fourteenth Amendment.\nE. The referendum procedure is a violation of the equal protection clause of the Fourteenth Amendment.\nF. The referendum procedure is valid only if it is not influenced by external factors.\nG. The referendum procedure is unconstitutional as it infringes on the rights of property owners.\nH. The referendum procedure is only applicable in cases of major legislative changes, not zoning changes.\nI. The referendum procedure in this context is invalid as against publicpolicy.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "D",
+    "answer_index": 3,
+    "answer_text": "The referendum procedure as a basic instrument of the democratic process does not violate the due process clause of the Fourteenth Amendment.",
+    "num_options": 9,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-1274"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "1274",
+    "prompt_bytes": 2363,
+    "prompt_sha256": "90eb799d6cee401f723c2cf6e0eb7f0fafb7a17db22240e347fa7112d80d76bc",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-1274.txt"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10390",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Statement 1| After mapped into feature space Q through a radial basis kernel function, 1-NN using unweighted Euclidean distance may be able to achieve better classification performance than in original space (though we can’t guarantee this). Statement 2| The VC dimension of a Perceptron is smaller than the VC dimension of a simple linear SVM.\n\nOptions:\nA. Partly True, Partly False\nB. Partly False, Partly True\nC. True, False\nD. True, Partly True\nE. False, False\nF. True, True\nG. False, Partly True\nH. Partly False, True\nI. Partly True, False\nJ. False, True\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "E",
+    "answer_index": 4,
+    "answer_text": "False, False",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10390"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "10390",
+    "prompt_bytes": 853,
+    "prompt_sha256": "dc11a8f276188ecd1ec0ad585c79cff2274745d3fe55f3f48fdde638824fc0e4",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10390.txt"
+  }
+}

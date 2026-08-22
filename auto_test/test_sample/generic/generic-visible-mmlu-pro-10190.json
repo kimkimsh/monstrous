@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10190",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Suppose a hologram is made with light of wavelength 600 nm (orange) and then viewed with light of wavelength 500 nm (green) . How will the images differ from those that would be formed with the orange light?\n\nOptions:\nA. The reconstructed image distance = (3 / 2) the object distance\nB. the reconstructed image distance = (6 / 5) the object distance\nC. The reconstructed image distance = (4 / 5) the object distance\nD. the reconstructed image distance = 2 times the object distance\nE. the reconstructed image distance = the object distance\nF. the reconstructed image distance = (5 / 6) the object distance\nG. The reconstructed image distance = 3 times the object distance\nH. The reconstructed image distance is the same as when viewed with orange light\nI. The reconstructed image distance = (5 / 4) the object distance\nJ. The reconstructed image distance = (2 / 3) the object distance\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "B",
+    "answer_index": 1,
+    "answer_text": "the reconstructed image distance = (6 / 5) the object distance",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10190"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "10190",
+    "prompt_bytes": 1176,
+    "prompt_sha256": "50982d1595391f5587634770a37654aca9e94b4495792c38e0b95c8dbe408926",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10190.txt"
+  }
+}

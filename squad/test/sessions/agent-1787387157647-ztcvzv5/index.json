@@ -1,0 +1,211 @@
+[
+  {
+    "id": "9241e9b9-0102-4ef9-b5bc-9c28c8f7bc79",
+    "title": "The smallest distance between the origin and a point on the graph of $y=\\frac{1}...",
+    "createdAt": "2026-08-22T13:29:08.398119+00:00",
+    "updatedAt": "2026-08-22T13:29:16.382667+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 458,
+      "completionTokens": 340
+    }
+  },
+  {
+    "id": "77f6a054-6fe5-40ba-ae30-6aa1a7955ca2",
+    "title": "For what real values of $x$ is $-4<x^{4}+4x^{2}<21$ satisfied? Express your answ...",
+    "createdAt": "2026-08-22T13:28:54.198472+00:00",
+    "updatedAt": "2026-08-22T13:29:08.397656+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 439,
+      "completionTokens": 510
+    }
+  },
+  {
+    "id": "4c8a1164-5cb4-452d-bdb8-f0c45913e120",
+    "title": "What is the smallest real number $x$ in the domain of the function $$g(x) = \\sqr...",
+    "createdAt": "2026-08-22T13:28:46.060505+00:00",
+    "updatedAt": "2026-08-22T13:28:54.197957+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 447,
+      "completionTokens": 317
+    }
+  },
+  {
+    "id": "19361cb6-2e46-4b58-9dbd-e9727bfab9e7",
+    "title": "Count from 1 to 100, one number per line.",
+    "createdAt": "2026-08-22T13:26:26.057466+00:00",
+    "updatedAt": "2026-08-22T13:28:46.055847+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 357,
+      "completionTokens": 243
+    }
+  },
+  {
+    "id": "7de406fa-0f12-4176-9ac3-261cd9452722",
+    "title": "Count from 1 to 100, one number per line.",
+    "createdAt": "2026-08-22T13:26:03.404406+00:00",
+    "updatedAt": "2026-08-22T13:26:26.056884+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 357,
+      "completionTokens": 269
+    }
+  },
+  {
+    "id": "03e5fe7a-5695-4bf4-9736-89cd11667d58",
+    "title": "Name the capital of France. Reply with just the city.",
+    "createdAt": "2026-08-22T13:25:41.184243+00:00",
+    "updatedAt": "2026-08-22T13:26:03.403872+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 356,
+      "completionTokens": 47
+    }
+  },
+  {
+    "id": "404b2ad2-a2d5-431d-8cee-e48a1db6215a",
+    "title": "What is 2+3? Reply with just the number.",
+    "createdAt": "2026-08-22T13:25:39.144310+00:00",
+    "updatedAt": "2026-08-22T13:25:41.183699+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 357,
+      "completionTokens": 29
+    }
+  },
+  {
+    "id": "59a7ed69-6d5d-4692-a42d-b4671a2d542e",
+    "title": "Reply with exactly one word: PONG",
+    "createdAt": "2026-08-22T13:25:37.105231+00:00",
+    "updatedAt": "2026-08-22T13:25:39.143734+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 352,
+      "completionTokens": 34
+    }
+  },
+  {
+    "id": "dedb0ed9-50cb-4d55-9437-e2bb40507c23",
+    "title": "Reply with exactly one word: PONG",
+    "createdAt": "2026-08-22T13:20:21.444952+00:00",
+    "updatedAt": "2026-08-22T13:25:37.104436+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 352,
+      "completionTokens": 41
+    }
+  },
+  {
+    "id": "142c0f2a-1671-418e-b974-343ad6bbb036",
+    "title": "The smallest distance between the origin and a point on the graph of $y=\\frac{1}...",
+    "createdAt": "2026-08-22T12:56:15.043803+00:00",
+    "updatedAt": "2026-08-22T13:20:21.444142+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 458,
+      "completionTokens": 382
+    }
+  },
+  {
+    "id": "3d161400-3223-4ed1-b744-78dbd9b771cf",
+    "title": "For what real values of $x$ is $-4<x^{4}+4x^{2}<21$ satisfied? Express your answ...",
+    "createdAt": "2026-08-22T12:55:59.952400+00:00",
+    "updatedAt": "2026-08-22T12:56:15.043072+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 439,
+      "completionTokens": 535
+    }
+  },
+  {
+    "id": "8c469285-bea3-4b48-8a5d-ba2c7266c22a",
+    "title": "What is the smallest real number $x$ in the domain of the function $$g(x) = \\sqr...",
+    "createdAt": "2026-08-22T12:55:49.900259+00:00",
+    "updatedAt": "2026-08-22T12:55:59.951964+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 447,
+      "completionTokens": 222
+    }
+  },
+  {
+    "id": "8e05e164-cf04-4890-8d6a-bf81f0521698",
+    "title": "The smallest distance between the origin and a point on the graph of $y=\\frac{1}...",
+    "createdAt": "2026-08-22T12:54:41.183268+00:00",
+    "updatedAt": "2026-08-22T12:55:49.899719+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 458,
+      "completionTokens": 659
+    }
+  },
+  {
+    "id": "61d6b264-84dc-4eed-a448-6fbbe01ced1d",
+    "title": "For what real values of $x$ is $-4<x^{4}+4x^{2}<21$ satisfied? Express your answ...",
+    "createdAt": "2026-08-22T12:54:21.091584+00:00",
+    "updatedAt": "2026-08-22T12:54:41.182756+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 439,
+      "completionTokens": 741
+    }
+  },
+  {
+    "id": "49708d14-2857-428f-a774-146c009c136d",
+    "title": "What is the smallest real number $x$ in the domain of the function $$g(x) = \\sqr...",
+    "createdAt": "2026-08-22T12:54:16.035546+00:00",
+    "updatedAt": "2026-08-22T12:54:21.090742+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 447,
+      "completionTokens": 196
+    }
+  },
+  {
+    "id": "6196c95f-6c3e-4e41-a2de-8870bad3c500",
+    "title": "The smallest distance between the origin and a point on the graph of $y=\\frac{1}...",
+    "createdAt": "2026-08-22T12:53:38.988876+00:00",
+    "updatedAt": "2026-08-22T12:54:16.034942+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 458,
+      "completionTokens": 473
+    }
+  },
+  {
+    "id": "8efadd3c-c929-476d-ac02-8d8ff9f6684b",
+    "title": "For what real values of $x$ is $-4<x^{4}+4x^{2}<21$ satisfied? Express your answ...",
+    "createdAt": "2026-08-22T12:48:37.414548+00:00",
+    "updatedAt": "2026-08-22T12:53:38.987953+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 439,
+      "completionTokens": 529
+    }
+  },
+  {
+    "id": "c087f226-e3f3-437d-97e0-34188dac0169",
+    "title": "What is the smallest real number $x$ in the domain of the function $$g(x) = \\sqr...",
+    "createdAt": "2026-08-22T12:43:35.694311+00:00",
+    "updatedAt": "2026-08-22T12:48:37.413451+00:00",
+    "messageCount": 2,
+    "tokenUsage": {
+      "promptTokens": 447,
+      "completionTokens": 253
+    }
+  },
+  {
+    "id": "68b337d9-8570-4f68-bf4b-0aaf2249496f",
+    "title": "What is the smallest real number $x$ in the domain of the function $$g(x) = \\sqr...",
+    "createdAt": "2026-08-22T12:16:45.984216+00:00",
+    "updatedAt": "2026-08-22T12:43:35.693738+00:00",
+    "messageCount": 8,
+    "tokenUsage": {
+      "promptTokens": 2551,
+      "completionTokens": 1179
+    }
+  }
+]

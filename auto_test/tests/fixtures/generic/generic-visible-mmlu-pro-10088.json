@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10088",
+  "track": "generic",
+  "kind": "generic",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return mirror on Mt. San Antonia 35377 meters away. When the 8-face mirror rotates at a speed of 530rpsno shift of the light source is obtained. Calculate the velocity of light.\n\nOptions:\nA. 2.00 ×10^8 m/sec\nB. 3.00 ×10^8 m/sec\nC. 1.00 × 10^9 m/sec\nD. 1.50 × 10^8 m/sec\nE. 2.50 × 10^8 m/sec\nF. 4.00 ×10^8 m/sec\nG. 6.00 × 10^8 m/sec\nH. 7.00 × 10^8 m/sec\nI. 3.50 × 10^8 m/sec\nJ. 5.00 ×10^8 m/sec\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "B",
+    "answer_index": 1,
+    "answer_text": "3.00 ×10^8 m/sec",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10088"
+  },
+  "meta": {
+    "dataset": "generic",
+    "native_id": "generic-visible-mmlu-pro-10088",
+    "prompt_bytes": 789,
+    "prompt_sha256": "760a8add3cad502fb92593955a0ce1320c9b0d6239ff93684fdc29fb21f6ea64",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10088.txt"
+  }
+}

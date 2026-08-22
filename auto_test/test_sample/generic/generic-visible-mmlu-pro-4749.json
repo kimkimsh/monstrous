@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-4749",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "This question refers to the following information.\nBy what principle of reason then, should these foreigners send in return a poisonous drug? Without meaning to say that the foreigners harbor such destructive intentions in their hearts, we yet positively assert that from their inordinate thirst after gain, they are perfectly careless about the injuries they inflict upon us! And such being the case, we should like to ask what has become of that conscience which heaven has implanted in the breasts of all men? We have heard that in your own country opium is prohibited with the utmost strictness and severity. This is a strong proof that you know full well how hurtful it is to mankind. Since you do not permit it to injure your own country, you ought not to have this injurious drug transferred to another country, and above all others, how much less to the Inner Land! Of the products which China exports to your foreign countries, there is not one which is not beneficial to mankind in some shape or other.\nLin Zexu, Chinese trade commissioner, letter to Queen Victoria, 1839\nWhich of the outcomes listed below followed the delivery of Lin Zexu's letter?\n\nOptions:\nA. The expulsion of all foreigners from Chinese territory\nB. Violent uprisings on the part of China's pro-British Muslim minority\nC. The British government compensated China for the damages caused by the opium trade\nD. China and Britain entered into a period of peaceful coexistence\nE. A successful ban of the opium trade in all Chinese territories\nF. The British Crown ceded Hong Kong to China\nG. Queen Victoria personally responded to Lin Zexu’s letter with a promise of change\nH. Chinese naval defeat and new trade terms more favorable to the West\nI. The British government issued a formal apology and stopped the opium trade\nJ. The rise of a strong anti-opium movement in Britain\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "H",
+    "answer_index": 7,
+    "answer_text": "Chinese naval defeat and new trade terms more favorable to the West",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-4749"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "4749",
+    "prompt_bytes": 2148,
+    "prompt_sha256": "fd07976ed9046ad67c4997cc69e355be3eacce5453c5e0720803751432e1be8b",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-4749.txt"
+  }
+}

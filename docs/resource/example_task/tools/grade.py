@@ -119,7 +119,7 @@ def normalise_math(s):
     s = s.strip().strip("$").strip()
     s = s.replace("\\left", "").replace("\\right", "")
     s = s.replace("\\!", "").replace("\\,", "").replace("\\;", "").replace("~", "")
-    s = re.sub(r"\\d?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}", r"(\1)/(\2)", s)
+    s = re.sub(r"\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}", r"(\1)/(\2)", s)
     s = re.sub(r"\\text\s*\{([^{}]*)\}", r"\1", s)
     s = s.replace(" ", "").rstrip(".")
     if s.endswith("^\\circ"):
@@ -201,9 +201,9 @@ def track_of(item_id):
     return None
 
 
-def grade_one(item_id, output, gold, timeout):
+def grade_one(item_id, output, gold, timeout, track=None):
     """Returns (outcome, correct, detail). outcome mirrors the portal's vocabulary."""
-    track = track_of(item_id)
+    track = track or track_of(item_id)
     g = gold[track][item_id]
 
     if track == "generic":

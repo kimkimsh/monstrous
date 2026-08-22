@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "coding-visible-0042",
+  "track": "coding",
+  "kind": "livecodebench",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "## Problem: Snake Numbers\n\nA positive integer not less than 10 whose top digit (the most significant digit) in decimal representation is strictly larger than every other digit in that number is called a Snake number.\nFor example, 31 and 201 are Snake numbers, but 35 and 202 are not.\nFind how many Snake numbers exist between L and R, inclusive.\n\nInput\n\nThe input is given from Standard Input in the following format:\nL R\n\nOutput\n\nPrint the answer.\n\nConstraints\n\n\n- 10 \\leq L \\leq R \\leq 10^{18}\n- All input values are integers.\n\nSample Input 1\n\n97 210\n\nSample Output 1\n\n6\n\nThe Snake numbers between 97 and 210, inclusive, are 97, 98, 100, 200, 201, and 210: there are six.\n\nSample Input 2\n\n1000 9999\n\nSample Output 2\n\n2025\n\nSample Input 3\n\n252509054433933519 760713016476190692\n\nSample Output 3\n\n221852052834757\n\n## How your solution is run\n\nYour answer is a single new file, `solution.py`. The judge\nstarts from an empty repository, so create it with an edit block whose SEARCH\nsection is empty, and make it complete and self-contained.\n\nThe judge runs your file as a program. It reads its input from standard\ninput and writes its answer to standard output, and nothing else.\n\n=== REQUIRED OUTPUT ===\nYour answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two\npatch markers:\n\n*** PATCH START ***\npath/to/file.py\n<<<<<<< SEARCH\n<the exact lines currently in the file>\n=======\n<the lines that replace them>\n>>>>>>> REPLACE\n*** PATCH END ***\n\nRules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per\nedit; paths are relative to the repository root; SEARCH must be whole lines copied from\nthe file; an empty SEARCH section creates a new file.\n\nOnly what lies between *** PATCH START *** and *** PATCH END *** is graded.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\nThe full format specification, with worked examples and every failure code, is published\nas `docs/contracts/patch-format.md`.\n",
+  "expected": {
+    "grader": "livecodebench_tests",
+    "question_id": "abc387_c",
+    "contest_id": "abc387",
+    "contest_date": "2025-01-04T00:00:00",
+    "platform": "atcoder",
+    "difficulty": "medium",
+    "evaluation_mode": "stdin",
+    "public_test_cases": [
+      {
+        "input": "97 210",
+        "output": "6",
+        "testtype": "stdin"
+      },
+      {
+        "input": "1000 9999",
+        "output": "2025",
+        "testtype": "stdin"
+      },
+      {
+        "input": "252509054433933519 760713016476190692",
+        "output": "221852052834757",
+        "testtype": "stdin"
+      }
+    ],
+    "metadata": "{}",
+    "item_id": "coding-visible-0042"
+  },
+  "meta": {
+    "dataset": "livecodebench-v6",
+    "native_id": "atcoder/abc387_c",
+    "prompt_bytes": 1999,
+    "prompt_sha256": "137c281a4fbd0fca39d947bb7aee917b1a1482eb4cfc7eb7830f1f9c3928a8d6",
+    "source": "docs/resource/example_task/coding/requests/coding-visible-0042.livecodebench.txt"
+  }
+}

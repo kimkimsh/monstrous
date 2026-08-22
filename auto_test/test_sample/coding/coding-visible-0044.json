@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "coding-visible-0044",
+  "track": "coding",
+  "kind": "livecodebench",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "## Problem: Heavy Snake\n\nThere are N snakes.\nInitially, the thickness of the i-th snake is T_i, and its length is L_i.\nThe weight of a snake is defined as the product of its thickness and length.\nFor each integer k satisfying 1 \\leq k \\leq D, find the weight of the heaviest snake when every snake's length has increased by k.\n\nInput\n\nThe input is given from Standard Input in the following format:\nN D\nT_1 L_1\nT_2 L_2\n\\vdots\nT_N L_N\n\nOutput\n\nPrint D lines. The k-th line should contain the weight of the heaviest snake when every snake's length has increased by k.\n\nConstraints\n\n\n- 1 \\leq N, D \\leq 100\n- 1 \\leq T_i, L_i \\leq 100\n- All input values are integers.\n\nSample Input 1\n\n4 3\n3 3\n5 1\n2 4\n1 10\n\nSample Output 1\n\n12\n15\n20\n\nWhen every snake’s length has increased by 1, the snakes' weights become 12, 10, 10, 11, so print 12 on the first line.\nWhen every snake’s length has increased by 2, the snakes' weights become 15, 15, 12, 12, so print 15 on the second line.\nWhen every snake’s length has increased by 3, the snakes' weights become 18, 20, 14, 13, so print 20 on the third line.\n\nSample Input 2\n\n1 4\n100 100\n\nSample Output 2\n\n10100\n10200\n10300\n10400\n\n## How your solution is run\n\nYour answer is a single new file, `solution.py`. The judge\nstarts from an empty repository, so create it with an edit block whose SEARCH\nsection is empty, and make it complete and self-contained.\n\nThe judge runs your file as a program. It reads its input from standard\ninput and writes its answer to standard output, and nothing else.\n\n=== REQUIRED OUTPUT ===\nYour answer must contain a patch, written as SEARCH/REPLACE edit blocks between the two\npatch markers:\n\n*** PATCH START ***\npath/to/file.py\n<<<<<<< SEARCH\n<the exact lines currently in the file>\n=======\n<the lines that replace them>\n>>>>>>> REPLACE\n*** PATCH END ***\n\nRules: one path line before every <<<<<<< SEARCH; repeat the three-marker block once per\nedit; paths are relative to the repository root; SEARCH must be whole lines copied from\nthe file; an empty SEARCH section creates a new file.\n\nOnly what lies between *** PATCH START *** and *** PATCH END *** is graded.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\nThe full format specification, with worked examples and every failure code, is published\nas `docs/contracts/patch-format.md`.\n",
+  "expected": {
+    "grader": "livecodebench_tests",
+    "question_id": "abc388_b",
+    "contest_id": "abc388",
+    "contest_date": "2025-01-11T00:00:00",
+    "platform": "atcoder",
+    "difficulty": "easy",
+    "evaluation_mode": "stdin",
+    "public_test_cases": [
+      {
+        "input": "4 3\n3 3\n5 1\n2 4\n1 10",
+        "output": "12\n15\n20",
+        "testtype": "stdin"
+      },
+      {
+        "input": "1 4\n100 100",
+        "output": "10100\n10200\n10300\n10400",
+        "testtype": "stdin"
+      }
+    ],
+    "metadata": "{}",
+    "item_id": "coding-visible-0044"
+  },
+  "meta": {
+    "dataset": "livecodebench-v6",
+    "native_id": "atcoder/abc388_b",
+    "prompt_bytes": 2354,
+    "prompt_sha256": "5da6839105a1da3efbd1abac522a31f53d07119ca5ade344c8298b908667ccd9",
+    "source": "docs/resource/example_task/coding/requests/coding-visible-0044.livecodebench.txt"
+  }
+}

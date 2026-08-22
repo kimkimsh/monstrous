@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10478",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "The procedure below is intended to display the index in a list of unique names (nameList) where a particular name (targetName) is found. lf targetName is not found in nameList, the code should display 0.\n PROCEDURE FindName (nameList, targetName)\n {\n  index ← 0\n  FOR EACH name IN nameList\n  {\n   index ← index + 1\n   IF (name = targetName)\n   {\n   foundIndex ← index\n   }\n   ELSE\n   {\n   foundIndex ← 0\n   }\n  }\n  DISPLAY (foundIndex)\n }\n Which of the following procedure calls can be used to demonstrate that the procedure does NOT Work as intended?\n\nOptions:\nA. FindName ([\"Andrea\", \"Ben\", \"Chris\", \"Diane\", \"Eva\", \"Frank\", \"Grace\", \"Hannah\", \"Igor\"], \"Igor\" )\nB. FindName ([\"Andrea\", \"Ben\", \"Chris\", \"Diane\"], \"Diane\" )\nC. FindName ([\"Andrea\", \"Ben\", \"Chris\", \"Diane\", \"Eva\", \"Frank\"], \"Frank\" )\nD. FindName ([\"Andrea\", \"Ben\"], \"Ben\" )\nE. FindName ([\"Andrea\", \"Chris\", \"Diane\"], \"Ben\")\nF. FindName ([\"Andrea\", \"Ben\" ], \"Diane\" )\nG. FindName ([\"Andrea\", \"Ben\", \"Chris\"], \"Ben\")\nH. FindName ([\"Andrea\", \"Ben\", \"Chris\", \"Diane\", \"Eva\"], \"Eva\" )\nI. FindName ([\"Andrea\", \"Ben\", \"Chris\", \"Diane\", \"Eva\", \"Frank\", \"Grace\", \"Hannah\"], \"Hannah\" )\nJ. FindName ([\"Andrea\", \"Ben\", \"Chris\", \"Diane\", \"Eva\", \"Frank\", \"Grace\"], \"Grace\" )\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "G",
+    "answer_index": 6,
+    "answer_text": "FindName ([\"Andrea\", \"Ben\", \"Chris\"], \"Ben\")",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10478"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "10478",
+    "prompt_bytes": 1526,
+    "prompt_sha256": "8977bd461ea2b6fe2db1c57a0d6a60a31e7d59ba5f9652ffe441d90ebf95800a",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10478.txt"
+  }
+}

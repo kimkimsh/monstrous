@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-120",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Mr. Torres owns 350 shares of Krescostock paying a quarterly dividend of $1.20 per share, with an extra year-end dividend of $.30 per share. What was his total income from the stock for the year?\n\nOptions:\nA. $1,920\nB. $1,710\nC. $1,470\nD. $1,680\nE. $1,595\nF. $1,260\nG. $1,890\nH. $1,785\nI. $2,000\nJ. $1,650\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "H",
+    "answer_index": 7,
+    "answer_text": "$1,785",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-120"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "120",
+    "prompt_bytes": 597,
+    "prompt_sha256": "dec6e1a6370fcb8f036d64052c93b3e03d0ed016ba0842ae658969def8714498",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-120.txt"
+  }
+}

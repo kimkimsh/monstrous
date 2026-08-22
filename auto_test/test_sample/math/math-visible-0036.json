@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0036",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee of 5 members that has at least one member from each party?\n\nThis problem's answer is an integer.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "integer",
+    "gold": "1940",
+    "gold_latex": "$\\boxed{1940}$",
+    "checks": [
+      "integer_exact",
+      "math_verify"
+    ],
+    "item_id": "math-visible-0036"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/counting_and_probability/216.json",
+    "prompt_bytes": 455,
+    "prompt_sha256": "3f17098bedd504f7f23c30fd09f859d4346cffd811b297fc70b4475784d06ca5",
+    "source": "docs/resource/example_task/math/requests/math-visible-0036.txt"
+  }
+}

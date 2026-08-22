@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-6945",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Sigma Corporation is studying the following production meth-odtogether with its various input combinations that will produce10 dozen pairs of shoes per day. Production Method Quantity of Shoes Produced per day ( in dozens ) Number of Shoe Workers ( in 8-hours day) Number of Shoe making Machines ( in 8-hours day) alpha beta gamma delta epsilon 10 10 10 10 10 30 25 22 20 20 10 7 5 6 5 Management has also determined that the precise relationshipamong shoe workers (W), the shoemaking machinery(M) and the quantity of shoes produced (S) to be: S =\\surd(W \\textbullet M ) whereshoe output will be measured in numbers of pairs of shoesper day and the inputs on the basis of a standard 8 hour day. Which of the five different production methodsshould managementchoose so that it will be technically efficient andconsequently efficient with the production func-tion?\n\nOptions:\nA. production method delta\nB. production method alpha\nC. a combination of production methods alpha and beta\nD. production method epsilon\nE. production method gamma\nF. a combination of production methods alpha, beta, and gamma\nG. a combination of production methods beta and epsilon\nH. production method zeta (a hypothetical method not mentioned in the initial data)\nI. a combination of production methods gamma and delta\nJ. production method beta\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "D",
+    "answer_index": 3,
+    "answer_text": "production method epsilon",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-6945"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "6945",
+    "prompt_bytes": 1611,
+    "prompt_sha256": "c2fe74081d0f00cfc7c50ba16e3f24d268117e54e5ac1967676d8f0c6e0a45be",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-6945.txt"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "math-visible-0051",
+  "track": "math",
+  "kind": "math",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "In the circle with center $Q$, radii $AQ$ and $BQ$ form a right angle. The two smaller regions are tangent semicircles, as shown. The radius of the circle with center $Q$ is 14 inches. What is the radius of the smaller semicircle? Express your answer as a common fraction.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "grader": "math_answer",
+    "answer_format": "expression",
+    "gold": "\\frac{14}{3}",
+    "gold_latex": "$\\boxed{\\frac{14}{3}}$",
+    "checks": [
+      "math_verify"
+    ],
+    "item_id": "math-visible-0051"
+  },
+  "meta": {
+    "dataset": "math-500-level5",
+    "native_id": "test/geometry/817.json",
+    "prompt_bytes": 532,
+    "prompt_sha256": "becee091cd8a4c7d0266fee0fc9140aab047b3617fc5a0fdfd03c485454c56cb",
+    "source": "docs/resource/example_task/math/requests/math-visible-0051.txt"
+  }
+}

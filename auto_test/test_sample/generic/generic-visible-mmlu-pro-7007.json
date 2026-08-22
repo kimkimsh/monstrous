@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-7007",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "How are craft unions different from industrial unions?\n\nOptions:\nA. Industrial unions require a higher level of education for membership, while craft unions do not have educational requirements.\nB. Craft unions join together workers with one particular skill, while industrial unions include workers in a particular plant or industry.\nC. Craft unions are for skilled workers while industrial unions are for unskilled workers\nD. Craft unions include workers from multiple industries, while industrial unions are specific to one craft or trade.\nE. Craft unions are found only in the manufacturing sector, while industrial unions can be found in all sectors.\nF. Industrial unions negotiate for individual workers, while craft unions negotiate for all workers within an industry.\nG. Craft unions are smaller than industrial unions\nH. Industrial unions are more powerful than craft unions\nI. Craft unions focus on broad political agendas, while industrial unions focus solely on workplace conditions and pay.\nJ. Industrial unions represent freelance workers, while craft unions represent salaried employees.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "B",
+    "answer_index": 1,
+    "answer_text": "Craft unions join together workers with one particular skill, while industrial unions include workers in a particular plant or industry.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-7007"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "7007",
+    "prompt_bytes": 1394,
+    "prompt_sha256": "3b119cb31b4f5fa00a9d0159c4c76fa94024f56e80685bb7d521aad7a37bd82f",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-7007.txt"
+  }
+}

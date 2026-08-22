@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-10861",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Construct a complete truth table for the following argument. Then, using the truth table, determine whether the argument is valid or invalid. If the argument is invalid, choose an option which presents a counterexample. (There may be other counterexamples as well.)\n~A · ~B\n(A ∨ C) ∨ B / C\n\nOptions:\nA. Invalid. Counterexample when A, B, and C are all true\nB. Invalid. Counterexample when A, B, and C are all false\nC. Invalid. Counterexample when A and B are true and C is false\nD. Invalid. Counterexample when B is true and A and C are false\nE. Invalid. Counterexample when A and C are true and B is false\nF. Invalid. Counterexample when A is true and B and C are false\nG. Invalid. Counterexample when A is false and B and C are true\nH. Valid\nI. Invalid. Counterexample when C is true and A and B are false\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "H",
+    "answer_index": 7,
+    "answer_text": "Valid",
+    "num_options": 9,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-10861"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "10861",
+    "prompt_bytes": 1104,
+    "prompt_sha256": "e2ef932cb838d419dd7145393800b7a00c272c2afabc3c02cb1b89b2d9f45e28",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-10861.txt"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-8511",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "What is the value of the integral $\\int_2^4 \\frac{\\sqrt{log(9-x)}}{\\sqrt{log(9-x)}+\\sqrt{log(x+3)}} dx$?\n\nOptions:\nA. 0.8\nB. 2.2\nC. 1.5\nD. 2.0\nE. 3.5\nF. 2.5\nG. 1.0\nH. 3.0\nI. 0.5\nJ. 1.2\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "G",
+    "answer_index": 6,
+    "answer_text": "1.0",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-8511"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "8511",
+    "prompt_bytes": 476,
+    "prompt_sha256": "0f9b2fb3ad9efa1cfc4f9d0e307744b33942a5b2d1ba3b000aed93e146b8b0cd",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-8511.txt"
+  }
+}

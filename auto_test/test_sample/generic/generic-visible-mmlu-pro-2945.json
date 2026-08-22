@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-2945",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "The skin is much more than merely an outer wrapping for an animal; it is an important organ system and performs many diverse functions. What are some of the primary functions of the skin in man?\n\nOptions:\nA. The skin primarily serves as a storage site for fat-soluble vitamins\nB. The skin's primary function is to enhance physical appearance\nC. The primary function of the skin is to provide an outer covering for the body\nD. The main function of the skin is to produce sweat and keep the body cool\nE. The skin's main function is to regulate the level of oxygen entering the body\nF. The main function of the skin is to produce pigments that give color to the hair and eyes\nG. The skin's primary function is to absorb nutrients from the external environment\nH. The primary role of the skin is to act as a secondary respiratory organ\nI. The primary functions of the skin are to protect the body against external agents, maintain a constant internal environment, thermoregulation, and excretion of metabolic wastes.\nJ. The primary function of the skin is to facilitate the sense of touch only\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "I",
+    "answer_index": 8,
+    "answer_text": "The primary functions of the skin are to protect the body against external agents, maintain a constant internal environment, thermoregulation, and excretion of metabolic wastes.",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-2945"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "2945",
+    "prompt_bytes": 1381,
+    "prompt_sha256": "7370762d0e9121baa544fbeb92a096b15f7ef1ae54d4ef06ea2bf8ede3fd8da6",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-2945.txt"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-11051",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "Lukianoff and Haidt argue that American colleges and universities now encourage\n\nOptions:\nA. emotional reasoning.\nB. critical reasoning.\nC. reflective reasoning.\nD. all of the above.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "B",
+    "answer_index": 1,
+    "answer_text": "critical reasoning.",
+    "num_options": 4,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-11051"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "11051",
+    "prompt_bytes": 474,
+    "prompt_sha256": "faccfd97087d20977fb40b7b01e4d24b36b82e6563daaa3290ec529673f8063b",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-11051.txt"
+  }
+}

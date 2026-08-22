@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-157",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "A furniture manufacturer wants to find out how many end tables he produced during a certain week. He knows that 8 employees produced 16 end tables each, 21 employees produced 23 each, 7 produced 27 each, and 4 produced 29 each, Find the total number of end 'tables produced during that week.\n\nOptions:\nA. 916 end tables\nB. 1000 end tables\nC. 892 end tables\nD. 1100 end tables\nE. 1035 end tables\nF. 975 end tables\nG. 827 end tables\nH. 765 end tables\nI. 945 end tables\nJ. 850 end tables\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "A",
+    "answer_index": 0,
+    "answer_text": "916 end tables",
+    "num_options": 10,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-157"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "157",
+    "prompt_bytes": 776,
+    "prompt_sha256": "9857cddb6fb12be33fc1666e62e86814debd3c1d7b9e6d36bf6c9b43c4dadae5",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-157.txt"
+  }
+}

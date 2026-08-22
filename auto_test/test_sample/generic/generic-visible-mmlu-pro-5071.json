@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "generic-visible-mmlu-pro-5071",
+  "track": "generic",
+  "kind": "letter_match",
+  "gradable": true,
+  "ungradable_reason": null,
+  "prompt": "In what ways have governments responded to the threat of TNC post-Cold War?\n\nOptions:\nA. In response to the threat of TNC post-Cold War, governments have primarily relied on economic sanctions against countries seen as hubs for transnational crime.\nB. Governments have increasingly turned to the use of private military companies to combat the threat of TNC post-Cold War.\nC. The approach to the threat of TNC has largely been disorganized and lacking in any form of international cooperation, with each state tackling the issue individually.\nD. With the expansion of TNC in the 1990s, states became increasingly willing to take measures to reduce the asymmetries between countries through harmonization of legislation and increasing police capacity and networking. The government response to transnational crime has focused on targeting the individuals and organizations perpetrating the crime, rather than the criminal markets themselves.\nE. The response to TNC post-Cold War has been largely focused on the implementation of strict border controls and immigration policies.\nF. The threat of TNC has been primarily addressed through the expansion of domestic law enforcement agencies, with minimal international cooperation.\nG. Governments have remained passive and unresponsive to the threat of TNC post-Cold War, allowing transnational crime to flourish unchecked.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.\n",
+  "expected": {
+    "kind": "letter_match",
+    "answer": "D",
+    "answer_index": 3,
+    "answer_text": "With the expansion of TNC in the 1990s, states became increasingly willing to take measures to reduce the asymmetries between countries through harmonization of legislation and increasing police capacity and networking. The government response to transnational crime has focused on targeting the individuals and organizations perpetrating the crime, rather than the criminal markets themselves.",
+    "num_options": 7,
+    "case_sensitive": false,
+    "item_id": "generic-visible-mmlu-pro-5071"
+  },
+  "meta": {
+    "dataset": "mmlu-pro",
+    "native_id": "5071",
+    "prompt_bytes": 1660,
+    "prompt_sha256": "c5fddb3123eb3d8a290136a2e72b0dc84c7119aac875cade01e922d2d359ca8c",
+    "source": "docs/resource/example_task/generic/requests/generic-visible-mmlu-pro-5071.txt"
+  }
+}
