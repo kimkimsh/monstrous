@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LEDGER — AI:GO Squad Trace Viewer</title>
+<style>
+:root{
+  --bg:#0e1116; --panel:#151a21; --panel-2:#1b212a; --line:#242c37;
+  --fg:#e6edf3; --fg-dim:#8b98a8; --fg-faint:#5b6675;
+  --accent:#4cc2ff; --ok:#3fb950; --warn:#d29922; --bad:#f85149; --prog:#a371f7;
+  --mono:ui-monospace,"Cascadia Mono","JetBrains Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+html[data-theme="light"]{
+  --bg:#f6f8fa; --panel:#fff; --panel-2:#f0f3f6; --line:#d6dde5;
+  --fg:#1c2128; --fg-dim:#57606a; --fg-faint:#8c959f;
+  --accent:#0969da; --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e; --prog:#8250df;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.55 var(--mono);overflow:hidden}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.app{display:flex;flex-direction:column;height:100%}
+
+header{border-bottom:1px solid var(--line);background:var(--panel);padding:9px 16px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.06em;line-height:1.25}
+.brand small{display:block;font-weight:400;color:var(--fg-faint);letter-spacing:0;font-size:10px}
+.stat{display:flex;flex-direction:column;line-height:1.25}
+.stat b{font-size:15px;font-weight:600}
+.stat span{font-size:9.5px;color:var(--fg-dim);text-transform:uppercase;letter-spacing:.08em}
+.stat em{font-style:normal;color:var(--fg-faint);font-size:10px}
+.spacer{flex:1}
+main{flex:1;display:flex;min-height:0}
+
+/* 좌 — 실행 선택 */
+.side{width:310px;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.side .h{padding:8px 10px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center}
+.side .h select{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:3px 6px;flex:1;min-width:0}
+.side ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
+.side li{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.side li:hover{background:var(--panel-2)}
+.side li[aria-selected="true"]{background:var(--panel-2);box-shadow:inset 3px 0 0 var(--accent)}
+.side .t{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+.side .m{font-size:10px;color:var(--fg-faint);display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-block;padding:0 6px;border-radius:9px;font-size:9.5px;border:1px solid var(--line);line-height:15px}
+.pill.ok{color:var(--ok);border-color:var(--ok)}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
+.pill.warn{color:var(--warn);border-color:var(--warn)}
+
+/* 우 — 상세 */
+.body{flex:1;display:flex;flex-direction:column;min-width:0}
+.tabs{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--panel);align-items:center;flex-wrap:wrap}
+.pane{flex:1;overflow:auto;padding:16px 20px;min-width:0}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 3px;font-size:14px}
+.q{font-size:11px;color:var(--fg-dim);margin:0 0 12px}
+.q b{color:var(--fg)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:3px 10px;font-size:11.5px}
+.kv dt{color:var(--fg-dim)}
+.kv dd{margin:0;word-break:break-word}
+table{border-collapse:collapse;width:100%;font-size:11.5px;margin-top:8px}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--fg-dim);font-weight:500;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+pre{white-space:pre-wrap;word-break:break-word;font-size:11px;background:var(--panel-2);padding:10px;border-radius:6px;margin:0;overflow:auto}
+.note{font-size:10.5px;color:var(--fg-faint);border-left:2px solid var(--warn);padding-left:9px;margin-top:11px;line-height:1.65}
+.readout{display:flex;gap:26px;flex-wrap:wrap;margin-top:4px}
+
+/* 위상 막대 */
+.phases{display:flex;height:26px;border-radius:5px;overflow:hidden;border:1px solid var(--line);margin-top:8px}
+.phases div{display:flex;align-items:center;justify-content:center;font-size:9.5px;color:var(--bg);overflow:hidden;white-space:nowrap}
+.plegend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:var(--fg-dim);margin-top:6px}
+.plegend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:4px}
+
+/* 타임라인 */
+.ev{display:grid;grid-template-columns:72px 168px minmax(0,1fr);gap:10px;padding:4px 0;border-bottom:1px solid var(--line);font-size:11px}
+.ev>*{min-width:0;overflow-wrap:anywhere}
+.pane>*{max-width:100%}
+.card{overflow:hidden}
+table{table-layout:fixed}
+td,th{overflow-wrap:anywhere}
+.ev .ts{color:var(--fg-faint);font-variant-numeric:tabular-nums}
+.ev .ty{color:var(--accent)}
+.ev.err .ty{color:var(--bad)}
+.ev .de{color:var(--fg-dim);word-break:break-word}
+
+/* 장부 대조 */
+/* grid/flex 자식의 기본 min-width:auto 가 긴 내용에서 가로 스크롤을 만든다.
+   본문은 절대 가로로 밀리면 안 되고, 넘치는 것은 자기 컨테이너 안에서 스크롤해야 한다. */
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ledger>.col{min-width:0}
+@media (max-width:1100px){.ledger{grid-template-columns:1fr}}
+.col h3{margin:0 0 6px;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stamp{font-size:10px;padding:2px 8px;border-radius:4px;letter-spacing:.08em;font-weight:700}
+.stamp.g{background:var(--ok);color:var(--bg)}
+.stamp.n{background:var(--bad);color:var(--bg)}
+.scroll{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+.scroll pre{border-radius:0;background:transparent}
+mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:var(--fg);border-radius:2px}
+mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
+.checks{margin-top:9px}
+.chk{display:flex;gap:8px;align-items:baseline;font-size:11px;padding:3px 0;border-bottom:1px solid var(--line)}
+.chk b{width:15px}
+.chk .k{flex:1}
+.chk .d{color:var(--fg-faint);font-size:10px}
+.chk.ok b{color:var(--ok)} .chk.no b{color:var(--bad)}
+
+/* 로드 화면 */
+.drop{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:var(--bg);z-index:30;text-align:center;padding:24px}
+/* display 를 지정하는 작성자 규칙은 브라우저 기본 [hidden]{display:none} 을 이긴다.
+   그래서 el.hidden=true 를 줘도 오버레이가 안 사라진다 — 실제로 "로딩에서 멈춘 것처럼"
+   보이는 버그가 났다. display 를 건드리는 요소에는 반드시 [hidden] 규칙을 같이 준다. */
+.drop[hidden]{display:none}
+.drop.over{outline:2px dashed var(--accent);outline-offset:-16px}
+.drop h1{font-size:18px;margin:0}
+.drop p{color:var(--fg-dim);max-width:640px;margin:0;font-size:11.5px;line-height:1.85}
+.drop code{background:var(--panel-2);padding:1px 5px;border-radius:4px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.err{color:var(--bad);font-size:11px;min-height:16px;max-width:640px}
+.files{font-size:10px;color:var(--fg-faint);max-height:120px;overflow:auto;text-align:left}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">LEDGER<small id="src">no logs loaded</small></div>
+    <div class="stat"><span>실행</span><b id="s-exec">—</b><em id="s-exec-d"></em></div>
+    <div class="stat"><span>AI:GO 성공</span><b id="s-aigo">—</b><em>AI:GO 자체 판정</em></div>
+    <div class="stat"><span>채점 적격</span><b id="s-grad">—</b><em id="s-grad-d">패치 마커 검사 · LLM 호출 0회</em></div>
+    <div class="stat"><span>총 토큰</span><b id="s-tok">—</b><em id="s-tok-d"></em></div>
+    <div class="stat"><span>총 시간</span><b id="s-wall">—</b><em id="s-wall-d"></em></div>
+    <div class="spacer"></div>
+    <button id="btn-theme">Light</button>
+    <button id="btn-load">폴더 다시 고르기</button>
+  </header>
+
+  <main>
+    <aside class="side">
+      <div class="h">
+        <select id="f-status">
+          <option value="">모든 실행</option>
+          <option value="ran">실행된 것만 (호출 거부 제외)</option>
+          <option value="markers">마커 없어서 0점인 것</option>
+          <option value="gradable">채점 적격만</option>
+          <option value="blocked">호출 거부만</option>
+        </select>
+      </div>
+      <ul id="list"></ul>
+    </aside>
+
+    <div class="body">
+      <div class="tabs">
+        <button data-tab="overview" aria-pressed="true">개요</button>
+        <button data-tab="ledger">장부 대조</button>
+        <button data-tab="timeline">타임라인</button>
+        <button data-tab="failure">실패 분류</button>
+        <button data-tab="raw">원문 로그</button>
+        <div class="spacer"></div>
+        <span id="tab-hint" style="font-size:10.5px;color:var(--fg-faint)"></span>
+      </div>
+      <div class="pane" id="pane"></div>
+    </div>
+  </main>
+</div>
+
+<div class="drop" id="drop">
+  <h1>LEDGER — AI:GO Squad Trace Viewer</h1>
+  <p>AI:GO 워크스페이스의 <code>logs/</code> 폴더를 고르거나 이 창에 끌어다 놓으세요.
+     스냅샷 폴더 여러 개를 한꺼번에 넣어도 됩니다 — <b>executionId 로 중복을 제거해 병합</b>합니다.<br>
+     읽는 파일: <code>history.json</code> · <code>events.jsonl</code> · <code>&lt;executionId&gt;.jsonl</code> · <code>tasks/*.json</code>
+     &nbsp;(<code>index.json</code> 은 history.json 에서 유도 가능해 무시합니다)</p>
+  <div class="row">
+    <button id="btn-sample">샘플 로그 열기</button>
+    <button id="btn-dir">폴더 고르기</button>
+    <button id="btn-file">파일 고르기</button>
+  </div>
+  <div class="err" id="derr"></div>
+  <div class="files" id="dfiles"></div>
+  <input type="file" id="in-dir" hidden webkitdirectory directory multiple>
+  <input type="file" id="in-file" hidden multiple>
+</div>
+
+<!-- 마커는 반드시 자기 줄에 둔다. build.sh 의 sed 가 마커 줄을 통째로 지우고
+     그 자리에 파일을 끼워 넣기 때문에, script 태그와 같은 줄에 있으면 태그까지 사라진다. -->
+<script id="sample-history" type="application/json">
+<!--@HISTORY@-->
+</script>
+<script id="sample-events" type="application/x-ndjson">
+<!--@EVENTS@-->
+</script>
+
+<script>
+"use strict";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   출력 계약 — judge 가 무엇을 읽는지. 문항 지문에서 그대로 옮겼다.
+   "Only what lies between *** PATCH START *** and *** PATCH END *** is graded.
+    If more than one appears, the last one is used."
+   ═══════════════════════════════════════════════════════════════════════ */
+const PS="*** PATCH START ***", PE="*** PATCH END ***";
+
+function inspectAnswer(text){
+  const t=String(text||""), checks=[];
+  const si=t.lastIndexOf(PS);                       // 규칙: 여러 개면 마지막 것
+  checks.push({k:"*** PATCH START *** 마커", ok:si>=0, d:si>=0?"발견 (마지막 것 사용)":"없음 — judge 가 추출할 것이 없다"});
+  const ei=si>=0?t.indexOf(PE,si+PS.length):-1;
+  checks.push({k:"*** PATCH END *** 마커", ok:ei>=0, d:ei>=0?"START 뒤에 있음":"없음"});
+  const body=(si>=0&&ei>=0)?t.slice(si+PS.length,ei):"";
+  const nS=(body.match(/<{7} SEARCH/g)||[]).length;
+  const nM=(body.match(/^={7}\s*$/gm)||[]).length;
+  const nR=(body.match(/>{7} REPLACE/g)||[]).length;
+  checks.push({k:"SEARCH / ======= / REPLACE 짝", ok:nS>0&&nS===nM&&nS===nR, d:`${nS} / ${nM} / ${nR}`});
+  // 모든 <<<<<<< SEARCH 앞에는 경로 줄이 하나 있어야 한다
+  let paths=0, bad=0;
+  const lines=body.split(/\r?\n/);
+  lines.forEach((ln,i)=>{
+    if(!/^<{7} SEARCH/.test(ln)) return;
+    let j=i-1; while(j>=0&&!lines[j].trim()) j--;
+    if(j>=0&&lines[j].trim()&&!/^[<>=]{7}/.test(lines[j])) paths++; else bad++;
+  });
+  checks.push({k:"블록마다 경로 줄", ok:nS>0&&bad===0, d:nS?`경로 ${paths} · 누락 ${bad}`:"블록 없음"});
+  return {gradable:checks.every(c=>c.ok), checks, body, si, ei, text:t};
+}
+
+/* 실패 분류 — 규칙표를 화면에 그대로 노출한다. 추측이 아니라 규칙임을 보이기 위해. */
+const RULES=[
+  {re:/exceeds the available context size/i, kind:"context_overflow", owner:"configuration",
+   why:"컨텍스트 상한 초과. 설정에서 늘리면 해결된다 — 우리가 고칠 수 있다"},
+  {re:/HTTP 5\d\d/,                          kind:"upstream_error",   owner:"organizer",
+   why:"모델 서버 오류. 팀 책임이 아니다"},
+  {re:/HTTP 429|rate.?limit/i,               kind:"rate_limit",       owner:"policy",
+   why:"요청 제한에 걸렸다"},
+  {re:/timeout|timed out|deadline/i,         kind:"wallclock_cap",    owner:"policy",
+   why:"시간 상한에 걸렸다"},
+];
+function classify(err){
+  const e=String(err||"");
+  for(const r of RULES) if(r.re.test(e)) return {...r, http:(e.match(/HTTP (\d{3})/)||[])[1]||null, raw:e};
+  return {kind:"unclassified", owner:"—", why:"규칙표에 없는 오류. 규칙을 추가해야 한다", http:null, raw:e};
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   수집 — 폴더 안의 파일을 이름으로 분류해 병합한다
+   ═══════════════════════════════════════════════════════════════════════ */
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map()};
+const SEEN={files:0, kinds:{}, skipped:[]};
+
+function ndjson(text){
+  const out=[];
+  for(const line of String(text).split(/\r?\n/)){
+    const s=line.trim(); if(!s) continue;
+    const j=s.indexOf("{"); if(j<0) continue;
+    try{ out.push(JSON.parse(s.slice(j))); }catch{}
+  }
+  return out;
+}
+function bump(k){ SEEN.kinds[k]=(SEEN.kinds[k]||0)+1; }
+
+function addFile(path,name,text){
+  SEEN.files++;
+  const base=name.replace(/\.[^.]+$/,"");
+  try{
+    if(name==="history.json"){
+      const arr=JSON.parse(text);
+      for(const e of (Array.isArray(arr)?arr:[arr])) if(e&&e.executionId){
+        const p=RAW.hist.get(e.executionId);
+        // 스냅샷이 겹칠 때: 태스크 output 을 더 많이 가진 쪽을 남긴다
+        if(!p||JSON.stringify(e).length>JSON.stringify(p).length) RAW.hist.set(e.executionId,e);
+      }
+      bump("history.json"); return;
+    }
+    if(name==="events.jsonl"){
+      for(const e of ndjson(text)){
+        const ex=e?.payload?.executionId ?? "-";
+        RAW.ev.set(ex+"#"+e.id, e);                  // executionId+id 로 중복 제거
+      }
+      bump("events.jsonl"); return;
+    }
+    if(name==="index.json"){ bump("index.json (무시)"); return; }
+    if(/\/tasks\//.test(path)&&name.endsWith(".json")){
+      const t=JSON.parse(text);
+      for(const x of (Array.isArray(t)?t:[t])) if(x&&x.id) RAW.task.set(x.id,x);
+      bump("tasks/*.json"); return;
+    }
+    if(name.endsWith(".jsonl")&&UUID.test(base)){
+      const cur=RAW.log.get(base)||new Map();
+      for(const l of ndjson(text)) cur.set((l.timestamp||"")+"|"+(l.message||""), l);
+      RAW.log.set(base,cur); bump("<executionId>.jsonl"); return;
+    }
+    SEEN.skipped.push(path);
+  }catch(err){ SEEN.skipped.push(path+" ("+err.message+")"); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   모델
+   ═══════════════════════════════════════════════════════════════════════ */
+const S={execs:[], sel:null, tab:"overview"};
+const ms=iso=>{const v=Date.parse(iso); return Number.isNaN(v)?null:v;};
+
+function build(){
+  const byExec=new Map();
+  for(const e of RAW.ev.values()){
+    const id=e?.payload?.executionId; if(!id) continue;
+    if(!byExec.has(id)) byExec.set(id,[]);
+    byExec.get(id).push(e);
+  }
+  // RAW.log 까지 포함한다. history/events 가 없어도 <executionId>.jsonl 하나만으로
+  // 최소한의 실행 뷰는 세운다 — 파일이 일부만 들어왔을 때 전부 실패시키지 않기 위해서다.
+  const ids=new Set([...RAW.hist.keys(), ...byExec.keys(), ...RAW.log.keys()]);
+  S.execs=[...ids].map(id=>{
+    const h=RAW.hist.get(id)||{};
+    const evs=(byExec.get(id)||[]).sort((a,b)=>(a.id??0)-(b.id??0));
+    const pick=t=>evs.find(e=>e.eventType==="squad:"+t);
+    const planReady=pick("plan-ready");
+
+    const tasks=(h.tasks||[]).map(t=>({
+      ...t,
+      meta:RAW.task.get(t.taskId)||null,
+      answer:inspectAnswer(t.output),
+      fail:t.status==="failed"||t.error?classify(t.error):null
+    }));
+    // history 가 없고 이벤트만 있는 실행도 태스크를 세운다
+    if(!tasks.length){
+      for(const e of evs) if(e.eventType==="squad:task-completed"){
+        const p=e.payload||{};
+        tasks.push({taskId:p.taskId, title:p.taskTitle, status:p.success?"completed":"failed",
+          output:"", error:p.error, agentName:null, durationMs:null,
+          meta:RAW.task.get(p.taskId)||null, answer:inspectAnswer(""),
+          fail:p.success?null:classify(p.error)});
+      }
+    }
+    // 그것도 없으면 원문 로그 문장에서 세운다. 응답 본문은 못 얻지만 무엇이 돌았는지는 보인다.
+    const logLines=[...(RAW.log.get(id)||new Map()).values()]
+      .sort((a,b)=>String(a.timestamp).localeCompare(String(b.timestamp)));
+    if(!tasks.length&&logLines.length){
+      const seen=new Map();
+      for(const l of logLines){
+        const m=String(l.message||"").match(/^Task '([\s\S]*?)' (assigned to agent '(.*)'|completed by '(.*)'|failed: ([\s\S]*))$/);
+        if(!m) continue;
+        const title=m[1];
+        if(!seen.has(title)) seen.set(title,{taskId:null, title, agentName:m[3]||m[4]||null,
+          status:"running", output:"", error:null, durationMs:null, meta:null,
+          answer:inspectAnswer(""), fail:null, partial:true});
+        const t=seen.get(title);
+        if(m[4]){ t.status="completed"; t.agentName=m[4]; }
+        if(m[5]){ t.status="failed"; t.error=m[5]; t.fail=classify(m[5]); }
+      }
+      tasks.push(...seen.values());
+    }
+
+    const final=inspectAnswer(h.finalResult);
+    const t0=ms(h.startedAt)??ms(evs[0]?.timestamp)??ms(logLines[0]?.timestamp);
+    const t1=ms(h.completedAt)??ms(evs[evs.length-1]?.timestamp)??ms(logLines[logLines.length-1]?.timestamp);
+    const tu=h.totalTokenUsage||pick("execution-completed")?.payload?.tokenUsage||{promptTokens:0,completionTokens:0};
+
+    // 채점 적격: finalResult 든 어느 태스크 output 이든 패치가 하나라도 있으면 적격
+    const carriers=[{who:"finalResult",a:final},...tasks.map(t=>({who:t.title||t.taskId,a:t.answer}))];
+    const grad=carriers.find(c=>c.a.gradable)||null;
+
+    // 채점 불가의 원인을 구분한다.
+    //   blocked  — 호출 자체가 거부됐다. 컨텍스트 초과·인프라 오류. 시각화로 고칠 수 없는 영역
+    //   markers  — 실행은 됐고 답도 나왔는데 패치 마커가 없다. ★ 우리가 고칠 수 있는 영역
+    // 이 둘을 한 숫자로 합치면 "무엇을 고쳐야 하는가"가 화면에서 사라진다.
+    // 출력 유무로 판단하면 안 된다 — 실패한 태스크도 output 에
+    // "Task assigned to `X` failed." 라는 자리표시 문자열이 들어간다. 상태로 판단한다.
+    const anyDone=tasks.some(t=>t.status==="completed"||t.status==="done");
+    const blocker=grad?null:(!anyDone&&tasks.some(t=>t.fail)?"blocked":"markers");
+
+    const counts=pick("execution-completed")?.payload?.taskCounts
+      ||{total:tasks.length,completed:tasks.filter(t=>t.status==="completed"||t.status==="done").length,
+         failed:tasks.filter(t=>t.status==="failed").length};
+
+    return {
+      id, squadName:h.squadName||"—", request:h.request||"", planTitle:h.planTitle||"",
+      aigoStatus:h.status||pick("execution-completed")?"completed":"unknown",
+      tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker,
+      blockKind:blocker==="blocked"?(tasks.find(t=>t.fail)?.fail.kind||"—"):null,
+      counts, tokens:tu, t0, t1,
+      durationMs:h.durationMs??((t0&&t1)?t1-t0:null),
+      waves:planReady?.payload?.waves||[],
+      plannerWarning:planReady?.payload?.plannerWarning||null,
+      autoApprove:planReady?.payload?.autoApprove,
+      events:evs, logs:[...(RAW.log.get(id)||new Map()).values()].sort((a,b)=>String(a.timestamp).localeCompare(String(b.timestamp))),
+      phases:phasesOf(evs)
+    };
+  }).sort((a,b)=>(a.t0??0)-(b.t0??0));
+}
+
+function phasesOf(evs){
+  const at=t=>{const e=evs.find(x=>x.eventType==="squad:"+t);return e?ms(e.timestamp):null;};
+  const p=at("planning-started"), r=at("plan-ready"), s=at("execution-started"),
+        g=at("aggregation-started"), c=at("execution-completed");
+  const seg=[];
+  if(p&&r) seg.push({k:"플래닝",   ms:r-p, c:"var(--prog)"});
+  if(r&&s) seg.push({k:"승인 대기", ms:s-r, c:"var(--fg-faint)"});
+  if(s&&g) seg.push({k:"실행",     ms:g-s, c:"var(--accent)"});
+  if(g&&c) seg.push({k:"집계",     ms:c-g, c:"var(--warn)"});
+  return seg;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   화면
+   ═══════════════════════════════════════════════════════════════════════ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const fmt=n=>n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e3?(n/1e3).toFixed(1)+"k":String(Math.round(n||0));
+const secs=m=>m==null?"—":(m/1000).toFixed(1)+"s";
+const one=s=>String(s||"").replace(/\s+/g," ").trim();
+
+function renderHeader(){
+  const n=S.execs.length;
+  const aigo=S.execs.filter(e=>e.counts.failed===0&&e.counts.total>0).length;
+  const grad=S.execs.filter(e=>e.gradable).length;
+  const pt=S.execs.reduce((s,e)=>s+(e.tokens.promptTokens||0),0);
+  const ct=S.execs.reduce((s,e)=>s+(e.tokens.completionTokens||0),0);
+  const wall=S.execs.reduce((s,e)=>s+(e.durationMs||0),0);
+  $("#s-exec").textContent=n;
+  $("#s-exec-d").textContent=SEEN.files+" files loaded";
+  $("#s-aigo").textContent=aigo+" / "+n;
+  // 호출이 거부된 실행은 분모에서 뺀다. "우리가 고칠 수 있는 것" 위에서만 비율을 낸다.
+  const ran=S.execs.filter(e=>e.blocker!=="blocked");
+  const gradRan=ran.filter(e=>e.gradable).length;
+  $("#s-grad").textContent=gradRan+" / "+ran.length;
+  $("#s-grad").style.color=gradRan<ran.length?"var(--bad)":"var(--ok)";
+  $("#s-grad-d").textContent=
+    (S.execs.length-ran.length?`실행 불가 ${S.execs.length-ran.length}건 제외 · `:"")+
+    `마커 없음 ${ran.length-gradRan}건`;
+  $("#s-tok").textContent=fmt(pt+ct);
+  $("#s-tok-d").textContent="in "+fmt(pt)+" · out "+fmt(ct);
+  $("#s-wall").textContent=(wall/1000).toFixed(0)+"s";
+  $("#s-wall-d").textContent=n?"평균 "+(wall/n/1000).toFixed(1)+"s/실행":"";
+}
+
+function visible(){
+  const f=$("#f-status").value;
+  return S.execs.filter(e=>
+    f==="ran"     ?e.blocker!=="blocked":
+    f==="markers" ?e.blocker==="markers":
+    f==="gradable"?e.gradable:
+    f==="blocked" ?e.blocker==="blocked":true);
+}
+
+function renderList(){
+  const ul=$("#list"); ul.textContent="";
+  for(const e of visible()){
+    const li=document.createElement("li");
+    li.setAttribute("aria-selected",String(S.sel===e.id));
+    const title=one(e.request).slice(0,64)||e.id;
+    li.innerHTML=
+      `<div class="t">${esc(title)}${one(e.request).length>64?"…":""}</div>`+
+      `<div class="m">`+
+        `<span class="pill ${e.counts.failed?"bad":"ok"}">AI:GO ${e.counts.total-e.counts.failed}/${e.counts.total}</span>`+
+        `<span class="pill ${e.gradable?"ok":e.blocker==="blocked"?"warn":"bad"}">`+
+          `${e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":"마커 없음"}</span>`+
+        `<span>${fmt((e.tokens.promptTokens||0)+(e.tokens.completionTokens||0))} tok</span>`+
+        `<span>${secs(e.durationMs)}</span>`+
+      `</div>`;
+    li.onclick=()=>{S.sel=e.id;renderList();renderPane();};
+    ul.appendChild(li);
+  }
+  if(!ul.children.length) ul.innerHTML='<li style="color:var(--fg-faint);cursor:default">해당하는 실행이 없습니다.</li>';
+}
+
+function cur(){ return S.execs.find(e=>e.id===S.sel)||null; }
+
+function renderPane(){
+  const P=$("#pane"); P.textContent="";
+  const e=cur();
+  const H={overview:"이 실행이 무엇을 했고 점수가 되는가",
+           ledger:"채점기가 읽는 바이트를 그대로 보여준다",
+           timeline:"시간이 어디에 쓰였는가",
+           failure:"우리 잘못인가 인프라 잘못인가",
+           raw:"AI:GO 가 남긴 원문"}[S.tab];
+  $("#tab-hint").textContent=H||"";
+  if(!e){ P.innerHTML=`<div class="card"><h2>실행을 고르세요</h2><p class="q">왼쪽 목록에서 분석할 실행을 선택하면 됩니다. 실행 ${S.execs.length}개가 로드되어 있습니다.</p></div>`+runSummaryCard(); return; }
+  ({overview:paneOverview, ledger:paneLedger, timeline:paneTimeline,
+    failure:paneFailure, raw:paneRaw}[S.tab])(P,e);
+}
+
+function runSummaryCard(){
+  const n=S.execs.length;
+  const aigo=S.execs.filter(x=>x.counts.failed===0&&x.counts.total>0).length;
+  const grad=S.execs.filter(x=>x.gradable).length;
+  const ran=S.execs.filter(x=>x.blocker!=="blocked");
+  const blocked=S.execs.filter(x=>x.blocker==="blocked");
+  const gradRan=ran.filter(x=>x.gradable).length;
+  const WHY={null:"—", blocked:"호출 거부", markers:"패치 마커 없음"};
+  const rows=S.execs.map(x=>
+    `<tr${x.blocker==="blocked"?' style="opacity:.5"':""}><td>${esc(one(x.request).slice(0,52)||x.id)}</td>`+
+      `<td><span class="pill ${x.counts.failed?"bad":"ok"}">${x.counts.total-x.counts.failed}/${x.counts.total}</span></td>`+
+      `<td><span class="pill ${x.gradable?"ok":x.blocker==="blocked"?"warn":"bad"}">`+
+        `${x.gradable?"적격":x.blocker==="blocked"?"실행 불가":"마커 없음"}</span></td>`+
+      `<td style="color:var(--fg-dim)">${esc(WHY[x.blocker]+(x.blockKind?" · "+x.blockKind:""))}</td>`+
+      `<td class="n">${fmt((x.tokens.promptTokens||0)+(x.tokens.completionTokens||0))}</td>`+
+      `<td class="n">${secs(x.durationMs)}</td></tr>`).join("");
+  const warn=(S.missing&&S.missing.length)
+    ? `<div class="card" style="border-color:var(--warn)"><h2>일부 파일이 빠졌습니다</h2>
+       <p class="q">되는 만큼만 그렸습니다. 빠진 것:</p>
+       <ul style="font-size:11.5px;color:var(--fg-dim);margin:0;padding-left:18px">`+
+       S.missing.map(m=>`<li>${esc(m)}</li>`).join("")+`</ul>
+       <p class="note"><code>logs/</code> 폴더를 통째로 고르면 전부 들어옵니다.</p></div>`:"";
+  return warn+`<div class="card"><h2>채점 적격성 — 전체 실행</h2>
+    <p class="q">이 화면이 답하는 질문: <b>"우리 스쿼드가 성공했다고 보고한 것 중 실제로 점수가 되는 건 몇 개인가?"</b>
+    판정은 응답 텍스트의 패치 마커 검사로만 한다. <b>LLM 호출 0회.</b></p>
+    <div class="readout">
+      <div class="stat"><span>AI:GO 성공</span><b style="font-size:19px">${aigo} / ${n}</b><em>태스크 실패 0건</em></div>
+      <div class="stat"><span>실행된 것</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${blocked.length?`호출 거부 ${blocked.length}건 제외`:"전부 실행됨"}</em></div>
+      <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>패치 마커 존재</em></div>
+    </div>
+    <table><tr><th>요청</th><th>AI:GO</th><th>채점</th><th>불가 사유</th><th class="n">토큰</th><th class="n">시간</th></tr>${rows}</table>
+    <p class="note"><b>두 가지 0점을 구분한다.</b>
+    <b>호출 거부</b>는 모델이 요청을 받지도 못한 것이다 — 컨텍스트 초과·인프라 오류. 프롬프트나 형식으로 고칠 수 없다.
+    <b>마커 없음</b>은 실행도 됐고 답도 나왔는데 <code>*** PATCH START ***</code> 를 안 내서 0점이 된 것이다.
+    <b>여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 낸다.</b>
+    AI:GO 는 에이전트가 응답을 반환하면 성공으로 보지만 judge 는 마커 사이만 읽는다.</p></div>`;
+}
+
+function paneOverview(P,e){
+  const tokTotal=(e.tokens.promptTokens||0)+(e.tokens.completionTokens||0);
+  let h=`<div class="card"><h2>${esc(e.squadName)} · ${esc(e.id.slice(0,8))}</h2>
+    <p class="q">${esc(one(e.request).slice(0,220))}${one(e.request).length>220?"…":""}</p>
+    <dl class="kv">
+      <dt>AI:GO 판정</dt><dd>${esc(e.aigoStatus)} — 태스크 ${e.counts.total-e.counts.failed}/${e.counts.total} 성공</dd>
+      <dt>채점 적격</dt><dd>${e.gradable
+        ?`<span class="pill ok">적격</span> — <code>${esc(e.gradCarrier.who)}</code> 안에 패치가 있다`
+        :`<span class="pill bad">불가</span> — 어떤 응답에도 패치 마커가 없다`}</dd>
+      <dt>토큰</dt><dd>${fmt(tokTotal)} (in ${fmt(e.tokens.promptTokens)} · out ${fmt(e.tokens.completionTokens)})</dd>
+      <dt>소요</dt><dd>${secs(e.durationMs)}</dd>
+      <dt>웨이브</dt><dd>${e.waves.length?e.waves.map((w,i)=>`W${i+1}: ${w.length}개`).join(" · "):"—"}</dd>
+    </dl>`;
+  if(e.plannerWarning) h+=`<p class="note"><b>플래너 폴백이 걸렸다.</b> ${esc(e.plannerWarning)}
+    <br>→ 요청이 분해되지 않고 <b>모든 에이전트에게 원본이 그대로</b> 들어갔다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생한다.</p>`;
+  h+=`</div>`;
+
+  h+=`<div class="card"><h2>시간이 어디에 쓰였나</h2>`+phaseBar(e)+`</div>`;
+
+  h+=`<div class="card"><h2>태스크 ${e.tasks.length}개</h2><table>
+    <tr><th>제목</th><th>에이전트</th><th>상태</th><th>채점 적격</th><th class="n">소요</th></tr>`;
+  for(const t of e.tasks) h+=`<tr>
+    <td>${esc(one(t.title).slice(0,58))}</td>
+    <td>${esc(t.agentName||t.agentId||"—")}</td>
+    <td><span class="pill ${t.status==="failed"?"bad":"ok"}">${esc(t.status)}</span></td>
+    <td>${t.output?`<span class="pill ${t.answer.gradable?"ok":"bad"}">${t.answer.gradable?"적격":"마커 없음"}</span>`:"<span style='color:var(--fg-faint)'>출력 없음</span>"}</td>
+    <td class="n">${secs(t.durationMs)}</td></tr>`;
+  h+=`</table></div>`;
+  P.innerHTML=h;
+}
+
+function phaseBar(e){
+  if(!e.phases.length) return `<p class="q">이벤트가 부족해 위상을 나눌 수 없습니다.</p>`;
+  const tot=e.phases.reduce((s,p)=>s+p.ms,0)||1;
+  return `<div class="phases">`+e.phases.map(p=>
+      `<div style="width:${(p.ms/tot*100).toFixed(2)}%;background:${p.c}" title="${p.k} ${secs(p.ms)}">${p.ms/tot>.12?esc(p.k):""}</div>`).join("")+
+    `</div><div class="plegend">`+e.phases.map(p=>
+      `<span><i style="background:${p.c}"></i>${p.k} ${secs(p.ms)} (${(p.ms/tot*100).toFixed(0)}%)</span>`).join("")+
+    `</div>`+
+    (e.autoApprove===false?`<p class="note"><b>이 실행은 <code>autoApprove: false</code> 다.</b>
+      "승인 대기"는 사람이 계획을 승인하기까지 걸린 시간이므로 시스템 성능이 아니다.
+      자동으로 도는 벤치마크 실행에서는 이 구간이 사라진다. <b>플래닝·실행 구간만 비교 대상이다.</b></p>`:"");
+}
+
+function paneLedger(P,e){
+  const req=e.request||"(요청 원문이 history.json 에 없습니다)";
+  // 지문의 출력 계약 부분을 강조
+  const reqHtml=esc(req)
+    .replace(/(=== REQUIRED OUTPUT ===[\s\S]*?)(?=\n\n## |$)/, m=>`<mark>${m}</mark>`)
+    .replace(/(\*\*\* PATCH (?:START|END) \*\*\*)/g,'<mark class="g">$1</mark>');
+
+  let h=`<div class="card"><h2>장부 대조 — 채점기가 읽는 바이트</h2>
+    <p class="q">왼쪽은 judge 가 보낸 요청 원문, 오른쪽은 우리가 낸 응답이다.
+    <b>화면이 렌더링하는 바이트는 로그에 기록된 그 바이트다</b> — 옆에서 따로 수집한 요약이 아니다.</p>
+    <div class="ledger">
+      <div class="col"><h3>요청 <span style="color:var(--fg-faint);font-weight:400">${req.length.toLocaleString()}자</span></h3>
+        <div class="scroll"><pre>${reqHtml}</pre></div></div>
+      <div class="col"><h3>응답 후보 ${e.carriers.length}개</h3>`;
+  for(const c of e.carriers){
+    const a=c.a, has=a.text.trim().length>0;
+    h+=`<div style="margin-bottom:12px">
+      <h3><code>${esc(c.who)}</code>
+        <span class="stamp ${a.gradable?"g":"n"}">${a.gradable?"GRADED":"NOT GRADED"}</span></h3>`;
+    if(!has){ h+=`<p class="q">출력이 비어 있습니다.</p></div>`; continue; }
+    let out=esc(a.text);
+    if(a.gradable) out=out.replace(/(\*\*\* PATCH START \*\*\*[\s\S]*?\*\*\* PATCH END \*\*\*)/,'<mark class="g">$1</mark>');
+    h+=`<div class="scroll" style="max-height:300px"><pre>${out}</pre></div>
+        <div class="checks">`+a.checks.map(k=>
+          `<div class="chk ${k.ok?"ok":"no"}"><b>${k.ok?"✓":"✗"}</b><span class="k">${esc(k.k)}</span><span class="d">${esc(k.d)}</span></div>`).join("")+
+        `</div></div>`;
+  }
+  h+=`</div></div>
+    <p class="note"><b>이 검사가 곧 Preflight 다.</b> 정규식 몇 개로 끝나고 <b>LLM 호출이 0회</b>다.
+    돌려주는 것이 "다시 해봐"가 아니라 어느 검사가 왜 실패했는지이므로, 재시도에 실제로 쓸 수 있는 신호가 된다.<br>
+    <b>미확인:</b> judge 에게 실제로 전달되는 것이 <code>finalResult</code> 인지 태스크 출력인지는 아직 확인되지 않았다.
+    그래서 둘 다 검사해서 나란히 보여준다.</p></div>`;
+  P.innerHTML=h;
+}
+
+function paneTimeline(P,e){
+  let h=`<div class="card"><h2>위상</h2>`+phaseBar(e)+`</div>
+    <div class="card"><h2>이벤트 ${e.events.length}개</h2>`;
+  const t0=e.events.length?ms(e.events[0].timestamp):0;
+  for(const ev of e.events){
+    const p=ev.payload||{};
+    const bad=p.success===false||/error/i.test(String(p.error||""));
+    let d="";
+    if(p.taskTitle) d=one(p.taskTitle).slice(0,80);
+    else if(p.waves) d="waves: "+p.waves.map(w=>w.length).join(" / ")+(p.plannerWarning?"  ⚠ 플래너 폴백":"");
+    else if(p.total!=null) d=`누적 ${fmt(p.total)} (in ${fmt(p.promptTokens)} · out ${fmt(p.completionTokens)})`;
+    else if(p.path) d=p.changeType+" "+p.path;
+    else if(p.state) d=p.agentId+" → "+p.state;
+    else if(p.newStatus) d=p.oldStatus+" → "+p.newStatus;
+    else if(p.taskIds) d=p.taskIds.length+" tasks"+(p.waveIndex!=null?` · wave ${p.waveIndex+1}/${p.totalWaves}`:"");
+    if(p.error) d+="  ⚠ "+one(p.error).slice(0,90);
+    h+=`<div class="ev ${bad?"err":""}"><span class="ts">+${((ms(ev.timestamp)-t0)/1000).toFixed(1)}s</span>`+
+       `<span class="ty">${esc(ev.eventType.replace("squad:",""))}</span><span class="de">${esc(d)}</span></div>`;
+  }
+  h+=`</div>`;
+  P.innerHTML=h;
+}
+
+function paneFailure(P,e){
+  const fails=e.tasks.filter(t=>t.fail);
+  let h=`<div class="card"><h2>실패 분류</h2>
+    <p class="q">에러 문자열을 규칙표로 분류한다. <b>규칙표를 화면에 같이 보여주는 이유</b>는 이게 추측이 아니라 규칙임을 확인할 수 있게 하기 위해서다.</p>`;
+  if(!fails.length) h+=`<p class="q">실패한 태스크가 없습니다.</p>`;
+  else{
+    h+=`<table><tr><th>태스크</th><th>kind</th><th>owner</th><th>읽는 법</th></tr>`;
+    for(const t of fails) h+=`<tr><td>${esc(one(t.title).slice(0,44))}</td>
+      <td><span class="pill ${t.fail.owner==="organizer"?"warn":"bad"}">${esc(t.fail.kind)}</span></td>
+      <td>${esc(t.fail.owner)}</td><td style="color:var(--fg-dim)">${esc(t.fail.why)}</td></tr>`;
+    h+=`</table>`;
+    h+=`<h2 style="margin-top:16px;font-size:12px">에러 원문</h2>`;
+    for(const t of fails) h+=`<pre style="margin-top:6px">${esc(t.fail.raw)}</pre>`;
+  }
+  h+=`</div><div class="card"><h2>분류 규칙표</h2><table>
+    <tr><th>패턴</th><th>kind</th><th>owner</th><th>뜻</th></tr>`+
+    RULES.map(r=>`<tr><td><code>${esc(String(r.re))}</code></td><td>${r.kind}</td><td>${r.owner}</td><td style="color:var(--fg-dim)">${esc(r.why)}</td></tr>`).join("")+
+    `<tr><td>(그 외)</td><td>unclassified</td><td>—</td><td style="color:var(--fg-dim)">규칙을 추가해야 한다</td></tr></table>
+    <p class="note">열거형 이름은 제출 서버 OpenAPI 의 <code>FailureKind</code> / <code>FailureOwner</code> 를 따른다.
+    <code>owner: organizer</code> 는 주최 인프라 문제라 팀 책임이 아니다.</p></div>`;
+  P.innerHTML=h;
+}
+
+function paneRaw(P,e){
+  let h=`<div class="card"><h2>원문 로그 <span style="color:var(--fg-faint);font-weight:400;font-size:11px">${e.id}.jsonl</span></h2>`;
+  if(!e.logs.length) h+=`<p class="q">이 실행의 <code>&lt;executionId&gt;.jsonl</code> 이 로드되지 않았습니다. 폴더에 포함해 주세요.</p>`;
+  else h+=`<pre>`+e.logs.map(l=>`[${l.level}] ${l.agentId}\n  ${esc(l.message)}`).join("\n\n")+`</pre>`;
+  h+=`</div><div class="card"><h2>실행 JSON (history.json 항목)</h2>
+    <pre>${esc(JSON.stringify({id:e.id,squadName:e.squadName,aigoStatus:e.aigoStatus,counts:e.counts,
+      tokens:e.tokens,durationMs:e.durationMs,waves:e.waves,plannerWarning:e.plannerWarning,
+      tasks:e.tasks.map(t=>({title:t.title,agentName:t.agentName,status:t.status,durationMs:t.durationMs,
+        outputChars:(t.output||"").length,gradable:t.answer.gradable,error:t.error}))},null,1))}</pre></div>`;
+  P.innerHTML=h;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   로드
+   ═══════════════════════════════════════════════════════════════════════ */
+function finish(){
+  build();
+  if(!S.execs.length){
+    const got=Object.keys(SEEN.kinds);
+    throw new Error(SEEN.files
+      ? `파일 ${SEEN.files}개를 읽었지만 실행을 세우지 못했습니다. 읽힌 것: ${got.join(", ")||"없음"}. `+
+        `logs/ 폴더째로 고르거나, 최소한 history.json 과 events.jsonl 을 함께 넣어주세요.`
+      : "파일을 하나도 읽지 못했습니다.");
+  }
+  // 부분 로드 경고 — 되는 만큼은 그리되, 무엇이 빠졌는지 화면에 남긴다
+  const miss=[];
+  if(!SEEN.kinds["history.json"]) miss.push("history.json (응답 본문·에이전트 이름 — 장부 대조와 채점 적격성 검사가 불가)");
+  if(!SEEN.kinds["events.jsonl"]) miss.push("events.jsonl (웨이브·위상·토큰 시계열)");
+  S.missing=miss;
+  S.sel=null;
+  const k=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ");
+  $("#src").textContent=`${SEEN.files} files · ${k}`;
+  $("#drop").hidden=true;
+  renderHeader(); renderList(); renderPane();
+}
+function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();
+  SEEN.files=0;SEEN.kinds={};SEEN.skipped=[]; }
+
+/* 파일 하나를 텍스트로 읽는다.
+   FileReader 는 onload/onerror 중 어느 것도 안 부르는 경우가 있어(중단·권한 등)
+   콜백 카운터로 완료를 세면 조용히 멈춘다 — 실제로 "읽는 중…"에서 멈췄다.
+   그래서 프로미스로 감싸고 onabort 까지 잡고 타임아웃을 건다. */
+function readText(file){
+  const p=file.text ? file.text() : new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload =()=>res(String(r.result));
+    r.onerror=()=>rej(new Error("읽기 실패"));
+    r.onabort=()=>rej(new Error("읽기 중단"));
+    try{ r.readAsText(file); }catch(e){ rej(e); }
+  });
+  return Promise.race([p,
+    new Promise((_,rej)=>setTimeout(()=>rej(new Error("시간 초과")),20000))]);
+}
+
+async function loadEntries(entries){
+  reset();
+  if(!entries.length){ $("#derr").textContent="파일이 없습니다. 폴더를 고르거나 파일을 끌어다 놓으세요."; return; }
+  $("#derr").textContent="";
+  let done=0;
+  const tick=()=>{ $("#dfiles").textContent=`읽는 중… ${++done} / ${entries.length}`; };
+  $("#dfiles").textContent=`읽는 중… 0 / ${entries.length}`;
+
+  // allSettled 라서 개별 실패가 전체를 멈추지 못한다.
+  const res=await Promise.allSettled(entries.map(async ({file,path})=>{
+    try{ addFile(path||file.name, file.name, await readText(file)); }
+    catch(e){ SEEN.skipped.push(`${file.name} (${e.message})`); throw e; }
+    finally{ tick(); }
+  }));
+  const bad=res.filter(r=>r.status==="rejected").length;
+
+  try{ finish(); if(bad) console.warn("읽지 못한 파일",SEEN.skipped); }
+  catch(err){ showLoadError(err,bad); }
+}
+
+function showLoadError(err,bad){
+  $("#derr").textContent=err.message;
+  const kinds=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ")||"인식된 파일 없음";
+  $("#dfiles").textContent="읽은 것: "+kinds+
+    (bad?`  |  읽기 실패 ${bad}개`:"")+
+    (SEEN.skipped.length?"  |  건너뜀: "+SEEN.skipped.slice(0,8).join(", "):"");
+}
+
+const asEntries=fileList=>[...fileList].map(f=>({file:f, path:f.webkitRelativePath||f.name}));
+
+/* 폴더 드롭 — DataTransferItem 을 재귀로 훑는다.
+   readEntries / entry.file 은 실패 콜백을 안 주면 조용히 끝나지 않으므로 전부 채워 둔다.
+   어떤 경로로 실패하든 반드시 resolve 한다 — 여기서 멈추면 화면이 "읽는 중"에 갇힌다. */
+function walk(entry, out, prefix=""){
+  return new Promise(res=>{
+    if(!entry) return res();
+    if(entry.isFile){
+      entry.file(f=>{ out.push({file:f, path:prefix+entry.name}); res(); }, ()=>res());
+      return;
+    }
+    if(!entry.isDirectory) return res();
+    const rd=entry.createReader(), all=[];
+    (function next(){
+      rd.readEntries(es=>{
+        if(!es.length){ Promise.all(all).then(()=>res(),()=>res()); return; }
+        for(const e of es) all.push(walk(e,out,prefix+entry.name+"/"));
+        next();
+      }, ()=>{ Promise.all(all).then(()=>res(),()=>res()); });
+    })();
+  });
+}
+
+$("#btn-dir").onclick=()=>$("#in-dir").click();
+$("#btn-file").onclick=()=>$("#in-file").click();
+$("#in-dir").onchange=e=>loadEntries(asEntries(e.target.files));
+$("#in-file").onchange=e=>loadEntries(asEntries(e.target.files));
+$("#btn-load").onclick=()=>{$("#drop").hidden=false;$("#derr").textContent="";};
+$("#btn-sample").onclick=()=>{
+  const h=document.getElementById("sample-history").textContent;
+  const e=document.getElementById("sample-events").textContent;
+  // 빌드 전 템플릿(viz/src/app.html)을 직접 열면 치환 안 된 마커가 그대로 남아 있다.
+  // 마커 문자열 자체를 여기 적으면 안 된다 — build.sh 의 sed 가 이 줄까지 마커로 보고
+  // 데이터를 한 번 더 끼워 넣는다. 주석 시작 부호만 보고 판별한다.
+  if(h.includes("<!--@")||e.includes("<!--@")||!h.trim()){
+    $("#derr").innerHTML="이 파일은 <b>빌드 전 템플릿</b>(<code>viz/src/app.html</code>)이라 샘플이 비어 있습니다.<br>"+
+      "<code>bash viz/tools/build.sh</code> 로 만든 <b>viz/trace-visualizer.html</b> 을 여세요. "+
+      "또는 아래 \"폴더 고르기\"로 실제 <code>logs/</code> 를 직접 물려도 됩니다.";
+    return;
+  }
+  reset();
+  try{
+    addFile("sample/history.json","history.json",h);
+    addFile("sample/events.jsonl","events.jsonl",e);
+    finish();
+  }catch(err){ $("#derr").textContent=err.message; }
+};
+["dragenter","dragover"].forEach(t=>document.addEventListener(t,ev=>{
+  ev.preventDefault(); $("#drop").hidden=false; $("#drop").classList.add("over");}));
+document.addEventListener("dragleave",ev=>{ev.preventDefault();$("#drop").classList.remove("over");});
+document.addEventListener("drop",async ev=>{
+  ev.preventDefault(); $("#drop").classList.remove("over"); $("#derr").textContent="";
+  $("#dfiles").textContent="폴더를 훑는 중…";
+  try{
+    // getAsEntry 는 drop 이벤트가 끝나기 전에 동기로 불러야 한다
+    const items=[...(ev.dataTransfer.items||[])]
+      .map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+    if(items.length){
+      const out=[];
+      await Promise.all(items.map(e=>walk(e,out)));
+      if(out.length) return loadEntries(out);
+    }
+  }catch(e){ console.warn("폴더 훑기 실패, 파일 목록으로 대체",e); }
+  loadEntries(asEntries(ev.dataTransfer.files||[]));
+});
+
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+  S.tab=b.dataset.tab;
+  document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  renderPane();
+});
+$("#f-status").onchange=renderList;
+$("#btn-theme").onclick=()=>{
+  const d=document.documentElement.getAttribute("data-theme")==="dark";
+  document.documentElement.setAttribute("data-theme",d?"light":"dark");
+  $("#btn-theme").textContent=d?"Dark":"Light";
+};
+</script>
+</body>
+</html>

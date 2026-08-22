@@ -63,3 +63,6 @@ tmp/
 docs/resource/example_task/tools/__pycache__/
 docs/resource/example_task/runs/*
 !docs/resource/example_task/runs/.gitkeep
+
+# 로그 스냅샷 (원본은 squad/ 에 있다)
+viz/runs/
