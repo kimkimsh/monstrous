@@ -41,6 +41,53 @@ header{border-bottom:1px solid var(--line);background:var(--panel);padding:9px 1
 .stat em{font-style:normal;color:var(--fg-faint);font-size:10px}
 .spacer{flex:1}
 main{flex:1;display:flex;min-height:0}
+.pane[hidden]{display:none}
+
+/* 모드 전환 줄 */
+.modes{display:flex;gap:6px;align-items:center;padding:7px 16px;background:var(--panel);
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.modes input[type=search]{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;
+  padding:5px 10px;min-width:250px}
+.modes input[type=search]:focus{outline:none;border-color:var(--accent)}
+.qhit{font-size:10px;color:var(--fg-faint);min-width:56px}
+
+/* 목록의 미니 막대 */
+.mini{height:3px;border-radius:2px;background:var(--panel-2);overflow:hidden;margin-top:4px;display:flex}
+.mini i{display:block;height:100%}
+
+/* 카드 격자 보기 */
+.side.cards{width:auto;flex:1}
+.side.cards ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:9px;padding:10px;align-content:start}
+.side.cards li{border:1px solid var(--line);border-radius:9px}
+.side.cards li[aria-selected="true"]{box-shadow:0 0 0 2px var(--accent) inset}
+
+/* 차트 공통 */
+.chart{width:100%;display:block;overflow:visible}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.grid2>*{min-width:0}
+.legend-row{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:var(--fg-dim);margin-top:6px}
+.legend-row i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:4px}
+.tip{font-size:10px;color:var(--fg-faint);margin-top:4px}
+
+/* 발표 모드 — 사이드바를 접고 글자를 키운다 */
+html[data-present="1"] .side{display:none}
+html[data-present="1"] body{font-size:15px}
+html[data-present="1"] .card{padding:20px}
+html[data-present="1"] header .stat b{font-size:20px}
+html[data-present="1"] .pane{padding:24px 32px}
+
+/* 고대비 — 프로젝터가 중간 톤을 죽인다 */
+html[data-contrast="1"]{--fg:#fff;--fg-dim:#d7dee6;--fg-faint:#aab4bf;--line:#5a6672;
+  --panel:#000;--panel-2:#12161b;--bg:#000;--accent:#57d0ff;--ok:#5ee36a;--warn:#ffc233;--bad:#ff6b60}
+html[data-contrast="1"][data-theme="light"]{--fg:#000;--fg-dim:#26303a;--fg-faint:#4a5560;--line:#8c98a4;
+  --panel:#fff;--panel-2:#eef2f6;--bg:#fff}
+
+@media print{
+  .modes,.tabs,.side,.drop,header button{display:none!important}
+  body,html{height:auto;overflow:visible}
+  .pane{overflow:visible;padding:0}
+  .card{break-inside:avoid;border-color:#999}
+}
 
 /* 좌 — 실행 선택 */
 .side{width:310px;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
@@ -256,9 +303,23 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="stat"><span>총 토큰</span><b id="s-tok">—</b><em id="s-tok-d"></em></div>
     <div class="stat"><span>총 시간</span><b id="s-wall">—</b><em id="s-wall-d"></em></div>
     <div class="spacer"></div>
-    <button id="btn-theme">Light</button>
+    <button id="btn-theme" title="테마">Light</button>
+    <button id="btn-contrast" title="고대비 — 프로젝터용">◐</button>
+    <button id="btn-present" title="발표 모드">⛶</button>
+    <button id="btn-export" title="현재 화면의 그림을 SVG 로 저장">SVG</button>
+    <button id="btn-json" title="정규화한 데이터를 JSON 으로 저장">JSON</button>
+    <button id="btn-print" title="인쇄 / PDF">🖨</button>
     <button id="btn-load">폴더 다시 고르기</button>
   </header>
+
+  <div class="modes">
+    <button data-mode="exec" aria-pressed="true">실행 하나</button>
+    <button data-mode="all">전체 분석</button>
+    <button data-mode="cmp">스쿼드 비교</button>
+    <div class="spacer"></div>
+    <input type="search" id="q" placeholder="검색 — 요청·에이전트·에러  ( / )" autocomplete="off">
+    <span id="q-hit" class="qhit"></span>
+  </div>
 
   <main>
     <aside class="side">
@@ -270,6 +331,8 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
           <option value="gradable">채점 적격만</option>
           <option value="blocked">호출 거부만</option>
         </select>
+        <select id="f-ws"><option value="">모든 스쿼드</option></select>
+        <button id="btn-view" title="목록 / 카드 전환">▤</button>
       </div>
       <ul id="list"></ul>
     </aside>
@@ -287,6 +350,10 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
       </div>
       <div class="pane" id="pane"></div>
     </div>
+
+    <!-- 전체 분석 / 스쿼드 비교는 좌측 목록 없이 전폭을 쓴다 -->
+    <div class="pane" id="pane-all" hidden></div>
+    <div class="pane" id="pane-cmp" hidden></div>
   </main>
 </div>
 
@@ -431,8 +498,9 @@ function classify(err){
    수집 — 폴더 안의 파일을 이름으로 분류해 병합한다
    ═══════════════════════════════════════════════════════════════════════ */
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), artifact:new Map(), taskmd:new Map(), squad:null};
-const SEEN={files:0, kinds:{}, skipped:[]};
+const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), artifact:new Map(),
+           taskmd:new Map(), squad:new Map(), execWs:new Map()};
+const SEEN={files:0, kinds:{}, skipped:[], ws:new Set()};
 
 function ndjson(text){
   const out=[];
@@ -445,9 +513,22 @@ function ndjson(text){
 }
 function bump(k){ SEEN.kinds[k]=(SEEN.kinds[k]||0)+1; }
 
+/* 경로에서 워크스페이스 이름을 뽑는다.
+   "ikkim/logs/history.json" -> "ikkim",  "squad/test_2/.squad.json" -> "test_2".
+   워크스페이스를 구분해야 스쿼드끼리 비교할 수 있다. 로그 안에는 이 정보가 없다. */
+function wsOf(path){
+  const p=String(path||"").replace(/\\/g,"/");
+  const m=p.match(/^(.*?)\/(logs|tasks|artifacts)\//)||p.match(/^(.*?)\/\.squad\.json$/);
+  const dir=m?m[1]:p.replace(/\/[^/]*$/,"");
+  const seg=dir.split("/").filter(Boolean);
+  return seg[seg.length-1]||"(단일)";
+}
+
 function addFile(path,name,text){
   SEEN.files++;
+  SEEN.ws.add(wsOf(path));
   const base=name.replace(/\.[^.]+$/,"");
+  const WS=wsOf(path);
   try{
     if(name==="history.json"){
       const arr=JSON.parse(text);
@@ -455,6 +536,7 @@ function addFile(path,name,text){
         const p=RAW.hist.get(e.executionId);
         // 스냅샷이 겹칠 때: 태스크 output 을 더 많이 가진 쪽을 남긴다
         if(!p||JSON.stringify(e).length>JSON.stringify(p).length) RAW.hist.set(e.executionId,e);
+        RAW.execWs.set(e.executionId,WS);      // 이 실행이 어느 워크스페이스 것인지
       }
       bump("history.json"); return;
     }
@@ -462,6 +544,7 @@ function addFile(path,name,text){
       for(const e of ndjson(text)){
         const ex=e?.payload?.executionId ?? "-";
         RAW.ev.set(ex+"#"+e.id, e);                  // executionId+id 로 중복 제거
+        if(ex!=="-"&&!RAW.execWs.has(ex)) RAW.execWs.set(ex,WS);
       }
       bump("events.jsonl"); return;
     }
@@ -478,7 +561,8 @@ function addFile(path,name,text){
       const arr=cfg?.agents;
       if(Array.isArray(arr)&&arr.length&&arr.some(a=>a&&(a.name||a.role))){
         const plannerId=cfg.plannerAgentId||null;
-        RAW.squad={
+        RAW.squad.set(WS,{
+          ws:WS,
           name:j.squadName||cfg.name||"(스쿼드)",
           description:cfg.description||"",
           plannerId,
@@ -493,7 +577,7 @@ function addFile(path,name,text){
               tools:a.toolConfig?.enabledTools||[],
               prompt:a.systemPrompt||""
             };
-          })};
+          })});
         bump("squad config"); return;
       }
     } catch { /* 스쿼드 설정이 아니면 아래 판별로 넘어간다 */ }
@@ -533,7 +617,8 @@ function addFile(path,name,text){
 /* ═══════════════════════════════════════════════════════════════════════
    모델
    ═══════════════════════════════════════════════════════════════════════ */
-const S={execs:[], sel:null, tab:"overview"};
+const S={execs:[], squads:[], sel:null, tab:"overview", mode:"exec", cards:false, cut:Infinity,
+         rosterOf:()=>[], squadOf:()=>null};
 const ms=iso=>{const v=Date.parse(iso); return Number.isNaN(v)?null:v;};
 
 function build(){
@@ -708,7 +793,9 @@ function build(){
          failed:tasks.filter(t=>t.status==="failed").length};
 
     return {
-      id, squadName:h.squadName||"—", request, planTitle:h.planTitle||"", partial,
+      id, ws:RAW.execWs.get(id)||"(단일)",
+      squadName:h.squadName||RAW.squad.get(RAW.execWs.get(id))?.name||"—",
+      request, planTitle:h.planTitle||"", partial,
       aigoStatus:h.status||pick("execution-completed")?"completed":"unknown",
       tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker, contract,
       blockKind:blocker==="blocked"?(tasks.find(t=>t.fail)?.fail.kind||"—"):null,
@@ -731,39 +818,51 @@ function build(){
    실제 스쿼드는 4명이었다. 그래서 두 가지를 한다.
      1) 전 실행에 걸쳐 등장한 에이전트를 합집합으로 모은다 (한 실행만 봐도 전원이 보이게)
      2) Squad Template JSON 이 들어오면 그것을 권위 있는 로스터로 삼는다 */
+/* 로스터를 워크스페이스별로 만든다.
+   워크스페이스 하나가 스쿼드 하나다. 섞으면 "test 의 Backend Developer"와
+   "ikkim 의 백엔드 개발자"가 한 줄로 합쳐져 비교 자체가 불가능해진다. */
 function buildRoster(){
-  const m=new Map();
-  const put=(name,src)=>{
-    if(!name) return null;
-    if(!m.has(name)) m.set(name,{name, id:null, role:"", model:"", icon:"", tools:[], prompt:"", src,
-      execs:new Set(), tasks:0, done:0, failed:0, tok:0});
-    return m.get(name);
-  };
-  for(const e of S.execs) for(const t of e.tasks){
-    const r=put(t.agentName||t.agentId||null,"log"); if(!r) continue;
-    r.id||=t.agentId||null; r.execs.add(e.id); r.tasks++;
-    if(t.status==="failed"||t.fail) r.failed++; else r.done++;
-    r.tok+=t.tok||0;
-  }
-  // .squad.json 이 있으면 그것이 로스터의 정답이다. 이름과 id 양쪽으로 맞춰 붙인다.
-  if(RAW.squad){
-    const byId=new Map([...m.values()].filter(r=>r.id).map(r=>[r.id,r]));
-    for(const a of RAW.squad.agents){
-      const r=(a.id&&byId.get(a.id))||put(a.name,"config");
-      if(!r) continue;
-      r.name=a.name; r.id||=a.id; r.icon=a.icon; r.role=a.role||r.role;
-      r.model=a.model; r.tools=a.tools; r.prompt=a.prompt; r.src="config";
+  const perWs=new Map();
+  const wsList=[...new Set([...S.execs.map(e=>e.ws), ...RAW.squad.keys()])];
+
+  for(const ws of wsList){
+    const m=new Map();
+    const put=(name,src)=>{
+      if(!name) return null;
+      if(!m.has(name)) m.set(name,{ws, name, id:null, role:"", model:"", icon:"", tools:[], prompt:"", src,
+        execs:new Set(), tasks:0, done:0, failed:0, tok:0});
+      return m.get(name);
+    };
+    const mine=S.execs.filter(e=>e.ws===ws);
+    for(const e of mine) for(const t of e.tasks){
+      const r=put(t.agentName||t.agentId||null,"log"); if(!r) continue;
+      r.id||=t.agentId||null; r.execs.add(e.id); r.tasks++;
+      if(t.status==="failed"||t.fail) r.failed++; else r.done++;
+      r.tok+=t.tok||0;
     }
-  }else{
-    // 설정이 없으면 플래너 자리만 추론한다. 플래너는 태스크를 배정받지 않아 로그에 이름이 없다.
-    const planned=S.execs.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
-    if(planned.length&&!m.has("(플래너)")) m.set("(플래너)",{name:"(플래너)", id:null, role:"Planner",
-      model:"", icon:"", tools:[], prompt:"", src:"inferred",
-      execs:new Set(planned.map(e=>e.id)), tasks:0, done:0, failed:0, tok:0});
+    const cfg=RAW.squad.get(ws);
+    if(cfg){
+      const byId=new Map([...m.values()].filter(r=>r.id).map(r=>[r.id,r]));
+      for(const a of cfg.agents){
+        const r=(a.id&&byId.get(a.id))||put(a.name,"config");
+        if(!r) continue;
+        r.name=a.name; r.id||=a.id; r.icon=a.icon; r.role=a.role||r.role;
+        r.model=a.model; r.tools=a.tools; r.prompt=a.prompt; r.src="config";
+      }
+    }else{
+      // 설정이 없으면 플래너 자리만 추론한다. 플래너는 태스크를 배정받지 않아 로그에 이름이 없다.
+      const planned=mine.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
+      if(planned.length&&!m.has("(플래너)")) m.set("(플래너)",{ws, name:"(플래너)", id:null, role:"Planner",
+        model:"", icon:"", tools:[], prompt:"", src:"inferred",
+        execs:new Set(planned.map(e=>e.id)), tasks:0, done:0, failed:0, tok:0});
+    }
+    perWs.set(ws,{ws, name:cfg?.name||mine[0]?.squadName||ws, source:cfg?"config":"log",
+                  agents:[...m.values()], execs:mine});
   }
-  S.roster=[...m.values()];
-  S.squadName=RAW.squad?.name||null;
-  S.rosterSource=RAW.squad?"config":"log";
+  S.squads=[...perWs.values()].sort((a,b)=>a.ws.localeCompare(b.ws));
+  // 실행 하나를 볼 때 쓰는 값은 그 실행의 워크스페이스 것을 가리킨다.
+  S.rosterOf=ws=>perWs.get(ws)?.agents||[];
+  S.squadOf =ws=>perWs.get(ws)||null;
 }
 
 function phasesOf(evs){
@@ -782,10 +881,12 @@ function phasesOf(evs){
    화면
    ═══════════════════════════════════════════════════════════════════════ */
 const $=s=>document.querySelector(s);
+const NS="http://www.w3.org/2000/svg";
 const esc=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const fmt=n=>n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e3?(n/1e3).toFixed(1)+"k":String(Math.round(n||0));
 const secs=m=>m==null?"—":(m/1000).toFixed(1)+"s";
 const one=s=>String(s||"").replace(/\s+/g," ").trim();
+const pct=n=>(n*100).toFixed(1)+"%";
 
 function renderHeader(){
   const n=S.execs.length;
@@ -817,33 +918,43 @@ function renderHeader(){
 }
 
 function visible(){
-  const f=$("#f-status").value;
-  return S.execs.filter(e=>
-    f==="ran"     ?e.blocker!=="blocked":
-    f==="markers" ?e.blocker==="markers":
-    f==="gradable"?e.gradable:
-    f==="blocked" ?e.blocker==="blocked":true);
+  const f=$("#f-status").value, w=$("#f-ws")?.value||"", q=$("#q")?.value.trim()||"";
+  return S.execs.filter(e=>{
+    if(w&&e.ws!==w) return false;
+    if(!matchQuery(e,q)) return false;
+    return f==="ran"     ?e.blocker!=="blocked":
+           f==="markers" ?e.blocker==="markers":
+           f==="gradable"?e.gradable:
+           f==="blocked" ?e.blocker==="blocked":true;
+  });
 }
 
 function renderList(){
   const ul=$("#list"); ul.textContent="";
-  for(const e of visible()){
+  const vis=visible();
+  // 미니 막대는 전체 대비 상대값이어야 의미가 있다. 최댓값을 먼저 잡는다.
+  const maxTok=Math.max(1,...S.execs.map(billed));
+  const maxDur=Math.max(1,...S.execs.map(e=>e.durationMs||0));
+  for(const e of vis){
     const li=document.createElement("li");
     li.setAttribute("aria-selected",String(S.sel===e.id));
     const title=one(e.request).slice(0,64)||e.id;
+    const tw=(billed(e)/maxTok*100).toFixed(1), dw=((e.durationMs||0)/maxDur*100).toFixed(1);
     li.innerHTML=
-      `<div class="t">${esc(title)}${one(e.request).length>64?"…":""}</div>`+
+      `<div class="t"><span style="color:${wsColor(e.ws)}">▍</span>${esc(title)}${one(e.request).length>64?"…":""}</div>`+
       `<div class="m">`+
         `<span class="pill ${e.counts.failed?"bad":"ok"}">AI:GO ${e.counts.total-e.counts.failed}/${e.counts.total}</span>`+
         `<span class="pill ${e.gradable?"ok":e.blocker==="blocked"?"warn":"bad"}">`+
           `${e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":e.partial?"부분 기록":e.blocker==="unknown"?"판정 보류":"답 형식 없음"}</span>`+
-        `<span>${fmt((e.tokens.promptTokens||0)+(e.tokens.completionTokens||0))} tok</span>`+
-        `<span>${secs(e.durationMs)}</span>`+
-      `</div>`;
-    li.onclick=()=>{S.sel=e.id;renderList();renderPane();};
+        `<span>${fmt(billed(e))} tok</span><span>${secs(e.durationMs)}</span>`+
+      `</div>`+
+      `<div class="mini" title="토큰 ${fmt(billed(e))}"><i style="width:${tw}%;background:${wsColor(e.ws)}"></i></div>`+
+      `<div class="mini" title="시간 ${secs(e.durationMs)}"><i style="width:${dw}%;background:var(--fg-faint)"></i></div>`;
+    li.onclick=()=>selectExec(e.id);
     ul.appendChild(li);
   }
   if(!ul.children.length) ul.innerHTML='<li style="color:var(--fg-faint);cursor:default">해당하는 실행이 없습니다.</li>';
+  const hit=$("#q-hit"); if(hit) hit.textContent=vis.length===S.execs.length?"":`${vis.length} / ${S.execs.length}`;
 }
 
 function cur(){ return S.execs.find(e=>e.id===S.sel)||null; }
@@ -958,6 +1069,304 @@ function paneOverview(P,e){
   P.innerHTML=h;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   전체 분석 — 실행 하나가 아니라 전체를 본다.
+   문항이 수백 개가 되면 하나씩 여는 방식으로는 아무것도 안 보인다.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const billed=e=>(e.tokens.promptTokens||0)+(e.tokens.completionTokens||0);
+const svgEl=(t,a={},kids=[])=>{const n=document.createElementNS(NS,t);
+  for(const k in a) if(a[k]!=null) n.setAttribute(k,a[k]);
+  for(const c of [].concat(kids)) n.appendChild(typeof c==="string"?document.createTextNode(c):c);
+  return n;};
+
+function paneAll(P){
+  const X=S.execs;
+  if(!X.length){ P.innerHTML=`<div class="card"><p class="q">로드된 실행이 없습니다.</p></div>`; return; }
+  P.innerHTML=
+    runSummaryCard()+
+    `<div class="card"><h2>전체 실행 간트</h2>
+       <p class="q">모든 실행을 한 시간축에 올립니다. 색은 위상입니다.
+       실행 사이의 빈칸은 아무도 일하지 않은 시간입니다.</p>
+       <div id="c-gantt"></div>
+       <div class="legend-row">
+         <span><i style="background:var(--prog)"></i>플래닝</span>
+         <span><i style="background:var(--fg-faint)"></i>승인 대기</span>
+         <span><i style="background:var(--accent)"></i>실행</span>
+         <span><i style="background:var(--warn)"></i>집계</span></div></div>
+     <div class="grid2">
+       <div class="card"><h2>낭비 사분면</h2>
+         <p class="q">x = 문항당 과금 토큰(log), y = 채점 적격 여부.
+         <b>오른쪽 아래가 낭비의 총량입니다.</b> 슬라이더를 끌면 모델 호출 없이 즉시 다시 계산합니다.</p>
+         <div id="c-waste"></div>
+         <div class="slider"><label>문항당 상한</label>
+           <input type="range" id="w-cut" min="0" max="1000" value="1000">
+           <b id="w-cutv" style="min-width:110px;text-align:right"></b></div>
+         <div class="readout">
+           <div class="stat"><span>절약 토큰</span><b id="w-save">—</b><em id="w-savep"></em></div>
+           <div class="stat"><span>잃는 적격</span><b id="w-lost">—</b><em id="w-lostd"></em></div>
+           <div class="stat"><span>잘리는 실행</span><b id="w-cutn">—</b><em id="w-cutnd"></em></div></div>
+         <p class="note"><b>정직한 한계.</b> 상한에 닿는 순간 그 실행을 포기했다고 가정합니다.
+         잘린 실행의 적격은 전부 잃는 것으로 계산하므로 이 곡선은 <b>손실의 상한</b>입니다.</p></div>
+       <div class="card"><h2>토큰 누적 곡선</h2>
+         <p class="q">실행별 누적 토큰을 겹쳐 그립니다. 계단이 가파른 구간이 비용이 몰린 곳입니다.
+         보고된 시점에만 오릅니다.</p>
+         <div id="c-tok"></div></div>
+       <div class="card"><h2>답 근접도</h2>
+         <p class="q">형식을 못 맞춘 실행이 <b>얼마나 아까웠는지</b> 셉니다.
+         통과한 검사 개수로 나눕니다.</p>
+         <div id="c-near"></div></div>
+       <div class="card"><h2>응답 길이 대 적격</h2>
+         <p class="q">길게 쓴다고 맞는 것이 아님을 봅니다. x = 응답 글자 수, y = 적격 여부.</p>
+         <div id="c-len"></div></div>
+     </div>`;
+  drawGantt($("#c-gantt"),X);
+  drawTokenCurves($("#c-tok"),X);
+  drawNear($("#c-near"),X);
+  drawLen($("#c-len"),X);
+  const maxTok=Math.max(1,...X.map(billed));
+  const cut=$("#w-cut"); cut.max=String(Math.ceil(maxTok*1.05)); cut.value=cut.max;
+  S.cut=Infinity;
+  const redraw=()=>{ drawWaste($("#c-waste"),X); };
+  cut.oninput=ev=>{ const v=+ev.target.value; S.cut=v>=+cut.max?Infinity:v; redraw(); };
+  redraw();
+}
+
+function drawGantt(host,X){
+  const W=1000, rowH=17, H=X.length*rowH+34;
+  const t0=Math.min(...X.map(e=>e.t0??Infinity)), t1=Math.max(...X.map(e=>e.t1??-Infinity));
+  const span=Math.max(1,t1-t0);
+  const x=t=>60+(t-t0)/span*(W-80);
+  const g=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,class:"chart",style:`height:${Math.min(H,460)}px`});
+  // 눈금
+  for(let i=0;i<=6;i++){ const t=t0+span*i/6;
+    g.appendChild(svgEl("line",{x1:x(t),y1:16,x2:x(t),y2:H-14,stroke:"var(--line)",opacity:.5}));
+    g.appendChild(svgEl("text",{x:x(t),y:11,"text-anchor":"middle","font-size":9,fill:"var(--fg-faint)"},
+      ((t-t0)/1000).toFixed(0)+"s")); }
+  X.forEach((e,i)=>{
+    const y=22+i*rowH;
+    let acc=e.t0??t0;
+    for(const p of e.phases){
+      g.appendChild(svgEl("rect",{x:x(acc),y,width:Math.max(1,x(acc+p.ms)-x(acc)),height:rowH-5,
+        rx:2,fill:p.c,opacity:.85},[svgEl("title",{},`${e.ws} · ${p.k} ${secs(p.ms)}`)]));
+      acc+=p.ms;
+    }
+    g.appendChild(svgEl("text",{x:56,y:y+9,"text-anchor":"end","font-size":9,
+      fill:e.gradable?"var(--ok)":"var(--fg-faint)"},(e.ws||"").slice(0,10)));
+  });
+  host.appendChild(g);
+}
+
+function drawWaste(host,X){
+  host.textContent="";
+  const W=520,H=250,P={l:44,r:16,t:14,b:34};
+  const xs=X.map(e=>Math.max(1,billed(e)));
+  const lo=Math.log10(Math.max(1,Math.min(...xs))*.8), hi=Math.log10(Math.max(...xs)*1.25);
+  const X4=v=>P.l+(Math.log10(Math.max(1,v))-lo)/Math.max(.001,hi-lo)*(W-P.l-P.r);
+  const Y=ok=>ok?P.t+42:H-P.b-42;
+  const g=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,class:"chart",style:"height:250px"});
+  for(const [y,lab] of [[Y(true),"채점 적격"],[Y(false),"불가"]]){
+    g.appendChild(svgEl("line",{x1:P.l,y1:y,x2:W-P.r,y2:y,stroke:"var(--line)","stroke-dasharray":"3 4"}));
+    g.appendChild(svgEl("text",{x:P.l-6,y:y+4,"text-anchor":"end","font-size":9,fill:"var(--fg-dim)"},lab));
+  }
+  for(let ex=Math.ceil(lo);ex<=hi;ex++){ const px=X4(Math.pow(10,ex));
+    g.appendChild(svgEl("line",{x1:px,y1:P.t,x2:px,y2:H-P.b,stroke:"var(--line)",opacity:.4}));
+    g.appendChild(svgEl("text",{x:px,y:H-P.b+14,"text-anchor":"middle","font-size":9,fill:"var(--fg-dim)"},fmt(Math.pow(10,ex)))); }
+  X.forEach((e,i)=>{
+    const over=billed(e)>S.cut, j=((i*37)%15-7)*1.8;
+    g.appendChild(svgEl("circle",{cx:X4(billed(e)),cy:Y(e.gradable)+j,r:5,
+      fill:over?"none":wsColor(e.ws),stroke:over?"var(--fg-faint)":"none","stroke-dasharray":over?"2 2":null,
+      opacity:over?.5:.85},[svgEl("title",{},`${e.ws} · ${fmt(billed(e))} tok · ${e.gradable?"적격":"불가"}`)]));
+  });
+  if(Number.isFinite(S.cut)){ const px=X4(S.cut);
+    g.appendChild(svgEl("line",{x1:px,y1:P.t-4,x2:px,y2:H-P.b,stroke:"var(--warn)","stroke-width":2}));
+    g.appendChild(svgEl("text",{x:px+5,y:P.t+6,"font-size":9,fill:"var(--warn)"},"cut "+fmt(S.cut))); }
+  host.appendChild(g);
+  const over=X.filter(e=>billed(e)>S.cut);
+  const saved=over.reduce((s,e)=>s+(billed(e)-S.cut),0);
+  const total=X.reduce((s,e)=>s+billed(e),0);
+  const lost=over.filter(e=>e.gradable).length;
+  $("#w-cutv").textContent=Number.isFinite(S.cut)?fmt(S.cut)+" tok":"제한 없음";
+  $("#w-save").textContent=fmt(saved);
+  $("#w-savep").textContent=total?"전체의 "+pct(saved/total):"";
+  $("#w-lost").textContent=lost+"건";
+  $("#w-lostd").textContent="적격 "+X.filter(e=>e.gradable).length+"건 중";
+  $("#w-cutn").textContent=over.length+"건";
+  $("#w-cutnd").textContent="전체 "+X.length+"건 중";
+}
+
+function drawTokenCurves(host,X){
+  const W=520,H=230,P={l:48,r:14,t:12,b:26};
+  const withC=X.filter(e=>e.tokenCurve.length);
+  if(!withC.length){ host.innerHTML=`<p class="q">토큰 이벤트가 있는 실행이 없습니다.</p>`; return; }
+  const maxT=Math.max(...withC.map(e=>(e.t1-e.t0)||1));
+  const maxV=Math.max(...withC.flatMap(e=>e.tokenCurve.map(p=>p.total)));
+  const px=t=>P.l+t/maxT*(W-P.l-P.r), py=v=>H-P.b-v/maxV*(H-P.t-P.b);
+  const g=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,class:"chart",style:"height:230px"});
+  g.appendChild(svgEl("line",{x1:P.l,y1:H-P.b,x2:W-P.r,y2:H-P.b,stroke:"var(--line)"}));
+  g.appendChild(svgEl("line",{x1:P.l,y1:P.t,x2:P.l,y2:H-P.b,stroke:"var(--line)"}));
+  g.appendChild(svgEl("text",{x:P.l-6,y:py(maxV)+4,"text-anchor":"end","font-size":9,fill:"var(--fg-dim)"},fmt(maxV)));
+  g.appendChild(svgEl("text",{x:W-P.r,y:H-P.b+14,"text-anchor":"end","font-size":9,fill:"var(--fg-dim)"},secs(maxT)));
+  for(const e of withC){
+    let d=`M${px(0)},${py(0)}`;
+    for(const p of e.tokenCurve){ const t=p.t-e.t0; d+=` L${px(t)},${py(0)}`.replace(/L[\d.]+,[\d.]+$/,m=>m); }
+    // 계단식: 보고 시점까지 수평, 그 시점에 수직 상승
+    d=`M${px(0)},${py(0)}`; let last=0;
+    for(const p of e.tokenCurve){ const t=Math.max(0,p.t-e.t0);
+      d+=` L${px(t)},${py(last)} L${px(t)},${py(p.total)}`; last=p.total; }
+    d+=` L${px(maxT)},${py(last)}`;
+    g.appendChild(svgEl("path",{d,fill:"none",stroke:wsColor(e.ws),"stroke-width":1.6,opacity:.8},
+      [svgEl("title",{},`${e.ws} · ${fmt(last)} tok`)]));
+  }
+  host.appendChild(g);
+}
+
+function drawNear(host,X){
+  const bad=X.filter(e=>!e.gradable&&e.blocker==="markers");
+  if(!bad.length){ host.innerHTML=`<p class="q">형식 때문에 놓친 실행이 없습니다.</p>`; return; }
+  const rows=bad.map(e=>{
+    // 가장 잘 나온 응답 후보의 통과 검사 수
+    let best={p:0,n:1,who:""};
+    for(const c of e.carriers){
+      const ks=c.a.checks.filter(k=>k.ok!==null);
+      const p=ks.filter(k=>k.ok).length;
+      if(!ks.length) continue;
+      if(p/ks.length>best.p/best.n) best={p,n:ks.length,who:c.who};
+    }
+    return {e,...best};
+  }).sort((a,b)=>b.p/b.n-a.p/a.n);
+  host.innerHTML=`<table><tr><th>실행</th><th>스쿼드</th><th>통과</th><th>얼마나 아까운가</th></tr>`+
+    rows.map(r=>{const f=r.p/r.n;
+      return `<tr><td>${esc(one(r.e.request).slice(0,34)||r.e.id)}</td>
+        <td style="color:var(--fg-dim)">${esc(r.e.ws)}</td>
+        <td class="n">${r.p} / ${r.n}</td>
+        <td><div class="mini" style="height:7px"><i style="width:${(f*100).toFixed(0)}%;background:${
+          f>=.75?"var(--warn)":f>=.5?"var(--accent)":"var(--fg-faint)"}"></i></div>
+        <span class="tip">${f>=.75?"한 걸음 차이":f>=.5?"절반은 맞춤":"멀었음"}</span></td></tr>`;}).join("")+
+    `</table><p class="note">통과율이 높을수록 <b>조금만 고치면 되는 실행</b>입니다. 거기부터 손대는 편이 빠릅니다.</p>`;
+}
+
+function drawLen(host,X){
+  const W=520,H=230,P={l:44,r:16,t:14,b:30};
+  const lens=X.map(e=>Math.max(1,e.carriers.reduce((s,c)=>s+c.a.text.length,0)));
+  const maxL=Math.max(...lens,1);
+  const px=v=>P.l+v/maxL*(W-P.l-P.r), py=ok=>ok?P.t+40:H-P.b-40;
+  const g=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,class:"chart",style:"height:230px"});
+  for(const [y,lab] of [[py(true),"적격"],[py(false),"불가"]]){
+    g.appendChild(svgEl("line",{x1:P.l,y1:y,x2:W-P.r,y2:y,stroke:"var(--line)","stroke-dasharray":"3 4"}));
+    g.appendChild(svgEl("text",{x:P.l-6,y:y+4,"text-anchor":"end","font-size":9,fill:"var(--fg-dim)"},lab)); }
+  X.forEach((e,i)=>{const j=((i*29)%13-6)*1.9;
+    g.appendChild(svgEl("circle",{cx:px(lens[i]),cy:py(e.gradable)+j,r:5,fill:wsColor(e.ws),opacity:.8},
+      [svgEl("title",{},`${e.ws} · ${lens[i].toLocaleString()}자 · ${e.gradable?"적격":"불가"}`)]));});
+  g.appendChild(svgEl("text",{x:(W+P.l)/2,y:H-6,"text-anchor":"middle","font-size":9,fill:"var(--fg-faint)"},
+    `응답 글자 수 → 최대 ${maxL.toLocaleString()}자`));
+  host.appendChild(g);
+}
+
+/* 워크스페이스마다 고정 색. 순서가 바뀌어도 같은 스쿼드는 같은 색이어야 비교가 된다. */
+const WSC=["var(--accent)","var(--prog)","var(--ok)","var(--warn)","var(--bad)"];
+function wsColor(ws){
+  const list=(S.squads||[]).map(s=>s.ws);
+  const i=list.indexOf(ws);
+  return WSC[(i<0?0:i)%WSC.length];
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   스쿼드 비교 — 워크스페이스가 곧 스쿼드 하나다.
+   ═══════════════════════════════════════════════════════════════════════ */
+function paneCmp(P){
+  const sq=S.squads||[];
+  if(sq.length<2){
+    P.innerHTML=`<div class="card"><h2>스쿼드 비교</h2>
+      <p class="q">워크스페이스가 하나뿐입니다. <b>여러 워크스페이스 폴더를 한꺼번에 넣으면</b>
+      같은 문항을 다른 스쿼드가 어떻게 풀었는지 나란히 볼 수 있습니다.</p>
+      <p class="note">예: <code>squad/test</code> · <code>squad/test_2</code> · <code>squad/ikkim</code> 를 함께 선택.</p></div>`;
+    return;
+  }
+  const stat=s=>{
+    const X=s.execs, ran=X.filter(e=>e.blocker!=="blocked"&&e.blocker!=="unknown");
+    const tok=X.reduce((a,e)=>a+billed(e),0), dur=X.reduce((a,e)=>a+(e.durationMs||0),0);
+    const exec=X.reduce((a,e)=>a+(e.phases.find(p=>p.k==="실행")?.ms||0),0);
+    return {X,ran,grad:ran.filter(e=>e.gradable).length,tok,dur,exec,
+      contracts:[...new Set(X.map(e=>e.contract))]};
+  };
+  const rows=sq.map(s=>({s,...stat(s)}));
+  const best=(fn,dir=1)=>{const v=rows.map(fn); return dir>0?Math.max(...v):Math.min(...v);};
+  const mark=(v,b)=>v===b?' style="color:var(--ok);font-weight:700"':"";
+  const bGrad=best(r=>r.ran.length?r.grad/r.ran.length:0);
+  const bTok=best(r=>r.X.length?r.tok/r.X.length:Infinity,-1);
+  const bDur=best(r=>r.X.length?r.dur/r.X.length:Infinity,-1);
+
+  P.innerHTML=`<div class="card"><h2>스쿼드 비교 — ${sq.length}개</h2>
+    <p class="q">워크스페이스 하나가 스쿼드 하나입니다. 초록은 그 항목에서 가장 나은 값입니다.</p>
+    <table>
+      <tr><th>스쿼드</th><th>구성</th><th class="n">실행</th><th class="n">채점 적격</th>
+          <th class="n">문항당 토큰</th><th class="n">문항당 시간</th><th class="n">실제 실행 시간</th><th>출력 계약</th></tr>
+      ${rows.map(r=>{
+        const gr=r.ran.length?r.grad/r.ran.length:0;
+        const tp=r.X.length?r.tok/r.X.length:0, dp=r.X.length?r.dur/r.X.length:0;
+        return `<tr>
+          <td><b style="color:${wsColor(r.s.ws)}">${esc(r.s.name)}</b>
+            <div class="tip">${esc(r.s.ws)}${r.s.source==="config"?"":" · 로그에서 추정"}</div></td>
+          <td style="font-size:10.5px">${r.s.agents.map(a=>(a.icon?a.icon:"")+esc(a.name)).join("<br>")}</td>
+          <td class="n">${r.X.length}</td>
+          <td class="n"${mark(gr,bGrad)}>${r.grad} / ${r.ran.length}${r.ran.length?` (${pct(gr)})`:""}</td>
+          <td class="n"${mark(tp,bTok)}>${fmt(tp)}</td>
+          <td class="n"${mark(dp,bDur)}>${secs(dp)}</td>
+          <td class="n">${secs(r.X.length?r.exec/r.X.length:0)}</td>
+          <td style="font-size:10.5px;color:var(--fg-dim)">${r.contracts.map(c=>CONTRACT[c].label).join("<br>")}</td>
+        </tr>`;}).join("")}
+    </table>
+    <p class="note"><b>문항당 시간</b>에는 승인 대기가 들어 있습니다. <code>autoApprove:false</code> 인 실행에서는
+    사람이 계획을 승인하기까지의 시간이라 시스템 성능이 아닙니다. 그래서 <b>실제 실행 시간</b>을 따로 뒀습니다.</p>
+  </div>
+  <div class="grid2">
+    <div class="card"><h2>스쿼드별 채점 적격률</h2><div id="c-cmp-grad"></div></div>
+    <div class="card"><h2>스쿼드별 문항당 토큰</h2><div id="c-cmp-tok"></div></div>
+  </div>
+  ${sameRequestCard(rows)}`;
+  bars($("#c-cmp-grad"),rows.map(r=>({label:r.s.name,ws:r.s.ws,
+    v:r.ran.length?r.grad/r.ran.length:0,text:`${r.grad}/${r.ran.length}`})),v=>pct(v));
+  bars($("#c-cmp-tok"),rows.map(r=>({label:r.s.name,ws:r.s.ws,
+    v:r.X.length?r.tok/r.X.length:0,text:fmt(r.X.length?r.tok/r.X.length:0)})),fmt);
+}
+
+function bars(host,items,fmtv){
+  const max=Math.max(...items.map(i=>i.v),1e-9);
+  host.innerHTML=items.map(i=>`
+    <div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;font-size:11px">
+        <span>${esc(i.label)}</span><b>${esc(i.text)}</b></div>
+      <div class="mini" style="height:9px"><i style="width:${(i.v/max*100).toFixed(1)}%;background:${wsColor(i.ws)}"></i></div>
+    </div>`).join("");
+}
+
+/* 같은 요청을 여러 스쿼드가 푼 경우를 찾아 나란히 놓는다. 이게 비교의 핵심이다. */
+function sameRequestCard(rows){
+  const byReq=new Map();
+  for(const e of S.execs){
+    const k=one(e.request).slice(0,120);
+    if(!k) continue;
+    if(!byReq.has(k)) byReq.set(k,[]);
+    byReq.get(k).push(e);
+  }
+  const shared=[...byReq.entries()].filter(([,v])=>new Set(v.map(e=>e.ws)).size>1);
+  if(!shared.length) return `<div class="card"><h2>같은 문항 비교</h2>
+    <p class="q">여러 스쿼드가 <b>같은 문항</b>을 푼 경우가 없습니다.
+    같은 문항을 각 스쿼드로 한 번씩 돌리면 여기에서 직접 비교됩니다.</p></div>`;
+  return `<div class="card"><h2>같은 문항 비교 — ${shared.length}건</h2>
+    <p class="q">같은 요청을 서로 다른 스쿼드가 푼 경우입니다. 조건이 같으니 차이가 곧 스쿼드 차이입니다.</p>`+
+    shared.map(([k,v])=>`
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--fg-dim);margin-bottom:5px">${esc(k)}…</div>
+        <table><tr><th>스쿼드</th><th>결과</th><th class="n">토큰</th><th class="n">시간</th><th class="n">태스크</th></tr>
+        ${v.map(e=>`<tr><td style="color:${wsColor(e.ws)}"><b>${esc(e.ws)}</b></td>
+          <td><span class="pill ${e.gradable?"ok":"bad"}">${e.gradable?"적격":"불가"}</span></td>
+          <td class="n">${fmt(billed(e))}</td><td class="n">${secs(e.durationMs)}</td>
+          <td class="n">${e.tasks.length}</td></tr>`).join("")}</table>
+      </div>`).join("")+`</div>`;
+}
+
 /* 워크스페이스에 쓴 파일.
    judge 는 이 파일들을 읽지 않는다. 응답 텍스트만 읽는다.
    그래서 "파일에는 답이 있는데 응답에는 없는" 상태가 조용히 0점이 된다. */
@@ -992,7 +1401,7 @@ function artifactCard(e){
 }
 
 function rosterCard(e){
-  const R=S.roster||[];
+  const R=S.rosterOf(e.ws);
   if(!R.length) return "";
   const worked=new Set(e.tasks.map(t=>t.agentName||t.agentId));
   const rows=R.map(r=>{
@@ -1014,7 +1423,7 @@ function rosterCard(e){
       <th class="n">태스크</th><th class="n">실패</th><th class="n">토큰(추정)</th></tr>${rows}</table>
     <p class="note"><b>로스터는 로그에 없습니다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남습니다.
     한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없습니다.
-    ${S.rosterSource==="config"
+    ${S.squadOf(e.ws)?.source==="config"
       ? "지금은 워크스페이스의 <b>.squad.json</b> 을 읽어 정확한 로스터를 쓰고 있습니다. 모델·역할·도구·시스템 프롬프트가 모두 그 파일에 있습니다."
       : `그래서 위 표는 <b>전 실행에 걸쳐 등장한 에이전트의 합집합</b> + 계획 이벤트로 추론한 플래너 자리입니다.
          정확한 구성을 보려면 워크스페이스의 <b>.squad.json</b> 을 같이 넣으세요. 그 파일이 로스터의 유일한 출처입니다.`}
@@ -1322,7 +1731,7 @@ function squadMap(e){
     // id 는 이름이 아니라 로스터 인덱스로 만든다.
     // \w 는 ASCII 전용이라 "백엔드 개발자".replace(/\W/g,"") 가 빈 문자열이 되고,
     // 한국어 이름 에이전트가 둘 이상이면 id 가 충돌한다.
-    if(w===0) (S.roster||[]).forEach((r,ri)=>{
+    if(w===0) S.rosterOf(e.ws).forEach((r,ri)=>{
       if(r.role!=="Planner"&&!worked.has(r.name))
         col.push({id:"idle-"+ri, label:r.name, sub:"미참여", kind:"idle"});
     });
@@ -1379,7 +1788,7 @@ function squadMap(e){
       ${hasOut(n.id)?`<circle class="sm-port" cx="${NW}" cy="${NH/2}" r="3.5"/>`:""}
     </g>`).join("");
 
-  const n=(S.roster||[]).length, act=worked.size+1;   // +1 = 플래너
+  const n=S.rosterOf(e.ws).length, act=worked.size+1;   // +1 = 플래너
   const key=(c,t)=>`<span class="sm-key"><i style="background:${c}"></i>${t}</span>`;
   // 노드가 많으면 viewBox 가 통째로 축소돼 글자를 못 읽는다. 확대·이동을 붙이고
   // 스테이지 높이는 고정한다 — 내용이 커져도 화면이 밀려나지 않게.
@@ -1398,7 +1807,7 @@ function squadMap(e){
       <span>스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b></span>
       ${key("var(--ok)","완료")}${key("var(--bad)","실패")}${key("var(--accent)","실행 중")}
       ${n>act?key("var(--fg-faint)","미참여 (점선)"):""}
-      <span class="sm-src">${S.rosterSource==="config"?`.squad.json 기준`:
+      <span class="sm-src">${S.squadOf(e.ws)?.source==="config"?`.squad.json 기준 · ${esc(S.squadOf(e.ws).name)}`:
         "로그에서 추린 것입니다. 로그에는 태스크를 배정받은 에이전트만 남습니다. 플래너는 이름이 없어 자리만 세웠습니다"}</span>
     </div>`;
 }
@@ -1555,12 +1964,23 @@ function finish(){
   S.missing=miss;
   S.sel=null;
   const k=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ");
-  $("#src").textContent=`${SEEN.files} files · ${k}`;
+  const ws=[...new Set(S.execs.map(e=>e.ws))];
+  $("#src").textContent=`${SEEN.files} files · ${ws.length>1?`워크스페이스 ${ws.length}개 · `:""}${k}`;
+  // 워크스페이스 필터 채우기. 하나뿐이면 굳이 보여주지 않는다.
+  const sel=$("#f-ws");
+  sel.innerHTML=`<option value="">모든 스쿼드</option>`+
+    (S.squads||[]).map(s=>`<option value="${esc(s.ws)}">${esc(s.name)} (${s.execs.length})</option>`).join("");
+  sel.style.display=ws.length>1?"":"none";
+  sel.onchange=()=>{renderList();syncHash();};
+  // 스쿼드가 둘 이상이면 비교 탭이 의미가 있다는 것을 버튼에 표시한다.
+  const cmpBtn=document.querySelector('[data-mode="cmp"]');
+  if(cmpBtn) cmpBtn.textContent=(S.squads||[]).length>1?`스쿼드 비교 (${S.squads.length})`:"스쿼드 비교";
   $("#drop").hidden=true;
   renderHeader(); renderList(); renderPane();
+  applyHash();
 }
-function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.artifact.clear();RAW.taskmd.clear();RAW.squad=null;
-  SEEN.files=0;SEEN.kinds={};SEEN.skipped=[]; }
+function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.artifact.clear();RAW.taskmd.clear();RAW.squad.clear();RAW.execWs.clear();
+  SEEN.files=0;SEEN.kinds={};SEEN.skipped=[];SEEN.ws=new Set(); }
 
 /* 파일 하나를 텍스트로 읽는다.
    FileReader 는 onload/onerror 중 어느 것도 안 부르는 경우가 있어(중단·권한 등)
@@ -1659,11 +2079,163 @@ document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
   renderPane();
 });
-$("#f-status").onchange=renderList;
+$("#f-status").onchange=()=>{renderList();syncHash();};
 $("#btn-theme").onclick=()=>{
   const d=document.documentElement.getAttribute("data-theme")==="dark";
   document.documentElement.setAttribute("data-theme",d?"light":"dark");
   $("#btn-theme").textContent=d?"Dark":"Light";
+  if(S.mode==="all") paneAll($("#pane-all"));
+  if(S.mode==="cmp") paneCmp($("#pane-cmp"));
+};
+
+/* ── 모드 전환 ── */
+function setMode(m){
+  S.mode=m;
+  document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m)));
+  $("#pane-all").hidden=m!=="all"; $("#pane-cmp").hidden=m!=="cmp";
+  document.querySelector(".body").hidden=m!=="exec";
+  document.querySelector(".side").hidden=m!=="exec";
+  if(m==="all") paneAll($("#pane-all"));
+  if(m==="cmp") paneCmp($("#pane-cmp"));
+  syncHash();
+}
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+/* ── 검색 ── 요청·에이전트·에러 문자열을 한꺼번에 훑는다 */
+$("#q").oninput=()=>{ renderList(); syncHash(); };
+function matchQuery(e,q){
+  if(!q) return true;
+  const s=q.toLowerCase();
+  return (e.request||"").toLowerCase().includes(s)
+      || (e.ws||"").toLowerCase().includes(s)
+      || (e.squadName||"").toLowerCase().includes(s)
+      || e.tasks.some(t=>String(t.agentName||"").toLowerCase().includes(s)
+                       ||String(t.title||"").toLowerCase().includes(s)
+                       ||String(t.error||"").toLowerCase().includes(s));
+}
+
+/* ── 목록 / 카드 전환 ── */
+$("#btn-view").onclick=()=>{
+  S.cards=!S.cards;
+  document.querySelector(".side").classList.toggle("cards",S.cards);
+  $("#btn-view").textContent=S.cards?"▦":"▤";
+  syncHash();
+};
+
+/* ── URL 상태 ──
+   새로고침하면 선택이 날아가고, 특정 화면을 링크로 건네줄 수도 없었다.
+   해시에 담으면 둘 다 해결된다. 파일 내용은 담지 않는다(용량·프라이버시). */
+function syncHash(){
+  const p=new URLSearchParams();
+  if(S.mode&&S.mode!=="exec") p.set("m",S.mode);
+  if(S.sel) p.set("e",S.sel);
+  if(S.tab&&S.tab!=="overview") p.set("t",S.tab);
+  const q=$("#q")?.value; if(q) p.set("q",q);
+  const f=$("#f-status")?.value; if(f) p.set("f",f);
+  const w=$("#f-ws")?.value; if(w) p.set("w",w);
+  if(S.cards) p.set("v","cards");
+  const s=p.toString();
+  // sandbox·data: origin 에서는 replaceState 가 던진다. 주소 갱신이 앱을 죽이면 안 된다.
+  try{ history.replaceState(null,"",s?"#"+s:location.pathname); }
+  catch{ try{ location.hash=s; }catch{} }
+}
+function applyHash(){
+  const p=new URLSearchParams(location.hash.slice(1));
+  if(p.get("q")) $("#q").value=p.get("q");
+  if(p.get("f")) $("#f-status").value=p.get("f");
+  if(p.get("w")) $("#f-ws").value=p.get("w");
+  if(p.get("v")==="cards"){ S.cards=true; document.querySelector(".side").classList.add("cards"); $("#btn-view").textContent="▦"; }
+  const e=p.get("e"); if(e&&S.execs.some(x=>x.id===e)) S.sel=e;
+  const t=p.get("t"); if(t&&document.querySelector(`[data-tab="${t}"]`)){
+    S.tab=t; document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===t))); }
+  setMode(p.get("m")||"exec");
+}
+
+/* ── 키보드 ──
+   j/k 로 실행 이동, 1~6 으로 탭, / 로 검색, m 으로 모드. 마우스를 안 떼고 훑을 수 있어야 한다. */
+addEventListener("keydown",ev=>{
+  const t=ev.target;
+  if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.tagName==="SELECT")){
+    if(ev.key==="Escape") t.blur();
+    return;
+  }
+  if(!$("#drop").hidden) return;
+  const vis=visible();
+  const idx=vis.findIndex(x=>x.id===S.sel);
+  if(ev.key==="/"){ ev.preventDefault(); $("#q").focus(); return; }
+  if(ev.key==="j"||ev.key==="ArrowDown"){ ev.preventDefault();
+    const n=vis[Math.min(vis.length-1,idx+1)]; if(n) selectExec(n.id); return; }
+  if(ev.key==="k"||ev.key==="ArrowUp"){ ev.preventDefault();
+    const n=vis[Math.max(0,idx-1)]; if(n) selectExec(n.id); return; }
+  if(ev.key==="m"){ const order=["exec","all","cmp"];
+    setMode(order[(order.indexOf(S.mode)+1)%order.length]); return; }
+  if(/^[1-6]$/.test(ev.key)){
+    const b=document.querySelectorAll("[data-tab]")[+ev.key-1]; if(b){ b.click(); } return; }
+  if(ev.key==="?"){ alert("j/k 실행 이동 · 1~6 탭 · m 모드 전환 · / 검색 · Esc 해제"); }
+});
+function selectExec(id){ S.sel=id; renderList(); renderPane(); syncHash();
+  const li=document.querySelector('.side li[aria-selected="true"]'); li?.scrollIntoView({block:"nearest"}); }
+
+/* ── 발표 · 고대비 · 인쇄 ── */
+$("#btn-present").onclick=()=>{
+  const on=document.documentElement.getAttribute("data-present")==="1";
+  document.documentElement.setAttribute("data-present",on?"0":"1");
+  $("#btn-present").setAttribute("aria-pressed",String(!on));
+};
+$("#btn-contrast").onclick=()=>{
+  const on=document.documentElement.getAttribute("data-contrast")==="1";
+  document.documentElement.setAttribute("data-contrast",on?"0":"1");
+  $("#btn-contrast").setAttribute("aria-pressed",String(!on));
+};
+$("#btn-print").onclick=()=>print();
+
+/* ── 내보내기 ──
+   CSP 없이 순수 브라우저 기능만 쓴다. Blob + a[download] 면 라이브러리가 필요 없다. */
+function download(name,text,type){
+  const b=new Blob([text],{type:type||"application/octet-stream"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+$("#btn-export").onclick=()=>{
+  // 지금 화면에서 가장 큰 그림 하나를 고른다. 스쿼드 맵이 있으면 그것.
+  const host=S.mode==="exec"?$("#pane"):S.mode==="all"?$("#pane-all"):$("#pane-cmp");
+  const svgs=[...host.querySelectorAll("svg")];
+  if(!svgs.length){ alert("이 화면에는 내보낼 그림이 없습니다."); return; }
+  const svg=svgs.sort((a,b)=>b.getBoundingClientRect().width*b.getBoundingClientRect().height
+                           -a.getBoundingClientRect().width*a.getBoundingClientRect().height)[0];
+  const c=svg.cloneNode(true);
+  // 화면 밖에서 열리므로 CSS 변수가 안 먹는다. 실제 색으로 굳혀서 내보낸다.
+  const cs=getComputedStyle(document.documentElement);
+  const vars=["--bg","--panel","--panel-2","--line","--fg","--fg-dim","--fg-faint",
+              "--accent","--ok","--warn","--bad","--prog"];
+  let css=":root{"+vars.map(v=>`${v}:${cs.getPropertyValue(v).trim()}`).join(";")+"}";
+  css+="text{font-family:ui-monospace,Consolas,monospace}";
+  const st=document.createElementNS(NS,"style"); st.textContent=css;
+  c.insertBefore(st,c.firstChild);
+  c.setAttribute("xmlns",NS);
+  const rect=svg.getBoundingClientRect();
+  if(!c.getAttribute("viewBox")&&rect.width) c.setAttribute("viewBox",`0 0 ${rect.width} ${rect.height}`);
+  c.setAttribute("style",`background:${cs.getPropertyValue("--bg").trim()}`);
+  download("ledger-chart.svg",new XMLSerializer().serializeToString(c),"image/svg+xml");
+};
+$("#btn-json").onclick=()=>{
+  const out={
+    generatedFrom:"AI:GO workspace logs",
+    squads:(S.squads||[]).map(s=>({ws:s.ws,name:s.name,source:s.source,
+      agents:s.agents.map(a=>({name:a.name,role:a.role,model:a.model,tools:a.tools,
+        tasks:a.tasks,failed:a.failed,tokenEstimated:a.tok}))})),
+    executions:S.execs.map(e=>({
+      id:e.id, workspace:e.ws, squad:e.squadName, contract:e.contract,
+      gradable:e.gradable, blocker:e.blocker, partial:!!e.partial,
+      aigoStatus:e.aigoStatus, taskCounts:e.counts,
+      tokens:e.tokens, billed:billed(e), durationMs:e.durationMs,
+      phases:e.phases.map(p=>({phase:p.k,ms:p.ms})),
+      tasks:e.tasks.map(t=>({title:t.title,agent:t.agentName,status:t.status,
+        durationMs:t.durationMs,tokenEstimated:t.tok||0,gradable:t.answer.gradable,
+        checks:t.answer.checks.map(k=>({check:k.k,ok:k.ok,detail:k.d}))}))
+    }))};
+  download("ledger-normalized.json",JSON.stringify(out,null,2),"application/json");
 };
 </script>
 </body>
