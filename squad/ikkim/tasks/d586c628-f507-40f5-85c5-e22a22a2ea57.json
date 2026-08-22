@@ -1,0 +1,21 @@
+{
+  "id": "d586c628-f507-40f5-85c5-e22a22a2ea57",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "97fee8c8-e496-4b41-8ba8-64b2a571d218",
+  "title": "Simplify g(x) expression",
+  "description": "Simplify the expression inside the square root: (x-3)^2 - (x-8)^2. Express it in a factored or simplified form.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T12:00:13.905658688Z",
+  "startedAt": "2026-08-22T12:00:30.148733804Z",
+  "completedAt": "2026-08-22T12:00:34.375006277Z"
+}

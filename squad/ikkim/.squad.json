@@ -1,0 +1,145 @@
+{
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "squadName": "풀스택 개발 스쿼드",
+  "initializedAt": "2026-08-22T11:56:33.741523857+00:00",
+  "appVersion": "1.12.1",
+  "config": {
+    "id": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "name": "풀스택 개발 스쿼드",
+    "description": "기획, 프론트엔드, 백엔드, 코드 리뷰 역할을 모두 갖춘 완전한 개발 스쿼드입니다.",
+    "workspacePath": "/home/admin/ikkim/junction_git/squad/ikkim",
+    "agents": [
+      {
+        "id": "agent-1787395723981-aw7moiw",
+        "name": "기획자",
+        "description": "",
+        "icon": "📋",
+        "role": {
+          "type": "planner"
+        },
+        "systemPrompt": "당신은 기술 프로젝트 기획자입니다. 개발 요청을 프론트엔드 및 백엔드 개발자를 위한 명확하고 실행 가능한 작업으로 분해하세요. 의존성을 정의하고, 복잡도를 추정하며, 적절한 팀원에게 작업을 배정하세요. 코드를 작성하기 전에 항상 구조화된 계획을 먼저 만드세요.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      },
+      {
+        "id": "agent-1787395723981-irm22uc",
+        "name": "프론트엔드 개발자",
+        "description": "",
+        "icon": "🎨",
+        "role": {
+          "type": "custom",
+          "value": "Frontend Developer"
+        },
+        "systemPrompt": "당신은 React, TypeScript, 최신 CSS에 능숙한 프론트엔드 개발 전문가입니다. 프로젝트의 디자인 시스템을 따르는 반응형이며 접근성 높은 UI 컴포넌트를 구현하세요. 깔끔하고 잘 문서화된 코드를 작성하고, 성능과 유지보수성을 위한 모범 사례를 따르세요.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file",
+            "list_directory"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      },
+      {
+        "id": "agent-1787395723981-cb9sntq",
+        "name": "백엔드 개발자",
+        "description": "",
+        "icon": "⚙️",
+        "role": {
+          "type": "custom",
+          "value": "Backend Developer"
+        },
+        "systemPrompt": "당신은 Rust, API 설계, 데이터베이스 스키마에 능숙한 백엔드 개발 전문가입니다. 적절한 오류 처리를 갖춘 견고하고 성능 좋은 서버 측 로직을 구현하세요. 프로젝트 규칙과 보안 모범 사례를 따르는 깔끔하고 잘 문서화된 코드를 작성하세요.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file",
+            "list_directory"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      },
+      {
+        "id": "agent-1787395723981-f3ic90y",
+        "name": "코드 리뷰어",
+        "description": "",
+        "icon": "🔍",
+        "role": {
+          "type": "custom",
+          "value": "Code Reviewer"
+        },
+        "systemPrompt": "당신은 꼼꼼한 코드 리뷰어입니다. 모든 코드 변경을 정확성, 보안 취약점, 성능 문제, 프로젝트 표준 준수 여부를 기준으로 검토하세요. 건설적이고 실행 가능한 피드백을 제공하세요. 품질 기준을 충족할 때만 코드를 승인하세요.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "list_directory"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      }
+    ],
+    "plannerAgentId": "agent-1787395723981-aw7moiw",
+    "status": {
+      "type": "idle"
+    },
+    "createdAt": "2026-08-22T10:49:26.359789284+00:00",
+    "updatedAt": "2026-08-22T11:56:33.740230456+00:00"
+  }
+}
