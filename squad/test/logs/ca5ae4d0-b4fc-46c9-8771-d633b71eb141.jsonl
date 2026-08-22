@@ -1,0 +1,17 @@
+{"timestamp":"2026-08-22T08:29:03.636795Z","level":"info","agentId":"system","message":"Execution started: 간단한 슬롯머신 게임 만들어줘"}
+{"timestamp":"2026-08-22T08:29:03.637834Z","level":"info","agentId":"system","message":"Plan generated: Plan for: 간단한 슬롯머신 게임 만들어줘 with 5 task(s)"}
+{"timestamp":"2026-08-22T08:29:03.644775Z","level":"info","agentId":"system","message":"Starting wave 1/2 with 3 task(s)"}
+{"timestamp":"2026-08-22T08:29:03.645143Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Design Slot Machine API Spec' assigned to agent 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:30:13.550398Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Design Slot Machine API Spec' completed by 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:30:13.855188Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Design Slot Machine API Spec' assigned to agent 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:31:27.628794Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Design Slot Machine API Spec' completed by 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:31:27.932739Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Implement Slot Machine Backend' assigned to agent 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:32:26.103239Z","level":"error","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Implement Slot Machine Backend' failed: LLM call failed: API error: HTTP 500 Internal Server Error: {\"error\":{\"message\":\"The server encountered an error while processing your request.\",\"type\":\"server_error\",\"code\":500}} (code: Some(\"500\"))"}
+{"timestamp":"2026-08-22T08:32:26.407019Z","level":"info","agentId":"system","message":"Starting wave 2/2 with 2 task(s)"}
+{"timestamp":"2026-08-22T08:32:26.407012Z","level":"info","agentId":"system","message":"Wave 1/2 completed"}
+{"timestamp":"2026-08-22T08:32:26.407491Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Implement Slot Machine Backend' assigned to agent 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:32:49.308211Z","level":"info","agentId":"agent-1787387157647-ztcvzv5","message":"Task 'Implement Slot Machine Backend' completed by 'Backend Developer'"}
+{"timestamp":"2026-08-22T08:32:49.611963Z","level":"info","agentId":"agent-1787387157647-3orflu2","message":"Task 'Design Slot Machine Frontend UI' assigned to agent 'Frontend Developer'"}
+{"timestamp":"2026-08-22T08:32:59.324193Z","level":"error","agentId":"agent-1787387157647-3orflu2","message":"Task 'Design Slot Machine Frontend UI' failed: LLM call failed: API error: HTTP 500 Internal Server Error: {\"error\":{\"message\":\"The server encountered an error while processing your request.\",\"type\":\"server_error\",\"code\":500}} (code: Some(\"500\"))"}
+{"timestamp":"2026-08-22T08:32:59.626645Z","level":"info","agentId":"system","message":"Wave 2/2 completed"}
+{"timestamp":"2026-08-22T08:33:00.137128Z","level":"info","agentId":"system","message":"Execution completed successfully"}

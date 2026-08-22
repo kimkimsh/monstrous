@@ -1,0 +1,23 @@
+{
+  "id": "e0b4c4cf-1992-4d54-af53-1b9e12fa7839",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+  "title": "Design Slot Machine Frontend UI",
+  "description": "Create a simple UI design for the slot machine game, including layout for reels, spin button, and result display. Ensure it aligns with the backend API endpoints defined earlier.",
+  "assignedTo": "agent-1787387157647-3orflu2",
+  "createdBy": "planner",
+  "status": "failed",
+  "priority": "high",
+  "dependsOn": [
+    "a529b345-b851-4fac-9130-40579da93909"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T08:29:03.641962Z",
+  "startedAt": "2026-08-22T08:32:49.616555Z",
+  "completedAt": "2026-08-22T08:32:59.324354Z"
+}

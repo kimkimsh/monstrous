@@ -49,7 +49,6 @@ pnpm-debug.log*
 
 # Logs and temp
 *.log
-logs/
 tmp/
 .cache/
 

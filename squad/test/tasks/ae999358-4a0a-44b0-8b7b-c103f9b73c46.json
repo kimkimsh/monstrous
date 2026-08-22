@@ -1,0 +1,23 @@
+{
+  "id": "ae999358-4a0a-44b0-8b7b-c103f9b73c46",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+  "title": "Implement Slot Machine Backend",
+  "description": "Implement the slot machine backend logic and expose endpoints as defined in the API spec. Include data models, spin logic, and persistence if needed.",
+  "assignedTo": "agent-1787387157647-ztcvzv5",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "47cc3d4c-de79-4e7d-9bc8-49d598fb51c0"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T08:29:03.643360Z",
+  "startedAt": "2026-08-22T08:32:26.411796Z",
+  "completedAt": "2026-08-22T08:32:49.308535Z"
+}

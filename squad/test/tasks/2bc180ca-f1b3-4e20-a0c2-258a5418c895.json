@@ -1,0 +1,21 @@
+{
+  "id": "2bc180ca-f1b3-4e20-a0c2-258a5418c895",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+  "title": "Design Slot Machine API Spec",
+  "description": "Define the API specification for the slot machine game, including endpoints for spinning, retrieving results, and any necessary parameters.",
+  "assignedTo": "agent-1787387157647-ztcvzv5",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T08:29:03.642621Z",
+  "startedAt": "2026-08-22T08:29:03.646775Z",
+  "completedAt": "2026-08-22T08:30:13.553137Z"
+}

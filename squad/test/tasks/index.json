@@ -1,0 +1,66 @@
+[
+  {
+    "id": "47cc3d4c-de79-4e7d-9bc8-49d598fb51c0",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+    "title": "Design Slot Machine API Spec",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T08:29:03.638406Z",
+    "completedAt": "2026-08-22T08:31:27.629027Z"
+  },
+  {
+    "id": "a529b345-b851-4fac-9130-40579da93909",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+    "title": "Implement Slot Machine Backend",
+    "status": "failed",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T08:29:03.641227Z",
+    "completedAt": "2026-08-22T08:32:26.103331Z"
+  },
+  {
+    "id": "e0b4c4cf-1992-4d54-af53-1b9e12fa7839",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+    "title": "Design Slot Machine Frontend UI",
+    "status": "failed",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-3orflu2",
+    "dependsOn": [
+      "a529b345-b851-4fac-9130-40579da93909"
+    ],
+    "createdAt": "2026-08-22T08:29:03.641962Z",
+    "completedAt": "2026-08-22T08:32:59.324354Z"
+  },
+  {
+    "id": "2bc180ca-f1b3-4e20-a0c2-258a5418c895",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+    "title": "Design Slot Machine API Spec",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T08:29:03.642621Z",
+    "completedAt": "2026-08-22T08:30:13.553137Z"
+  },
+  {
+    "id": "ae999358-4a0a-44b0-8b7b-c103f9b73c46",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "26575c6f-ba4c-4c7a-ad75-d0ee2bb5c7af",
+    "title": "Implement Slot Machine Backend",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [
+      "47cc3d4c-de79-4e7d-9bc8-49d598fb51c0"
+    ],
+    "createdAt": "2026-08-22T08:29:03.643360Z",
+    "completedAt": "2026-08-22T08:32:49.308535Z"
+  }
+]
