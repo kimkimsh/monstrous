@@ -10,18 +10,25 @@
   --fg:#e6edf3; --fg-dim:#8b98a8; --fg-faint:#5b6675;
   --accent:#4cc2ff; --ok:#3fb950; --warn:#d29922; --bad:#f85149; --prog:#a371f7;
   --mono:ui-monospace,"Cascadia Mono","JetBrains Mono",Consolas,"DejaVu Sans Mono",monospace;
+  /* 네이티브 컨트롤(셀렉트 드롭다운·스크롤바·슬라이더 손잡이)이 테마를 따라오게 한다.
+     이게 없으면 select 만 밝은 시스템 기본색으로 튄다. */
+  color-scheme:dark;
 }
 html[data-theme="light"]{
   --bg:#f6f8fa; --panel:#fff; --panel-2:#f0f3f6; --line:#d6dde5;
   --fg:#1c2128; --fg-dim:#57606a; --fg-faint:#8c959f;
   --accent:#0969da; --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e; --prog:#8250df;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.55 var(--mono);overflow:hidden}
 button,select,input{font:inherit;color:inherit}
-button{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
-button:hover{border-color:var(--accent)}
+button,select{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button:hover,select:hover{border-color:var(--accent)}
+select{padding-right:6px}
+select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=range]{accent-color:var(--accent)}
 button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 .app{display:flex;flex-direction:column;height:100%}
 
@@ -38,7 +45,7 @@ main{flex:1;display:flex;min-height:0}
 /* 좌 — 실행 선택 */
 .side{width:310px;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
 .side .h{padding:8px 10px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center}
-.side .h select{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:3px 6px;flex:1;min-width:0}
+.side .h select{padding:3px 6px;flex:1;min-width:0}   /* 색·테두리는 전역 select 규칙을 따른다 */
 .side ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
 .side li{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer}
 .side li:hover{background:var(--panel-2)}
@@ -108,6 +115,115 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .chk .d{color:var(--fg-faint);font-size:10px}
 .chk.ok b{color:var(--ok)} .chk.no b{color:var(--bad)}
 
+/* ── 스쿼드 맵 ── */
+.sm-wrap{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb,var(--accent) 7%, transparent), transparent 70%),
+    var(--panel-2);
+  background-image:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb,var(--accent) 7%, transparent), transparent 70%),
+    linear-gradient(color-mix(in srgb,var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb,var(--line) 55%, transparent) 1px, transparent 1px);
+  background-size:100% 100%, 22px 22px, 22px 22px}
+
+/* 간선 — 바탕선 위로 밝은 펄스가 흐른다.
+   pathLength=1000 으로 정규화해서 경로 길이와 무관하게 같은 속도로 흐르게 한다. */
+.sm-edge{fill:none;stroke:var(--line);stroke-width:1.5;opacity:.5;transition:stroke .35s,opacity .35s}
+.sm-edge.on{stroke:color-mix(in srgb,var(--accent) 45%, var(--line));opacity:1}
+.sm-flow{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;
+  stroke-dasharray:26 974;opacity:0;transition:opacity .3s}
+.sm-flow.on{opacity:.95;animation:sm-travel 1.5s linear infinite}
+@keyframes sm-travel{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
+
+/* 포트 — 간선이 노드에 붙는 지점 */
+.sm-port{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:fill .3s,stroke .3s}
+.sm-node.seen .sm-port{stroke:var(--nc)}
+.sm-node.run  .sm-port{fill:var(--nc)}
+
+.sm-node{--nc:var(--fg-faint);opacity:.3;transition:opacity .4s}
+.sm-node.seen{opacity:1}
+.sm-node .box{transition:stroke-width .3s,filter .35s}
+.sm-node.seen .box{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--nc) 28%, transparent))}
+.sm-node.run  .box{stroke-width:2.4;filter:drop-shadow(0 0 11px color-mix(in srgb,var(--nc) 60%, transparent))}
+.sm-dot{transition:opacity .3s}
+.sm-node.run .sm-dot{animation:sm-blink 1.15s ease-in-out infinite}
+@keyframes sm-blink{0%,100%{opacity:1;r:4}50%{opacity:.35;r:5.2}}
+.sm-node .sm-mark{font-weight:700}
+.sm-node{cursor:pointer}
+.sm-node:hover .box{stroke-width:2.4}
+.sm-node.focus .box{stroke-width:3}
+.sm-node.focus .ring{opacity:1;animation:sm-ring 1.6s ease-out infinite}
+.ring{opacity:0;fill:none;stroke:var(--nc);stroke-width:1.6}
+@keyframes sm-ring{0%{opacity:.75;transform:scale(1)}100%{opacity:0;transform:scale(1.06)}}
+.sm-node:focus-visible .box{stroke:var(--accent);stroke-width:3}
+.sm-node:focus{outline:none}
+.sm-node.idle,.sm-node.idle.seen{opacity:.38}   /* 미참여는 재생이 지나가도 켜지지 않는다 */
+.sm-node.idle .box{filter:none}
+
+.sm-cap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:10.5px;color:var(--fg-dim);padding:8px 4px 0}
+.sm-cap b{color:var(--fg)}
+.sm-key{display:inline-flex;gap:5px;align-items:center}
+.sm-key i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sm-src{flex-basis:100%;color:var(--fg-faint);font-size:10px;margin-top:-2px}
+
+@media (prefers-reduced-motion:reduce){
+  .sm-flow.on{animation:none;opacity:.7;stroke-dasharray:none}
+  .sm-node.run .sm-dot{animation:none}
+}
+
+/* ── 재생 ── */
+.rp-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.rp-ctl input[type=range]{flex:1;min-width:140px}
+.rp-clock{font-variant-numeric:tabular-nums;color:var(--fg-dim);font-size:11px;min-width:120px;text-align:right}
+.rp-focus{font-size:10.5px;color:var(--fg-faint);margin:-4px 0 10px}
+.rp-focus b{color:var(--fg-dim)}
+.rp-focus.on{color:var(--accent)}
+.rp-stage{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);padding:10px 12px 12px;overflow:hidden}
+.rp-phases{display:flex;height:16px;border-radius:4px;overflow:hidden;margin-bottom:10px;opacity:.55}
+.rp-phases div{font-size:9px;color:var(--bg);display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.rp-lane{display:grid;grid-template-columns:132px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:7px}
+.rp-lane .who{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg-dim)}
+.rp-track{position:relative;height:26px;background:color-mix(in srgb,var(--line) 45%,transparent);border-radius:5px;overflow:hidden}
+.rp-bar{position:absolute;top:0;bottom:0;border-radius:5px;background:var(--accent);
+  display:flex;align-items:center;padding:0 8px;font-size:10px;color:var(--bg);white-space:nowrap;overflow:hidden}
+.rp-bar.run{background:var(--accent);animation:rp-pulse 1.1s ease-in-out infinite}
+.rp-bar.done{background:var(--ok);animation:none}
+.rp-bar.fail{background:var(--bad);animation:none}
+@keyframes rp-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.45)}}
+/* 재생선과 마커는 폭을 재지 않는다.
+   getBoundingClientRect 는 페이지가 합성되지 않으면 0 을 주고 창 크기가 바뀔 때마다 어긋난다.
+   트랙 열의 좌우 여백이 CSS 로 고정돼 있으므로(스테이지 padding 12 + 라벨 132 + gap 10),
+   calc 과 --p(0~1)만으로 위치가 정확히 나온다. */
+.rp-stage{--p:0}
+.rp-head{position:absolute;top:8px;bottom:8px;width:2px;background:var(--warn);z-index:3;pointer-events:none;
+  left:calc(154px + (100% - 166px) * var(--p))}
+.rp-marks{position:relative;height:14px}
+.rp-mark{position:absolute;top:2px;width:8px;height:8px;border-radius:50%;margin-left:-4px;
+  background:var(--prog);opacity:0;transition:opacity .25s}
+.rp-mark.on{opacity:1}
+.rp-meters{display:flex;gap:26px;flex-wrap:wrap;margin-top:12px}
+.rp-meters .stat b{font-size:19px;font-variant-numeric:tabular-nums}
+.rp-tick{max-height:190px;overflow:auto;margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+.rp-tick .row{display:grid;grid-template-columns:62px 170px minmax(0,1fr);gap:10px;font-size:10.5px;padding:2px 0;
+  animation:rp-in .28s ease-out}
+.rp-tick .row>*{min-width:0;overflow-wrap:anywhere}
+.rp-tick .row.err .ty{color:var(--bad)}
+.rp-tick .ts{color:var(--fg-faint);font-variant-numeric:tabular-nums}
+.rp-tick .ty{color:var(--accent)}
+.rp-tick .de{color:var(--fg-dim)}
+@keyframes rp-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+
+/* 도장이 찍히는 연출 — 장부 대조에서 판정이 "내려지는" 느낌 */
+@keyframes stamp-in{0%{opacity:0;transform:scale(2.4) rotate(-11deg)}
+  60%{opacity:1;transform:scale(.92) rotate(-11deg)}100%{opacity:1;transform:scale(1) rotate(-4deg)}}
+.stamp{animation:stamp-in .34s cubic-bezier(.2,.9,.3,1.3) both}
+.card{animation:rp-in .22s ease-out}
+
+@media (prefers-reduced-motion:reduce){
+  .rp-bar.run,.stamp,.card,.rp-tick .row{animation:none}
+  .rp-mark{transition:none}
+}
+
 /* 로드 화면 */
 .drop{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:var(--bg);z-index:30;text-align:center;padding:24px}
 /* display 를 지정하는 작성자 규칙은 브라우저 기본 [hidden]{display:none} 을 이긴다.
@@ -154,6 +270,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="body">
       <div class="tabs">
         <button data-tab="overview" aria-pressed="true">개요</button>
+        <button data-tab="replay">▶ 재생</button>
         <button data-tab="ledger">장부 대조</button>
         <button data-tab="timeline">타임라인</button>
         <button data-tab="failure">실패 분류</button>
@@ -294,7 +411,7 @@ function classify(err){
    수집 — 폴더 안의 파일을 이름으로 분류해 병합한다
    ═══════════════════════════════════════════════════════════════════════ */
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map()};
+const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), squad:null};
 const SEEN={files:0, kinds:{}, skipped:[]};
 
 function ndjson(text){
@@ -329,6 +446,18 @@ function addFile(path,name,text){
       bump("events.jsonl"); return;
     }
     if(name==="index.json"){ bump("index.json (무시)"); return; }
+    // Squad Template JSON — 스쿼드 구성(로스터)의 유일한 출처다.
+    // 로그에는 "태스크를 배정받은 에이전트"만 나오므로, 한 번도 일하지 않은 구성원과
+    // 플래너는 로그만으로는 존재 자체를 알 수 없다.
+    {
+      const j=JSON.parse(text);
+      const arr=j?.agents||j?.squad?.agents||j?.template?.agents;
+      if(Array.isArray(arr)&&arr.length&&arr.some(a=>a&&(a.name||a.role))){
+        RAW.squad={name:j.name||j.squadName||j?.squad?.name||"(스쿼드)",
+          agents:arr.map(a=>({name:a.name||a.id||"agent", role:a.role||a.type||"", model:a.model||a.modelId||""}))};
+        bump("squad template"); return;
+      }
+    }
     if(/\/tasks\//.test(path)&&name.endsWith(".json")){
       const t=JSON.parse(text);
       for(const x of (Array.isArray(t)?t:[t])) if(x&&x.id) RAW.task.set(x.id,x);
@@ -351,10 +480,46 @@ const ms=iso=>{const v=Date.parse(iso); return Number.isNaN(v)?null:v;};
 
 function build(){
   const byExec=new Map();
+  const push=(id,e)=>{ if(!byExec.has(id)) byExec.set(id,[]); byExec.get(id).push(e); };
+
+  // 1차 — payload.executionId 가 있는 것.
+  // agent-state-changed / task-status-changed / workspace-file-changed / token-usage-update
+  // 에는 executionId 가 없다(실측: 50개 중 23개). 그냥 버리면 태스크 시작 시각이 사라져
+  // 재생을 만들 수 없다. 그래서 아래에서 taskId 와 시간창으로 귀속시킨다.
+  const orphans=[];
   for(const e of RAW.ev.values()){
-    const id=e?.payload?.executionId; if(!id) continue;
-    if(!byExec.has(id)) byExec.set(id,[]);
-    byExec.get(id).push(e);
+    const id=e?.payload?.executionId;
+    if(id) push(id,e); else orphans.push(e);
+  }
+
+  // taskId → executionId (history 의 tasks, plan-ready 의 waves 양쪽에서 모은다)
+  const taskOwner=new Map();
+  for(const [id,h] of RAW.hist) for(const t of (h.tasks||[])) if(t.taskId) taskOwner.set(t.taskId,id);
+  for(const [id,list] of byExec) for(const e of list){
+    const p=e.payload||{};
+    for(const w of (p.waves||[])) for(const tid of w) taskOwner.set(tid,id);
+    for(const tid of (p.taskIds||[])) taskOwner.set(tid,id);
+    if(p.taskId) taskOwner.set(p.taskId,id);
+  }
+
+  // 실행별 시간창 — taskId 로도 못 붙는 이벤트(agent-state-changed 등)의 귀속 근거
+  const win=[...byExec].map(([id,list])=>{
+    const ts=list.map(e=>ms(e.timestamp)).filter(Number.isFinite);
+    return {id, a:Math.min(...ts), b:Math.max(...ts)};
+  }).sort((x,y)=>x.a-y.a);
+
+  for(const e of orphans){
+    const p=e.payload||{};
+    let id=p.taskId?taskOwner.get(p.taskId):null;
+    if(!id){
+      const t=ms(e.timestamp);
+      // 시간창 안에 들어가면 그 실행, 아니면 가장 가까운 실행에 붙인다
+      id=(win.find(w=>t>=w.a&&t<=w.b)||win.reduce((best,w)=>{
+        const d=t<w.a?w.a-t:t-w.b;
+        return (!best||d<best.d)?{...w,d}:best;
+      },null)||{}).id;
+    }
+    if(id) push(id,e);
   }
   // RAW.log 까지 포함한다. history/events 가 없어도 <executionId>.jsonl 하나만으로
   // 최소한의 실행 뷰는 세운다 — 파일이 일부만 들어왔을 때 전부 실패시키지 않기 위해서다.
@@ -365,12 +530,29 @@ function build(){
     const pick=t=>evs.find(e=>e.eventType==="squad:"+t);
     const planReady=pick("plan-ready");
 
-    const tasks=(h.tasks||[]).map(t=>({
-      ...t,
-      meta:RAW.task.get(t.taskId)||null,
-      answer:inspectAnswer(t.output),
-      fail:t.status==="failed"||t.error?classify(t.error):null
-    }));
+    // 태스크 구간 — 재생의 뼈대. task-status-changed(in_progress) 가 시작,
+    // task-completed 가 끝이다. 없으면 원문 로그의 "assigned to agent" 줄, 그것도
+    // 없으면 completedAt - durationMs 로 되짚는다.
+    const span=new Map();
+    const at=id=>span.get(id)||span.set(id,{}).get(id);
+    for(const e of evs){
+      const p=e.payload||{}, t=ms(e.timestamp);
+      if(!p.taskId) continue;
+      if(e.eventType==="squad:task-status-changed"&&p.newStatus==="in_progress") at(p.taskId).start=t;
+      if(e.eventType==="squad:task-completed"){ const s=at(p.taskId); s.end=t; s.ok=p.success!==false; }
+    }
+
+    const tasks=(h.tasks||[]).map(t=>{
+      const s=span.get(t.taskId)||{};
+      const end=s.end??ms(t.completedAt);
+      const start=s.start??(end&&t.durationMs?end-t.durationMs:null);
+      return {
+        ...t, start, end,
+        meta:RAW.task.get(t.taskId)||null,
+        answer:inspectAnswer(t.output),
+        fail:t.status==="failed"||t.error?classify(t.error):null
+      };
+    });
     // history 가 없고 이벤트만 있는 실행도 태스크를 세운다
     if(!tasks.length){
       for(const e of evs) if(e.eventType==="squad:task-completed"){
@@ -400,6 +582,44 @@ function build(){
       tasks.push(...seen.values());
     }
 
+    // 구간이 비면 원문 로그의 배정/완료 문장에서 시각을 줍는다
+    for(const t of tasks){
+      if(t.start&&t.end) continue;
+      for(const l of logLines){
+        const msg=String(l.message||"");
+        if(!t.title||msg.indexOf("Task '"+t.title+"'")!==0) continue;
+        const at2=ms(l.timestamp);
+        if(/assigned to agent/.test(msg)) t.start??=at2;
+        if(/completed by|failed:/.test(msg))  t.end??=at2;
+      }
+    }
+
+    // 누적 토큰 곡선 — 재생 중 비용이 실제로 언제 발생했는지 보여준다
+    const tokenCurve=evs
+      .filter(e=>e.eventType==="squad:execution-token-usage")
+      .map(e=>({t:ms(e.timestamp), total:e.payload?.total??0,
+                inTok:e.payload?.promptTokens??0, outTok:e.payload?.completionTokens??0}))
+      .filter(p=>Number.isFinite(p.t))
+      .sort((a,b)=>a.t-b.t);
+
+    // 에이전트별 토큰 — 로그의 perAgentTokenUsage 와 태스크별 tokenUsage 는 전부 {0,0} 이고
+    // token-usage-update 는 에이전트의 "평생 누적"이라 실행별 귀속에 못 쓴다.
+    // 그래서 누적 곡선의 증분을 그 시각에 돌고 있던 태스크에 귀속시킨다. 이건 추정이다.
+    // 두 태스크가 동시에 돌던 구간의 증분은 나누지 않고 '미귀속'으로 남긴다 —
+    // 지어낸 숫자를 화면에 올리지 않기 위해서다.
+    let tokUnattributed=0;
+    for(let i=0;i<tokenCurve.length;i++){
+      const p=tokenCurve[i], prev=tokenCurve[i-1];
+      const d=p.total-(prev?.total??0), di=p.inTok-(prev?.inTok??0), dout=p.outTok-(prev?.outTok??0);
+      if(d<=0) continue;
+      const run=tasks.filter(t=>t.start!=null&&t.end!=null&&t.start<=p.t&&p.t<=t.end);
+      if(run.length===1){ const t=run[0];
+        t.tok=(t.tok||0)+d; t.tokIn=(t.tokIn||0)+di; t.tokOut=(t.tokOut||0)+dout;
+        (t.tokAt||=[]).push({t:p.t, tok:t.tok, tokIn:t.tokIn, tokOut:t.tokOut});
+      } else tokUnattributed+=d;
+    }
+    const tokEstimated=tokenCurve.length>0;
+
     const final=inspectAnswer(h.finalResult);
     const t0=ms(h.startedAt)??ms(evs[0]?.timestamp)??ms(logLines[0]?.timestamp);
     const t1=ms(h.completedAt)??ms(evs[evs.length-1]?.timestamp)??ms(logLines[logLines.length-1]?.timestamp);
@@ -427,7 +647,7 @@ function build(){
       aigoStatus:h.status||pick("execution-completed")?"completed":"unknown",
       tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker,
       blockKind:blocker==="blocked"?(tasks.find(t=>t.fail)?.fail.kind||"—"):null,
-      counts, tokens:tu, t0, t1,
+      counts, tokens:tu, t0, t1, tokenCurve, tokUnattributed, tokEstimated,
       durationMs:h.durationMs??((t0&&t1)?t1-t0:null),
       waves:planReady?.payload?.waves||[],
       plannerWarning:planReady?.payload?.plannerWarning||null,
@@ -436,6 +656,44 @@ function build(){
       phases:phasesOf(evs)
     };
   }).sort((a,b)=>(a.t0??0)-(b.t0??0));
+
+  buildRoster();
+}
+
+/* 스쿼드 구성(로스터).
+   로그에는 "태스크를 배정받은 에이전트"만 나온다. 한 번도 일하지 않은 구성원과
+   플래너는 로그만으로 존재를 알 수 없다 — 실측: 로그의 에이전트는 3명인데
+   실제 스쿼드는 4명이었다. 그래서 두 가지를 한다.
+     1) 전 실행에 걸쳐 등장한 에이전트를 합집합으로 모은다 (한 실행만 봐도 전원이 보이게)
+     2) Squad Template JSON 이 들어오면 그것을 권위 있는 로스터로 삼는다 */
+function buildRoster(){
+  const m=new Map();
+  const put=(name,src)=>{
+    if(!name) return null;
+    if(!m.has(name)) m.set(name,{name, id:null, role:"", model:"", src,
+      execs:new Set(), tasks:0, done:0, failed:0, tok:0});
+    return m.get(name);
+  };
+  for(const e of S.execs) for(const t of e.tasks){
+    const r=put(t.agentName||t.agentId||null,"log"); if(!r) continue;
+    r.id||=t.agentId||null; r.execs.add(e.id); r.tasks++;
+    if(t.status==="failed"||t.fail) r.failed++; else r.done++;
+    r.tok+=t.tok||0;
+  }
+  // 플래너는 태스크를 배정받지 않으므로 로그에 이름이 없다. 계획 이벤트가 있으면 자리만 만든다.
+  const planned=S.execs.some(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
+  if(planned&&!m.has("(플래너)")) m.set("(플래너)",{name:"(플래너)", id:null, role:"Planner",
+    model:"", src:"inferred", execs:new Set(S.execs.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready")).map(e=>e.id)),
+    tasks:0, done:0, failed:0, tok:0});
+
+  if(RAW.squad){
+    for(const a of RAW.squad.agents){
+      const r=put(a.name,"template");
+      if(r){ r.role=a.role||r.role; r.model=a.model||r.model; r.src="template"; }
+    }
+  }
+  S.roster=[...m.values()];
+  S.rosterSource=RAW.squad?"template":"log";
 }
 
 function phasesOf(evs){
@@ -518,14 +776,16 @@ function cur(){ return S.execs.find(e=>e.id===S.sel)||null; }
 function renderPane(){
   const P=$("#pane"); P.textContent="";
   const e=cur();
+  stopReplay();
   const H={overview:"이 실행이 무엇을 했고 점수가 되는가",
+           replay:"실행을 시간순으로 되돌려 본다 · 모델 호출 0회",
            ledger:"채점기가 읽는 바이트를 그대로 보여준다",
            timeline:"시간이 어디에 쓰였는가",
            failure:"우리 잘못인가 인프라 잘못인가",
            raw:"AI:GO 가 남긴 원문"}[S.tab];
   $("#tab-hint").textContent=H||"";
   if(!e){ P.innerHTML=`<div class="card"><h2>실행을 고르세요</h2><p class="q">왼쪽 목록에서 분석할 실행을 선택하면 됩니다. 실행 ${S.execs.length}개가 로드되어 있습니다.</p></div>`+runSummaryCard(); return; }
-  ({overview:paneOverview, ledger:paneLedger, timeline:paneTimeline,
+  ({overview:paneOverview, replay:paneReplay, ledger:paneLedger, timeline:paneTimeline,
     failure:paneFailure, raw:paneRaw}[S.tab])(P,e);
 }
 
@@ -584,6 +844,7 @@ function paneOverview(P,e){
     <br>→ 요청이 분해되지 않고 <b>모든 에이전트에게 원본이 그대로</b> 들어갔다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생한다.</p>`;
   h+=`</div>`;
 
+  h+=rosterCard(e);
   h+=`<div class="card"><h2>시간이 어디에 쓰였나</h2>`+phaseBar(e)+`</div>`;
 
   h+=`<div class="card"><h2>태스크 ${e.tasks.length}개</h2><table>
@@ -598,6 +859,34 @@ function paneOverview(P,e){
   P.innerHTML=h;
 }
 
+function rosterCard(e){
+  const R=S.roster||[];
+  if(!R.length) return "";
+  const worked=new Set(e.tasks.map(t=>t.agentName||t.agentId));
+  const rows=R.map(r=>{
+    const here=r.role==="Planner"?e.events.some(v=>v.eventType==="squad:plan-ready"):worked.has(r.name);
+    return `<tr${here?"":' style="opacity:.5"'}>
+      <td><b>${esc(r.name)}</b></td>
+      <td>${esc(r.role||(r.name==="(플래너)"?"Planner":"—"))}</td>
+      <td>${here?'<span class="pill ok">참여</span>':'<span class="pill">미참여</span>'}</td>
+      <td class="n">${r.execs.size} / ${S.execs.length}</td>
+      <td class="n">${r.tasks||"—"}</td>
+      <td class="n">${r.failed?`<span style="color:var(--bad)">${r.failed}</span>`:"0"}</td>
+      <td class="n">${r.tok?fmt(r.tok):"—"}</td></tr>`;}).join("");
+  return `<div class="card"><h2>스쿼드 구성 — ${R.length}명</h2>
+    <p class="q">이 실행에서 동작한 에이전트는 <b>${[...worked].length + (e.events.some(v=>v.eventType==="squad:plan-ready")?1:0)}명</b>이다.
+    나머지는 스쿼드에 있지만 이번엔 태스크를 받지 않았다.</p>
+    <table><tr><th>에이전트</th><th>역할</th><th>이 실행</th><th class="n">참여 실행</th>
+      <th class="n">태스크</th><th class="n">실패</th><th class="n">토큰(추정)</th></tr>${rows}</table>
+    <p class="note"><b>로스터는 로그에 없다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남는다 —
+    한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없다.
+    ${S.rosterSource==="template"
+      ? "지금은 <b>Squad Template JSON</b> 을 읽어 정확한 로스터를 쓰고 있다."
+      : `그래서 위 표는 <b>전 실행에 걸쳐 등장한 에이전트의 합집합</b> + 계획 이벤트로 추론한 플래너 자리다.
+         정확한 구성을 보려면 제출용 <b>Squad Template JSON</b> 을 같이 넣어라 — 그 파일이 로스터의 유일한 출처다.`}
+    </p></div>`;
+}
+
 function phaseBar(e){
   if(!e.phases.length) return `<p class="q">이벤트가 부족해 위상을 나눌 수 없습니다.</p>`;
   const tot=e.phases.reduce((s,p)=>s+p.ms,0)||1;
@@ -609,6 +898,363 @@ function phaseBar(e){
     (e.autoApprove===false?`<p class="note"><b>이 실행은 <code>autoApprove: false</code> 다.</b>
       "승인 대기"는 사람이 계획을 승인하기까지 걸린 시간이므로 시스템 성능이 아니다.
       자동으로 도는 벤치마크 실행에서는 이 구간이 사라진다. <b>플래닝·실행 구간만 비교 대상이다.</b></p>`:"");
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   재생 — 녹화된 실행을 되돌려 본다. 모델 호출 0회.
+   06-시각화-설계-가이드 §7: 실시간은 데모 리스크가 크다. 재생 모드는
+   네트워크가 죽어도 살아남고 타임라인 스크러빙이 공짜로 따라온다.
+   ═══════════════════════════════════════════════════════════════════════ */
+const RP={raf:null, t:0, playing:false, speed:8, exec:null, shown:0};
+
+function stopReplay(){
+  if(RP.raf) cancelAnimationFrame(RP.raf);
+  RP.raf=null; RP.playing=false; RP.exec=null;
+}
+
+function paneReplay(P,e){
+  const dur=Math.max(1,(e.t1??0)-(e.t0??0));
+  const lanes=laneRows(e);
+  P.innerHTML=`<div class="card"><h2>재생 — 이 실행을 시간순으로</h2>
+    <p class="q">이 화면이 답하는 질문: <b>"시간과 토큰이 실제로 언제 쓰였나?"</b>
+    녹화된 로그만으로 재생한다. <b>모델 호출 0회</b>이므로 몇 번을 돌려도 비용이 0이다.</p>
+    <div class="rp-ctl">
+      <button id="rp-play">▶ 재생</button>
+      <button id="rp-reset">↺</button>
+      <select id="rp-speed">
+        <option value="1">1×</option><option value="4">4×</option>
+        <option value="8" selected>8×</option><option value="16">16×</option><option value="60">60×</option>
+      </select>
+      <input type="range" id="rp-seek" min="0" max="1000" value="0">
+      <span class="rp-clock" id="rp-clock"></span>
+    </div>
+    <div class="rp-focus" id="rp-focus">맵의 <b>에이전트를 클릭</b>하면 그 구간만 재생한다. 전체 재생은 ▶ 버튼.</div>
+    <div class="sm-wrap">${squadMap(e)}</div>
+    <div class="rp-stage" id="rp-stage">
+      <div class="rp-phases" id="rp-phases">${phaseCells(e)}</div>
+      ${lanes.map(l=>`<div class="rp-lane">
+          <div class="who" title="${esc(l.who)}">${esc(l.who)}</div>
+          <div class="rp-track">${l.bars.map((b,i)=>
+            `<div class="rp-bar" data-lane="${l.i}" data-bar="${i}"
+                  data-a="${b.a}" data-b="${b.b}" data-ok="${b.ok}">${esc(b.label)}</div>`).join("")}</div>
+        </div>`).join("")}
+      <div class="rp-lane"><div class="who"></div><div class="rp-marks">${
+        e.events.filter(v=>["squad:workspace-file-changed","squad:plan-ready","squad:aggregation-started"].includes(v.eventType))
+         .map(v=>{const p=Math.max(0,Math.min(100,(ms(v.timestamp)-e.t0)/dur*100)).toFixed(3);
+           return `<div class="rp-mark" data-at="${p}" style="left:${p}%" title="${esc(v.eventType.replace("squad:",""))}"></div>`;}).join("")}
+      </div></div>
+      <div class="rp-head" id="rp-head"></div>
+    </div>
+    <div class="rp-meters">
+      <div class="stat"><span>경과</span><b id="rp-el">0.0s</b><em>전체 ${secs(dur)}</em></div>
+      <div class="stat"><span>누적 토큰</span><b id="rp-tok">0</b><em id="rp-tok-d">in 0 · out 0</em></div>
+      <div class="stat"><span>완료</span><b id="rp-done">0</b><em>태스크 ${e.tasks.length}개 중</em></div>
+      <div class="stat"><span>실패</span><b id="rp-fail" style="color:var(--bad)">0</b><em>누적</em></div>
+      <div class="stat"><span>위상</span><b id="rp-phase" style="font-size:14px">—</b><em>현재 구간</em></div>
+    </div>
+    <div class="rp-tick" id="rp-tick"></div>
+    ${e.tokenCurve.length
+      ? `<p class="note"><b>에이전트별 토큰은 추정치다.</b> 로그의 <code>perAgentTokenUsage</code> 와
+         태스크별 <code>tokenUsage</code> 는 전부 <code>{0,0}</code> 이고,
+         <code>token-usage-update</code> 는 에이전트의 <b>평생 누적</b>이라 실행별 귀속에 쓸 수 없다.
+         그래서 누적 곡선의 증분을 그 시각에 돌던 태스크에 귀속시켰다.
+         ${e.tokUnattributed?`동시에 여러 태스크가 돌던 구간의 <b>${fmt(e.tokUnattributed)} 토큰은 나누지 않고 미귀속</b>으로 남겼다.`
+           :`이 실행은 태스크가 순차로 돌아 귀속이 정확히 떨어진다.`}
+         상단 "누적 토큰"은 보고된 시점에만 계단식으로 오른다 — 사이를 보간하면 로그에 없는 숫자를 지어내게 된다.</p>`
+      : `<p class="note">이 실행에는 <code>execution-token-usage</code> 이벤트가 없다.
+         요청이 거부돼(HTTP 400) 토큰이 청구되지 않았기 때문이다. 누적 토큰은 0이다.</p>`}
+    </div>`;
+
+  // 스쿼드 맵 노드가 켜지는 시각 (실행 시작 기준 ms)
+  const evAt=t=>{const v=e.events.find(x=>x.eventType==="squad:"+t); return v?ms(v.timestamp)-e.t0:null;};
+  const nodeT={
+    req:{a:0,b:0},
+    planner:{a:0,b:evAt("plan-ready")??0},
+    agg:{a:evAt("aggregation-started")??dur,b:dur},
+    res:{a:dur,b:dur}
+  };
+  e.tasks.forEach((t,i)=>nodeT["t"+i]={a:(t.start??e.t0)-e.t0, b:(t.end??e.t1)-e.t0,
+                                       ok:!(t.status==="failed"||t.fail), task:t});
+
+  RP.exec=e; RP.t=0; RP.playing=false; RP.shown=0; RP.until=null; RP.focus=null;
+
+  const setPlay=on=>{ RP.playing=on; $("#rp-play").textContent=on?"⏸ 정지":"▶ 재생"; };
+  const clearFocus=()=>{ RP.focus=null; RP.until=null;
+    P.querySelectorAll(".sm-node.focus").forEach(x=>x.classList.remove("focus"));
+    $("#rp-focus").classList.remove("on");
+    $("#rp-focus").innerHTML="맵의 <b>에이전트를 클릭</b>하면 그 구간만 재생한다. 전체 재생은 ▶ 버튼."; };
+  const rewind=to=>{ if(to<RP.t){ RP.shown=0; $("#rp-tick").textContent=""; } RP.t=to; };
+
+  // 노드 클릭 — 그 구간의 시작 직전으로 이동해 재생하고, 구간이 끝나면 자동 정지한다.
+  function focusNode(id){
+    const g=P.querySelector(`.sm-node[data-id="${CSS.escape(id)}"]`);
+    const label=g?.dataset.label||id;
+    const nt=nodeT[id];
+    P.querySelectorAll(".sm-node.focus").forEach(x=>x.classList.remove("focus"));
+    if(!nt){                                    // 미참여 노드 — 재생할 구간이 없다
+      RP.until=null; RP.focus=null; setPlay(false);
+      $("#rp-focus").classList.remove("on");
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 는 이 실행에서 태스크를 받지 않았다. 재생할 구간이 없다.`;
+      return;
+    }
+    g?.classList.add("focus");
+    RP.focus=id;
+    const len=nt.b-nt.a;
+    rewind(Math.max(0,nt.a-Math.min(1200,nt.a)));
+    if(len<200){                                // 순간 노드(요청·결과) — 이동만
+      RP.until=null; setPlay(false); RP.t=Math.min(dur,nt.a);
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 지점으로 이동 (+${(nt.a/1000).toFixed(1)}s)`;
+    }else{
+      RP.until=nt.b; setPlay(true);
+      $("#rp-focus").innerHTML=`<b>${esc(label)}</b> 구간 재생 — +${(nt.a/1000).toFixed(1)}s ~ +${(nt.b/1000).toFixed(1)}s (${secs(len)})`;
+    }
+    $("#rp-focus").classList.add("on");
+    frame(0);
+  }
+  P.querySelectorAll(".sm-node").forEach(g=>{
+    g.addEventListener("click",()=>focusNode(g.dataset.id));
+    g.addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); focusNode(g.dataset.id); } });
+  });
+
+  $("#rp-play").onclick=()=>{
+    if(!RP.playing){ clearFocus(); if(RP.t>=dur) rewind(0); }   // 수동 재생은 항상 전체 구간
+    setPlay(!RP.playing); };
+  $("#rp-reset").onclick=()=>{ clearFocus(); rewind(0); RP.t=0; RP.shown=0;
+    $("#rp-tick").textContent=""; setPlay(false); frame(0); };
+  $("#rp-speed").onchange=ev=>RP.speed=Number(ev.target.value);
+  $("#rp-seek").oninput=ev=>{ clearFocus(); rewind(Number(ev.target.value)/1000*dur); frame(0); };
+
+  let last=null;
+  function loop(ts){
+    if(RP.exec!==e) return;                      // 탭이 바뀌면 스스로 멈춘다
+    const dt=last==null?0:ts-last; last=ts;
+    if(RP.playing){
+      RP.t=Math.min(dur,RP.t+dt*RP.speed);
+      // 구간 재생이면 그 구간 끝에서 멈춘다
+      if(RP.until!=null&&RP.t>=RP.until){ RP.t=RP.until; RP.until=null; setPlay(false); }
+      else if(RP.t>=dur) setPlay(false);
+    }
+    frame(dt);
+    RP.raf=requestAnimationFrame(loop);
+  }
+  function frame(){
+    const t=RP.t, pct=t/dur;
+    $("#rp-stage").style.setProperty("--p",pct.toFixed(5));   // 위치는 CSS calc 이 계산한다
+    $("#rp-seek").value=String(Math.round(pct*1000));
+    $("#rp-clock").textContent=`${(t/1000).toFixed(1)}s / ${(dur/1000).toFixed(1)}s`;
+    $("#rp-el").textContent=(t/1000).toFixed(1)+"s";
+
+    let done=0,fail=0;
+    $("#rp-stage").querySelectorAll(".rp-bar").forEach(b=>{
+      const a=+b.dataset.a, z=+b.dataset.b, ok=b.dataset.ok==="true";
+      const s=Math.max(0,Math.min(1,(a-e.t0)/dur)), en=Math.max(0,Math.min(1,(z-e.t0)/dur));
+      b.style.left=(s*100).toFixed(3)+"%";
+      const grown=Math.max(0,Math.min(en,pct)-s);
+      b.style.width=(grown*100).toFixed(3)+"%";
+      b.style.opacity=pct<s?"0":"1";
+      const finished=pct>=en;
+      b.className="rp-bar"+(pct<s?"":finished?(ok?" done":" fail"):" run");
+      if(finished&&pct>=s){ ok?done++:fail++; }
+    });
+    $("#rp-done").textContent=done; $("#rp-fail").textContent=fail;
+
+    // 누적 토큰 — 계단식으로 올린다. 보간하지 않는다.
+    // 토큰은 execution-token-usage 가 보고된 시점에만 알 수 있다. 그 사이를 선형으로
+    // 이으면 "20초 시점에 661토큰" 같은, 로그에 없는 숫자를 화면이 지어내게 된다.
+    // 실제로 첫 보고는 +84초다. 마지막으로 보고된 값만 보여주고 그 시점을 같이 적는다.
+    const now=e.t0+t; let last=null;
+    for(const p of e.tokenCurve){ if(p.t<=now) last=p; else break; }
+    $("#rp-tok").textContent=last?fmt(last.total):"0";
+    $("#rp-tok-d").textContent=last
+      ? `in ${fmt(last.inTok)} · out ${fmt(last.outTok)} · +${((last.t-e.t0)/1000).toFixed(1)}s 보고`
+      : (e.tokenCurve.length?"아직 보고 없음":"토큰 이벤트 없음");
+
+    $("#rp-stage").querySelectorAll(".rp-mark").forEach(m=>
+      m.classList.toggle("on", pct*100>=+m.dataset.at));
+
+    const ph=e.phases.length?phaseAt(e,t):null;
+    $("#rp-phase").textContent=ph||"—";
+
+    // ── 스쿼드 맵: 지나간 노드는 켜지고, 도는 중인 노드는 맥동하고, 토큰이 붙는다
+    const running=new Set();
+    P.querySelectorAll(".sm-node").forEach(g=>{
+      const id=g.dataset.id, nt=nodeT[id]; if(!nt) return;
+      const seen=t>=nt.a, run=t>=nt.a&&t<nt.b&&nt.b>nt.a;
+      g.classList.toggle("seen",seen);
+      g.classList.toggle("run",run);
+      if(run) running.add(id);
+      const mark=g.querySelector(".sm-mark"), tok=g.querySelector(".sm-tok");
+      const fin=t>=nt.b;
+      // 노드 색은 결과에 따라 바뀐다 — 도는 중엔 파랑, 끝나면 초록/빨강.
+      // --nc 하나만 바꾸면 테두리·점·글로우·포트가 한꺼번에 따라온다.
+      const paint=c=>{ g.style.setProperty("--nc",c);
+        g.querySelector(".box").setAttribute("stroke",c);
+        g.querySelector(".sm-dot").setAttribute("fill",c); };
+      if(nt.task){
+        if(fin) paint(nt.ok?"var(--ok)":"var(--bad)");
+        else if(run) paint("var(--accent)");
+        mark.textContent=fin?(nt.ok?"✓":"✗"):"";
+        mark.setAttribute("fill",nt.ok?"var(--ok)":"var(--bad)");
+        let v=0; for(const p of (nt.task.tokAt||[])) if(p.t-e.t0<=t) v=p.tok;
+        tok.textContent=v?fmt(v)+" tok"+(e.tokEstimated?" (추정)":""):(seen?"토큰 미보고":"");
+      } else if(id==="res"&&fin){
+        mark.textContent=e.gradable?"✓":"✗";
+        mark.setAttribute("fill",e.gradable?"var(--ok)":"var(--bad)");
+      } else if(id==="planner"&&fin&&e.plannerWarning){
+        mark.textContent="⚠"; mark.setAttribute("fill","var(--warn)");
+        paint("var(--warn)");
+      }
+    });
+    P.querySelectorAll(".sm-edge,.sm-flow").forEach(p=>p.classList.toggle("on",running.has(p.dataset.to)));
+
+    // 이벤트 티커 — 재생선이 지나간 것만 하나씩 나타난다
+    const box=$("#rp-tick");
+    while(RP.shown<e.events.length&&(ms(e.events[RP.shown].timestamp)-e.t0)<=t){
+      const ev2=e.events[RP.shown++];
+      const row=document.createElement("div");
+      row.className="row"+(ev2.payload?.success===false||ev2.payload?.error?" err":"");
+      row.innerHTML=`<span class="ts">+${((ms(ev2.timestamp)-e.t0)/1000).toFixed(1)}s</span>`+
+        `<span class="ty">${esc(ev2.eventType.replace("squad:",""))}</span>`+
+        `<span class="de">${esc(evDetail(ev2))}</span>`;
+      box.appendChild(row); box.scrollTop=box.scrollHeight;
+    }
+  }
+  // 시계를 밖에서 직접 돌릴 수 있는 진입점.
+  // requestAnimationFrame 은 페이지가 합성되지 않으면(백그라운드 탭·미표시 패널) 아예 안 돈다.
+  // 재생 로직을 rAF 없이도 검증하려면 이 seam 이 필요하다.
+  RP.step=dtMs=>{ RP.t=Math.max(0,Math.min(dur,RP.t+dtMs*RP.speed));
+    if(RP.until!=null&&RP.t>=RP.until){ RP.t=RP.until; RP.until=null; setPlay(false); }
+    frame(0); return RP.t; };
+  RP.seek=fraction=>{ rewind(Math.max(0,Math.min(1,fraction))*dur); frame(0); return RP.t; };
+  RP.click=id=>{ focusNode(id); return {t:RP.t, until:RP.until, playing:RP.playing}; };
+  RP.dur=dur;
+
+  frame(0);
+  RP.raf=requestAnimationFrame(loop);
+}
+
+/* 스쿼드 맵 — 노드는 실제로 동작한 것만 나온다.
+   좌표는 고정 viewBox 로 잡고 SVG 가 알아서 축소/확대하게 둔다.
+   폭을 재지 않는 이유는 앞서 재생선에서 겪은 것과 같다(합성 안 되면 0 이 나온다). */
+const NW=172, NH=62, CW=224, RH=88;
+function squadMap(e){
+  // 열 구성: 요청 → 플래너 → 웨이브별 에이전트 → 집계 → 결과
+  const waveOf=new Map();
+  e.waves.forEach((w,i)=>w.forEach(tid=>waveOf.set(tid,i)));
+  const nWaves=Math.max(1,e.waves.length||1);
+  const cols=[];
+  cols.push([{id:"req", label:"요청", sub:one(e.request).slice(0,20)||"—", kind:"io"}]);
+  cols.push([{id:"planner", label:"플래너", sub:e.plannerWarning?"폴백 — 분해 실패":`태스크 ${e.tasks.length}개`,
+              kind:e.plannerWarning?"warnnode":"sys"}]);
+
+  // 이 실행에서 일한 에이전트
+  const worked=new Set(e.tasks.map(t=>t.agentName||t.agentId));
+  for(let w=0;w<nWaves;w++){
+    const inWave=e.tasks.filter(t=>(waveOf.get(t.taskId)??0)===w);
+    if(!inWave.length) continue;
+    const col=inWave.map(t=>({id:"t"+e.tasks.indexOf(t), label:t.agentName||t.agentId||"agent",
+      sub:one(t.title).slice(0,22), kind:"agent", task:t}));
+    // 첫 웨이브 열에 "스쿼드에 있지만 이 실행에서 일하지 않은" 구성원을 같이 세운다.
+    // 로그에는 배정받은 에이전트만 나오므로, 이걸 안 그리면 스쿼드가 실제보다 작아 보인다.
+    if(w===0) for(const r of (S.roster||[]))
+      if(r.role!=="Planner"&&!worked.has(r.name))
+        col.push({id:"idle-"+r.name.replace(/\W/g,""), label:r.name, sub:"미참여", kind:"idle"});
+    cols.push(col);
+  }
+  cols.push([{id:"agg", label:"집계", sub:"aggregation", kind:"sys"}]);
+  cols.push([{id:"res", label:e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":"마커 없음",
+              sub:`${e.counts.total-e.counts.failed}/${e.counts.total} 완료`,
+              kind:e.gradable?"good":"badnode"}]);
+
+  const rows=Math.max(...cols.map(c=>c.length));
+  const W=cols.length*CW+20, H=rows*RH+30;
+  const pos={};
+  cols.forEach((col,ci)=>col.forEach((n,ri)=>{
+    pos[n.id]={x:20+ci*CW, y:15+(H-30-col.length*RH)/2+ri*RH, n, ci};
+  }));
+
+  // 간선: 이전 열의 모든 노드 → 다음 열의 모든 노드
+  const edges=[];
+  for(let ci=1;ci<cols.length;ci++)
+    for(const a of cols[ci-1]) for(const b of cols[ci])
+      edges.push({from:a.id, to:b.id});
+
+  const NC={io:"var(--fg-faint)", sys:"var(--prog)", agent:"var(--accent)", idle:"var(--fg-faint)",
+            warnnode:"var(--warn)", good:"var(--ok)", badnode:"var(--bad)"};
+
+  // 간선은 바탕선 + 흐르는 펄스 두 겹으로 그린다.
+  const ePaths=edges.map(({from,to})=>{
+    const a=pos[from], b=pos[to];
+    const x1=a.x+NW, y1=a.y+NH/2, x2=b.x, y2=b.y+NH/2, mx=(x1+x2)/2;
+    const d=`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    return `<path class="sm-edge" data-to="${to}" d="${d}"/>`+
+           `<path class="sm-flow" data-to="${to}" d="${d}" pathLength="1000"/>`;
+  }).join("");
+
+  const hasIn=id=>edges.some(e=>e.to===id), hasOut=id=>edges.some(e=>e.from===id);
+
+  const nodes=Object.values(pos).map(({x,y,n})=>`
+    <g class="sm-node${n.kind==="idle"?" idle":""}" data-id="${n.id}" data-label="${esc(n.label)}"
+       style="--nc:${NC[n.kind]}" transform="translate(${x},${y})"
+       tabindex="0" role="button" aria-label="${esc(n.label)} 구간 재생"
+       transform-origin="${NW/2} ${NH/2}">
+      <rect class="ring" x="-4" y="-4" width="${NW+8}" height="${NH+8}" rx="13"
+            style="transform-origin:${NW/2}px ${NH/2}px"/>
+      <rect class="box" width="${NW}" height="${NH}" rx="10" fill="var(--panel)" stroke="${NC[n.kind]}"
+            stroke-width="1.4" ${n.kind==="idle"?'stroke-dasharray="5 4"':""}/>
+      <circle class="sm-dot" cx="15" cy="19" r="4" fill="${NC[n.kind]}"/>
+      <text x="27" y="23" font-size="12" font-weight="700" fill="var(--fg)">${esc(n.label).slice(0,19)}</text>
+      <text x="15" y="39" font-size="9" fill="var(--fg-dim)">${esc(n.sub)}</text>
+      <text x="15" y="52" font-size="9" fill="var(--fg-faint)" class="sm-tok"></text>
+      <text x="${NW-12}" y="23" font-size="13" text-anchor="end" class="sm-mark"></text>
+      ${hasIn(n.id) ?`<circle class="sm-port" cx="0"    cy="${NH/2}" r="3.5"/>`:""}
+      ${hasOut(n.id)?`<circle class="sm-port" cx="${NW}" cy="${NH/2}" r="3.5"/>`:""}
+    </g>`).join("");
+
+  const n=(S.roster||[]).length, act=worked.size+1;   // +1 = 플래너
+  const key=(c,t)=>`<span class="sm-key"><i style="background:${c}"></i>${t}</span>`;
+  return `<svg class="sm" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
+             style="width:100%;height:${Math.min(H,290)}px">${ePaths}${nodes}</svg>
+    <div class="sm-cap">
+      <span>스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b></span>
+      ${key("var(--ok)","완료")}${key("var(--bad)","실패")}${key("var(--accent)","실행 중")}
+      ${n>act?key("var(--fg-faint)","미참여 (점선)"):""}
+      <span class="sm-src">${S.rosterSource==="template"?"Squad Template JSON 기준":
+        "로그에서 추린 것 — 로그에는 태스크를 배정받은 에이전트만 남는다. 플래너는 이름이 없어 자리만 세웠다"}</span>
+    </div>`;
+}
+
+function laneRows(e){
+  const by=new Map();
+  e.tasks.forEach(t=>{
+    const who=t.agentName||t.agentId||"—";
+    if(!by.has(who)) by.set(who,[]);
+    const a=t.start??e.t0, b=t.end??e.t1;
+    by.get(who).push({a, b:Math.max(b,a+400), ok:!(t.status==="failed"||t.fail),
+      label:one(t.title).slice(0,42)});
+  });
+  return [...by].map(([who,bars],i)=>({who,bars,i}));
+}
+function phaseCells(e){
+  const tot=e.phases.reduce((s,p)=>s+p.ms,0)||1;
+  return e.phases.map(p=>`<div style="width:${(p.ms/tot*100).toFixed(2)}%;background:${p.c}">${p.ms/tot>.14?esc(p.k):""}</div>`).join("");
+}
+function phaseAt(e,t){
+  let acc=0;
+  for(const p of e.phases){ if(t<=acc+p.ms) return p.k; acc+=p.ms; }
+  return e.phases[e.phases.length-1]?.k||"—";
+}
+function evDetail(ev){
+  const p=ev.payload||{};
+  if(p.taskTitle) return one(p.taskTitle).slice(0,70);
+  if(p.waves) return "waves: "+p.waves.map(w=>w.length).join(" / ")+(p.plannerWarning?"  ⚠ 플래너 폴백":"");
+  if(p.total!=null) return `누적 ${fmt(p.total)} (in ${fmt(p.promptTokens)} · out ${fmt(p.completionTokens)})`;
+  if(p.path) return p.changeType+" "+p.path;
+  if(p.state) return (p.agentId||"")+" → "+p.state;
+  if(p.newStatus) return p.oldStatus+" → "+p.newStatus;
+  if(p.taskIds) return p.taskIds.length+" tasks"+(p.waveIndex!=null?` · wave ${p.waveIndex+1}/${p.totalWaves}`:"");
+  if(p.error) return "⚠ "+one(p.error).slice(0,70);
+  return "";
 }
 
 function paneLedger(P,e){
@@ -727,7 +1373,7 @@ function finish(){
   $("#drop").hidden=true;
   renderHeader(); renderList(); renderPane();
 }
-function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();
+function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.squad=null;
   SEEN.files=0;SEEN.kinds={};SEEN.skipped=[]; }
 
 /* 파일 하나를 텍스트로 읽는다.
