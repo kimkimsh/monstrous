@@ -119,6 +119,11 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 .sm-node.run rect{stroke-width:2.5;animation:sm-glow 1.1s ease-in-out infinite}
 @keyframes sm-glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
 .sm-node .sm-mark{font-weight:700}
+.sm-node.idle{opacity:.4}
+.sm-node.idle.seen{opacity:.4}      /* 미참여는 재생이 지나가도 켜지지 않는다 */
+.sm-cap{font-size:10.5px;color:var(--fg-dim);padding:6px 4px 0}
+.sm-cap b{color:var(--fg)}
+.sm-src{display:block;color:var(--fg-faint);font-size:10px;margin-top:2px}
 
 /* ── 재생 ── */
 .rp-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
@@ -309,7 +314,7 @@ function classify(err){
    수집 — 폴더 안의 파일을 이름으로 분류해 병합한다
    ═══════════════════════════════════════════════════════════════════════ */
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map()};
+const RAW={hist:new Map(), ev:new Map(), task:new Map(), log:new Map(), squad:null};
 const SEEN={files:0, kinds:{}, skipped:[]};
 
 function ndjson(text){
@@ -344,6 +349,18 @@ function addFile(path,name,text){
       bump("events.jsonl"); return;
     }
     if(name==="index.json"){ bump("index.json (무시)"); return; }
+    // Squad Template JSON — 스쿼드 구성(로스터)의 유일한 출처다.
+    // 로그에는 "태스크를 배정받은 에이전트"만 나오므로, 한 번도 일하지 않은 구성원과
+    // 플래너는 로그만으로는 존재 자체를 알 수 없다.
+    {
+      const j=JSON.parse(text);
+      const arr=j?.agents||j?.squad?.agents||j?.template?.agents;
+      if(Array.isArray(arr)&&arr.length&&arr.some(a=>a&&(a.name||a.role))){
+        RAW.squad={name:j.name||j.squadName||j?.squad?.name||"(스쿼드)",
+          agents:arr.map(a=>({name:a.name||a.id||"agent", role:a.role||a.type||"", model:a.model||a.modelId||""}))};
+        bump("squad template"); return;
+      }
+    }
     if(/\/tasks\//.test(path)&&name.endsWith(".json")){
       const t=JSON.parse(text);
       for(const x of (Array.isArray(t)?t:[t])) if(x&&x.id) RAW.task.set(x.id,x);
@@ -542,6 +559,44 @@ function build(){
       phases:phasesOf(evs)
     };
   }).sort((a,b)=>(a.t0??0)-(b.t0??0));
+
+  buildRoster();
+}
+
+/* 스쿼드 구성(로스터).
+   로그에는 "태스크를 배정받은 에이전트"만 나온다. 한 번도 일하지 않은 구성원과
+   플래너는 로그만으로 존재를 알 수 없다 — 실측: 로그의 에이전트는 3명인데
+   실제 스쿼드는 4명이었다. 그래서 두 가지를 한다.
+     1) 전 실행에 걸쳐 등장한 에이전트를 합집합으로 모은다 (한 실행만 봐도 전원이 보이게)
+     2) Squad Template JSON 이 들어오면 그것을 권위 있는 로스터로 삼는다 */
+function buildRoster(){
+  const m=new Map();
+  const put=(name,src)=>{
+    if(!name) return null;
+    if(!m.has(name)) m.set(name,{name, id:null, role:"", model:"", src,
+      execs:new Set(), tasks:0, done:0, failed:0, tok:0});
+    return m.get(name);
+  };
+  for(const e of S.execs) for(const t of e.tasks){
+    const r=put(t.agentName||t.agentId||null,"log"); if(!r) continue;
+    r.id||=t.agentId||null; r.execs.add(e.id); r.tasks++;
+    if(t.status==="failed"||t.fail) r.failed++; else r.done++;
+    r.tok+=t.tok||0;
+  }
+  // 플래너는 태스크를 배정받지 않으므로 로그에 이름이 없다. 계획 이벤트가 있으면 자리만 만든다.
+  const planned=S.execs.some(e=>e.events.some(v=>v.eventType==="squad:plan-ready"));
+  if(planned&&!m.has("(플래너)")) m.set("(플래너)",{name:"(플래너)", id:null, role:"Planner",
+    model:"", src:"inferred", execs:new Set(S.execs.filter(e=>e.events.some(v=>v.eventType==="squad:plan-ready")).map(e=>e.id)),
+    tasks:0, done:0, failed:0, tok:0});
+
+  if(RAW.squad){
+    for(const a of RAW.squad.agents){
+      const r=put(a.name,"template");
+      if(r){ r.role=a.role||r.role; r.model=a.model||r.model; r.src="template"; }
+    }
+  }
+  S.roster=[...m.values()];
+  S.rosterSource=RAW.squad?"template":"log";
 }
 
 function phasesOf(evs){
@@ -692,6 +747,7 @@ function paneOverview(P,e){
     <br>→ 요청이 분해되지 않고 <b>모든 에이전트에게 원본이 그대로</b> 들어갔다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생한다.</p>`;
   h+=`</div>`;
 
+  h+=rosterCard(e);
   h+=`<div class="card"><h2>시간이 어디에 쓰였나</h2>`+phaseBar(e)+`</div>`;
 
   h+=`<div class="card"><h2>태스크 ${e.tasks.length}개</h2><table>
@@ -704,6 +760,34 @@ function paneOverview(P,e){
     <td class="n">${secs(t.durationMs)}</td></tr>`;
   h+=`</table></div>`;
   P.innerHTML=h;
+}
+
+function rosterCard(e){
+  const R=S.roster||[];
+  if(!R.length) return "";
+  const worked=new Set(e.tasks.map(t=>t.agentName||t.agentId));
+  const rows=R.map(r=>{
+    const here=r.role==="Planner"?e.events.some(v=>v.eventType==="squad:plan-ready"):worked.has(r.name);
+    return `<tr${here?"":' style="opacity:.5"'}>
+      <td><b>${esc(r.name)}</b></td>
+      <td>${esc(r.role||(r.name==="(플래너)"?"Planner":"—"))}</td>
+      <td>${here?'<span class="pill ok">참여</span>':'<span class="pill">미참여</span>'}</td>
+      <td class="n">${r.execs.size} / ${S.execs.length}</td>
+      <td class="n">${r.tasks||"—"}</td>
+      <td class="n">${r.failed?`<span style="color:var(--bad)">${r.failed}</span>`:"0"}</td>
+      <td class="n">${r.tok?fmt(r.tok):"—"}</td></tr>`;}).join("");
+  return `<div class="card"><h2>스쿼드 구성 — ${R.length}명</h2>
+    <p class="q">이 실행에서 동작한 에이전트는 <b>${[...worked].length + (e.events.some(v=>v.eventType==="squad:plan-ready")?1:0)}명</b>이다.
+    나머지는 스쿼드에 있지만 이번엔 태스크를 받지 않았다.</p>
+    <table><tr><th>에이전트</th><th>역할</th><th>이 실행</th><th class="n">참여 실행</th>
+      <th class="n">태스크</th><th class="n">실패</th><th class="n">토큰(추정)</th></tr>${rows}</table>
+    <p class="note"><b>로스터는 로그에 없다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남는다 —
+    한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없다.
+    ${S.rosterSource==="template"
+      ? "지금은 <b>Squad Template JSON</b> 을 읽어 정확한 로스터를 쓰고 있다."
+      : `그래서 위 표는 <b>전 실행에 걸쳐 등장한 에이전트의 합집합</b> + 계획 이벤트로 추론한 플래너 자리다.
+         정확한 구성을 보려면 제출용 <b>Squad Template JSON</b> 을 같이 넣어라 — 그 파일이 로스터의 유일한 출처다.`}
+    </p></div>`;
 }
 
 function phaseBar(e){
@@ -913,11 +997,20 @@ function squadMap(e){
   cols.push([{id:"req", label:"요청", sub:one(e.request).slice(0,20)||"—", kind:"io"}]);
   cols.push([{id:"planner", label:"플래너", sub:e.plannerWarning?"폴백 — 분해 실패":`태스크 ${e.tasks.length}개`,
               kind:e.plannerWarning?"warnnode":"sys"}]);
+
+  // 이 실행에서 일한 에이전트
+  const worked=new Set(e.tasks.map(t=>t.agentName||t.agentId));
   for(let w=0;w<nWaves;w++){
-    const inWave=e.tasks.filter((t,i)=>(waveOf.get(t.taskId)??0)===w);
+    const inWave=e.tasks.filter(t=>(waveOf.get(t.taskId)??0)===w);
     if(!inWave.length) continue;
-    cols.push(inWave.map((t)=>({id:"t"+e.tasks.indexOf(t), label:t.agentName||t.agentId||"agent",
-      sub:one(t.title).slice(0,22), kind:"agent", task:t})));
+    const col=inWave.map(t=>({id:"t"+e.tasks.indexOf(t), label:t.agentName||t.agentId||"agent",
+      sub:one(t.title).slice(0,22), kind:"agent", task:t}));
+    // 첫 웨이브 열에 "스쿼드에 있지만 이 실행에서 일하지 않은" 구성원을 같이 세운다.
+    // 로그에는 배정받은 에이전트만 나오므로, 이걸 안 그리면 스쿼드가 실제보다 작아 보인다.
+    if(w===0) for(const r of (S.roster||[]))
+      if(r.role!=="Planner"&&!worked.has(r.name))
+        col.push({id:"idle-"+r.name.replace(/\W/g,""), label:r.name, sub:"미참여", kind:"idle"});
+    cols.push(col);
   }
   cols.push([{id:"agg", label:"집계", sub:"aggregation", kind:"sys"}]);
   cols.push([{id:"res", label:e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가":"마커 없음",
@@ -937,7 +1030,7 @@ function squadMap(e){
     for(const a of cols[ci-1]) for(const b of cols[ci])
       edges.push({from:a.id, to:b.id});
 
-  const NC={io:"var(--fg-faint)", sys:"var(--prog)", agent:"var(--accent)",
+  const NC={io:"var(--fg-faint)", sys:"var(--prog)", agent:"var(--accent)", idle:"var(--fg-faint)",
             warnnode:"var(--warn)", good:"var(--ok)", badnode:"var(--bad)"};
 
   const ePaths=edges.map(({from,to})=>{
@@ -947,16 +1040,23 @@ function squadMap(e){
   }).join("");
 
   const nodes=Object.values(pos).map(({x,y,n})=>`
-    <g class="sm-node" data-id="${n.id}" transform="translate(${x},${y})">
-      <rect width="${NW}" height="${NH}" rx="9" fill="var(--panel-2)" stroke="${NC[n.kind]}"/>
+    <g class="sm-node${n.kind==="idle"?" idle":""}" data-id="${n.id}" transform="translate(${x},${y})">
+      <rect width="${NW}" height="${NH}" rx="9" fill="var(--panel-2)" stroke="${NC[n.kind]}"
+            ${n.kind==="idle"?'stroke-dasharray="5 4"':""}/>
       <text x="11" y="20" font-size="12" font-weight="700" fill="var(--fg)">${esc(n.label).slice(0,20)}</text>
       <text x="11" y="34" font-size="9" fill="var(--fg-dim)">${esc(n.sub)}</text>
       <text x="11" y="47" font-size="9" fill="var(--fg-faint)" class="sm-tok"></text>
       <text x="${NW-11}" y="20" font-size="12" text-anchor="end" class="sm-mark"></text>
     </g>`).join("");
 
+  const n=(S.roster||[]).length, act=worked.size+1;   // +1 = 플래너
   return `<svg class="sm" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
-             style="width:100%;height:${Math.min(H,260)}px">${ePaths}${nodes}</svg>`;
+             style="width:100%;height:${Math.min(H,280)}px">${ePaths}${nodes}</svg>
+    <div class="sm-cap">스쿼드 <b>${n}명</b> · 이 실행에서 동작 <b>${act}명</b>
+      ${n>act?` · 점선 = 미참여`:""}
+      <span class="sm-src">${S.rosterSource==="template"?"Squad Template JSON 기준":
+        "로그에서 추린 것 — 로그에는 태스크를 배정받은 에이전트만 남는다. 플래너는 이름이 없어 자리만 세웠다"}</span>
+    </div>`;
 }
 
 function laneRows(e){
@@ -1108,7 +1208,7 @@ function finish(){
   $("#drop").hidden=true;
   renderHeader(); renderList(); renderPane();
 }
-function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();
+function reset(){ RAW.hist.clear();RAW.ev.clear();RAW.task.clear();RAW.log.clear();RAW.squad=null;
   SEEN.files=0;SEEN.kinds={};SEEN.skipped=[]; }
 
 /* 파일 하나를 텍스트로 읽는다.
