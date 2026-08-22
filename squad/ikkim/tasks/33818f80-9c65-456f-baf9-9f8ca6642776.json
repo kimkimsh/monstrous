@@ -1,0 +1,21 @@
+{
+  "id": "33818f80-9c65-456f-baf9-9f8ca6642776",
+  "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+  "planId": "fc5d9893-2a2c-471a-b286-f64993e2f300",
+  "title": "보안 리뷰어: What is the shortest distance from the point $(6, 0)$ to the line $y = 2x-2$? Express your answer in",
+  "description": "What is the shortest distance from the point $(6, 0)$ to the line $y = 2x-2$? Express your answer in simplest radical form.",
+  "assignedTo": "agent-1787405394261-rw55c5m",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:35:26.280752430Z",
+  "startedAt": "2026-08-22T13:35:26.283291262Z",
+  "completedAt": "2026-08-22T13:35:28.961069Z"
+}

@@ -26,5 +26,68 @@
     "startedAt": "2026-08-22T12:39:06.104234339Z",
     "lastUpdatedAt": "2026-08-22T12:48:08.470565377Z",
     "entryCount": 9
+  },
+  {
+    "executionId": "2699933b-be79-4a3f-b08f-8393346cb621",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "startedAt": "2026-08-22T13:01:27.621744863Z",
+    "lastUpdatedAt": "2026-08-22T13:01:43.177536999Z",
+    "entryCount": 5
+  },
+  {
+    "executionId": "d316fb18-0afc-43b9-a219-6449a9519558",
+    "squadId": "41063fc0-0bc5-47f9-b452-4960d94463e4",
+    "startedAt": "2026-08-22T13:14:09.975290767Z",
+    "lastUpdatedAt": "2026-08-22T13:23:12.338342624Z",
+    "entryCount": 9
+  },
+  {
+    "executionId": "9859bf13-b6e9-4e25-8587-4a8e46be53de",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:31:52.512230498Z",
+    "lastUpdatedAt": "2026-08-22T13:32:07.557917435Z",
+    "entryCount": 9
+  },
+  {
+    "executionId": "00774b5b-bb6d-4248-85b6-35322f897942",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:34:29.404893582Z",
+    "lastUpdatedAt": "2026-08-22T13:34:41.662338027Z",
+    "entryCount": 9
+  },
+  {
+    "executionId": "ba2d710c-6317-4e9c-b6f9-8e5f09278949",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:35:26.279185646Z",
+    "lastUpdatedAt": "2026-08-22T13:35:37.150308192Z",
+    "entryCount": 10
+  },
+  {
+    "executionId": "ab50987f-71f1-4e2d-8a44-b28d5e033c5e",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:35:50.896538031Z",
+    "lastUpdatedAt": "2026-08-22T13:35:55.738058794Z",
+    "entryCount": 5
+  },
+  {
+    "executionId": "c91ee04a-e788-4096-8757-4f8c30355f76",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:36:07.056731926Z",
+    "lastUpdatedAt": "2026-08-22T13:36:19.175635561Z",
+    "entryCount": 9
+  },
+  {
+    "executionId": "6bc23875-6d8f-477d-b12e-2ce638df9436",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:36:27.017624895Z",
+    "lastUpdatedAt": "2026-08-22T13:36:30.956034629Z",
+    "entryCount": 6
+  },
+  {
+    "executionId": "e124570f-821b-4751-bedc-f48e3f1137e1",
+    "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+    "startedAt": "2026-08-22T13:36:46.990309918Z",
+    "lastUpdatedAt": "2026-08-22T13:36:54.061376112Z",
+    "entryCount": 5
   }
 ]

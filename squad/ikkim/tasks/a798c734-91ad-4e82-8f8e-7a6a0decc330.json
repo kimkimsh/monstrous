@@ -1,0 +1,21 @@
+{
+  "id": "a798c734-91ad-4e82-8f8e-7a6a0decc330",
+  "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+  "planId": "d0928b79-d4ad-4505-b330-32a10bb4801a",
+  "title": "성능 리뷰어: The value of $y$ varies inversely as $\\sqrt x$ and when $x=24$, $y=15$. What is $x$ when $y=3$?\n\nThi",
+  "description": "The value of $y$ varies inversely as $\\sqrt x$ and when $x=24$, $y=15$. What is $x$ when $y=3$?\n\nThis problem's answer is an integer.",
+  "assignedTo": "agent-1787405394261-sfk94fx",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:34:29.406867593Z",
+  "startedAt": "2026-08-22T13:34:33.286026779Z",
+  "completedAt": "2026-08-22T13:34:36.970563632Z"
+}

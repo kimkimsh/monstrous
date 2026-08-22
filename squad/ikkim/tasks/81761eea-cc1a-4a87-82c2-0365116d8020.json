@@ -1,0 +1,21 @@
+{
+  "id": "81761eea-cc1a-4a87-82c2-0365116d8020",
+  "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+  "planId": "a6047533-c52a-44fb-af1d-e366c7fde717",
+  "title": "Denali and Nate's new dog walking business policy",
+  "description": "Denali and Nate work for a dog walking business and are paid for each dog they walk. Denali is responsible for $16$ dogs and Nate is responsible for $12$ dogs. Under the company's new policy, they will be assigned or unassigned new dogs in groups of $x$ dogs. The ratio of Denali's pay to Nate's pay would be the same if Denali started walking $4x$ more dogs and Nate stayed at $12$ dogs or if $x$ of Nate's dogs were reassigned to Denali. Find $x$ if $x\neq0$.",
+  "assignedTo": "agent-1787405394261-940fa4i",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:35:50.897879249Z",
+  "startedAt": "2026-08-22T13:35:50.899806138Z",
+  "completedAt": "2026-08-22T13:35:54.929553294Z"
+}

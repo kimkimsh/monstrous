@@ -1,0 +1,21 @@
+{
+  "id": "9fca1719-dde5-481d-ba2b-5e8be78bda2a",
+  "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+  "planId": "b49f6f48-1e63-42ed-8a42-394ce661140c",
+  "title": "Decompose this request into tasks and assign them to the appropriate agents",
+  "description": "Let $f(x)=\frac{5}{8}(-\frac{1}{8})^x$ be a function that is defined for all values of $x$ in $[0,\frac{1}{8})$ such that $f(x)$ is a real number. How many distinct values exist in the range of $f(x)$?",
+  "assignedTo": "agent-1787405394261-sfk94fx",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:36:46.994277669Z",
+  "startedAt": "2026-08-22T13:36:46.996075843Z",
+  "completedAt": "2026-08-22T13:36:53.254673531Z"
+}

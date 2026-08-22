@@ -1,0 +1,21 @@
+{
+  "id": "90b6a238-fc45-4976-8e6c-85d1750f9d0b",
+  "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+  "planId": "18d48539-4eec-4536-91a3-36e35aedc462",
+  "title": "What is the maximum value of $4(x + 7)(2 - x)$, over all real numbers $x$?",
+  "description": "What is the maximum value of $4(x + 7)(2 - x)$, over all real numbers $x$?",
+  "assignedTo": "agent-1787405394261-sfk94fx",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:36:27.019132418Z",
+  "startedAt": "2026-08-22T13:36:27.021180299Z",
+  "completedAt": "2026-08-22T13:36:30.144228258Z"
+}

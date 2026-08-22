@@ -1,0 +1,21 @@
+{
+  "id": "66cc8272-bc61-403c-be05-f01310eec363",
+  "squadId": "ce6ef6d5-5aa6-417c-87a7-f46b5569749b",
+  "planId": "62167e5f-697f-4990-a6c7-3525ad297b54",
+  "title": "스타일 리뷰어: What is the domain of the real-valued function $f(x)=\\frac{2x-7}{\\sqrt{x^2-5x+6}}$?",
+  "description": "What is the domain of the real-valued function $f(x)=\\frac{2x-7}{\\sqrt{x^2-5x+6}}$?",
+  "assignedTo": "agent-1787405394261-940fa4i",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:36:07.060687298Z",
+  "startedAt": "2026-08-22T13:36:07.063302843Z",
+  "completedAt": "2026-08-22T13:36:10.393449608Z"
+}

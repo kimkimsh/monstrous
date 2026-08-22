@@ -1,0 +1,21 @@
+{
+  "id": "7390ce91-e2a5-4a41-ab8a-9ffd55f00e51",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "65d92af7-3fb3-404c-9375-c0d01c59832a",
+  "title": "Compute integer count for sqrt(120 - sqrt(x))",
+  "description": "Determine how many real values of x satisfy that sqrt(120 - sqrt(x)) is an integer. Compute the count and provide the integer result.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T13:01:27.623340016Z",
+  "startedAt": "2026-08-22T13:01:27.624979436Z",
+  "completedAt": "2026-08-22T13:01:42.372214287Z"
+}

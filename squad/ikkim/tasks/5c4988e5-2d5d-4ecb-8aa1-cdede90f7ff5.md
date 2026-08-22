@@ -1,0 +1,29 @@
+# Task: 스타일 리뷰어: For how many real values of $x$ is $\sqrt{120-\sqrt{x}}$ an integer?
+
+This problem's answer is an in
+ID: 5c4988e5-2d5d-4ecb-8aa1-cdede90f7ff5
+Status: Done
+Assigned to: agent-1787405394261-940fa4i
+Created: 2026-08-22T13:31:52Z
+Priority: Medium
+
+## Description
+
+For how many real values of $x$ is $\sqrt{120-\sqrt{x}}$ an integer?
+
+This problem's answer is an integer.
+
+=== REQUIRED OUTPUT ===
+End your answer with a line of exactly this form:
+
+FINAL ANSWER: \boxed{<answer>}
+
+Put the final answer, and nothing else, inside \boxed{}.
+If more than one appears, the last one is used.
+Anything before it is ignored, not penalised.
+
+## Progress Log
+
+- [13:31] Started execution (attempt 1)
+- [13:32] Done (success)
+
