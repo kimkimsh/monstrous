@@ -1,0 +1,5 @@
+# Researcher Memory
+
+## Insights
+- [2026-08-22] Project name: math-visible-0145 [#project #planning]
+- [2026-08-22] Rectangles ABCD and EFGH are drawn such that D,E,C,F are collinear. Also, A,D,H,G all lie on a circle. If BC=16, AB=107, FG=17, and EF=184, what is the length of CE? The answer is an integer. [#math #geometry #problem]

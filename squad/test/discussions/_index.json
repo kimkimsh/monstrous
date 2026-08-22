@@ -82,5 +82,77 @@
     },
     "createdAt": "2026-08-22T13:37:12.271634Z",
     "updatedAt": "2026-08-22T13:44:12.368040Z"
+  },
+  {
+    "id": "2356df2d-c098-427a-8706-ba61d033fb2b",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "topic": "math-visible-0001",
+    "participants": [
+      "agent-1787387157647-bt1u2c5",
+      "agent-1787387157647-3orflu2",
+      "agent-1787387157647-ztcvzv5",
+      "agent-1787387157647-5x127gz"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 306
+    },
+    "createdAt": "2026-08-22T14:10:22.209946Z",
+    "updatedAt": "2026-08-22T14:16:52.287113Z"
+  },
+  {
+    "id": "f3a8adce-0238-48a6-8332-b82d35da1a4f",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "topic": "math-visible-0001",
+    "participants": [
+      "agent-1787387157647-bt1u2c5",
+      "agent-1787387157647-3orflu2",
+      "agent-1787387157647-ztcvzv5",
+      "agent-1787387157647-5x127gz"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 317
+    },
+    "createdAt": "2026-08-22T14:14:30.168768Z",
+    "updatedAt": "2026-08-22T14:21:30.257612Z"
+  },
+  {
+    "id": "90d654b3-70bd-4086-9e3e-74382d5bd5fa",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "topic": "math-visible-0002",
+    "participants": [
+      "agent-1787387157647-bt1u2c5",
+      "agent-1787387157647-3orflu2",
+      "agent-1787387157647-ztcvzv5",
+      "agent-1787387157647-5x127gz"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": false,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 314
+    },
+    "createdAt": "2026-08-22T14:16:12.657334Z",
+    "updatedAt": "2026-08-22T14:22:42.732908Z"
   }
 ]

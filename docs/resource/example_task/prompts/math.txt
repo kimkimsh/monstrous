@@ -1,5 +1,6 @@
 Solve the problem. Work in the shortest chain of steps that settles the value; do not
-restate the problem, do not explain the method, do not check the arithmetic twice.
+restate the problem and do not explain the method. Do check sign, integrality, range and
+extraneous roots once before you commit — everything before the final line is free of points.
 
 Only the final value is graded, compared exactly against a reference. A correct value
 reached carelessly scores; a flawless derivation that lands on the wrong value does not.
