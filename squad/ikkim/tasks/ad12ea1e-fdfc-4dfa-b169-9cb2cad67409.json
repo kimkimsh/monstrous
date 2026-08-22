@@ -1,0 +1,21 @@
+{
+  "id": "ad12ea1e-fdfc-4dfa-b169-9cb2cad67409",
+  "squadId": "a9b9db2b-694f-44e6-9a2a-0dd8ece6b36a",
+  "planId": "9f772bea-17af-4a0f-8b8f-b93a2b25576b",
+  "title": "보안 리뷰어: For how many real values of $x$ is $\\sqrt{120-\\sqrt{x}}$ an integer?\n\nThis problem's answer is an in",
+  "description": "For how many real values of $x$ is $\\sqrt{120-\\sqrt{x}}$ an integer?\n\nThis problem's answer is an integer.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.",
+  "assignedTo": "agent-1787401886360-pqmj5t6",
+  "createdBy": "planner",
+  "status": "failed",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T14:32:20.796018833Z",
+  "startedAt": "2026-08-22T14:40:56.033737141Z",
+  "completedAt": "2026-08-22T14:40:56.645814379Z"
+}

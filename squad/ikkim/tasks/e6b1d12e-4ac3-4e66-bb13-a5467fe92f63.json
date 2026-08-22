@@ -1,0 +1,21 @@
+{
+  "id": "e6b1d12e-4ac3-4e66-bb13-a5467fe92f63",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "a90587b9-e493-4710-8043-d3238312ecaa",
+  "title": "Quarterly Dividend Calculation",
+  "description": "Calculate the total quarterly dividend income for Mr. Torres. He owns 350 shares of Krescostock, each paying a quarterly dividend of $1.20. Compute 4 quarters * 350 shares * $1.20 per share.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T14:59:21.191506328Z",
+  "startedAt": "2026-08-22T14:59:51.269803902Z",
+  "completedAt": "2026-08-22T14:59:56.204599248Z"
+}

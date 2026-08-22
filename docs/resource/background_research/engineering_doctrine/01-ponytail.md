@@ -57,7 +57,7 @@
 
 그리고 **문구가 결정적이라는 대조군이 있다.**
 
-> "pre-fix ponytail and a plain-prose version ('trace the flow end to end') both scored 0/3 on Opus; only the grep-the-callers directive moved it to 6/6" — `:51-53`
+> "pre-fix ponytail and a plain-prose version ('trace the flow end to end') both scored 0/3 on Opus; only the grep-the-callers directive moved it to 6/6" — `2026-06-22-issue-245-217-comprehension.md:50-52`
 
 "흐름을 끝까지 따라가라"는 산문은 **0/3**이었고, "네가 건드리는 함수의 호출자를 전부 훑어라"는 조작적 지시가 **6/6**을 만들었다. 지시는 절차여야 한다.
 
@@ -101,7 +101,7 @@
 ### 철회·수정된 것
 
 - **80~94% LOC 감소**(단발 벤치마크)는 레포가 직접 깎았다 — *"the bare-model baseline pads its answer with prose and options, so that gap is partly a conversational-baseline artifact."*(`README.md:84`)
-- **450세션짜리 agentic 실험 전체가 오염으로 철회**됐다 — *"the ponytail plugin's `SessionStart` hook fired on every arm, so the 'baseline' was secretly running ponytail."*(`2026-06-17-agentic-safety.md:3-9`)
+- **450세션짜리 agentic 실험의 LOC 결과가 오염으로 철회**됐다 — *"the ponytail plugin's `SessionStart` hook fired on every arm, so the 'baseline' was secretly running ponytail."*(`2026-06-17-agentic-safety.md:3-9`). **안전 결과는 철회되지 않았고 새 실행에서 재확인됐다** — 같은 문단이 *"The safety finding here … held up and is reconfirmed in the new run"*라고 적는다
 - **비용 47~77%는 42~75%로 정정**됐고, OpenAI 추론 모델에서는 **방향이 뒤집힌다** — gpt-5.4-mini 26.2% 더 비쌈, gpt-5.5 38.7% 더 비싸고 **더 느림**(`2026-06-17-cost-verification.md:63-85`)
 - **로컬 3.2B 모델에서는 ponytail이 더 나쁘다** — LOC 137 vs 기준선 109. *"Ponytail does not transfer to llama3.2."*(`2026-06-15-llama3.2-local.md:41`)
 
@@ -145,4 +145,4 @@
 - llama3.2 3.2B에서는 오히려 나빠진다.
 - OpenAI 추론 모델에서는 비용이 반대로 간다.
 
-우리 Patcher는 gpt-oss-120b이고 Architect도 같은 모델이다. **적어도 Haiku급은 아니지만, 이 규칙 묶음이 실제로 실행되는지는 §10-E6에서 재야 한다.**
+우리 Editor는 gpt-oss-120b이고 Architect도 같은 모델이다. **적어도 Haiku급은 아니지만, 이 규칙 묶음이 실제로 실행되는지는 §10-E6에서 재야 한다.**

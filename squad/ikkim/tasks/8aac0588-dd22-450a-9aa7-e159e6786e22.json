@@ -1,0 +1,23 @@
+{
+  "id": "8aac0588-dd22-450a-9aa7-e159e6786e22",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "18ead8dc-af41-460d-9fe7-7e1a86f9affb",
+  "title": "Compute x values",
+  "description": "For each integer k found in Task 1, compute the corresponding real value of x = (120 - k^2)^2.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "bff05935-7d59-4ecd-a807-cf8bd5c1c891"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T14:47:05.327980688Z",
+  "startedAt": "2026-08-22T14:47:44.314664399Z",
+  "completedAt": "2026-08-22T14:48:16.434249794Z"
+}
