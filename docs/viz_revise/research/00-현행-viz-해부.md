@@ -19,13 +19,18 @@
 | 파일 수집 · 병합 | 799 – 960 | 순수 로직 | **바이트 그대로 보존** |
 | 모델 조립 (`build` · `buildRoster` · `phasesOf`) | 962 – 1278 | 순수 로직 | **바이트 그대로 보존** |
 | i18n 사전 `EN` / `PHASE_EN` | 1286 – 1704 | UI 문구 | **키 전면 교체** (엔진은 보존) |
-| i18n 엔진 (`t` · `tn` · `translateDOM` · `i18nAudit`) | 1705 – 1888 | 인프라 | **보존** |
+| i18n 엔진 (`t` · `tn` · `translateDOM` · `i18nAudit`) + 표기 헬퍼 (`esc`·`fmt`·`secs`·`one`·`pct`, 1884–1888) | 1705 – 1888 | 인프라 | **보존** |
 | 렌더 계층 (`renderHeader` ~ `paneRaw`) | 1890 – 3367 | **UI 전량** | **버린다** — 단, 계산부는 추출 |
 | 로드 파이프라인 (`finish` ~ `walk`) | 3369 – 3504 | 인프라 | **보존** |
 | 조작·상태 (`setMode` · `syncHash` · 키보드 등) | 3506 – 3710 | 반반 | **동작 규약 보존, 마크업 교체** |
 | 내보내기 (`download` · SVG · JSON) | 3711 – 3758 | 인프라 | **보존** |
 
-숫자로 요약하면 **로직·인프라 약 1,150줄은 남고, UI 약 2,600줄이 교체 대상**이다.
+숫자로 요약하면 **로직·인프라 1,105줄이 남고, UI 2,425줄이 교체 대상**이다
+(`<style>` 377 + 마크업 151 + 사전 419 + 렌더 1,478). 나머지 231줄은 조작·상태와 파일 골격이라
+마크업만 갈아 끼운다.
+
+> **줄 번호는 참고값이다.** P0에서 순수 함수를 하나만 끌어내도 아래 구간의 좌표가 전부 밀린다.
+> 실제 검사는 `@preserve:begin/end` 마커로 한다 — `../spec/04-구현-계약.md` §5.
 
 ---
 
@@ -37,8 +42,8 @@
 
 | 심볼 | 줄 | 하는 일 |
 |---|---|---|
-| `PS` / `PE` | 545 | `*** PATCH START ***` / `*** PATCH END ***` 리터럴 |
-| `TRACK` | 559 | coding·math·generic·unknown 네 트랙 정의와 각 트랙의 계약 |
+| `PS` / `PE` | 544 | `*** PATCH START ***` / `*** PATCH END ***` 리터럴 |
+| `TRACK` | 558 | coding·math·generic·unknown 네 트랙 정의와 각 트랙의 계약 |
 | `trackOf(request)` | 564 | 요청 지문의 생김새로 트랙을 찍는다. **계약 절이 잘려 나간 지문도 잡는다** |
 | `CONTRACT` / `REQOUT` / `REAL_CONTRACT` | 585-595 | patch·boxed·letter + missing·unknown 두 상태 |
 | `contractOf(request)` | 596 | 지문에서 출력 계약을 읽는다 |
@@ -90,6 +95,7 @@ history.json → events.jsonl → logs/index.json → tasks/index.json
 | `loadEntries` | 3419 | `allSettled` 라 개별 실패가 전체를 멈추지 않는다 |
 | `syncHash` / `applyHash` | 3638 / 3656 | URL 해시 상태. `replaceState` 예외까지 감쌌다 |
 | `download` + SVG/JSON 내보내기 | 3713-3758 | 라이브러리 0개. CSS 변수를 실제 색으로 굳혀 내보낸다 |
+| `esc`·`fmt`·`secs`·`one`·`pct` | 1884-1888 | 화면 숫자 표기가 전부 여기서 나온다. 순수 함수 |
 | `translateDOM` 계열 | 1729-1882 | 4단계 탐색(문단→노드→자리표시자→정규식) i18n 엔진 |
 
 이 여섯은 **버그를 만나고 고친 흔적**이 코드에 주석으로 남아 있다. 새로 쓰면 같은 버그를 다시 만난다.
@@ -127,7 +133,7 @@ history.json → events.jsonl → logs/index.json → tasks/index.json
 | 대기 시간 | `paneOverview` 2069-2073 · `paneTimeline` 3257 | `createdAt` → `startedAt` |
 | 스쿼드 비교 통계 | `paneCmp` 2444-2450 | 적격률 · 문항당 토큰 · 문항당 시간 · **승인 대기를 뺀 실제 실행 시간** |
 | 같은 요청 묶기 | `sameRequestCard` 2512-2519 | 요청 앞 120자로 묶어 스쿼드가 둘 이상인 것만 |
-| 스쿼드 맵 열 구성 | `squadMap` 2954-2996 | 요청 → 플래너 → 웨이브별 에이전트 → 집계 → 결과, **4개 초과 시 열 접기** |
+| 스쿼드 맵 열 구성 | `squadMap` 2954-3010 | 요청 → 플래너 → 웨이브별 에이전트 → 집계 → 결과, **4개 초과 시 열 접기** |
 | 재생 시계 | `paneReplay` `frame()` 2852-2947 | 재생선 위치 · 계단식 토큰 · 노드 상태 전이 |
 | 노드 구간 재생 | `focusNode` 2772-2796 | 시작 1.2초 전으로 이동, 200ms 미만은 이동만 |
 
@@ -176,6 +182,6 @@ history.json → events.jsonl → logs/index.json → tasks/index.json
 | JavaScript | 3,223줄 |
 | `@keyframes` | 9개 |
 | `transition:` 선언 | 10개 |
-| 인라인 `style="…"` | 88개 |
+| 인라인 `style="…"` | 89개 (선언) · 85줄 |
 
 개편 후 예산은 `../spec/04-구현-계약.md` §6.

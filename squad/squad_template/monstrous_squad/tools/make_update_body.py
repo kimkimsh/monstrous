@@ -16,6 +16,11 @@ in after the squad exists, through the same CLI, still as JSON.
     python3 tools/make_update_body.py squad.json > update.json
     aigo squad update <SQUAD_ID> "$(cat update.json)"
 
+The second argument names the template to re-assert from, defaulting to
+squad-template.json. Pass squad-template.min.json when the fallback template is
+the one that was imported — otherwise this rewrites the 22-entry disabledTools
+and toolPermissionOverrides back onto a squad that was created without them.
+
 Agent identity is matched by name, so the ids the app generated are preserved.
 """
 
@@ -58,7 +63,7 @@ def overrides_for(name):
 
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         print(__doc__, file=sys.stderr)
         return 2
 
@@ -70,8 +75,9 @@ def main():
         print(f"no agents in {sys.argv[1]}; is this a created squad?", file=sys.stderr)
         return 1
 
-    template = json.loads((Path(__file__).resolve().parent.parent /
-                           "squad-template.json").read_text())
+    default_template = Path(__file__).resolve().parent.parent / "squad-template.json"
+    template_path = Path(sys.argv[2]) if len(sys.argv) == 3 else default_template
+    template = json.loads(template_path.read_text())
     wanted = {a["name"]: a for a in template["agents"]}
 
     updated = []
@@ -102,7 +108,7 @@ def main():
     for field in ("name", "description", "workspacePath", "plannerAgentId"):
         if squad.get(field) is not None:
             body[field] = squad[field]
-    for field in ("name", "workspacePath"):
+    for field in ("name", "workspacePath", "plannerAgentId"):
         if field not in body:
             print(f"warning: source squad has no {field}; the update body omits it "
                   f"and the app may clear it", file=sys.stderr)

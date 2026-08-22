@@ -190,11 +190,11 @@ class TrackFilter(QSortFilterProxyModel):
 
     def set_tracks(self, tracks):
         self.tracks = set(tracks)
-        self.invalidateFilter()
+        self.invalidate()
 
     def set_needle(self, needle):
         self.needle = needle.strip().lower()
-        self.invalidateFilter()
+        self.invalidate()
 
     def filterAcceptsRow(self, row, parent):
         sample = self.sourceModel().samples[row]
@@ -296,6 +296,7 @@ class MainWindow(QMainWindow):
         self.endpoint_edit = QLineEdit(DEFAULT_ENDPOINT)
         self.token_edit = QLineEdit(DEFAULT_TOKEN)
         self.token_edit.setEchoMode(QLineEdit.Password)
+        self.token_edit.setPlaceholderText("서버 인증이 꺼져 있으면 비워 둔다")
         self.connect_button = QPushButton("연결")
         self.health_label = QLabel("연결 안 됨")
         self.health_label.setStyleSheet("color: #8c8c91;")
@@ -329,7 +330,7 @@ class MainWindow(QMainWindow):
 
         grid.addWidget(QLabel("Endpoint"), 0, 0)
         grid.addWidget(self.endpoint_edit, 0, 1)
-        grid.addWidget(QLabel("Token"), 0, 2)
+        grid.addWidget(QLabel("Token (선택)"), 0, 2)
         grid.addWidget(self.token_edit, 0, 3)
         grid.addWidget(self.connect_button, 0, 4)
         grid.addWidget(self.health_label, 0, 5)

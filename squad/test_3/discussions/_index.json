@@ -1,0 +1,94 @@
+[
+  {
+    "id": "298d3135-72be-4a1f-bef8-8091e43bdf70",
+    "squadId": "766456d1-28de-41b2-a14c-ceb6669bb032",
+    "topic": "coding-visible-0053",
+    "participants": [
+      "agent-1787418181225-uhp2ocn",
+      "agent-1787418181225-yj0opsp",
+      "agent-1787418181225-ift1v6l",
+      "agent-1787418181225-r7wcbdx",
+      "agent-1787418181225-yi668mc"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": false,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 322
+    },
+    "createdAt": "2026-08-22T17:13:29.235246Z",
+    "updatedAt": "2026-08-22T17:19:29.299713Z"
+  },
+  {
+    "id": "870b0434-5354-4e62-8052-8ceb4c783972",
+    "squadId": "766456d1-28de-41b2-a14c-ceb6669bb032",
+    "topic": "coding-visible-0054",
+    "participants": [
+      "agent-1787418181225-uhp2ocn",
+      "agent-1787418181225-yj0opsp",
+      "agent-1787418181225-ift1v6l",
+      "agent-1787418181225-r7wcbdx",
+      "agent-1787418181225-yi668mc"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "completed",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "terminationReason": {
+      "type": "idleTimeout",
+      "idleDurationSecs": 312
+    },
+    "createdAt": "2026-08-22T17:14:24.826546Z",
+    "updatedAt": "2026-08-22T17:21:24.899052Z"
+  },
+  {
+    "id": "c9731428-1bdf-40ad-a4af-b7bea6a5620c",
+    "squadId": "766456d1-28de-41b2-a14c-ceb6669bb032",
+    "topic": "generic-visible-mmlu-pro-8204",
+    "participants": [
+      "agent-1787418181225-uhp2ocn",
+      "agent-1787418181225-yj0opsp",
+      "agent-1787418181225-ift1v6l",
+      "agent-1787418181225-r7wcbdx",
+      "agent-1787418181225-yi668mc"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "awaitingUser",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "createdAt": "2026-08-22T17:16:12.426965Z",
+    "updatedAt": "2026-08-22T17:17:15.907910Z"
+  },
+  {
+    "id": "d54c14ed-650d-48ee-afca-5a8c57a3bd80",
+    "squadId": "766456d1-28de-41b2-a14c-ceb6669bb032",
+    "topic": "math-visible-0144",
+    "participants": [
+      "agent-1787418181225-uhp2ocn",
+      "agent-1787418181225-yj0opsp",
+      "agent-1787418181225-ift1v6l",
+      "agent-1787418181225-r7wcbdx",
+      "agent-1787418181225-yi668mc"
+    ],
+    "mode": "moderated",
+    "strategy": "roundRobin",
+    "status": "awaitingUser",
+    "turnBudget": 3,
+    "turnsTaken": 3,
+    "messageCount": 4,
+    "hasConclusion": true,
+    "createdAt": "2026-08-22T17:17:15.955975Z",
+    "updatedAt": "2026-08-22T17:18:20.137093Z"
+  }
+]

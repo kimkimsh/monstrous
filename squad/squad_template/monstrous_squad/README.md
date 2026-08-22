@@ -61,7 +61,9 @@ gpt-oss는 강도를 harmony 시스템 메시지의 한 줄로 읽고 기본값�
 
 ## 템플릿 스키마에 자리가 없는 값들
 
-`AgentTemplate`은 9개 키뿐이고 `settingsOverrides`가 없다. 그래도 **UI로 손으로 넣을 필요는 없다** — `UpdateSquadRequest`가 `agents` 배열을 받고, 거기 실리는 것은 14개 키짜리 `AgentConfig`다.
+`AgentTemplate`은 9개 키뿐이고 `settingsOverrides`가 없다. **넣는 경로는 따로 있다** — `UpdateSquadRequest.agents`가 `Vec<AgentConfig>`이고(심볼 확인) `AgentConfig`에 `settingsOverrides`가 있다.
+
+> ⚠️ **넣는 것과 먹는 것은 다르다.** `AgentSettingsOverrides`는 `squad::`가 아니라 `agent_profile::types`에 있고, `squad::` 안에서 설정을 해석하는 함수는 `effective_enabled_tools` 하나뿐이다. `disabledTools`·`toolPermissionOverrides`가 무효였던 것과 같은 모양이라 **스쿼드 실행이 이 값을 읽는다는 증거가 없다.** `maxTokens`를 64 같은 극단값으로 넣고 한 문항 돌리면 30초에 판별된다 — `plan/01` §6-3.
 
 | 값 | 어디로 | 넣는 값 |
 |---|---|---|

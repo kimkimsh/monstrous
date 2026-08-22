@@ -40,7 +40,7 @@ schemaVersion · id · name · description · icon · category · agents · isBu
 
 | 필드 | 생성된 스쿼드에서의 값 | 우리가 원했을 값 | 대응 |
 |---|---|---|---|
-| `settingsOverrides` | `null` (8/8 에이전트) | `maxTokens`(출력 상한), `contextCompressionThreshold` | **임포트 후 앱 UI에서 넣는다.** §3-3의 절차 |
+| `settingsOverrides` | `null` (8/8 에이전트) | `maxTokens`(출력 상한), `maxToolCalls` | **`aigo squad update`로 넣는다** — 단 스쿼드 실행이 그 값을 읽는지는 미확인이다. §6 전체가 이 이야기다 |
 | `instructions` | `""` (8/8 에이전트) | 출력 계약 한 벌 | 같음. `systemPrompt`가 대신 담는다 |
 | `executionMode` | `"in_process"` (8/8) | `in_process` — 기본값이라 손댈 필요 없음 | 없음 |
 
@@ -53,7 +53,7 @@ schemaVersion · id · name · description · icon · category · agents · isBu
 }
 ```
 
-**즉 `maxTokens`(출력 상한)는 존재하는 손잡이인데 템플릿으로는 못 준다.** §10-E2(`max_tokens` 스윕)가 값을 정하면 그 값을 UI에서 넣어야 하고, 이 비대칭을 숨기지 않는다.
+**즉 `maxTokens`(출력 상한)는 존재하는 손잡이인데 템플릿으로는 못 준다.** 다른 경로가 있고, 그 경로가 실제로 먹는지까지 §6에서 갈라 적었다.
 
 ---
 
@@ -150,7 +150,7 @@ squad/test_2/artifacts/final_answer.txt → "Final amount: **≈ $32,328**"
 
 > **채점기는 응답 본문을 읽지, 워크스페이스를 열지 않는다.** `write_file`이 열려 있으면 모델은 "산출물을 만들었다"고 판단하고 응답에는 요약만 쓴다. 이 PC의 실행 6건 전수 조사에서 채점 가능한 출력이 **0건**이었던 사고의 절반이 여기서 나온다.
 
-**④ Qwen3-32B는 도구를 켜면 계획만 하고 실행하지 않는 비율이 약 60%다.** **[문서]** [QwenLM/Qwen3#1817](https://github.com/QwenLM/Qwen3/issues/1817). 5회 중 2회는 "검색했다"고 응답 텍스트가 지어냈다. 절약 단계 S4에서 Reviewer를 Qwen3-32B로 되돌리면 이 경로가 살아난다.
+**④ Qwen3-32B는 도구를 켜면 계획만 하고 실행하지 않는 비율이 약 60%다.** **[문서]** [QwenLM/Qwen3#1817](https://github.com/QwenLM/Qwen3/issues/1817). 5회 중 2회는 "검색했다"고 응답 텍스트가 지어냈다. 절약 계단 S1에서 Reviewer를 Qwen3-32B로 되돌리면 이 경로가 살아난다.
 
 ### 1-4. `disabledTools`와 `toolPermissionOverrides` — 22개를 채웠고, 둘 다 스쿼드 실행에서 무효다
 
@@ -485,11 +485,29 @@ Layer 1(공통 계약)은 **9,510자**이고 다섯 에이전트가 **바이트 
 
 ---
 
-## 6. 템플릿 밖 — 그래도 전부 JSON으로 할 수 있다
+## 6. 템플릿 밖 — 넣는 경로는 있다. 먹는다는 증거는 아직 없다
 
-`maxTokens`(출력 상한)와 `maxToolCalls`(도구 라운드 수)는 **템플릿에 못 넣는다.** 그러나 **UI에서 손으로 넣어야 하는 것도 아니다.** 같은 CLI가 JSON을 받는 경로가 하나 더 있다.
+**먼저 결론 셋을 갈라 적는다. 셋의 확실성이 서로 다르다.**
 
-### 6-1. `aigo squad update` — `agents` 배열을 통째로 받는다
+| 주장 | 상태 |
+|---|---|
+| `maxTokens`·`maxToolCalls`를 **템플릿 JSON에는 못 넣는다** | **확정.** `AgentTemplate`은 9개 키뿐이고 `settingsOverrides`가 없다 |
+| `aigo squad update`로 **값을 넣을 수는 있다** | **확정.** `UpdateSquadRequest.agents`가 `Vec<AgentConfig>`이고(심볼 확인), `AgentConfig`에 `settingsOverrides`가 있다 |
+| 스쿼드 실행이 그 값을 **읽는다** | **미확인. 오히려 안 읽을 가능성이 크다** — §6-4 |
+
+### 6-0. 왜 "안 읽을 가능성이 크다"인가
+
+**[바이너리]** `AgentSettingsOverrides`는 `squad::`가 아니라 **`agent_profile::types`**에 있다. 그리고 `squad::` 네임스페이스에서 설정을 해석하는 함수는 딱 하나다.
+
+```
+backend_ai_go_lib::squad::execution::effective_enabled_tools
+```
+
+`effective_max_tokens`도, `effective_settings`도, `resolve_agent_settings`도 없다. **`disabledTools`·`toolPermissionOverrides`가 무효였던 것과 정확히 같은 모양이다** — 구조체에 자리가 있고, JSON을 왕복하고, 실행 경로가 안 읽는다.
+
+**확정은 아니다.** 이름 붙은 함수 없이 인라인으로 읽을 수도 있다. 그래서 §6-4에 확인 방법을 적었고, 그 전까지는 **넣되 믿지 않는다.**
+
+### 6-1. 넣는 경로 — `aigo squad update`가 `agents` 배열을 통째로 받는다
 
 **[바이너리]** `UpdateSquadRequest`의 serde field visitor(`0x100be75f8`)를 디스어셈블해 필드 이름을 문자 단위로 복원했다. 다섯 개다.
 
@@ -534,7 +552,26 @@ aigo squad budget set <SQUAD_ID> "$(cat budget.json)"
 | `contextCompressionThreshold` | `null` | **위험해서 비운 것이 아니라, 값을 몰라서 비웠다.** 컨텍스트 압축은 문맥을 다시 쓰는 동작이고, **다시 쓰인 앵커는 적용되지 않는 패치다.** 단위도 기본값도 확인되지 않았다. 압축이 실제로 걸리는지가 `03-검증과-배포.md` 점검표에 있다 |
 | `allowedPaths` | `null` | 파일 도구가 하나도 안 켜져 있어 적용될 경로가 없다 |
 
-### 6-3. 여전히 JSON으로 못 하는 것 하나
+### 6-3. 먹는지 확인하는 법
+
+`settingsOverrides`가 실제로 LLM 호출에 반영되는지는 **한 번 돌려 보면 끝난다.**
+
+| 확인 | 방법 | 결과 해석 |
+|---|---|---|
+| `maxTokens`가 먹나 | `maxTokens`를 **64** 같은 극단값으로 넣고 math 문항 1건 실행 | 응답이 잘리면 **먹는다.** 멀쩡하면 안 먹거나 다른 값이 이긴다 |
+| `maxToolCalls`가 먹나 | Router의 값을 **1**로 낮추고 coding 문항 실행 | 태스크가 1개만 생기면 먹는다 |
+
+**먹지 않는다면 남는 손잡이는 `BudgetConfig`뿐이다** — 그쪽은 스쿼드 예산 경로라 확실히 작동한다.
+
+| | 무엇을 조이나 | 단위 |
+|---|---|---|
+| `maxTokensPerAgent` **50,000** | 한 에이전트가 **누적으로** 쓸 수 있는 총량 | 에이전트별 |
+| `maxTokensPerTask` **40,000** | 태스크 하나의 총량 | 태스크별 |
+| `maxAgentTurns` **4** | 턴 수 | 에이전트별 |
+
+**단, 이 셋은 누적 예산이지 호출당 출력 상한이 아니다.** 잘림(`extraction_failed`)을 막는 것은 호출당 `max_tokens`이고, 그것을 못 정하면 전역 `inference.defaultMaxTokens`(현재 **131072**)가 걸린다. 상한이 너무 커서 잘릴 일은 없고, 대신 **모델이 길게 쓰는 것을 막지 못한다** — 토큰 효율 30점 쪽 손해다.
+
+### 6-4. 여전히 JSON으로 못 하는 것 하나
 
 | 항목 | 어디서 | 왜 |
 |---|---|---|

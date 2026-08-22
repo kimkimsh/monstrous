@@ -21,6 +21,9 @@ REPO = Path(__file__).resolve().parents[4]
 GRADE_TOOLS = REPO / "docs" / "resource" / "example_task" / "tools"
 
 # --- Import-validation limits, from backend-ai-go error strings -------------
+# MAX_TEMPLATE_ID and the id charset below are the only two guesses here: the
+# name limit was read off constant 0xc8 at 0x101da5828, the id check lives in a
+# different function whose constant was never located (plan/01 §7 #5).
 MAX_TEMPLATE_ID = 200
 MAX_NAME = 200
 MAX_DESCRIPTION = 5000
@@ -43,6 +46,13 @@ MODEL_PREFERENCE_KEYS = {
     "preferredModelId", "preferredProviderId", "minContextWindow",
     "requiresToolCalling", "requiresVision",
 }
+# Absent is not the same as empty: len(t.get("name", "")) reads a missing key as
+# a passing zero-length string, so presence is checked separately.
+REQUIRED_TEMPLATE_KEYS = (
+    "id", "name", "description", "icon", "category", "isBuiltin",
+    "suggestedModels", "agents",
+)
+REQUIRED_AGENT_KEYS = ("name", "role", "systemPrompt", "tools", "memoryEnabled", "icon")
 
 # Registered workspace tools for squad agents, from src/squad/tools.rs strings.
 SQUAD_TOOLS = {
@@ -76,6 +86,13 @@ def check_schema(t):
     unknown = set(t) - TEMPLATE_KEYS
     if unknown:
         note(f"top-level keys the importer ignores: {sorted(unknown)}")
+
+    for key in REQUIRED_TEMPLATE_KEYS:
+        if key not in t:
+            fail(f"top-level key {key!r} is missing")
+    if t.get("schemaVersion") != 1:
+        fail(f"schemaVersion is {t.get('schemaVersion')!r}; the importer rejects "
+             f"anything newer than the version it supports")
 
     if not isinstance(t.get("id"), str) or not t["id"]:
         fail("id must be a non-empty string")
@@ -115,6 +132,9 @@ def check_agents(t):
         unknown = set(a) - AGENT_KEYS
         if unknown:
             note(f"{name}: agent keys the importer ignores: {sorted(unknown)}")
+        for key in REQUIRED_AGENT_KEYS:
+            if key not in a:
+                fail(f"{name}: agent key {key!r} is missing")
 
         prompt = a.get("systemPrompt", "")
         if len(prompt) > MAX_SYSTEM_PROMPT:
@@ -133,9 +153,16 @@ def check_agents(t):
             fail(f"{name}: tool list exceeds {MAX_TOOLS_PER_AGENT} entries")
         if sorted(tools) != sorted(enabled):
             fail(f"{name}: tools {tools} and toolConfig.enabledTools {enabled} disagree")
+        # build_tools_for_agent calls the model with no tools only while
+        # effective_enabled_tools returns empty. One entry here re-opens the path
+        # where the answer is written to a workspace file and the response carries
+        # only a summary; two runs on this machine died that way.
+        if enabled:
+            fail(f"{name}: enabledTools must be empty, has {enabled}")
         for tool in enabled:
             if tool not in SQUAD_TOOLS:
-                fail(f"{name}: enables {tool!r}, which is not a registered squad tool")
+                fail(f"{name}: enables {tool!r}, which this squad does not permit "
+                     f"(workspace tools: {sorted(SQUAD_TOOLS)})")
 
         if a.get("memoryEnabled") is not False:
             fail(f"{name}: memoryEnabled must be false — a memory read costs up to "
@@ -186,8 +213,9 @@ def check_against_grader(t):
     sys.path.insert(0, str(GRADE_TOOLS))
     try:
         import grade
-    except Exception as exc:  # pragma: no cover - environment dependent
-        note(f"grade.py not importable ({exc}); skipped parser checks")
+    except Exception as exc:
+        fail(f"grade.py not importable ({exc}); the parser checks did not run, so "
+             f"this template is unvalidated against the grader")
         return
 
     agents = t.get("agents") or []
@@ -248,6 +276,14 @@ def check_budget(path):
              f"missing {sorted(BUDGET_KEYS - set(budget))}, "
              f"extra {sorted(set(budget) - BUDGET_KEYS)}")
         return
+    for key, value in budget.items():
+        if not isinstance(value, int) or isinstance(value, bool):
+            fail(f"budget.json {key} is {value!r}, not an integer")
+            return
+    # backend-ai-go: "warning_threshold_percent must be in [0, 100]".
+    if not 0 <= budget["warningThresholdPercent"] <= 100:
+        fail(f"warningThresholdPercent must be in [0, 100], got "
+             f"{budget['warningThresholdPercent']}")
     task, agent, total = (budget["maxTokensPerTask"], budget["maxTokensPerAgent"],
                           budget["maxTotalTokens"])
     if not task <= agent <= total:

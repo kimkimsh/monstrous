@@ -2,29 +2,78 @@
 
 연습 문항을 스쿼드에 넣고, 토큰과 정확도를 한 화면에서 본다.
 
-## 실행
+## 실행 — 한 줄
 
 ```bash
 cd auto_test
-uv sync                    # 처음 한 번
+./start.sh
+```
+
+헤드리스 서버 → 로컬 모델 → GUI 를 순서대로 올리고 창을 연다.
+이미 올라와 있는 단계는 건너뛰므로 다시 실행해도 된다. 서버를 내리려면 `./start.sh stop`.
+
+첫 실행이면 릴리스에서 `aigo-server`와 `aigo` CLI를 받아 `~/.local/share/aigo-headless/`와
+`~/.local/bin/`에 깔고, 체크섬을 대조한다. 그다음부터는 받지 않는다.
+
+**토큰은 필요 없다.** 스크립트가 만드는 설정이 `require_api_key = false`이고 서버는
+`127.0.0.1`에만 바인드한다. GUI의 Token 칸은 비워 두면 된다.
+
+---
+
+## 실행 — 손으로 (스크립트가 하는 일)
+
+### 1. 헤드리스 서버
+
+```bash
+cd ~/.local/share/aigo-headless
+./aigo-server --config aigo-server.toml \
+  --data-dir "$HOME/Library/Application Support/ai.backend.go" \
+  --port 8001 --models-dir "$HOME/backend_ai"
+```
+
+두 가지가 함정이다.
+
+**앱 번들 안의 `aigo-server`는 쓰면 안 된다.** `/Applications/Backend.AI GO.app/Contents/MacOS/aigo-server`는
+자식 프로세스를 하나도 못 띄운다 — `Cannot spawn router without an initialized runtime`으로 죽고
+모델도 안 올라간다. 릴리스에서 받은 바이너리는 같은 버전인데 동작한다. 대조 실험으로 확인했다.
+
+**데스크톱 앱을 먼저 닫아야 한다.** 같은 data-dir을 두 프로세스가 관리하면 `router_config.yaml`을
+서로 덮어써서 라우터 backend가 placeholder만 남고 모델 목록이 빈다.
+
+확인:
+
+```bash
+curl -s http://127.0.0.1:8001/api/v1/health
+# {"status":"healthy","components":{"api":true,"router":true,"pool":true,"monitor":true}}
+```
+
+`pool`이 `false`면 아직 모델이 없는 것이다. 2번으로 간다.
+
+### 2. 로컬 모델
+
+```bash
+export BACKEND_AI_GO_ENDPOINT=http://127.0.0.1:8001
+aigo loaded load "unsloth/gpt-oss-20b-gguf/gpt-oss-20b-q8_0.gguf" \
+  -c 32768 --gpu-layers=-1 --tool-calling --alias "unsloth/gpt-oss-20b"
+```
+
+`--alias`가 중요하다. 스쿼드 에이전트의 `preferredModelId`가 `unsloth/gpt-oss-20b`라서,
+alias를 그 이름으로 맞춰야 라우터가 연결한다. `-c 32768`은 컨텍스트 길이 — 기본값 4096으로 두면
+긴 요청에서 `request exceeds the available context size (4096 tokens)`로 실패한다.
+
+`--gpu-layers=-1`의 `=`를 빼면 안 된다. `--gpu-layers -1`로 쓰면 `-1`을 플래그로 읽는다.
+
+### 3. GUI
+
+```bash
+cd auto_test
+uv sync          # 처음 한 번
 uv run python app.py
 ```
 
-`BACKEND_AI_GO_ENDPOINT` / `BACKEND_AI_GO_TOKEN` 환경 변수가 있으면 접속 칸에 미리 채워진다.
+`BACKEND_AI_GO_ENDPOINT`가 있으면 접속 칸에 미리 채워진다.
 
-### 먼저 헤드리스 서버가 떠 있어야 한다
-
-CLI도 이 GUI도 Management API의 클라이언트일 뿐이다. 서버가 없으면 아무것도 안 된다.
-**앱 번들 안의 `aigo-server`는 프로세스를 못 띄우므로 릴리스에서 받은 것을 써야 한다.**
-자세한 건 `docs/resource/example_task/04-CLI-운영.md` 4절.
-
-```bash
-osascript -e 'tell application "Backend.AI GO" to quit'
-AIGO_MASTER_KEY=sk-master-... ./aigo-server \
-  --data-dir "$HOME/Library/Application Support/ai.backend.go" \
-  --port 8001 --models-dir "$HOME/backend_ai"
-aigo loaded load "unsloth/gpt-oss-20b-gguf/gpt-oss-20b-q8_0.gguf" -c 32768 --gpu-layers=-1 --tool-calling --alias "unsloth/gpt-oss-20b"
-```
+---
 
 ## 쓰는 순서
 
