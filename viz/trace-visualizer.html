@@ -90,7 +90,19 @@ html[data-contrast="1"][data-theme="light"]{--fg:#000;--fg-dim:#26303a;--fg-fain
 }
 
 /* 좌 — 실행 선택 */
-.side{width:310px;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.side{width:var(--sidew,310px);background:var(--panel);display:flex;flex-direction:column;min-height:0;flex:0 0 auto}
+.side[hidden]{display:none}
+
+/* 폭 조절 손잡이. 4px 은 너무 얇아 잡기 어려우므로 여백을 넓게 잡고 선만 가늘게 그린다. */
+.splitter{flex:0 0 9px;cursor:col-resize;position:relative;background:transparent}
+.splitter::before{content:"";position:absolute;left:4px;top:0;bottom:0;width:1px;background:var(--line)}
+.splitter:hover::before,.splitter.drag::before{background:var(--accent);width:2px;left:3.5px}
+.splitter[hidden]{display:none}
+body.resizing{cursor:col-resize;user-select:none}
+
+/* 접기 버튼 */
+.fold{padding:0 6px;font-size:11px;line-height:1.6;margin-right:6px;vertical-align:middle}
+.sum-card h2{display:flex;align-items:center}
 .side .h{padding:8px 10px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center}
 .side .h select{padding:3px 6px;flex:1;min-width:0}   /* 색·테두리는 전역 select 규칙을 따른다 */
 .side ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
@@ -106,6 +118,9 @@ html[data-contrast="1"][data-theme="light"]{--fg:#000;--fg-dim:#26303a;--fg-fain
 
 /* 우 — 상세 */
 .body{flex:1;display:flex;flex-direction:column;min-width:0}
+/* display 를 지정하는 규칙은 브라우저 기본 [hidden]{display:none} 을 이긴다.
+   이게 없으면 "전체 분석"·"스쿼드 비교" 모드에서도 개별 분석용 탭 줄이 남아 있다. */
+.body[hidden]{display:none}
 .tabs{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--panel);align-items:center;flex-wrap:wrap}
 .pane{flex:1;overflow:auto;padding:16px 20px;min-width:0}
 .card{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:14px;margin-bottom:14px}
@@ -285,7 +300,59 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
    보이는 버그가 났다. display 를 건드리는 요소에는 반드시 [hidden] 규칙을 같이 준다. */
 .drop[hidden]{display:none}
 .drop.over{outline:2px dashed var(--accent);outline-offset:-16px}
+.drop.over .drop-bg{opacity:.5}
 .drop h1{font-size:18px;margin:0}
+
+/* ── 오프닝 ── */
+.drop-bg{position:absolute;inset:0;width:100%;height:100%;color:var(--line);opacity:.28;
+  pointer-events:none;transition:opacity .4s;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 50%,#000 20%,transparent 78%);
+          mask-image:radial-gradient(120% 80% at 50% 50%,#000 20%,transparent 78%)}
+.dg-nodes rect{fill:var(--panel-2);stroke:var(--line);stroke-width:1.2}
+.dg-flow path{animation:dg-run 3.4s linear infinite}
+.dg-flow path:nth-child(2){animation-delay:.5s}
+.dg-flow path:nth-child(3){animation-delay:1s}
+.dg-flow path:nth-child(4){animation-delay:1.5s}
+.dg-flow path:nth-child(5){animation-delay:2s}
+@keyframes dg-run{from{stroke-dashoffset:500}to{stroke-dashoffset:0}}
+
+.drop-lang{position:absolute;top:0;right:0}
+.drop-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:16px;
+  max-width:760px;animation:drop-in .5s cubic-bezier(.2,.8,.3,1) both}
+@keyframes drop-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.mark{display:flex;align-items:center;gap:14px}
+.mark h1{font-size:34px;letter-spacing:.16em;line-height:1;margin:0;
+  background:linear-gradient(100deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;
+  color:transparent}
+.mark-sub{font-size:10.5px;letter-spacing:.22em;color:var(--fg-faint);margin-top:5px;text-transform:uppercase}
+.mark-dot{width:13px;height:13px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent);animation:mark-pulse 2.4s ease-out infinite}
+@keyframes mark-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}
+  70%{box-shadow:0 0 0 16px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+.lead{font-size:12.5px;line-height:1.9}
+.cta{padding:10px 20px;font-weight:700;background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.cta:hover{filter:brightness(1.12)}
+
+.drop-feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:9px;width:100%;margin-top:4px}
+.drop-feats div{border:1px solid var(--line);border-radius:9px;padding:10px 12px;text-align:left;
+  background:color-mix(in srgb,var(--panel) 70%,transparent);transition:border-color .25s,transform .25s}
+.drop-feats div:hover{border-color:var(--accent);transform:translateY(-2px)}
+.drop-feats b{display:block;font-size:11.5px;margin-bottom:3px}
+.drop-feats span{font-size:10px;color:var(--fg-faint);line-height:1.6}
+
+.drop-files{width:100%;text-align:left;font-size:10.5px;color:var(--fg-dim);
+  border-top:1px solid var(--line);padding-top:10px}
+.drop-files summary{cursor:pointer;color:var(--fg-faint);margin-bottom:6px}
+.drop-files div{padding:2px 0}
+.drop-files .muted{color:var(--fg-faint)}
+
+@media (prefers-reduced-motion:reduce){
+  .dg-flow path{animation:none;stroke-dasharray:none;opacity:.35}
+  .mark-dot{animation:none}
+  .drop-inner{animation:none}
+}
 .drop p{color:var(--fg-dim);max-width:640px;margin:0;font-size:11.5px;line-height:1.85}
 .drop code{background:var(--panel-2);padding:1px 5px;border-radius:4px}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
@@ -303,6 +370,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
     <div class="stat"><span>총 토큰</span><b id="s-tok">—</b><em id="s-tok-d"></em></div>
     <div class="stat"><span>총 시간</span><b id="s-wall">—</b><em id="s-wall-d"></em></div>
     <div class="spacer"></div>
+    <select id="lang" title="Language"><option value="ko">한국어</option><option value="en">English</option></select>
     <button id="btn-theme" title="테마">Light</button>
     <button id="btn-contrast" title="고대비 — 프로젝터용">◐</button>
     <button id="btn-present" title="발표 모드">⛶</button>
@@ -313,6 +381,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
   </header>
 
   <div class="modes">
+    <button id="btn-side" title="목록 접기 / 펴기  ( b )">◧</button>
     <button data-mode="exec" aria-pressed="true">실행 하나</button>
     <button data-mode="all">전체 분석</button>
     <button data-mode="cmp">스쿼드 비교</button>
@@ -336,6 +405,7 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
       </div>
       <ul id="list"></ul>
     </aside>
+    <div class="splitter" id="splitter" title="드래그로 폭 조절 · 더블클릭으로 초기화"></div>
 
     <div class="body">
       <div class="tabs">
@@ -358,21 +428,76 @@ mark.g{background:color-mix(in srgb,var(--ok) 35%,transparent)}
 </div>
 
 <div class="drop" id="drop">
-  <h1>LEDGER · AI:GO Squad Trace Viewer</h1>
-  <p><b>AI:GO 워크스페이스 폴더</b>를 고르거나 이 창에 끌어다 놓으세요.
-     <code>logs/</code> 가 아니라 그 <b>상위 폴더</b>입니다. 워크스페이스 여러 개를 한꺼번에 넣어도 됩니다.
-     <b>executionId 로 중복을 제거해 병합</b>합니다.</p>
-  <p>읽는 파일:
-     <code>.squad.json</code> (스쿼드 구성·모델) ·
-     <code>logs/history.json</code> (응답 본문) ·
-     <code>logs/events.jsonl</code> (웨이브·토큰) ·
-     <code>logs/&lt;executionId&gt;.jsonl</code> ·
-     <code>tasks/*.json</code> ·
-     <code>artifacts/</code> (워크스페이스에 쓴 파일)<br>
-     <code>logs/index.json</code> 은 history.json 에서 유도할 수 있어 무시합니다.</p>
-  <div class="row">
-    <button id="btn-dir">워크스페이스 폴더 고르기</button>
-    <button id="btn-file">파일 고르기</button>
+  <!-- 배경: 스쿼드 맵을 흐릿하게 깔아 이 도구가 무엇을 그리는지 첫 화면에서 알린다 -->
+  <svg class="drop-bg" viewBox="0 0 1200 520" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="dg" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="var(--accent)" stop-opacity="0"/>
+        <stop offset=".5" stop-color="var(--accent)" stop-opacity=".9"/>
+        <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <g class="dg-edges" fill="none" stroke="currentColor" stroke-width="1.2">
+      <path d="M250,260 C330,260 330,150 410,150"/><path d="M250,260 C330,260 330,260 410,260"/>
+      <path d="M250,260 C330,260 330,370 410,370"/>
+      <path d="M590,150 C670,150 670,260 750,260"/><path d="M590,260 C670,260 670,260 750,260"/>
+      <path d="M590,370 C670,370 670,260 750,260"/>
+      <path d="M930,260 C990,260 990,260 1050,260"/>
+    </g>
+    <g class="dg-flow" fill="none" stroke="url(#dg)" stroke-width="2.4" stroke-linecap="round"
+       stroke-dasharray="30 470" pathLength="500">
+      <path d="M250,260 C330,260 330,150 410,150"/><path d="M250,260 C330,260 330,370 410,370"/>
+      <path d="M590,150 C670,150 670,260 750,260"/><path d="M590,370 C670,370 670,260 750,260"/>
+      <path d="M930,260 C990,260 990,260 1050,260"/>
+    </g>
+    <g class="dg-nodes">
+      <rect x="120" y="232" width="130" height="56" rx="10"/>
+      <rect x="410" y="122" width="180" height="56" rx="10"/>
+      <rect x="410" y="232" width="180" height="56" rx="10"/>
+      <rect x="410" y="342" width="180" height="56" rx="10"/>
+      <rect x="750" y="232" width="180" height="56" rx="10"/>
+      <rect x="1050" y="232" width="110" height="56" rx="10"/>
+    </g>
+  </svg>
+
+  <div class="drop-inner">
+    <div class="drop-lang">
+      <select id="lang2" title="Language"><option value="ko">한국어</option><option value="en">English</option></select>
+    </div>
+    <div class="mark">
+      <span class="mark-dot"></span>
+      <div>
+        <h1>LEDGER</h1>
+        <div class="mark-sub">AI:GO Squad Trace Viewer</div>
+      </div>
+    </div>
+
+    <p class="lead"><b>AI:GO 워크스페이스 폴더</b>를 고르거나 이 창에 끌어다 놓으세요.
+      <code>logs/</code> 가 아니라 그 <b>상위 폴더</b>입니다.
+      워크스페이스를 여러 개 넣으면 <b>스쿼드끼리 비교</b>할 수 있습니다.</p>
+
+    <div class="row">
+      <button id="btn-dir" class="cta">워크스페이스 폴더 고르기</button>
+      <button id="btn-file">파일 고르기</button>
+    </div>
+
+    <div class="drop-feats">
+      <div><b>재생</b><span>실행을 시간순으로 되돌립니다. 모델 호출 0회</span></div>
+      <div><b>장부 대조</b><span>채점기가 읽는 바이트를 그대로 보여줍니다</span></div>
+      <div><b>낭비 사분면</b><span>어디서 끊었어야 했는지 즉시 계산합니다</span></div>
+      <div><b>스쿼드 비교</b><span>같은 문항을 푼 서로 다른 구성을 나란히</span></div>
+    </div>
+
+    <details class="drop-files">
+      <summary>읽는 파일</summary>
+      <div><code>.squad.json</code> 스쿼드 구성·모델·도구·시스템 프롬프트</div>
+      <div><code>logs/history.json</code> 응답 본문과 에이전트 이름</div>
+      <div><code>logs/events.jsonl</code> 웨이브·위상·토큰 시계열</div>
+      <div><code>logs/&lt;executionId&gt;.jsonl</code> 사람이 읽는 로그</div>
+      <div><code>tasks/*.json</code> · <code>tasks/*.md</code> 의존 관계와 시도 기록</div>
+      <div><code>artifacts/</code> 에이전트가 워크스페이스에 쓴 파일</div>
+      <div class="muted"><code>logs/index.json</code> 은 history.json 에서 유도할 수 있어 무시합니다</div>
+    </details>
   </div>
   <div class="err" id="derr"></div>
   <div class="files" id="dfiles"></div>
@@ -618,6 +743,7 @@ function addFile(path,name,text){
    모델
    ═══════════════════════════════════════════════════════════════════════ */
 const S={execs:[], squads:[], sel:null, tab:"overview", mode:"exec", cards:false, cut:Infinity,
+         sideOpen:true, sideW:310, showSum:false,
          rosterOf:()=>[], squadOf:()=>null};
 const ms=iso=>{const v=Date.parse(iso); return Number.isNaN(v)?null:v;};
 
@@ -882,6 +1008,366 @@ function phasesOf(evs){
    ═══════════════════════════════════════════════════════════════════════ */
 const $=s=>document.querySelector(s);
 const NS="http://www.w3.org/2000/svg";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   언어. 원문이 한국어이므로 사전의 키를 한국어 문장 그대로 쓴다.
+   키를 따로 만들면 원문과 사전이 어긋났을 때 화면에 키가 그대로 새어 나온다.
+   사전에 없으면 원문을 그대로 돌려준다 — 번역이 빠져도 화면은 멀쩡하다.
+   데이터(요청 원문·에이전트 이름·에러)는 번역하지 않는다. 그건 로그의 내용이다.
+   ═══════════════════════════════════════════════════════════════════════ */
+const EN={
+  // 헤더
+  "실행":"Executions","AI:GO 성공":"AI:GO success","채점 적격":"Gradable","총 토큰":"Total tokens",
+  "총 시간":"Total time","AI:GO 자체 판정":"AI:GO's own verdict",
+  "요구된 답 형식 검사 · LLM 호출 0회":"Answer-format check · 0 LLM calls",
+  "테마":"Theme","고대비 — 프로젝터용":"High contrast — for projectors","발표 모드":"Presentation mode",
+  "현재 화면의 그림을 SVG 로 저장":"Save this screen's chart as SVG",
+  "정규화한 데이터를 JSON 으로 저장":"Save normalized data as JSON",
+  "인쇄 / PDF":"Print / PDF","폴더 다시 고르기":"Choose folder again",
+  // 모드·탐색
+  "실행 하나":"Single run","전체 분석":"All runs","스쿼드 비교":"Compare squads",
+  "목록 접기 / 펴기  ( b )":"Collapse / expand list  ( b )",
+  "드래그로 폭 조절 · 더블클릭으로 초기화":"Drag to resize · double-click to reset",
+  "검색 — 요청·에이전트·에러  ( / )":"Search — request, agent, error  ( / )",
+  "모든 실행":"All runs","실행된 것만 (호출 거부 제외)":"Ran only (excludes rejected calls)",
+  "답 형식 없어서 0점인 것":"Zero for missing answer format","채점 적격만":"Gradable only",
+  "호출 거부만":"Rejected calls only","모든 스쿼드":"All squads","목록 / 카드 전환":"List / card view",
+  // 탭
+  "개요":"Overview","▶ 재생":"▶ Replay","장부 대조":"Ledger","타임라인":"Timeline",
+  "실패 분류":"Failures","원문 로그":"Raw log",
+  // 공통
+  "채점 적격성":"Gradability","전체 실행":"all runs","실행을 고르세요":"Pick a run",
+  "왼쪽 목록에서 분석할 실행을 선택하면 됩니다.":"Select a run from the list on the left.",
+  "개가 로드되어 있습니다.":" runs loaded.",
+  "전체를 한꺼번에 보려면 상단의 '전체 분석' 모드를 쓰세요.":"To see everything at once, use the “All runs” mode above.",
+  "적격":"OK","불가":"No","실행 불가":"Rejected","판정 보류":"Undecided","부분 기록":"Partial",
+  "답 형식 없음":"No answer format","미참여":"Idle","참여":"Active",
+  "에이전트":"Agent","역할":"Role","모델":"Model","태스크":"Tasks","실패":"Failed","시간":"Time",
+  "토큰":"Tokens","상태":"Status","제목":"Title","요청":"Request","결과":"Result","스쿼드":"Squad",
+  "출력 계약":"Output contract","이 실행":"This run","참여 실행":"Runs joined",
+  "시도 기록":"Attempts","소요":"Duration","불가 사유":"Reason",
+  // 전체 분석
+  "전체 실행 간트":"Gantt of all runs","낭비 사분면":"Waste quadrant","토큰 누적 곡선":"Cumulative tokens",
+  "답 근접도":"How close the answer got","응답 길이 대 적격":"Response length vs gradability",
+  "문항당 상한":"Per-run cap","절약 토큰":"Tokens saved","잃는 적격":"Gradable lost",
+  "잘리는 실행":"Runs cut","제한 없음":"No cap",
+  // 위상 이름은 여기에 넣지 않는다. "실행"이 카운트의 '실행'과 충돌한다. PHASE_EN 을 따로 둔다.
+  // 비교
+  "구성":"Members","문항당 토큰":"Tokens / run","문항당 시간":"Time / run",
+  "실제 실행 시간":"Actual exec time","같은 문항 비교":"Same request, different squads",
+  "스쿼드별 채점 적격률":"Gradable rate by squad","스쿼드별 문항당 토큰":"Tokens per run by squad",
+  // 재생
+  "재생":"Replay","▶ 재생하기":"▶ Play","경과":"Elapsed","누적 토큰":"Cumulative tokens",
+  "완료":"Done","위상":"Phase","현재 구간":"current segment",
+  // 오프닝
+  "워크스페이스 폴더 고르기":"Choose workspace folder","파일 고르기":"Choose files","읽는 파일":"Files read",
+  "AI:GO 워크스페이스 폴더를 고르거나 이 창에 끌어다 놓으세요. logs/ 가 아니라 그 상위 폴더입니다. 워크스페이스를 여러 개 넣으면 스쿼드끼리 비교할 수 있습니다.":
+    "Pick an <b>AI:GO workspace folder</b>, or drop it on this window. Not <code>logs/</code> — the folder <b>above</b> it. Drop in several workspaces and you can <b>compare squads</b>.",
+  "실행을 시간순으로 되돌립니다. 모델 호출 0회":"Step through a run in time order. Zero model calls",
+  "채점기가 읽는 바이트를 그대로 보여줍니다":"Shows the exact bytes the grader reads",
+  "어디서 끊었어야 했는지 즉시 계산합니다":"Recomputes where you should have cut, instantly",
+  "같은 문항을 푼 서로 다른 구성을 나란히":"Different rosters on the same request, side by side",
+  "스쿼드 구성·모델·도구·시스템 프롬프트":"squad roster, model, tools, system prompt",
+  "응답 본문과 에이전트 이름":"response bodies and agent names",
+  "웨이브·위상·토큰 시계열":"waves, phases, token series",
+  "사람이 읽는 로그":"human-readable log",
+  "의존 관계와 시도 기록":"dependencies and attempt history",
+  "에이전트가 워크스페이스에 쓴 파일":"files agents wrote into the workspace",
+  "logs/index.json 은 history.json 에서 유도할 수 있어 무시합니다":
+    "<code>logs/index.json</code> is ignored — it can be derived from history.json",
+  "파일이 없습니다. 폴더를 고르거나 파일을 끌어다 놓으세요.":"No files. Pick a folder or drop files here.",
+  "폴더를 훑는 중…":"Scanning folder…",
+
+  // 감사에서 나온 나머지. 숫자는 {0} 자리표시자로 잡는다.
+  "플래닝":"Planning","승인 대기":"Approval wait","집계":"Aggregation",
+  "채점 적격":"Gradable","답 형식 없음":"No answer format","FINAL ANSWER 없음":"No FINAL ANSWER",
+  "패치 마커 없음":"No patch markers","실행 불가":"Rejected","부분 기록":"Partial","판정 보류":"Undecided",
+  "장부 대조 · 채점기가 읽는 바이트":"Ledger · the bytes the grader reads",
+  "재생 · 이 실행을 시간순으로":"Replay · this run in time order",
+  "채점 적격성 · 전체 실행":"Gradability · all runs",
+  "실패 분류":"Failure classification","분류 규칙표":"Classification rules","에러 원문":"Raw error",
+  "응답 후보 {0}개":"{0} response candidates",
+  "답 형식 없음 {0}건":"no answer format ×{0}",
+  "실행 불가 {0}건 제외":"{0} rejected excluded",
+  "계약 불명 {0}건 제외":"{0} unknown contract excluded",
+  "평균 {0}s/실행":"avg {0}s per run",
+  "W{0}: {1}개":"W{0}: {1}",
+  "전체 {0}건 중":"of {0} total","적격 {0}건 중":"of {0} gradable",
+  "전체의 {0}%":"{0}% of total","{0}건":"{0}","{0}개":"{0}","{0}명":"{0}",
+  "{0}자":"{0} chars","{0}명 중 {1}명":"{1} of {0}",
+  "태스크 실패 0건":"no failed tasks","전부 실행됨":"all ran","제거된 에이전트 없음":"no agent removed",
+  "요구된 답 형식 존재":"required answer format present","패치 마커 존재":"patch markers present",
+  "AI:GO 자체 판정":"AI:GO's own verdict","판정 가능":"Decidable","그중 채점 적격":"of those, gradable",
+  "AI:GO 성공":"AI:GO success",
+  // 검사 항목
+  "*** PATCH START *** 마커":"*** PATCH START *** marker","*** PATCH END *** 마커":"*** PATCH END *** marker",
+  "SEARCH / ======= / REPLACE 짝":"SEARCH / ======= / REPLACE triples","블록마다 경로 줄":"path line per block",
+  "\\boxed{} 존재":"\\boxed{} present","중괄호 짝":"braces balanced","답이 비어있지 않음":"answer not empty",
+  "FINAL ANSWER: 접두사 (권장)":"FINAL ANSWER: prefix (recommended)",
+  "발견 (마지막 것 사용)":"found (last one used)","없음":"missing","닫힘":"closed","블록 없음":"no blocks",
+  "없음. judge 가 추출할 것이 없습니다":"missing — the judge has nothing to extract",
+  "없음. 지문은 요구하지만 채점기가 실제로 요구하는지는 확인되지 않았습니다":
+    "missing — the prompt asks for it, but whether the grader requires it is unverified",
+  "빈 값":"empty","열린 채로 끝남":"left unclosed","있음":"present",
+  "출력 없음":"no output","마커 없음":"no markers",
+  "패턴":"Pattern","뜻":"Meaning","통과":"Passed","얼마나 아까운가":"How close","읽는 법":"How to read it","워크스페이스":"workspaces",
+  // ── 실행 개요 ──
+  "플래너 폴백이 걸렸습니다.":"The planner fell back.",
+  "→ 요청이 분해되지 않고":"→ the request was never decomposed, so",
+  "모든 에이전트에게 원본이 그대로":"every agent got the original verbatim",
+  "들어갔습니다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생합니다.":". One item then costs one full-context call per agent.",
+  ". 어떤 응답에도 패치 마커 가 없습니다":". No response contains a patch marker",
+  ". 어떤 응답에도 FINAL ANSWER 가 없습니다":". No response contains FINAL ANSWER",
+  "이 실행에서 씀":"used in this run",
+  "답이 파일에만 있습니다.":"The answer lives only in a file.",
+  "에는 결과가 들어 있는데 응답 텍스트에는 패치 마커 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.":"holds the result, but the response text has no patch marker. The judge has nothing to take, so it scores 0.",
+  "에는 결과가 들어 있는데 응답 텍스트에는 FINAL ANSWER 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.":"holds the result, but the response text has no FINAL ANSWER. The judge has nothing to take, so it scores 0.",
+  "에이전트에게":"With",
+  "이 열려 있고 시스템 프롬프트가 \"구현하세요\"라고만 말하면 파일을 쓰는 쪽이 자연스러운 행동입니다. 출력 계약을 프롬프트에 넣어야 고쳐집니다.":"enabled and a system prompt that only says “implement it”, writing a file is the natural move. The fix is to put the output contract in the prompt.",
+  "\"승인 대기\"는 사람이 계획을 승인하기까지 걸린 시간이므로 시스템 성능이 아닙니다. 자동으로 도는 벤치마크 실행에서는 이 구간이 사라집니다.":"“Awaiting approval” is time spent waiting on a human, not system performance. It disappears in an unattended benchmark run.",
+  "플래닝·실행 구간만 비교 대상입니다.":"Only the planning and execution phases are comparable.",
+  "이 실행은":"This run ran with",
+  "로 돌았습니다.":".",
+  // ── 재생·타임라인·비교 ──
+  "폴백 · 분해 실패":"fallback · no decomposition",
+  "미참여 (점선)":"not involved (dashed)",
+  "토큰 이벤트 없음":"no token events",
+  "로그에서 추린 것입니다. 로그에는 태스크를 배정받은 에이전트만 남습니다. 플래너는 이름이 없어 자리만 세웠습니다":"Derived from the log. Only agents that were handed a task appear there; the planner has no name, so it is shown as an empty slot",
+  "· 로그에서 추정":"· inferred from the log",
+  "패치 마커":"patch marker",
+  "이 실행에는":"This run has no",
+  "이벤트가 없습니다. 요청이 거부돼(HTTP 400) 토큰이 청구되지 않았기 때문입니다. 누적 토큰은 0입니다.":"event: the request was rejected (HTTP 400), so no tokens were billed. Cumulative tokens are 0.",
+  "이라 실행별 귀속에 쓸 수 없습니다. 그래서 누적 곡선의 증분을 그 시각에 돌던 태스크에 귀속시켰습니다.":", so it cannot be attributed per run. Increments of the cumulative curve are assigned to whichever task was running at that moment.",
+  "동시에 여러 태스크가 돌던 구간의":"Where several tasks overlapped,",
+  "이 실행은 태스크가 순차로 돌아 귀속이 정확히 떨어집니다.":"Here the tasks ran one after another, so attribution is exact.",
+  "상단 \"누적 토큰\"은 보고된 시점에만 계단식으로 오릅니다. 사이를 보간하면 로그에 없는 숫자를 지어내게 됩니다.":"The “cumulative tokens” readout only steps up at reported points; interpolating between them would invent numbers the log never had.",
+  "(무시)":"(ignored)",
+  // ── 재생 탭 ──
+  "시간과 토큰이 실제로 언제 쓰였는지 되짚습니다.":"Retraces when time and tokens were actually spent.",
+  "녹화된 로그만으로 재생합니다.":"Replayed from the recorded log alone.",
+  "모델 호출 0회":"Zero model calls",
+  "이므로 몇 번을 돌려도 비용이 0입니다.":", so replaying costs nothing no matter how often.",
+  "맵의":"Click an","에이전트를 클릭":"agent on the map",
+  "하면 그 구간만 재생합니다. 전체 재생은 ▶ 버튼.":"to replay just that segment. ▶ plays the whole run.",
+  "드래그 = 이동 · 휠 = 확대":"drag to pan · wheel to zoom",
+  "플래너":"Planner",
+  "태스크 {0}개":"{0} tasks","태스크 {0}개 중":"of {0} tasks",
+  "{0}/{1} 완료":"{0}/{1} done",
+  "· 이 실행에서 동작":"· active in this run",
+  "실행 중":"running","전체 {0}s":"of {0}s","아직 보고 없음":"not reported yet",
+  "누적":"cumulative","누적 {0}k (in {1}k · out {2})":"cumulative {0}k (in {1}k · out {2})",
+  "이벤트 {0}개":"{0} events",
+  "이 실행의":"This run's",
+  "이 로드되지 않았습니다. 폴더에 포함해 주세요.":"was not loaded — include it in the folder.",
+  "실행 JSON (history.json 항목)":"Execution JSON (history.json entry)",
+  ". 호출이 거부돼 응답 자체가 없습니다":". The call was rejected, so there is no response at all",
+  ".squad.json 기준 ·":".squad.json ·",
+  // ── 토큰 추정 주석(인라인 태그 때문에 조각으로 들어온다) ──
+  "에이전트별 토큰은 추정치입니다.":"Per-agent tokens are estimates.",
+  "로그의":"The log's","와 태스크별":"and per-task","는 전부":"are all","이고,":", and",
+  "는 에이전트의":"is the agent's","평생 누적":"lifetime total",
+  "이라 실행별 귀속에 쓸 수 없습니다. 그래서 누적 곡선의 증분을 그 시각에 돌던 태스크에 귀속시켰습니다. 동시에 여러 태스크가 돌던 구간의":", so it cannot be attributed per run. Increments of the cumulative curve are assigned to whichever task was running at that moment. Where several tasks overlapped,",
+  "{0}k 토큰은 나누지 않고 미귀속":"{0}k tokens are left unattributed rather than split",
+  "으로 남겼습니다. 상단 \"누적 토큰\"은 보고된 시점에만 계단식으로 오릅니다. 사이를 보간하면 로그에 없는 숫자를 지어내게 됩니다.":". The “cumulative tokens” readout only steps up at reported points; interpolating between them would invent numbers the log never had.",
+  "형식 때문에 놓친 실행이 없습니다.":"No run missed the format.",
+  "completed · 태스크 {0}/{1} 성공":"completed · {0}/{1} tasks succeeded",
+  "실행 불가 {0}건 제외 · 답 형식 없음 {1}건":"{0} rejected excluded · no answer format ×{1}",
+  "계약 불명 {0}건 제외 · 답 형식 없음 {1}건":"{0} unknown contract excluded · no answer format ×{1}",
+  "{0} files · 워크스페이스 {1}개 · ":"{0} files · {1} workspaces · ",
+  "이 문항의 출력 계약:":"This item's output contract:",
+  "요청 지문의":"Read from the","절에서 읽었습니다. 계약은 문항마다 다르므로 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.":
+    "section of the request. Contracts differ per item, so checking only one form misjudges the other entirely.",
+  "이 검사가 곧 Preflight 다.":"This check is the Preflight.",
+  "정규식 몇 개로 끝나고":"A few regexes, and","LLM 호출이 0회":"zero LLM calls",
+  "미확인:":"Unverified:","judge 에게 실제로 전달되는 것이":"Whether the judge actually receives","안에 있습니다":"is inside it","인지 태스크 출력인지는 아직 확인되지 않았습니다. 그래서 둘 다 검사해서 나란히 보여줍니다.":"or the task output is still unverified, so both are checked and shown side by side.","다. 어느 검사가 왜 실패했는지를 돌려주기 때문에, 재시도에 그대로 쓸 수 있는 신호가 됩니다.":". Because it returns which check failed and why, the signal is directly usable for a retry.",
+  "한 걸음 차이":"one step away","절반은 맞춤":"halfway there","멀었음":"far off",
+  "응답 글자 수":"response length (chars)","(그 외)":"(anything else)",
+  "컨텍스트 상한 초과. 설정에서 늘리면 해결됩니다. 우리가 고칠 수 있습니다":
+    "Context limit exceeded. Raising it in settings fixes this — it is ours to fix",
+  "모델 서버 오류. 팀 책임이 아닙니다":"Model server error. Not the team's fault",
+  "요청 제한에 걸렸습니다":"Hit the rate limit","시간 상한에 걸렸습니다":"Hit the time limit",
+  "규칙표에 없는 오류. 규칙을 추가해야 합니다":"Error not in the rule table. A rule needs adding",
+  "규칙을 추가해야 합니다":"a rule needs adding",
+  "통과율이 높을수록 조금만 고치면 되는 실행입니다. 거기부터 손대는 편이 빠릅니다.":
+    "A higher pass rate means the run needs only a small fix. Starting there is faster.",
+  "열거형 이름은 제출 서버 OpenAPI 의 FailureKind / FailureOwner 를 따릅니다. owner: organizer 는 주최 인프라 문제라 팀 책임이 아닙니다.":
+    "Enum names follow the submission server's OpenAPI: <code>FailureKind</code> / <code>FailureOwner</code>. <code>owner: organizer</code> means the organizers' infrastructure, not the team.",
+  // 차트 설명
+  "모든 실행을 한 시간축에 올립니다. 색은 위상입니다. 실행 사이의 빈칸은 아무도 일하지 않은 시간입니다.":
+    "Every run on one time axis. Colors are phases. Gaps between runs are time nobody was working.",
+  "x = 문항당 과금 토큰(log), y = 채점 적격 여부. 오른쪽 아래가 낭비의 총량입니다. 슬라이더를 끌면 모델 호출 없이 즉시 다시 계산합니다.":
+    "x = billed tokens per run (log), y = gradable or not. The lower-right quadrant is the total waste. Dragging the slider recomputes instantly, with no model calls.",
+  "실행별 누적 토큰을 겹쳐 그립니다. 계단이 가파른 구간이 비용이 몰린 곳입니다. 보고된 시점에만 오릅니다.":
+    "Cumulative tokens per run, overlaid. Steep steps are where cost piled up. It only rises at reported points.",
+  "형식을 못 맞춘 실행이 얼마나 아까웠는지 셉니다. 통과한 검사 개수로 나눕니다.":
+    "How close the runs that missed the format came. Measured by how many checks passed.",
+  "길게 쓴다고 맞는 것이 아님을 봅니다. x = 응답 글자 수, y = 적격 여부.":
+    "Longer is not better. x = response length in characters, y = gradable or not.",
+  "워크스페이스 하나가 스쿼드 하나입니다. 초록은 그 항목에서 가장 나은 값입니다.":
+    "One workspace is one squad. Green marks the best value in that column.",
+  "같은 요청을 서로 다른 스쿼드가 푼 경우입니다. 조건이 같으니 차이가 곧 스쿼드 차이입니다.":
+    "The same request solved by different squads. Conditions match, so the difference is the squad.",
+
+  // 짧은 라벨
+  "AI:GO 판정":"AI:GO verdict","웨이브":"Waves","제한 없음":"No cap","적격":"OK","불가":"No",
+  "파일":"File","앞부분":"Preview","크기":"Size","원문 로그":"Raw log",
+  "실패한 태스크가 없습니다.":"No failed tasks.",
+  "출력이 비어 있습니다.":"The output is empty.",
+  "이벤트가 부족해 위상을 나눌 수 없습니다.":"Not enough events to split into phases.",
+  "해당하는 실행이 없습니다.":"No runs match.",
+  "실행을 고르세요":"Pick a run",
+
+  // 문단 (공백을 접은 형태가 키다. {0} 은 숫자 자리)
+  "왼쪽 목록에서 분석할 실행을 선택하면 됩니다. 실행 {0}개가 로드되어 있습니다.":
+    "Select a run from the list on the left. {0} runs loaded.",
+  "전체를 한꺼번에 보려면 상단의 '전체 분석' 모드를 쓰세요.":
+    "To see everything at once, use the “All runs” mode above.",
+  "이 실행에서 동작한 에이전트는 {0}명입니다. 나머지는 스쿼드에 있지만 이번엔 태스크를 받지 않았습니다.":
+    "{0} agents worked in this run. The rest are on the squad but got no task this time.",
+  "로스터는 로그에 없습니다. 로그에는 태스크를 배정받은 에이전트만 남습니다. 한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없습니다. 지금은 워크스페이스의 .squad.json 을 읽어 정확한 로스터를 쓰고 있습니다. 모델·역할·도구·시스템 프롬프트가 모두 그 파일에 있습니다.":
+    "<b>The roster is not in the logs.</b> Logs only keep agents that were assigned a task, so members who never worked, and the planner, leave no trace. This view reads <b>.squad.json</b> from the workspace instead: model, role, tools, and system prompt all live there.",
+  "로스터는 로그에 없습니다. 로그에는 태스크를 배정받은 에이전트만 남습니다. 한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없습니다. 그래서 위 표는 전 실행에 걸쳐 등장한 에이전트의 합집합 + 계획 이벤트로 추론한 플래너 자리입니다. 정확한 구성을 보려면 워크스페이스의 .squad.json 을 같이 넣으세요. 그 파일이 로스터의 유일한 출처입니다.":
+    "<b>The roster is not in the logs.</b> Logs only keep agents that were assigned a task, so members who never worked, and the planner, leave no trace. The table above is therefore the union of agents seen across all runs, plus a planner slot inferred from planning events. Include <b>.squad.json</b> from the workspace for the exact roster — that file is the only source.",
+  "tasks/*.md 를 같이 넣으면 시도별 기록이 나옵니다. 시도 번호는 events.jsonl 에 없고 그 파일에만 있습니다.":
+    "Include <code>tasks/*.md</code> to see per-attempt history. Attempt numbers are not in <code>events.jsonl</code>; they exist only in those files.",
+  "문항당 시간에는 승인 대기가 들어 있습니다. autoApprove:false 인 실행에서는 사람이 계획을 승인하기까지의 시간이라 시스템 성능이 아닙니다. 그래서 실제 실행 시간을 따로 뒀습니다.":
+    "<b>Time / run</b> includes approval wait. With <code>autoApprove:false</code> that is a human approving the plan, not system performance — hence the separate <b>actual exec time</b> column.",
+  "에이전트가 write_file 로 만든 파일입니다. judge 는 이 파일을 읽지 않습니다. 응답 텍스트만 읽습니다.":
+    "Files the agents created with <code>write_file</code>. <b>The judge never reads them</b> — only the response text.",
+  "왼쪽은 judge 가 보낸 요청 원문, 오른쪽은 우리가 낸 응답입니다. 화면이 렌더링하는 바이트는 로그에 기록된 그 바이트입니다. 옆에서 따로 수집한 요약이 아닙니다.":
+    "Left is the judge's original request, right is our response. <b>The bytes on screen are the bytes in the log</b>, not a summary collected on the side.",
+  "에러 문자열을 아래 규칙표에 맞춰 분류합니다. 어떤 규칙이 걸렸는지 표에서 바로 확인할 수 있습니다.":
+    "Error strings are classified by the rule table below. You can see which rule matched right there.",
+  "정직한 한계. 상한에 닿는 순간 그 실행을 포기했다고 가정합니다. 잘린 실행의 적격은 전부 잃는 것으로 계산하므로 이 곡선은 손실의 상한입니다.":
+    "<b>An honest limit.</b> This assumes the run was abandoned the moment it hit the cap, and counts every cut run's gradability as lost — so the curve is an <b>upper bound</b> on the loss.",
+  "AI:GO 가 성공이라고 보고한 실행 중 실제로 점수가 되는 것이 몇 개인지 셉니다. 판정은 그 문항이 요구한 답 형식이 응답에 있는지만 봅니다. LLM 호출 0회.":
+    "<b>Counts how many of the runs AI:GO called successful actually score.</b> The test is only whether the response carries the answer format that item demanded. <b>Zero LLM calls.</b>","토큰(추정)":"Tokens (est.)","스쿼드 구성":"Squad roster","워크스페이스에 쓴 파일":"Files written to workspace","시간이 어디에 쓰였나":"Where the time went",
+};
+/* 위상 이름은 별도 사전이다. "실행"은 카운트의 '실행'과 글자가 같지만 뜻이 다르다.
+   한 사전에 넣으면 나중 항목이 앞을 덮어써서 헤더가 "Execution"이 되어 버린다. */
+const PHASE_EN={"플래닝":"Planning","승인 대기":"Approval wait","실행":"Execution","집계":"Aggregation"};
+let LANG="ko";
+function t(s){ return LANG==="en"?(EN[s]??s):s; }
+
+/* 헤더의 출처 줄. 언어를 바꾸면 다시 그려야 하므로 finish() 밖으로 빼 둔다. */
+function renderSrc(){
+  const p=S.srcParts; if(!p) return;
+  const wsPart=p.ws>1?`${p.ws} ${t("워크스페이스")} · `:"";
+  const kinds=p.kinds.split("(무시)").join(t("(무시)"));
+  $("#src").textContent=`${p.files} files · ${wsPart}${kinds}`;
+}
+
+/* 렌더된 DOM 을 훑어 문장 단위로 바꾼다.
+   설명문이 템플릿 문자열 안에 ${} 와 섞여 있어 호출부마다 감싸는 방식으로는 계속 빠진다.
+   대신 그려진 뒤 텍스트 노드를 한 번 훑는다. 사전에 없으면 그대로 두므로 손해가 없다.
+
+   데이터는 건드리지 않는다 — 요청 원문·응답·에러·에이전트 이름은 로그의 내용이지 UI 가 아니다.
+   pre / code / .scroll / [data-raw] 안은 통째로 건너뛴다. */
+const NOLANG=new Set(["PRE","CODE","SCRIPT","STYLE","TEXTAREA","OPTION"]);
+
+/* 설명 문단은 ${} 와 <b> 로 잘려 텍스트 노드가 조각난다. 조각을 사전에 넣어봐야 뜻이 없다.
+   그래서 문단은 요소 단위로 통째 바꾼다. 공백을 접어 키로 삼고, 번역문에는 마크업을 넣어 둔다.
+   숫자가 섞인 문단은 {0} 자리표시자로 잡아 원래 숫자를 도로 끼워 넣는다. */
+const PARA_SEL=".q,.note,.tip,.sm-src,.sm-cap>span:first-child,.lead,.err,.drop-files .muted";
+function paraKey(el){ return el.textContent.replace(/\s+/g," ").trim(); }
+
+/* 치환은 파괴적이다. 원문을 기억해 두지 않으면 한국어로 되돌릴 수 없다.
+   패널은 매번 다시 그려지지만 오프닝 화면은 정적이라 특히 그렇다. */
+const ORIG_HTML=new WeakMap(), ORIG_TEXT=new WeakMap();
+
+function translateParas(root){
+  root.querySelectorAll(PARA_SEL).forEach(el=>{
+    if(LANG!=="en"){ const o=ORIG_HTML.get(el); if(o!=null) el.innerHTML=o; return; }
+    const key=paraKey(el);
+    if(!key||!/[가-힣]/.test(key)) return;
+    const put=html=>{ if(!ORIG_HTML.has(el)) ORIG_HTML.set(el,el.innerHTML); el.innerHTML=html; };
+    if(EN[key]!=null){ put(EN[key]); return; }
+    // 숫자를 자리표시자로 바꿔 한 번 더 찾는다
+    const nums=[]; const gen=key.replace(/\d+(?:\.\d+)?/g,m=>{nums.push(m);return `{${nums.length-1}}`;});
+    if(EN[gen]!=null) put(EN[gen].replace(/\{(\d+)\}/g,(_,i)=>nums[i]??""));
+  });
+}
+
+function translateDOM(root){
+  if(!root) return;
+  translateParas(root);
+  if(LANG!=="en"){                      // 한국어로 되돌리기
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    while(w.nextNode()){ const o=ORIG_TEXT.get(w.currentNode); if(o!=null) w.currentNode.nodeValue=o; }
+    return;
+  }
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{
+    acceptNode(n){
+      for(let p=n.parentElement;p&&p!==root.parentElement;p=p.parentElement){
+        if(NOLANG.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+        if(p.classList&&(p.classList.contains("scroll")||p.dataset&&p.dataset.raw!=null)) return NodeFilter.FILTER_REJECT;
+      }
+      return /[가-힣]/.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+    }});
+  const nodes=[]; while(w.nextNode()) nodes.push(w.currentNode);
+  for(const n of nodes){
+    const raw=n.nodeValue;
+    // 템플릿 문자열의 들여쓰기 때문에 줄바꿈과 공백이 그대로 들어온다.
+    // 사전 키는 공백을 접은 형태이므로 조회할 때도 접어야 맞는다.
+    const key=raw.replace(/\s+/g," ").trim();
+    if(!key) continue;
+    const keep=()=>{ if(!ORIG_TEXT.has(n)) ORIG_TEXT.set(n,raw); };
+    const pad=[raw.match(/^\s*/)[0], raw.match(/\s*$/)[0]];
+    // 번역문이 문장부호로 시작하면 앞 공백을 버린다. 조각 앞에 다른 표현식이 있던 자리라
+    // 공백을 그대로 두면 "verbatim ." 처럼 부호 앞이 벌어진다.
+    const put=v=>{ n.nodeValue=(/^[.,;:!?)]/.test(v)?"":pad[0])+v+pad[1]; };
+    const hit=EN[key];
+    if(hit!=null){ keep(); put(hit); continue; }
+    // 숫자가 섞인 라벨("답 형식 없음 3건")은 자리표시자 형태로 한 번 더 찾는다
+    const nums=[]; const gen=key.replace(/\d+(?:\.\d+)?/g,m=>{nums.push(m);return `{${nums.length-1}}`;});
+    if(nums.length&&EN[gen]!=null){ keep();
+      put(EN[gen].replace(/\{(\d+)\}/g,(_,i)=>nums[i]??"")); continue; }
+    // 숫자와 단위가 자유롭게 섞이는 라벨은 규칙으로 바꾼다. 자리표시자로는 조합이 너무 많다.
+    let done=false;
+    for(const [re,to] of EN_RE){ if(re.test(key)){ keep(); put(key.replace(re,to)); done=true; break; } }
+    if(done) continue;
+    // 문장이 조각나 있으면(앞뒤에 다른 표현식이 붙어 잘린 경우) 부분 일치로 한 번 더 시도한다.
+    // 접은 문자열에서 찾는다. 원문에 남은 줄바꿈과 들여쓰기 때문에 조각이 어긋나는 일을 막는다.
+    let s=key, any=false;
+    for(const [k,v] of EN_LONG){ if(s.includes(k)){ s=s.split(k).join(v); any=true; } }
+    if(any){ keep(); put(s); }
+  }
+}
+
+/* 숫자와 단위 조합이 자유로운 라벨. 사전 키로는 경우의 수를 감당할 수 없다. */
+const EN_RE=[
+  [/^누적 (.+) \(in (.+) · out (.+)\)$/,"cumulative $1 (in $2 · out $3)"],
+  [/^([\d,.]+)자$/,"$1 chars"],
+  [/^(.*) · 태스크 (\d+)\/(\d+) 성공$/,"$1 · $2/$3 tasks succeeded"],
+  [/^waves: (.+) ⚠ 플래너 폴백$/,"waves: $1 ⚠ planner fallback"],
+  [/^(.*) · 로그에서 추정$/,"$1 · inferred from the log"],
+  [/^W\d+: \d+개( · W\d+: \d+개)*$/,m=>m.replace(/개/g,"")],
+];
+/* 긴 문장부터 시도해야 짧은 조각이 먼저 걸려 문장을 반쪽만 바꾸는 일이 없다. */
+let EN_LONG=[];
+function rebuildLong(){ EN_LONG=Object.entries(EN).filter(([k])=>k.length>=12)
+  .sort((a,b)=>b[0].length-a[0].length); }
+rebuildLong();
+
+/* 지금 화면에 남은 한국어를 뽑는다. 사전을 채울 때 쓴다. */
+function i18nAudit(){
+  const out=new Set();
+  for(const root of [document.querySelector("header"),document.querySelector(".modes"),
+                     $("#pane"),$("#pane-all"),$("#pane-cmp"),$("#drop"),document.querySelector(".side")]){
+    if(!root||root.hidden) continue;
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{
+      acceptNode(n){
+        for(let p=n.parentElement;p&&p!==root.parentElement;p=p.parentElement){
+          if(NOLANG.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+          if(p.classList&&(p.classList.contains("scroll")||p.dataset&&p.dataset.raw!=null)) return NodeFilter.FILTER_REJECT;
+        }
+        return /[가-힣]/.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+      }});
+    while(w.nextNode()){ const s=w.currentNode.nodeValue.trim(); if(s) out.add(s); }
+  }
+  return [...out];
+}
+function tp(s){ return LANG==="en"?(PHASE_EN[s]??s):s; }
 const esc=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const fmt=n=>n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e3?(n/1e3).toFixed(1)+"k":String(Math.round(n||0));
 const secs=m=>m==null?"—":(m/1000).toFixed(1)+"s";
@@ -915,6 +1401,7 @@ function renderHeader(){
   $("#s-tok-d").textContent="in "+fmt(pt)+" · out "+fmt(ct);
   $("#s-wall").textContent=(wall/1000).toFixed(0)+"s";
   $("#s-wall-d").textContent=n?"평균 "+(wall/n/1000).toFixed(1)+"s/실행":"";
+  translateDOM(document.querySelector("header"));
 }
 
 function visible(){
@@ -955,6 +1442,7 @@ function renderList(){
   }
   if(!ul.children.length) ul.innerHTML='<li style="color:var(--fg-faint);cursor:default">해당하는 실행이 없습니다.</li>';
   const hit=$("#q-hit"); if(hit) hit.textContent=vis.length===S.execs.length?"":`${vis.length} / ${S.execs.length}`;
+  translateDOM(document.querySelector(".side"));
 }
 
 function cur(){ return S.execs.find(e=>e.id===S.sel)||null; }
@@ -970,12 +1458,19 @@ function renderPane(){
            failure:"우리 잘못인가 인프라 잘못인가",
            raw:"AI:GO 가 남긴 원문"}[S.tab];
   $("#tab-hint").textContent=H||"";
-  if(!e){ P.innerHTML=`<div class="card"><h2>실행을 고르세요</h2><p class="q">왼쪽 목록에서 분석할 실행을 선택하면 됩니다. 실행 ${S.execs.length}개가 로드되어 있습니다.</p></div>`+runSummaryCard(); return; }
+  // 아무것도 안 골랐으면 안내만 낸다. 요약을 자동으로 띄우면 "고른 것"과 "전체"가 섞여 읽힌다.
+  if(!e){
+    P.innerHTML=`<div class="card"><h2>${t("실행을 고르세요")}</h2>
+      <p class="q">${t("왼쪽 목록에서 분석할 실행을 선택하면 됩니다.")} ${t("실행")} ${S.execs.length}${t("개가 로드되어 있습니다.")}</p>
+      <p class="tip">${t("전체를 한꺼번에 보려면 상단의 '전체 분석' 모드를 쓰세요.")}</p></div>`;
+    return;
+  }
   ({overview:paneOverview, replay:paneReplay, ledger:paneLedger, timeline:paneTimeline,
     failure:paneFailure, raw:paneRaw}[S.tab])(P,e);
+  translateDOM(P);
 }
 
-function runSummaryCard(){
+function runSummaryCard(inner){
   const n=S.execs.length;
   const aigo=S.execs.filter(x=>x.counts.failed===0&&x.counts.total>0).length;
   const grad=S.execs.filter(x=>x.gradable).length;
@@ -1004,7 +1499,9 @@ function runSummaryCard(){
        <ul style="font-size:11.5px;color:var(--fg-dim);margin:0;padding-left:18px">`+
        S.missing.map(m=>`<li>${esc(m)}</li>`).join("")+`</ul>
        <p class="note"><code>logs/</code> 폴더를 통째로 고르면 전부 들어옵니다.</p></div>`:"";
-  return warn+`<div class="card"><h2>채점 적격성 · 전체 실행</h2>
+  const open=inner?"":`<div class="card"><h2>${t("채점 적격성")} · ${t("전체 실행")}</h2>`;
+  const close=inner?"":"</div>";
+  return warn+open+`
     <p class="q"><b>AI:GO 가 성공이라고 보고한 실행 중 실제로 점수가 되는 것이 몇 개인지 셉니다.</b>
     판정은 그 문항이 요구한 답 형식이 응답에 있는지만 봅니다. <b>LLM 호출 0회.</b></p>
     <div class="readout">
@@ -1013,7 +1510,7 @@ function runSummaryCard(){
         [blocked.length?`호출 거부 ${blocked.length}`:"",unk.length?`계약 불명 ${unk.length}`:""].filter(Boolean).join(" · ")||"전부 판정됨"} 제외</em></div>
       <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
     </div>
-    <table><tr><th>요청</th><th>출력 계약</th><th>AI:GO</th><th>채점</th><th>불가 사유</th><th class="n">토큰</th><th class="n">시간</th></tr>${rows}</table>
+    <table><tr><th>${t("요청")}</th><th>${t("출력 계약")}</th><th>AI:GO</th><th>채점</th><th>${t("불가 사유")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th></tr>${rows}</table>
     <p class="note"><b>출력 계약은 문항마다 다릅니다.</b> 요청 지문의 <code>=== REQUIRED OUTPUT ===</code> 절에서 읽습니다.
     실측된 두 가지: <code>*** PATCH START *** … *** PATCH END ***</code> (coding) 과
     <code>FINAL ANSWER: \\boxed{…}</code> (math). 계약을 안 보고 한쪽만 검사하면 다른 쪽이 통째로 오판됩니다.<br>
@@ -1021,7 +1518,7 @@ function runSummaryCard(){
     <b>호출 거부</b>는 모델이 요청을 받지도 못한 것입니다. 컨텍스트 초과나 인프라 오류입니다. 프롬프트나 형식으로 고칠 수 없습니다.
     <b>판정 보류</b>는 지문에서 계약을 못 읽은 것입니다. 모르는 것을 불합격으로 적지 않습니다.
     <b>답 형식 없음</b>은 실행도 됐고 답도 나왔는데 요구된 형식을 안 내서 0점이 된 것입니다.
-    <b>여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 냅니다.</b></p></div>`;
+    <b>여기가 우리가 고칠 수 있는 영역이고, 비율은 그 위에서만 냅니다.</b></p>`+close;
 }
 
 function paneOverview(P,e){
@@ -1046,10 +1543,10 @@ function paneOverview(P,e){
 
   h+=artifactCard(e);
   h+=rosterCard(e);
-  h+=`<div class="card"><h2>시간이 어디에 쓰였나</h2>`+phaseBar(e)+`</div>`;
+  h+=`<div class="card"><h2>${t("시간이 어디에 쓰였나")}</h2>`+phaseBar(e)+`</div>`;
 
-  h+=`<div class="card"><h2>태스크 ${e.tasks.length}개</h2><table>
-    <tr><th>제목</th><th>에이전트</th><th>상태</th><th>채점 적격</th><th>시도 기록</th><th class="n">소요</th></tr>`;
+  h+=`<div class="card"><h2>${t("태스크")} ${e.tasks.length}</h2><table>
+    <tr><th>${t("제목")}</th><th>${t("에이전트")}</th><th>${t("상태")}</th><th>${t("채점 적격")}</th><th>${t("시도 기록")}</th><th class="n">${t("소요")}</th></tr>`;
   for(const t of e.tasks){
     // tasks/*.md 의 Progress Log. 시도 번호는 events.jsonl 에 없고 여기에만 있다.
     const md=t.taskId?RAW.taskmd.get(t.taskId):null;
@@ -1084,18 +1581,21 @@ function paneAll(P){
   const X=S.execs;
   if(!X.length){ P.innerHTML=`<div class="card"><p class="q">로드된 실행이 없습니다.</p></div>`; return; }
   P.innerHTML=
-    runSummaryCard()+
-    `<div class="card"><h2>전체 실행 간트</h2>
+    `<div class="card sum-card"><h2>
+       <button id="sum-toggle" class="fold" aria-expanded="${S.showSum?"true":"false"}">${S.showSum?"▾":"▸"}</button>
+       ${t("채점 적격성")} · ${t("전체 실행")}</h2>
+       <div id="sum-body" ${S.showSum?"":"hidden"}></div></div>`+
+    `<div class="card"><h2>${t("전체 실행 간트")}</h2>
        <p class="q">모든 실행을 한 시간축에 올립니다. 색은 위상입니다.
        실행 사이의 빈칸은 아무도 일하지 않은 시간입니다.</p>
        <div id="c-gantt"></div>
        <div class="legend-row">
-         <span><i style="background:var(--prog)"></i>플래닝</span>
-         <span><i style="background:var(--fg-faint)"></i>승인 대기</span>
-         <span><i style="background:var(--accent)"></i>실행</span>
-         <span><i style="background:var(--warn)"></i>집계</span></div></div>
+         <span><i style="background:var(--prog)"></i>${tp("플래닝")}</span>
+         <span><i style="background:var(--fg-faint)"></i>${tp("승인 대기")}</span>
+         <span><i style="background:var(--accent)"></i>${tp("실행")}</span>
+         <span><i style="background:var(--warn)"></i>${tp("집계")}</span></div></div>
      <div class="grid2">
-       <div class="card"><h2>낭비 사분면</h2>
+       <div class="card"><h2>${t("낭비 사분면")}</h2>
          <p class="q">x = 문항당 과금 토큰(log), y = 채점 적격 여부.
          <b>오른쪽 아래가 낭비의 총량입니다.</b> 슬라이더를 끌면 모델 호출 없이 즉시 다시 계산합니다.</p>
          <div id="c-waste"></div>
@@ -1108,18 +1608,29 @@ function paneAll(P){
            <div class="stat"><span>잘리는 실행</span><b id="w-cutn">—</b><em id="w-cutnd"></em></div></div>
          <p class="note"><b>정직한 한계.</b> 상한에 닿는 순간 그 실행을 포기했다고 가정합니다.
          잘린 실행의 적격은 전부 잃는 것으로 계산하므로 이 곡선은 <b>손실의 상한</b>입니다.</p></div>
-       <div class="card"><h2>토큰 누적 곡선</h2>
+       <div class="card"><h2>${t("토큰 누적 곡선")}</h2>
          <p class="q">실행별 누적 토큰을 겹쳐 그립니다. 계단이 가파른 구간이 비용이 몰린 곳입니다.
          보고된 시점에만 오릅니다.</p>
          <div id="c-tok"></div></div>
-       <div class="card"><h2>답 근접도</h2>
+       <div class="card"><h2>${t("답 근접도")}</h2>
          <p class="q">형식을 못 맞춘 실행이 <b>얼마나 아까웠는지</b> 셉니다.
          통과한 검사 개수로 나눕니다.</p>
          <div id="c-near"></div></div>
-       <div class="card"><h2>응답 길이 대 적격</h2>
+       <div class="card"><h2>${t("응답 길이 대 적격")}</h2>
          <p class="q">길게 쓴다고 맞는 것이 아님을 봅니다. x = 응답 글자 수, y = 적격 여부.</p>
          <div id="c-len"></div></div>
      </div>`;
+  // 요약은 접었다 폈다 한다. 화면 맨 위를 늘 차지할 필요가 없다.
+  const fill=()=>{ if(S.showSum) $("#sum-body").innerHTML=runSummaryCard(true); };
+  fill();
+  $("#sum-toggle").onclick=()=>{
+    S.showSum=!S.showSum;
+    $("#sum-body").hidden=!S.showSum;
+    $("#sum-toggle").textContent=S.showSum?"▾":"▸";
+    $("#sum-toggle").setAttribute("aria-expanded",String(S.showSum));
+    fill();
+  };
+  translateDOM(P);
   drawGantt($("#c-gantt"),X);
   drawTokenCurves($("#c-tok"),X);
   drawNear($("#c-near"),X);
@@ -1127,9 +1638,11 @@ function paneAll(P){
   const maxTok=Math.max(1,...X.map(billed));
   const cut=$("#w-cut"); cut.max=String(Math.ceil(maxTok*1.05)); cut.value=cut.max;
   S.cut=Infinity;
-  const redraw=()=>{ drawWaste($("#c-waste"),X); };
+  // 차트를 다 그린 뒤에 번역해야 한다. 먼저 부르면 나중에 그려진 요소가 통째로 빠진다.
+  const redraw=()=>{ drawWaste($("#c-waste"),X); translateDOM($("#c-waste").closest(".card")); };
   cut.oninput=ev=>{ const v=+ev.target.value; S.cut=v>=+cut.max?Infinity:v; redraw(); };
   redraw();
+  translateDOM(P);
 }
 
 function drawGantt(host,X){
@@ -1148,7 +1661,7 @@ function drawGantt(host,X){
     let acc=e.t0??t0;
     for(const p of e.phases){
       g.appendChild(svgEl("rect",{x:x(acc),y,width:Math.max(1,x(acc+p.ms)-x(acc)),height:rowH-5,
-        rx:2,fill:p.c,opacity:.85},[svgEl("title",{},`${e.ws} · ${p.k} ${secs(p.ms)}`)]));
+        rx:2,fill:p.c,opacity:.85},[svgEl("title",{},`${e.ws} · ${tp(p.k)} ${secs(p.ms)}`)]));
       acc+=p.ms;
     }
     g.appendChild(svgEl("text",{x:56,y:y+9,"text-anchor":"end","font-size":9,
@@ -1176,7 +1689,7 @@ function drawWaste(host,X){
     const over=billed(e)>S.cut, j=((i*37)%15-7)*1.8;
     g.appendChild(svgEl("circle",{cx:X4(billed(e)),cy:Y(e.gradable)+j,r:5,
       fill:over?"none":wsColor(e.ws),stroke:over?"var(--fg-faint)":"none","stroke-dasharray":over?"2 2":null,
-      opacity:over?.5:.85},[svgEl("title",{},`${e.ws} · ${fmt(billed(e))} tok · ${e.gradable?"적격":"불가"}`)]));
+      opacity:over?.5:.85},[svgEl("title",{},`${e.ws} · ${fmt(billed(e))} tok · ${e.gradable?t("적격"):t("불가")}`)]));
   });
   if(Number.isFinite(S.cut)){ const px=X4(S.cut);
     g.appendChild(svgEl("line",{x1:px,y1:P.t-4,x2:px,y2:H-P.b,stroke:"var(--warn)","stroke-width":2}));
@@ -1235,14 +1748,14 @@ function drawNear(host,X){
     }
     return {e,...best};
   }).sort((a,b)=>b.p/b.n-a.p/a.n);
-  host.innerHTML=`<table><tr><th>실행</th><th>스쿼드</th><th>통과</th><th>얼마나 아까운가</th></tr>`+
+  host.innerHTML=`<table><tr><th>${t("실행")}</th><th>${t("스쿼드")}</th><th>${t("통과")}</th><th>${t("얼마나 아까운가")}</th></tr>`+
     rows.map(r=>{const f=r.p/r.n;
       return `<tr><td>${esc(one(r.e.request).slice(0,34)||r.e.id)}</td>
         <td style="color:var(--fg-dim)">${esc(r.e.ws)}</td>
         <td class="n">${r.p} / ${r.n}</td>
         <td><div class="mini" style="height:7px"><i style="width:${(f*100).toFixed(0)}%;background:${
           f>=.75?"var(--warn)":f>=.5?"var(--accent)":"var(--fg-faint)"}"></i></div>
-        <span class="tip">${f>=.75?"한 걸음 차이":f>=.5?"절반은 맞춤":"멀었음"}</span></td></tr>`;}).join("")+
+        <span class="tip">${f>=.75?t("한 걸음 차이"):f>=.5?t("절반은 맞춤"):t("멀었음")}</span></td></tr>`;}).join("")+
     `</table><p class="note">통과율이 높을수록 <b>조금만 고치면 되는 실행</b>입니다. 거기부터 손대는 편이 빠릅니다.</p>`;
 }
 
@@ -1257,9 +1770,9 @@ function drawLen(host,X){
     g.appendChild(svgEl("text",{x:P.l-6,y:y+4,"text-anchor":"end","font-size":9,fill:"var(--fg-dim)"},lab)); }
   X.forEach((e,i)=>{const j=((i*29)%13-6)*1.9;
     g.appendChild(svgEl("circle",{cx:px(lens[i]),cy:py(e.gradable)+j,r:5,fill:wsColor(e.ws),opacity:.8},
-      [svgEl("title",{},`${e.ws} · ${lens[i].toLocaleString()}자 · ${e.gradable?"적격":"불가"}`)]));});
+      [svgEl("title",{},`${e.ws} · ${lens[i].toLocaleString()} · ${e.gradable?t("적격"):t("불가")}`)]));});
   g.appendChild(svgEl("text",{x:(W+P.l)/2,y:H-6,"text-anchor":"middle","font-size":9,fill:"var(--fg-faint)"},
-    `응답 글자 수 → 최대 ${maxL.toLocaleString()}자`));
+    `${t("응답 글자 수")} → ${maxL.toLocaleString()}`));
   host.appendChild(g);
 }
 
@@ -1297,11 +1810,11 @@ function paneCmp(P){
   const bTok=best(r=>r.X.length?r.tok/r.X.length:Infinity,-1);
   const bDur=best(r=>r.X.length?r.dur/r.X.length:Infinity,-1);
 
-  P.innerHTML=`<div class="card"><h2>스쿼드 비교 — ${sq.length}개</h2>
+  P.innerHTML=`<div class="card"><h2>${t("스쿼드 비교")} — ${sq.length}</h2>
     <p class="q">워크스페이스 하나가 스쿼드 하나입니다. 초록은 그 항목에서 가장 나은 값입니다.</p>
     <table>
-      <tr><th>스쿼드</th><th>구성</th><th class="n">실행</th><th class="n">채점 적격</th>
-          <th class="n">문항당 토큰</th><th class="n">문항당 시간</th><th class="n">실제 실행 시간</th><th>출력 계약</th></tr>
+      <tr><th>${t("스쿼드")}</th><th>${t("구성")}</th><th class="n">${t("실행")}</th><th class="n">${t("채점 적격")}</th>
+          <th class="n">${t("문항당 토큰")}</th><th class="n">${t("문항당 시간")}</th><th class="n">${t("실제 실행 시간")}</th><th>${t("출력 계약")}</th></tr>
       ${rows.map(r=>{
         const gr=r.ran.length?r.grad/r.ran.length:0;
         const tp=r.X.length?r.tok/r.X.length:0, dp=r.X.length?r.dur/r.X.length:0;
@@ -1321,14 +1834,16 @@ function paneCmp(P){
     사람이 계획을 승인하기까지의 시간이라 시스템 성능이 아닙니다. 그래서 <b>실제 실행 시간</b>을 따로 뒀습니다.</p>
   </div>
   <div class="grid2">
-    <div class="card"><h2>스쿼드별 채점 적격률</h2><div id="c-cmp-grad"></div></div>
-    <div class="card"><h2>스쿼드별 문항당 토큰</h2><div id="c-cmp-tok"></div></div>
+    <div class="card"><h2>${t("스쿼드별 채점 적격률")}</h2><div id="c-cmp-grad"></div></div>
+    <div class="card"><h2>${t("스쿼드별 문항당 토큰")}</h2><div id="c-cmp-tok"></div></div>
   </div>
   ${sameRequestCard(rows)}`;
+  translateDOM(P);
   bars($("#c-cmp-grad"),rows.map(r=>({label:r.s.name,ws:r.s.ws,
     v:r.ran.length?r.grad/r.ran.length:0,text:`${r.grad}/${r.ran.length}`})),v=>pct(v));
   bars($("#c-cmp-tok"),rows.map(r=>({label:r.s.name,ws:r.s.ws,
     v:r.X.length?r.tok/r.X.length:0,text:fmt(r.X.length?r.tok/r.X.length:0)})),fmt);
+  translateDOM(P);
 }
 
 function bars(host,items,fmtv){
@@ -1351,15 +1866,15 @@ function sameRequestCard(rows){
     byReq.get(k).push(e);
   }
   const shared=[...byReq.entries()].filter(([,v])=>new Set(v.map(e=>e.ws)).size>1);
-  if(!shared.length) return `<div class="card"><h2>같은 문항 비교</h2>
+  if(!shared.length) return `<div class="card"><h2>${t("같은 문항 비교")}</h2>
     <p class="q">여러 스쿼드가 <b>같은 문항</b>을 푼 경우가 없습니다.
     같은 문항을 각 스쿼드로 한 번씩 돌리면 여기에서 직접 비교됩니다.</p></div>`;
-  return `<div class="card"><h2>같은 문항 비교 — ${shared.length}건</h2>
+  return `<div class="card"><h2>${t("같은 문항 비교")} — ${shared.length}</h2>
     <p class="q">같은 요청을 서로 다른 스쿼드가 푼 경우입니다. 조건이 같으니 차이가 곧 스쿼드 차이입니다.</p>`+
     shared.map(([k,v])=>`
       <div style="margin-bottom:12px">
         <div style="font-size:11px;color:var(--fg-dim);margin-bottom:5px">${esc(k)}…</div>
-        <table><tr><th>스쿼드</th><th>결과</th><th class="n">토큰</th><th class="n">시간</th><th class="n">태스크</th></tr>
+        <table><tr><th>${t("스쿼드")}</th><th>${t("결과")}</th><th class="n">${t("토큰")}</th><th class="n">${t("시간")}</th><th class="n">${t("태스크")}</th></tr>
         ${v.map(e=>`<tr><td style="color:${wsColor(e.ws)}"><b>${esc(e.ws)}</b></td>
           <td><span class="pill ${e.gradable?"ok":"bad"}">${e.gradable?"적격":"불가"}</span></td>
           <td class="n">${fmt(billed(e))}</td><td class="n">${secs(e.durationMs)}</td>
@@ -1387,10 +1902,10 @@ function artifactCard(e){
     `<td>${here===null?"—":here?'<span class="pill warn">이 실행에서 씀</span>':""}</td>`+
     `<td style="color:var(--fg-dim)">${esc(one(a.text).slice(0,64))}</td></tr>`).join("");
   return `<div class="card"${answerish.length&&!e.gradable?' style="border-color:var(--bad)"':""}>
-    <h2>워크스페이스에 쓴 파일 ${arts.length}개</h2>
+    <h2>${t("워크스페이스에 쓴 파일")} ${arts.length}</h2>
     <p class="q">에이전트가 <code>write_file</code> 로 만든 파일입니다.
     <b>judge 는 이 파일을 읽지 않습니다.</b> 응답 텍스트만 읽습니다.</p>
-    <table><tr><th>파일</th><th class="n">크기</th><th>이 실행</th><th>앞부분</th></tr>${rowsHtml}</table>
+    <table><tr><th>${t("파일")}</th><th class="n">${t("크기")}</th><th>${t("이 실행")}</th><th>${t("앞부분")}</th></tr>${rowsHtml}</table>
     ${answerish.length&&!e.gradable
       ? `<p class="note"><b>답이 파일에만 있습니다.</b>
          <code>${answerish.map(r=>esc(r.a.name)).join("</code>, <code>")}</code> 에는 결과가 들어 있는데
@@ -1416,11 +1931,11 @@ function rosterCard(e){
       <td class="n">${r.tasks||"—"}</td>
       <td class="n">${r.failed?`<span style="color:var(--bad)">${r.failed}</span>`:"0"}</td>
       <td class="n">${r.tok?fmt(r.tok):"—"}</td></tr>`;}).join("");
-  return `<div class="card"><h2>스쿼드 구성 · ${R.length}명</h2>
+  return `<div class="card"><h2>${t("스쿼드 구성")} · ${R.length}</h2>
     <p class="q">이 실행에서 동작한 에이전트는 <b>${[...worked].length + (e.events.some(v=>v.eventType==="squad:plan-ready")?1:0)}명</b>입니다.
     나머지는 스쿼드에 있지만 이번엔 태스크를 받지 않았습니다.</p>
-    <table><tr><th>에이전트</th><th>역할</th><th>모델</th><th>이 실행</th><th class="n">참여 실행</th>
-      <th class="n">태스크</th><th class="n">실패</th><th class="n">토큰(추정)</th></tr>${rows}</table>
+    <table><tr><th>${t("에이전트")}</th><th>${t("역할")}</th><th>${t("모델")}</th><th>${t("이 실행")}</th><th class="n">${t("참여 실행")}</th>
+      <th class="n">${t("태스크")}</th><th class="n">${t("실패")}</th><th class="n">${t("토큰(추정)")}</th></tr>${rows}</table>
     <p class="note"><b>로스터는 로그에 없습니다.</b> 로그에는 <b>태스크를 배정받은 에이전트만</b> 남습니다.
     한 번도 일하지 않은 구성원과 플래너는 존재 자체를 알 수 없습니다.
     ${S.squadOf(e.ws)?.source==="config"
@@ -1434,11 +1949,11 @@ function phaseBar(e){
   if(!e.phases.length) return `<p class="q">이벤트가 부족해 위상을 나눌 수 없습니다.</p>`;
   const tot=e.phases.reduce((s,p)=>s+p.ms,0)||1;
   return `<div class="phases">`+e.phases.map(p=>
-      `<div style="width:${(p.ms/tot*100).toFixed(2)}%;background:${p.c}" title="${p.k} ${secs(p.ms)}">${p.ms/tot>.12?esc(p.k):""}</div>`).join("")+
+      `<div style="width:${(p.ms/tot*100).toFixed(2)}%;background:${p.c}" title="${tp(p.k)} ${secs(p.ms)}">${p.ms/tot>.12?esc(p.k):""}</div>`).join("")+
     `</div><div class="plegend">`+e.phases.map(p=>
-      `<span><i style="background:${p.c}"></i>${p.k} ${secs(p.ms)} (${(p.ms/tot*100).toFixed(0)}%)</span>`).join("")+
+      `<span><i style="background:${p.c}"></i>${tp(p.k)} ${secs(p.ms)} (${(p.ms/tot*100).toFixed(0)}%)</span>`).join("")+
     `</div>`+
-    (e.autoApprove===false?`<p class="note"><b>이 실행은 <code>autoApprove: false</code> 다.</b>
+    (e.autoApprove===false?`<p class="note"><b>이 실행은 <code>autoApprove: false</code> 로 돌았습니다.</b>
       "승인 대기"는 사람이 계획을 승인하기까지 걸린 시간이므로 시스템 성능이 아닙니다.
       자동으로 도는 벤치마크 실행에서는 이 구간이 사라집니다. <b>플래닝·실행 구간만 비교 대상입니다.</b></p>`:"");
 }
@@ -1645,7 +2160,7 @@ function paneReplay(P,e){
       m.classList.toggle("on", pct*100>=+m.dataset.at));
 
     const ph=e.phases.length?phaseAt(e,t):null;
-    $("#rp-phase").textContent=ph||"—";
+    $("#rp-phase").textContent=ph?tp(ph):"—";
 
     // ── 스쿼드 맵: 지나간 노드는 켜지고, 도는 중인 노드는 맥동하고, 토큰이 붙는다
     const running=new Set();
@@ -1737,7 +2252,7 @@ function squadMap(e){
     });
     cols.push(col);
   }
-  cols.push([{id:"agg", label:"집계", sub:"aggregation", kind:"sys"}]);
+  cols.push([{id:"agg", label:tp("집계"), sub:"aggregation", kind:"sys"}]);
   cols.push([{id:"res", label:e.gradable?"채점 적격":e.blocker==="blocked"?"실행 불가"
                 :e.blocker==="unknown"?(e.partial?"부분 기록":"판정 보류"):"답 형식 없음",
               sub:`${e.counts.total-e.counts.failed}/${e.counts.total} 완료`,
@@ -1916,18 +2431,19 @@ function paneFailure(P,e){
     <p class="q">에러 문자열을 아래 규칙표에 맞춰 분류합니다. <b>어떤 규칙이 걸렸는지 표에서 바로 확인할 수 있습니다.</b></p>`;
   if(!fails.length) h+=`<p class="q">실패한 태스크가 없습니다.</p>`;
   else{
-    h+=`<table><tr><th>태스크</th><th>kind</th><th>owner</th><th>읽는 법</th></tr>`;
-    for(const t of fails) h+=`<tr><td>${esc(one(t.title).slice(0,44))}</td>
-      <td><span class="pill ${t.fail.owner==="organizer"?"warn":"bad"}">${esc(t.fail.kind)}</span></td>
-      <td>${esc(t.fail.owner)}</td><td style="color:var(--fg-dim)">${esc(t.fail.why)}</td></tr>`;
+    h+=`<table><tr><th>${t("태스크")}</th><th>kind</th><th>owner</th><th>읽는 법</th></tr>`;
+    // 루프 변수를 t 로 두면 번역 함수 t 를 가린다. ft 로 둔다.
+    for(const ft of fails) h+=`<tr><td>${esc(one(ft.title).slice(0,44))}</td>
+      <td><span class="pill ${ft.fail.owner==="organizer"?"warn":"bad"}">${esc(ft.fail.kind)}</span></td>
+      <td>${esc(ft.fail.owner)}</td><td style="color:var(--fg-dim)">${esc(t(ft.fail.why))}</td></tr>`;
     h+=`</table>`;
     h+=`<h2 style="margin-top:16px;font-size:12px">에러 원문</h2>`;
-    for(const t of fails) h+=`<pre style="margin-top:6px">${esc(t.fail.raw)}</pre>`;
+    for(const ft of fails) h+=`<pre style="margin-top:6px">${esc(ft.fail.raw)}</pre>`;
   }
   h+=`</div><div class="card"><h2>분류 규칙표</h2><table>
-    <tr><th>패턴</th><th>kind</th><th>owner</th><th>뜻</th></tr>`+
-    RULES.map(r=>`<tr><td><code>${esc(String(r.re))}</code></td><td>${r.kind}</td><td>${r.owner}</td><td style="color:var(--fg-dim)">${esc(r.why)}</td></tr>`).join("")+
-    `<tr><td>(그 외)</td><td>unclassified</td><td>—</td><td style="color:var(--fg-dim)">규칙을 추가해야 합니다</td></tr></table>
+    <tr><th>${t("패턴")}</th><th>kind</th><th>owner</th><th>${t("뜻")}</th></tr>`+
+    RULES.map(r=>`<tr><td><code>${esc(String(r.re))}</code></td><td>${r.kind}</td><td>${r.owner}</td><td style="color:var(--fg-dim)">${esc(t(r.why))}</td></tr>`).join("")+
+    `<tr><td>(그 외)</td><td>unclassified</td><td>—</td><td style="color:var(--fg-dim)">${t("규칙을 추가해야 합니다")}</td></tr></table>
     <p class="note">열거형 이름은 제출 서버 OpenAPI 의 <code>FailureKind</code> / <code>FailureOwner</code> 를 따릅니다.
     <code>owner: organizer</code> 는 주최 인프라 문제라 팀 책임이 아닙니다.</p></div>`;
   P.innerHTML=h;
@@ -1965,7 +2481,7 @@ function finish(){
   S.sel=null;
   const k=Object.entries(SEEN.kinds).map(([a,b])=>`${a} ×${b}`).join(" · ");
   const ws=[...new Set(S.execs.map(e=>e.ws))];
-  $("#src").textContent=`${SEEN.files} files · ${ws.length>1?`워크스페이스 ${ws.length}개 · `:""}${k}`;
+  S.srcParts={files:SEEN.files,ws:ws.length,kinds:k}; renderSrc();
   // 워크스페이스 필터 채우기. 하나뿐이면 굳이 보여주지 않는다.
   const sel=$("#f-ws");
   sel.innerHTML=`<option value="">모든 스쿼드</option>`+
@@ -1974,7 +2490,7 @@ function finish(){
   sel.onchange=()=>{renderList();syncHash();};
   // 스쿼드가 둘 이상이면 비교 탭이 의미가 있다는 것을 버튼에 표시한다.
   const cmpBtn=document.querySelector('[data-mode="cmp"]');
-  if(cmpBtn) cmpBtn.textContent=(S.squads||[]).length>1?`스쿼드 비교 (${S.squads.length})`:"스쿼드 비교";
+  if(cmpBtn){ cmpBtn.dataset.count=(S.squads||[]).length>1?String(S.squads.length):""; }
   $("#drop").hidden=true;
   renderHeader(); renderList(); renderPane();
   applyHash();
@@ -2088,13 +2604,94 @@ $("#btn-theme").onclick=()=>{
   if(S.mode==="cmp") paneCmp($("#pane-cmp"));
 };
 
+/* ── 사이드바 폭 조절과 접기 ──
+   문항 제목이 길어 좁으면 못 읽고, 넓으면 본문이 좁아진다. 상황마다 다르므로 손잡이를 준다. */
+const SIDE_MIN=180, SIDE_MAX=720, SIDE_DEF=310;
+function setSideWidth(px){
+  S.sideW=Math.round(Math.max(SIDE_MIN,Math.min(SIDE_MAX,px)));
+  document.documentElement.style.setProperty("--sidew",S.sideW+"px");
+}
+function setSideOpen(on){
+  S.sideOpen=on;
+  const m=S.mode==="exec";
+  document.querySelector(".side").hidden=!(on&&m);
+  $("#splitter").hidden=!(on&&m);
+  $("#btn-side").setAttribute("aria-pressed",String(!on));
+  $("#btn-side").textContent=on?"◧":"▶";
+  syncHash();
+}
+(function splitter(){
+  const sp=$("#splitter");
+  let dragging=false;
+  sp.addEventListener("mousedown",ev=>{ dragging=true; ev.preventDefault();
+    sp.classList.add("drag"); document.body.classList.add("resizing"); });
+  addEventListener("mousemove",ev=>{
+    if(!dragging) return;
+    const left=document.querySelector("main").getBoundingClientRect().left;
+    setSideWidth(ev.clientX-left);
+  });
+  addEventListener("mouseup",()=>{
+    if(!dragging) return;
+    dragging=false; sp.classList.remove("drag"); document.body.classList.remove("resizing"); syncHash();
+  });
+  sp.addEventListener("dblclick",()=>{ setSideWidth(SIDE_DEF); syncHash(); });
+})();
+$("#btn-side").onclick=()=>setSideOpen(!S.sideOpen);
+
+/* 정적 마크업의 라벨. 원문을 한 번 기억해 두고 언어가 바뀔 때마다 그 원문으로 다시 번역한다.
+   번역문을 다시 번역하면 되돌릴 수 없다. */
+const I18N_ORIG=new WeakMap();
+function applyStaticI18n(){
+  const sel=".stat span,.stat em,[data-tab],[data-mode],#f-status option,#f-ws option,"+
+            "#btn-side,#btn-view,#btn-load,#btn-dir,#btn-file,.drop h1,.drop p,.side .h select";
+  document.querySelectorAll(sel).forEach(el=>{
+    let o=I18N_ORIG.get(el);
+    if(!o){ o={text:el.textContent,title:el.getAttribute("title"),ph:el.getAttribute("placeholder")};
+            I18N_ORIG.set(el,o); }
+    if(!el.children.length && o.text!=null){
+      const base=o.text.trim();
+      const tr=t(base)===base?o.text:t(base);
+      // 개수 배지는 라벨 뒤에 붙인다. 라벨 자체에 섞으면 번역이 안 걸린다.
+      el.textContent=el.dataset&&el.dataset.count?`${tr} (${el.dataset.count})`:tr;
+    }
+    if(o.title) el.setAttribute("title",t(o.title));
+  });
+  // 제목 속성과 placeholder 는 따로 훑는다
+  document.querySelectorAll("[title]").forEach(el=>{
+    let o=I18N_ORIG.get(el);
+    if(!o){ o={text:null,title:el.getAttribute("title"),ph:null}; I18N_ORIG.set(el,o); }
+    if(o.title) el.setAttribute("title",t(o.title));
+  });
+  const q=$("#q");
+  if(q){ let o=I18N_ORIG.get(q);
+    if(!o){ o={ph:q.getAttribute("placeholder")}; I18N_ORIG.set(q,o); }
+    q.setAttribute("placeholder",t(o.ph)); }
+  // 오프닝 화면도 같이 훑는다. <b>·<code> 자식이 있어 라벨 치환만으로는 안 바뀐다.
+  translateDOM($("#drop"));
+  document.documentElement.lang=LANG;
+}
+function setLang(l){
+  LANG=l==="en"?"en":"ko";
+  ["#lang","#lang2"].forEach(s=>{ const el=$(s); if(el) el.value=LANG; });
+  applyStaticI18n(); renderSrc();
+  if(S.execs.length){ renderHeader(); renderList(); renderPane();
+    if(S.mode==="all") paneAll($("#pane-all"));
+    if(S.mode==="cmp") paneCmp($("#pane-cmp")); }
+  syncHash();
+}
+["#lang","#lang2"].forEach(s=>{ const el=$(s); if(el) el.onchange=ev=>setLang(ev.target.value); });
+
 /* ── 모드 전환 ── */
 function setMode(m){
   S.mode=m;
   document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m)));
   $("#pane-all").hidden=m!=="all"; $("#pane-cmp").hidden=m!=="cmp";
   document.querySelector(".body").hidden=m!=="exec";
-  document.querySelector(".side").hidden=m!=="exec";
+  // 목록과 손잡이는 "실행 하나" 모드이면서 접히지 않았을 때만 보인다.
+  const showSide=m==="exec"&&S.sideOpen!==false;
+  document.querySelector(".side").hidden=!showSide;
+  $("#splitter").hidden=!showSide;
+  $("#btn-side").hidden=m!=="exec";
   if(m==="all") paneAll($("#pane-all"));
   if(m==="cmp") paneCmp($("#pane-cmp"));
   syncHash();
@@ -2134,6 +2731,10 @@ function syncHash(){
   const f=$("#f-status")?.value; if(f) p.set("f",f);
   const w=$("#f-ws")?.value; if(w) p.set("w",w);
   if(S.cards) p.set("v","cards");
+  if(LANG!=="ko") p.set("l",LANG);
+  if(S.sideOpen===false) p.set("s","0");
+  if(S.sideW&&S.sideW!==SIDE_DEF) p.set("sw",String(S.sideW));
+  if(S.showSum) p.set("sum","1");
   const s=p.toString();
   // sandbox·data: origin 에서는 replaceState 가 던진다. 주소 갱신이 앱을 죽이면 안 된다.
   try{ history.replaceState(null,"",s?"#"+s:location.pathname); }
@@ -2145,6 +2746,10 @@ function applyHash(){
   if(p.get("f")) $("#f-status").value=p.get("f");
   if(p.get("w")) $("#f-ws").value=p.get("w");
   if(p.get("v")==="cards"){ S.cards=true; document.querySelector(".side").classList.add("cards"); $("#btn-view").textContent="▦"; }
+  if(p.get("l")) setLang(p.get("l"));
+  if(p.get("sw")) setSideWidth(+p.get("sw"));
+  S.showSum=p.get("sum")==="1";
+  setSideOpen(p.get("s")!=="0");
   const e=p.get("e"); if(e&&S.execs.some(x=>x.id===e)) S.sel=e;
   const t=p.get("t"); if(t&&document.querySelector(`[data-tab="${t}"]`)){
     S.tab=t; document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===t))); }
@@ -2167,6 +2772,7 @@ addEventListener("keydown",ev=>{
     const n=vis[Math.min(vis.length-1,idx+1)]; if(n) selectExec(n.id); return; }
   if(ev.key==="k"||ev.key==="ArrowUp"){ ev.preventDefault();
     const n=vis[Math.max(0,idx-1)]; if(n) selectExec(n.id); return; }
+  if(ev.key==="b"){ setSideOpen(!S.sideOpen); return; }
   if(ev.key==="m"){ const order=["exec","all","cmp"];
     setMode(order[(order.indexOf(S.mode)+1)%order.length]); return; }
   if(/^[1-6]$/.test(ev.key)){
