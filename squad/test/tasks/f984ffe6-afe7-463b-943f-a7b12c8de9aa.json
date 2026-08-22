@@ -1,0 +1,21 @@
+{
+  "id": "f984ffe6-afe7-463b-943f-a7b12c8de9aa",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "96dac2c6-f134-4078-942b-9bfc842005c8",
+  "title": "Compute Correct Complex Division",
+  "description": "Compute the correct value of −(3+4i)/(1+2i) and return the result as a complex number in the form a+bi.",
+  "assignedTo": "agent-1787387157647-ztcvzv5",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:41:13.346874Z",
+  "startedAt": "2026-08-22T11:41:13.350327Z",
+  "completedAt": "2026-08-22T11:41:23.264734Z"
+}

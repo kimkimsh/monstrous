@@ -1,0 +1,21 @@
+{
+  "id": "ec51c1cf-d095-40d5-a824-382411ed43fc",
+  "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+  "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+  "title": "Calculate periods",
+  "description": "Calculate the number of bi-monthly periods in five years (5 years * 12 months/year / 2 months per period).",
+  "assignedTo": "agent-1787398903663-fxuz71j",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:47:00.190597Z",
+  "startedAt": "2026-08-22T11:47:36.579694Z",
+  "completedAt": "2026-08-22T11:47:40.988053Z"
+}

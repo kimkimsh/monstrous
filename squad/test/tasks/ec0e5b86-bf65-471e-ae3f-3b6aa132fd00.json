@@ -1,0 +1,21 @@
+{
+  "id": "ec0e5b86-bf65-471e-ae3f-3b6aa132fd00",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "c088ed84-6596-42f8-b57e-f43bb6ceb8cf",
+  "title": "Expand quadratic expression",
+  "description": "Expand the expression 4(x+7)(2-x) into standard quadratic form.",
+  "assignedTo": "agent-1787387157647-ztcvzv5",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:39:45.806633Z",
+  "startedAt": "2026-08-22T11:40:12.202840Z",
+  "completedAt": "2026-08-22T11:40:20.174482Z"
+}

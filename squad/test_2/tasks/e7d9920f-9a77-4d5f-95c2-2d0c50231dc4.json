@@ -1,0 +1,23 @@
+{
+  "id": "e7d9920f-9a77-4d5f-95c2-2d0c50231dc4",
+  "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+  "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+  "title": "Calculate final amount",
+  "description": "Calculate the final investment amount using the formula: final = 24000 * (1 + 0.01)^n, where n is the number of bi-monthly periods calculated earlier.",
+  "assignedTo": "agent-1787398903663-z47ly8b",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [
+    "ec51c1cf-d095-40d5-a824-382411ed43fc"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:47:00.192377Z",
+  "startedAt": "2026-08-22T11:47:41.294677Z",
+  "completedAt": "2026-08-22T11:47:59.657726Z"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "executionId": "13a35667-7c99-41ce-a681-0677b7d359c5",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "startedAt": "2026-08-22T11:47:00.190195Z",
+    "lastUpdatedAt": "2026-08-22T11:48:29.567911Z",
+    "entryCount": 11
+  },
+  {
+    "executionId": "6c802677-de70-490b-9d44-656ed4022964",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "startedAt": "2026-08-22T11:50:23.435271Z",
+    "lastUpdatedAt": "2026-08-22T11:51:19.130928Z",
+    "entryCount": 13
+  }
+]

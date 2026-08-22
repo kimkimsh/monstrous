@@ -1,0 +1,21 @@
+{
+  "id": "7ecab9a0-73c1-4a75-b47f-cc5621ef976d",
+  "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+  "planId": "8a7d4818-c8b3-4d42-985d-6682c27ff68e",
+  "title": "Define distance squared function",
+  "description": "Define the distance squared function D^2 = x^2 + (0.5x^2 - 9)^2 for points (x, y) on the graph y = 0.5x^2 - 9.",
+  "assignedTo": "agent-1787398903663-fxuz71j",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:50:23.440453Z",
+  "startedAt": "2026-08-22T11:50:34.399263Z",
+  "completedAt": "2026-08-22T11:50:40.717697Z"
+}

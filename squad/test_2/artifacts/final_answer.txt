@@ -1,0 +1,12 @@
+# Investment Projection Summary
+
+**Bi‑monthly periods in five years**
+- Total periods: **30**
+
+**Final investment amount**
+- Formula used: `final = 24000 * (1 + 0.01)^30`
+- Growth factor: `(1.01)^30 ≈ 1.347`
+- Final amount: **≈ $32,328**
+
+**Key Takeaway**
+- Over five years with bi‑monthly compounding at 1% per period, a $24,000 investment grows to roughly $32,328.

@@ -1,0 +1,24 @@
+{
+  "id": "3e5d7a55-6dfb-4c12-a02a-edb1731cc3bf",
+  "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+  "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+  "title": "Aggregate and produce final answer",
+  "description": "Aggregate the results from 'Calculate periods' and 'Calculate final amount' and produce the final answer in the required format.",
+  "assignedTo": "agent-1787398903663-nu95xxz",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "ec51c1cf-d095-40d5-a824-382411ed43fc",
+    "e7d9920f-9a77-4d5f-95c2-2d0c50231dc4"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:47:00.193107Z",
+  "startedAt": "2026-08-22T11:47:59.963649Z",
+  "completedAt": "2026-08-22T11:48:28.756370Z"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "e11a538e-c9af-4a51-b9e3-11fa12157648",
+  "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+  "planId": "c088ed84-6596-42f8-b57e-f43bb6ceb8cf",
+  "title": "Compute maximum of quadratic",
+  "description": "Compute the maximum value of the quadratic function 4(x+7)(2-x) over all real numbers x.",
+  "assignedTo": "agent-1787387157647-ztcvzv5",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T11:39:45.803190Z",
+  "startedAt": "2026-08-22T11:39:56.173981Z",
+  "completedAt": "2026-08-22T11:40:11.898549Z"
+}

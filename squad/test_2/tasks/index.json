@@ -1,0 +1,115 @@
+[
+  {
+    "id": "3e5d7a55-6dfb-4c12-a02a-edb1731cc3bf",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+    "title": "Aggregate and produce final answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787398903663-nu95xxz",
+    "dependsOn": [
+      "ec51c1cf-d095-40d5-a824-382411ed43fc",
+      "e7d9920f-9a77-4d5f-95c2-2d0c50231dc4"
+    ],
+    "createdAt": "2026-08-22T11:47:00.193107Z",
+    "completedAt": "2026-08-22T11:48:28.756370Z"
+  },
+  {
+    "id": "ec51c1cf-d095-40d5-a824-382411ed43fc",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+    "title": "Calculate periods",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:47:00.190597Z",
+    "completedAt": "2026-08-22T11:47:40.988053Z"
+  },
+  {
+    "id": "e7d9920f-9a77-4d5f-95c2-2d0c50231dc4",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+    "title": "Calculate final amount",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-z47ly8b",
+    "dependsOn": [
+      "ec51c1cf-d095-40d5-a824-382411ed43fc"
+    ],
+    "createdAt": "2026-08-22T11:47:00.192377Z",
+    "completedAt": "2026-08-22T11:47:59.657726Z"
+  },
+  {
+    "id": "a182c5aa-c591-491d-b40b-18d75455cbc2",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "8a7d4818-c8b3-4d42-985d-6682c27ff68e",
+    "title": "Define distance squared function",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:50:23.437162Z",
+    "completedAt": "2026-08-22T11:51:09.697431Z"
+  },
+  {
+    "id": "51a8ed7e-3062-47e5-a800-96157f8c7992",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "8a7d4818-c8b3-4d42-985d-6682c27ff68e",
+    "title": "Define distance squared function",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:50:23.439082Z",
+    "completedAt": "2026-08-22T11:50:34.095180Z"
+  },
+  {
+    "id": "d9582581-dadc-433d-a012-486eebfcefed",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "8a7d4818-c8b3-4d42-985d-6682c27ff68e",
+    "title": "Define distance squared function",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:50:23.439580Z",
+    "completedAt": "2026-08-22T11:51:18.322825Z"
+  },
+  {
+    "id": "931e32a7-6326-49ab-a63c-454ec9e8cdfc",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "8a7d4818-c8b3-4d42-985d-6682c27ff68e",
+    "title": "Define distance squared function",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:50:23.440057Z",
+    "completedAt": "2026-08-22T11:50:51.496038Z"
+  },
+  {
+    "id": "7ecab9a0-73c1-4a75-b47f-cc5621ef976d",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "8a7d4818-c8b3-4d42-985d-6682c27ff68e",
+    "title": "Define distance squared function",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:50:23.440453Z",
+    "completedAt": "2026-08-22T11:50:40.717697Z"
+  },
+  {
+    "id": "ce6a5c3b-aa52-47d9-8d46-ce6d5014df84",
+    "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "planId": "4d937d82-1068-44e6-aa6a-638211a97c18",
+    "title": "Check periods status",
+    "status": "done",
+    "priority": "low",
+    "assignedTo": "agent-1787398903663-fxuz71j",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:47:00.192733Z",
+    "completedAt": "2026-08-22T11:47:36.272011Z"
+  }
+]

@@ -1,0 +1,5739 @@
+
+########## aigo bench
+Benchmark management
+
+Usage: aigo bench <COMMAND>
+
+Commands:
+  run      Run a new benchmark
+  cancel   Cancel the currently running benchmark
+  state    Show the current benchmark state
+  history  Show benchmark history
+  show     Show details for a specific benchmark
+  delete   Delete a benchmark result
+  compare  Compare two or more benchmarks side by side
+  export   Export benchmark data
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo bench run
+Run a new benchmark
+
+Usage: aigo bench run [OPTIONS]
+
+Options:
+  -m, --model <MODEL>
+          Model ID to benchmark (omit to benchmark the currently loaded model)
+      --prompt-tokens <PROMPT_TOKENS>
+          Number of prompt tokens
+      --completion-tokens <COMPLETION_TOKENS>
+          Number of completion tokens to generate
+  -c, --concurrency <CONCURRENCY>
+          Number of concurrent requests
+      --warmup <WARMUP>
+          Number of warmup iterations
+  -n, --iterations <ITERATIONS>
+          Number of benchmark iterations
+  -h, --help
+          Print help
+
+===== aigo bench cancel
+Cancel the currently running benchmark
+
+Usage: aigo bench cancel <ID>
+
+Arguments:
+  <ID>  Benchmark ID to cancel
+
+Options:
+  -h, --help  Print help
+
+===== aigo bench state
+Show the current benchmark state
+
+Usage: aigo bench state
+
+Options:
+  -h, --help  Print help
+
+===== aigo bench history
+Show benchmark history
+
+Usage: aigo bench history [OPTIONS]
+
+Options:
+  -m, --model <MODEL>  Filter by model ID
+  -h, --help           Print help
+
+===== aigo bench show
+Show details for a specific benchmark
+
+Usage: aigo bench show <ID>
+
+Arguments:
+  <ID>  Benchmark ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo bench delete
+Delete a benchmark result
+
+Usage: aigo bench delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Benchmark ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo bench compare
+Compare two or more benchmarks side by side
+
+Usage: aigo bench compare <IDS> <IDS>...
+
+Arguments:
+  <IDS> <IDS>...  Benchmark IDs to compare (at least two required)
+
+Options:
+  -h, --help  Print help
+
+===== aigo bench export
+Export benchmark data
+
+Usage: aigo bench export [OPTIONS]
+
+Options:
+  -f, --format <FORMAT>  Output format (json or csv) [default: json]
+  -h, --help             Print help
+
+########## aigo config
+Configuration management
+
+Usage: aigo config [COMMAND]
+
+Commands:
+  path   Show configuration file path
+  get    Get a configuration value
+  set    Set a configuration value
+  list   List all configuration values
+  reset  Reset configuration to defaults
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo config path
+Show configuration file path
+
+Usage: aigo config path
+
+Options:
+  -h, --help  Print help
+
+===== aigo config get
+Get a configuration value
+
+Usage: aigo config get <KEY>
+
+Arguments:
+  <KEY>  Configuration key
+
+Options:
+  -h, --help  Print help
+
+===== aigo config set
+Set a configuration value
+
+Usage: aigo config set <KEY> <VALUE>
+
+Arguments:
+  <KEY>    Configuration key
+  <VALUE>  Configuration value
+
+Options:
+  -h, --help  Print help
+
+===== aigo config list
+List all configuration values
+
+Usage: aigo config list
+
+Options:
+  -h, --help  Print help
+
+===== aigo config reset
+Reset configuration to defaults
+
+Usage: aigo config reset
+
+Options:
+  -h, --help  Print help
+
+########## aigo model
+Local model management
+
+Usage: aigo model <COMMAND>
+
+Commands:
+  list           List all local models
+  info           Get model details
+  refresh        Refresh model index
+  delete         Delete a model file
+  validate       Validate all models in the models directory
+  rebuild-index  Rebuild the models index
+  export-info    Get export information for a model
+  import         Import a model from a local file path
+  config         Model configuration management
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo model list
+List all local models
+
+Usage: aigo model list
+
+Options:
+  -h, --help  Print help
+
+===== aigo model info
+Get model details
+
+Usage: aigo model info <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo model refresh
+Refresh model index
+
+Usage: aigo model refresh
+
+Options:
+  -h, --help  Print help
+
+===== aigo model delete
+Delete a model file
+
+Usage: aigo model delete [OPTIONS] <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to delete
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo model validate
+Validate all models in the models directory
+
+Usage: aigo model validate [OPTIONS]
+
+Options:
+      --background  Run validation in the background
+  -h, --help        Print help
+
+===== aigo model rebuild-index
+Rebuild the models index
+
+Usage: aigo model rebuild-index
+
+Options:
+  -h, --help  Print help
+
+===== aigo model export-info
+Get export information for a model
+
+Usage: aigo model export-info <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo model import
+Import a model from a local file path
+
+Usage: aigo model import <PATH>
+
+Arguments:
+  <PATH>  Path to the model file to import
+
+Options:
+  -h, --help  Print help
+
+===== aigo model config
+Model configuration management
+
+Usage: aigo model config <COMMAND>
+
+Commands:
+  get              Get the stored configuration for a model
+  set              Set configuration for a model (provide config as JSON string)
+  estimate-memory  Estimate memory requirements for a model
+  default-variant  Get the default variant for a model directory
+  help             Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo model config get
+Get the stored configuration for a model
+
+Usage: aigo model config get <MODEL_PATH>
+
+Arguments:
+  <MODEL_PATH>  Path to the model file
+
+Options:
+  -h, --help  Print help
+
+----- aigo model config set
+Set configuration for a model (provide config as JSON string)
+
+Usage: aigo model config set <MODEL_PATH> <CONFIG_JSON>
+
+Arguments:
+  <MODEL_PATH>   Path to the model file
+  <CONFIG_JSON>  Configuration as a JSON string (e.g. '{"contextSize":4096,"gpuLayers":-1}')
+
+Options:
+  -h, --help  Print help
+
+----- aigo model config estimate-memory
+Estimate memory requirements for a model
+
+Usage: aigo model config estimate-memory [OPTIONS] <MODEL_PATH>
+
+Arguments:
+  <MODEL_PATH>  Path to the model file
+
+Options:
+      --context-length <CONTEXT_LENGTH>  Context length override
+  -h, --help                             Print help
+
+----- aigo model config default-variant
+Get the default variant for a model directory
+
+Usage: aigo model config default-variant [OPTIONS] <MODEL_PATH>
+
+Arguments:
+  <MODEL_PATH>  Path to any model file in the directory
+
+Options:
+      --set <SET>  Set the default variant filename (omit to get the current value)
+      --clear      Clear the default variant
+  -h, --help       Print help
+
+########## aigo loaded
+Loaded model operations
+
+Usage: aigo loaded <COMMAND>
+
+Commands:
+  list    List loaded models
+  info    Get loaded model details
+  load    Load a model
+  unload  Unload a model
+  health  Check model health
+  touch   Touch a loaded model to reset its idle timer
+  cancel  Cancel a model that is currently loading
+  port    Get the port number of a loaded model's inference server
+  logs    Get logs from a loaded model's inference server
+  status  Get detailed status of a loaded model
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded list
+List loaded models
+
+Usage: aigo loaded list
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded info
+Get loaded model details
+
+Usage: aigo loaded info <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded load
+Load a model
+
+Usage: aigo loaded load [OPTIONS] <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to load
+
+Options:
+  -c, --context-length <CONTEXT_LENGTH>  Context length override
+  -g, --gpu-layers <GPU_LAYERS>          GPU layers (-1 for all)
+  -t, --threads <THREADS>                Number of threads
+  -a, --alias <ALIAS>                    Model alias for routing
+      --tool-calling                     Enable tool calling
+      --mmproj <MMPROJ>                  Path to mmproj file for vision models
+  -h, --help                             Print help
+
+===== aigo loaded unload
+Unload a model
+
+Usage: aigo loaded unload <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to unload
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded health
+Check model health
+
+Usage: aigo loaded health <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded touch
+Touch a loaded model to reset its idle timer
+
+Usage: aigo loaded touch <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded cancel
+Cancel a model that is currently loading
+
+Usage: aigo loaded cancel <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded port
+Get the port number of a loaded model's inference server
+
+Usage: aigo loaded port <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo loaded logs
+Get logs from a loaded model's inference server
+
+Usage: aigo loaded logs [OPTIONS] <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -n, --tail <TAIL>  Number of lines to show from the end
+  -h, --help         Print help
+
+===== aigo loaded status
+Get detailed status of a loaded model
+
+Usage: aigo loaded status <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+########## aigo pool
+Model pool management
+
+Usage: aigo pool <COMMAND>
+
+Commands:
+  start        Start the model pool
+  stop         Stop the model pool
+  status       Get pool status
+  coordinator  Get pool coordinator information
+  endpoint     Get pool API endpoint URL
+  count        Get number of currently loaded models in pool
+  max-models   Get maximum number of models the pool can hold
+  memory       Get per-model memory usage in pool
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool start
+Start the model pool
+
+Usage: aigo pool start
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool stop
+Stop the model pool
+
+Usage: aigo pool stop
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool status
+Get pool status
+
+Usage: aigo pool status
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool coordinator
+Get pool coordinator information
+
+Usage: aigo pool coordinator
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool endpoint
+Get pool API endpoint URL
+
+Usage: aigo pool endpoint
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool count
+Get number of currently loaded models in pool
+
+Usage: aigo pool count
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool max-models
+Get maximum number of models the pool can hold
+
+Usage: aigo pool max-models
+
+Options:
+  -h, --help  Print help
+
+===== aigo pool memory
+Get per-model memory usage in pool
+
+Usage: aigo pool memory
+
+Options:
+  -h, --help  Print help
+
+########## aigo router
+Router control
+
+Usage: aigo router <COMMAND>
+
+Commands:
+  status           Get router status
+  start            Start the router
+  stop             Stop the router
+  restart          Restart the router
+  config           Get or set router configuration
+  health           Get router health
+  verify-endpoint  Verify an Anthropic-compatible endpoint with a tiny probe call
+  help             Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo router status
+Get router status
+
+Usage: aigo router status
+
+Options:
+  -h, --help  Print help
+
+===== aigo router start
+Start the router
+
+Usage: aigo router start
+
+Options:
+  -h, --help  Print help
+
+===== aigo router stop
+Stop the router
+
+Usage: aigo router stop
+
+Options:
+  -h, --help  Print help
+
+===== aigo router restart
+Restart the router
+
+Usage: aigo router restart
+
+Options:
+  -h, --help  Print help
+
+===== aigo router config
+Get or set router configuration
+
+Usage: aigo router config [COMMAND]
+
+Commands:
+  set   Set a router configuration value
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo router config set
+Set a router configuration value
+
+Usage: aigo router config set <KEY> <VALUE>
+
+Arguments:
+  <KEY>    Configuration key
+  <VALUE>  Configuration value
+
+Options:
+  -h, --help  Print help
+
+===== aigo router health
+Get router health
+
+Usage: aigo router health
+
+Options:
+  -h, --help  Print help
+
+===== aigo router verify-endpoint
+Verify an Anthropic-compatible endpoint with a tiny probe call
+
+Usage: aigo router verify-endpoint [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (VerifyAnthropicEndpointRequest: baseUrl/apiKey/model)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+########## aigo system
+System monitoring
+
+Usage: aigo system <COMMAND>
+
+Commands:
+  info     Get system information
+  metrics  Get current system metrics
+  gpu      Get GPU information
+  health   Check API health
+  version  Get API version
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo system info
+Get system information
+
+Usage: aigo system info
+
+Options:
+  -h, --help  Print help
+
+===== aigo system metrics
+Get current system metrics
+
+Usage: aigo system metrics
+
+Options:
+  -h, --help  Print help
+
+===== aigo system gpu
+Get GPU information
+
+Usage: aigo system gpu
+
+Options:
+  -h, --help  Print help
+
+===== aigo system health
+Check API health
+
+Usage: aigo system health
+
+Options:
+  -h, --help  Print help
+
+===== aigo system version
+Get API version
+
+Usage: aigo system version
+
+Options:
+  -h, --help  Print help
+
+########## aigo hf
+HuggingFace Hub integration
+
+Usage: aigo hf <COMMAND>
+
+Commands:
+  search           Search HuggingFace Hub for models
+  files            List files in a HuggingFace model repository
+  readme           Show README for a HuggingFace model repository
+  download         Download a model from HuggingFace Hub
+  downloads        List all downloads (active, completed, failed)
+  download-status  Get status of a specific download
+  cancel           Cancel an active download
+  retry            Retry a failed download
+  disk-space       Show HuggingFace models disk space usage
+  token            HuggingFace token management
+  help             Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf search
+Search HuggingFace Hub for models
+
+Usage: aigo hf search [OPTIONS] <QUERY>
+
+Arguments:
+  <QUERY>  Search query
+
+Options:
+      --format <FORMAT>  Filter by format (e.g. gguf, mlx)
+  -h, --help             Print help
+
+===== aigo hf files
+List files in a HuggingFace model repository
+
+Usage: aigo hf files <REPO_ID>
+
+Arguments:
+  <REPO_ID>  Repository ID (e.g. user/model-name)
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf readme
+Show README for a HuggingFace model repository
+
+Usage: aigo hf readme <REPO_ID>
+
+Arguments:
+  <REPO_ID>  Repository ID (e.g. user/model-name)
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf download
+Download a model from HuggingFace Hub
+
+Usage: aigo hf download <REPO_ID> [FILES]...
+
+Arguments:
+  <REPO_ID>   Repository ID (e.g. user/model-name)
+  [FILES]...  Specific files to download (omit to download all)
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf downloads
+List all downloads (active, completed, failed)
+
+Usage: aigo hf downloads
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf download-status
+Get status of a specific download
+
+Usage: aigo hf download-status <ID>
+
+Arguments:
+  <ID>  Download ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf cancel
+Cancel an active download
+
+Usage: aigo hf cancel <ID>
+
+Arguments:
+  <ID>  Download ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf retry
+Retry a failed download
+
+Usage: aigo hf retry <ID>
+
+Arguments:
+  <ID>  Download ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf disk-space
+Show HuggingFace models disk space usage
+
+Usage: aigo hf disk-space
+
+Options:
+  -h, --help  Print help
+
+===== aigo hf token
+HuggingFace token management
+
+Usage: aigo hf token <COMMAND>
+
+Commands:
+  set       Set the HuggingFace access token (reads from stdin if token is omitted)
+  status    Show token status (whether a token is set)
+  validate  Validate the stored HuggingFace token against the API
+  clear     Clear the stored HuggingFace token
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo hf token set
+Set the HuggingFace access token (reads from stdin if token is omitted)
+
+Usage: aigo hf token set
+
+Options:
+  -h, --help  Print help
+
+----- aigo hf token status
+Show token status (whether a token is set)
+
+Usage: aigo hf token status
+
+Options:
+  -h, --help  Print help
+
+----- aigo hf token validate
+Validate the stored HuggingFace token against the API
+
+Usage: aigo hf token validate
+
+Options:
+  -h, --help  Print help
+
+----- aigo hf token clear
+Clear the stored HuggingFace token
+
+Usage: aigo hf token clear
+
+Options:
+  -h, --help  Print help
+
+########## aigo engine
+Inference engine management
+
+Usage: aigo engine <COMMAND>
+
+Commands:
+  list               List installed engines
+  available          List available (downloadable) engines with system compatibility
+  install            Install an engine by ID
+  uninstall          Uninstall an engine by ID
+  default            Get or set the default engine
+  check              Check system compatibility for an engine
+  binaries           List binary files for an engine
+  download-progress  Get download progress for an engine
+  cancel             Cancel an in-progress engine download
+  container          Containerized inference engine sessions (vLLM / SGLang)
+  help               Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine list
+List installed engines
+
+Usage: aigo engine list
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine available
+List available (downloadable) engines with system compatibility
+
+Usage: aigo engine available
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine install
+Install an engine by ID
+
+Usage: aigo engine install <ENGINE_ID>
+
+Arguments:
+  <ENGINE_ID>  Engine ID to install
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine uninstall
+Uninstall an engine by ID
+
+Usage: aigo engine uninstall [OPTIONS] <ENGINE_ID>
+
+Arguments:
+  <ENGINE_ID>  Engine ID to uninstall
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo engine default
+Get or set the default engine
+
+When called without an argument, shows the current default engine. When called with an engine ID, sets that engine as the default.
+
+Usage: aigo engine default [ENGINE_ID]
+
+Arguments:
+  [ENGINE_ID]
+          Engine ID to set as default (omit to show current default)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo engine check
+Check system compatibility for an engine
+
+Usage: aigo engine check <ENGINE_ID>
+
+Arguments:
+  <ENGINE_ID>  Engine ID to check
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine binaries
+List binary files for an engine
+
+Usage: aigo engine binaries <ENGINE_ID>
+
+Arguments:
+  <ENGINE_ID>  Engine ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine download-progress
+Get download progress for an engine
+
+Usage: aigo engine download-progress <ENGINE_ID>
+
+Arguments:
+  <ENGINE_ID>  Engine ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine cancel
+Cancel an in-progress engine download
+
+Usage: aigo engine cancel <ENGINE_ID>
+
+Arguments:
+  <ENGINE_ID>  Engine ID to cancel
+
+Options:
+  -h, --help  Print help
+
+===== aigo engine container
+Containerized inference engine sessions (vLLM / SGLang)
+
+Usage: aigo engine container <COMMAND>
+
+Commands:
+  start      Start a containerized engine session from a JSON body
+  stop       Stop a containerized engine session
+  readiness  Show the container-engine readiness report
+  logs       Tail logs for a containerized engine session
+  image      Container engine image management
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo engine container start
+Start a containerized engine session from a JSON body
+
+Usage: aigo engine container start [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (StartContainerEngineBody: engineId + modelId + modelPath + optionals such as gpuMemoryUtilization/shmSize/env)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo engine container stop
+Stop a containerized engine session
+
+Usage: aigo engine container stop <SESSION_ID>
+
+Arguments:
+  <SESSION_ID>  Session ID to stop
+
+Options:
+  -h, --help  Print help
+
+----- aigo engine container readiness
+Show the container-engine readiness report
+
+Usage: aigo engine container readiness [OPTIONS]
+
+Options:
+      --json <JSON>  Optional inline JSON body (EngineReadinessInput: engineId/modelSizeBytes)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo engine container logs
+Tail logs for a containerized engine session
+
+Usage: aigo engine container logs <SESSION_ID>
+
+Arguments:
+  <SESSION_ID>  Session ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo engine container image
+Container engine image management
+
+Usage: aigo engine container image <COMMAND>
+
+Commands:
+  inspect  Inspect a container engine image (presence, size, reference)
+  pull     Pull / update a container engine image
+  remove   Remove a container engine image
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+########## aigo provider
+Cloud provider management
+
+Usage: aigo provider <COMMAND>
+
+Commands:
+  list          List all configured providers
+  add           Add a new provider
+  info          Get details for a specific provider
+  update        Update an existing provider
+  remove        Remove a provider
+  toggle        Toggle a provider enabled/disabled
+  health        Check health of providers
+  models        List models available from providers
+  validate-key  Validate an API key for a provider type
+  login         OpenAI ChatGPT (Codex) OAuth device-flow login
+  capabilities  Model / provider capability detection and overrides
+  help          Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo provider list
+List all configured providers
+
+Usage: aigo provider list
+
+Options:
+  -h, --help  Print help
+
+===== aigo provider add
+Add a new provider
+
+Usage: aigo provider add [OPTIONS] --name <NAME> --key <KEY> <PROVIDER_TYPE>
+
+Arguments:
+  <PROVIDER_TYPE>  Provider type (e.g. openai, anthropic, google, mistral, cohere, custom)
+
+Options:
+  -n, --name <NAME>          Display name for this provider
+  -k, --key <KEY>            API key for authentication [env: AIGO_PROVIDER_API_KEY=]
+      --base-url <BASE_URL>  Base URL override (for custom or self-hosted providers)
+      --disabled             Disable the provider on creation (providers are enabled by default)
+      --metadata <METADATA>  Additional metadata as JSON string
+  -h, --help                 Print help
+
+===== aigo provider info
+Get details for a specific provider
+
+Usage: aigo provider info <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo provider update
+Update an existing provider
+
+Usage: aigo provider update [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+  -n, --name <NAME>          New display name
+  -k, --key <KEY>            New API key [env: AIGO_PROVIDER_API_KEY=]
+      --base-url <BASE_URL>  New base URL
+      --enabled <ENABLED>    Enable or disable the provider [possible values: true, false]
+      --metadata <METADATA>  Additional metadata as JSON string
+  -h, --help                 Print help
+
+===== aigo provider remove
+Remove a provider
+
+Usage: aigo provider remove [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo provider toggle
+Toggle a provider enabled/disabled
+
+Usage: aigo provider toggle <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo provider health
+Check health of providers
+
+When called without an ID, checks all providers. When called with an ID, checks a specific provider.
+
+Usage: aigo provider health [ID]
+
+Arguments:
+  [ID]
+          Provider ID (omit to check all providers)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo provider models
+List models available from providers
+
+Usage: aigo provider models [COMMAND]
+
+Commands:
+  fetch  Fetch and refresh models from a provider
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider models fetch
+Fetch and refresh models from a provider
+
+Usage: aigo provider models fetch <ID>
+
+Arguments:
+  <ID>  Provider ID to fetch models from
+
+Options:
+  -h, --help  Print help
+
+===== aigo provider validate-key
+Validate an API key for a provider type
+
+Usage: aigo provider validate-key [OPTIONS] --key <KEY> <PROVIDER_TYPE>
+
+Arguments:
+  <PROVIDER_TYPE>  Provider type (e.g. openai, anthropic)
+
+Options:
+  -k, --key <KEY>            API key to validate [env: AIGO_PROVIDER_API_KEY=]
+      --base-url <BASE_URL>  Base URL override (for custom providers)
+  -h, --help                 Print help
+
+===== aigo provider login
+OpenAI ChatGPT (Codex) OAuth device-flow login
+
+Usage: aigo provider login <COMMAND>
+
+Commands:
+  start   Start a device-flow login for a provider
+  poll    Poll the device-token endpoint once for a login session
+  cancel  Cancel an in-progress login session
+  revoke  Revoke stored OAuth tokens for a provider
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider login start
+Start a device-flow login for a provider
+
+Usage: aigo provider login start <PROVIDER_ID>
+
+Arguments:
+  <PROVIDER_ID>  Provider ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider login poll
+Poll the device-token endpoint once for a login session
+
+Usage: aigo provider login poll <LOGIN_SESSION_ID>
+
+Arguments:
+  <LOGIN_SESSION_ID>  Login session ID returned by `start`
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider login cancel
+Cancel an in-progress login session
+
+Usage: aigo provider login cancel <LOGIN_SESSION_ID>
+
+Arguments:
+  <LOGIN_SESSION_ID>  Login session ID returned by `start`
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider login revoke
+Revoke stored OAuth tokens for a provider
+
+Usage: aigo provider login revoke <PROVIDER_ID>
+
+Arguments:
+  <PROVIDER_ID>  Provider ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo provider capabilities
+Model / provider capability detection and overrides
+
+Usage: aigo provider capabilities <COMMAND>
+
+Commands:
+  show                Show cached capabilities for a provider
+  detect              Detect provider-level capabilities
+  detect-with-models  Detect provider capabilities and per-model records together
+  models              List cached per-model capability records for a provider
+  model               Show the cached capability record for a single model
+  model-detect        Detect capabilities for a single model
+  override            Set a manual capability override for a model from a JSON body
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider capabilities show
+Show cached capabilities for a provider
+
+Usage: aigo provider capabilities show <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider capabilities detect
+Detect provider-level capabilities
+
+Usage: aigo provider capabilities detect [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+      --force  Force a refresh, ignoring the cache
+  -h, --help   Print help
+
+----- aigo provider capabilities detect-with-models
+Detect provider capabilities and per-model records together
+
+Usage: aigo provider capabilities detect-with-models [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+      --force  Force a refresh, ignoring the cache
+  -h, --help   Print help
+
+----- aigo provider capabilities models
+List cached per-model capability records for a provider
+
+Usage: aigo provider capabilities models <ID>
+
+Arguments:
+  <ID>  Provider ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider capabilities model
+Show the cached capability record for a single model
+
+Usage: aigo provider capabilities model <ID> <MODEL_ID>
+
+Arguments:
+  <ID>        Provider ID
+  <MODEL_ID>  Model ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo provider capabilities model-detect
+Detect capabilities for a single model
+
+Usage: aigo provider capabilities model-detect [OPTIONS] <ID> <MODEL_ID>
+
+Arguments:
+  <ID>        Provider ID
+  <MODEL_ID>  Model ID
+
+Options:
+      --force  Force a refresh, ignoring the cache
+  -h, --help   Print help
+
+----- aigo provider capabilities override
+Set a manual capability override for a model from a JSON body
+
+Usage: aigo provider capabilities override [OPTIONS] <ID> <MODEL_ID>
+
+Arguments:
+  <ID>        Provider ID
+  <MODEL_ID>  Model ID
+
+Options:
+      --json <JSON>  Inline JSON body (ModelCapabilityOverrideInput: inputs/outputs/features)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+########## aigo settings
+Application settings management
+
+Usage: aigo settings <COMMAND>
+
+Commands:
+  get      Display all current settings
+  set      Set a settings value by dot-notation key
+  reset    Reset all settings to their defaults
+  backup   Save current settings to a backup file
+  restore  Restore settings from a backup file
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo settings get
+Display all current settings
+
+Usage: aigo settings get
+
+Options:
+  -h, --help  Print help
+
+===== aigo settings set
+Set a settings value by dot-notation key
+
+Usage: aigo settings set <KEY> <VALUE>
+
+Arguments:
+  <KEY>    Settings key in dot-notation (e.g. server.port)
+  <VALUE>  Value to assign (string, number, or JSON literal)
+
+Options:
+  -h, --help  Print help
+
+===== aigo settings reset
+Reset all settings to their defaults
+
+Usage: aigo settings reset [OPTIONS]
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo settings backup
+Save current settings to a backup file
+
+Usage: aigo settings backup <PATH>
+
+Arguments:
+  <PATH>  Destination file path for the backup
+
+Options:
+  -h, --help  Print help
+
+===== aigo settings restore
+Restore settings from a backup file
+
+Usage: aigo settings restore <PATH>
+
+Arguments:
+  <PATH>  Path to the backup file to restore
+
+Options:
+  -h, --help  Print help
+
+########## aigo storage
+Storage usage and disk metrics
+
+Usage: aigo storage <COMMAND>
+
+Commands:
+  usage         Show storage usage summary with human-readable sizes
+  disk-metrics  Show disk metrics for all monitored paths
+  help          Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo storage usage
+Show storage usage summary with human-readable sizes
+
+Usage: aigo storage usage
+
+Options:
+  -h, --help  Print help
+
+===== aigo storage disk-metrics
+Show disk metrics for all monitored paths
+
+Usage: aigo storage disk-metrics
+
+Options:
+  -h, --help  Print help
+
+########## aigo monitor
+Monitoring service control
+
+Usage: aigo monitor <COMMAND>
+
+Commands:
+  start    Start the monitoring service
+  stop     Stop the monitoring service
+  status   Show the current monitoring service status
+  metrics  Show current monitoring metrics (one-shot query)
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo monitor start
+Start the monitoring service
+
+Usage: aigo monitor start
+
+Options:
+  -h, --help  Print help
+
+===== aigo monitor stop
+Stop the monitoring service
+
+Usage: aigo monitor stop
+
+Options:
+  -h, --help  Print help
+
+===== aigo monitor status
+Show the current monitoring service status
+
+Usage: aigo monitor status
+
+Options:
+  -h, --help  Print help
+
+===== aigo monitor metrics
+Show current monitoring metrics (one-shot query)
+
+Usage: aigo monitor metrics
+
+Options:
+  -h, --help  Print help
+
+########## aigo search-key
+Search API key management
+
+Usage: aigo search-key <COMMAND>
+
+Commands:
+  brave     Manage the Brave Search API key
+  serper    Manage the Serper API key
+  provider  Get or set the active search provider
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo search-key brave
+Manage the Brave Search API key
+
+Usage: aigo search-key brave <COMMAND>
+
+Commands:
+  set     Store a new Brave Search API key
+  status  Show the current Brave Search API key status
+  clear   Remove the stored Brave Search API key
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo search-key brave set
+Store a new Brave Search API key
+
+The key can be provided as an argument or piped via stdin. Using stdin is recommended to avoid exposing the key in shell history or process listings: echo "$KEY" | aigo search-key brave set
+
+Usage: aigo search-key brave set [KEY]
+
+Arguments:
+  [KEY]
+          API key value (omit to read from stdin)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+----- aigo search-key brave status
+Show the current Brave Search API key status
+
+Usage: aigo search-key brave status
+
+Options:
+  -h, --help  Print help
+
+----- aigo search-key brave clear
+Remove the stored Brave Search API key
+
+Usage: aigo search-key brave clear
+
+Options:
+  -h, --help  Print help
+
+===== aigo search-key serper
+Manage the Serper API key
+
+Usage: aigo search-key serper <COMMAND>
+
+Commands:
+  set     Store a new Serper API key
+  status  Show the current Serper API key status
+  clear   Remove the stored Serper API key
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo search-key serper set
+Store a new Serper API key
+
+The key can be provided as an argument or piped via stdin. Using stdin is recommended to avoid exposing the key in shell history or process listings: echo "$KEY" | aigo search-key serper set
+
+Usage: aigo search-key serper set [KEY]
+
+Arguments:
+  [KEY]
+          API key value (omit to read from stdin)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+----- aigo search-key serper status
+Show the current Serper API key status
+
+Usage: aigo search-key serper status
+
+Options:
+  -h, --help  Print help
+
+----- aigo search-key serper clear
+Remove the stored Serper API key
+
+Usage: aigo search-key serper clear
+
+Options:
+  -h, --help  Print help
+
+===== aigo search-key provider
+Get or set the active search provider
+
+When called without a provider argument, shows the current provider. When called with a provider argument, sets it as the active provider.
+
+Usage: aigo search-key provider [PROVIDER]
+
+Arguments:
+  [PROVIDER]
+          Provider name to activate (omit to show current provider)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+########## aigo stats
+API usage statistics
+
+Usage: aigo stats <COMMAND>
+
+Commands:
+  usage      Show overall API usage statistics
+  daily      Show daily statistics for a specific date
+  model      Show per-model statistics
+  router     Show router statistics
+  cleanup    Clean up statistics data older than N days
+  aggregate  Aggregate raw statistics into summary records
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo stats usage
+Show overall API usage statistics
+
+Usage: aigo stats usage
+
+Options:
+  -h, --help  Print help
+
+===== aigo stats daily
+Show daily statistics for a specific date
+
+Usage: aigo stats daily <DATE>
+
+Arguments:
+  <DATE>  Date in YYYY-MM-DD format
+
+Options:
+  -h, --help  Print help
+
+===== aigo stats model
+Show per-model statistics
+
+Usage: aigo stats model [MODEL_ID]
+
+Arguments:
+  [MODEL_ID]  Optional model ID to show statistics for a specific model
+
+Options:
+  -h, --help  Print help
+
+===== aigo stats router
+Show router statistics
+
+Usage: aigo stats router
+
+Options:
+  -h, --help  Print help
+
+===== aigo stats cleanup
+Clean up statistics data older than N days
+
+Usage: aigo stats cleanup --days <DAYS>
+
+Options:
+  -d, --days <DAYS>  Number of days to retain statistics (older data is removed)
+  -h, --help         Print help
+
+===== aigo stats aggregate
+Aggregate raw statistics into summary records
+
+Usage: aigo stats aggregate
+
+Options:
+  -h, --help  Print help
+
+########## aigo log
+Log file management
+
+Usage: aigo log <COMMAND>
+
+Commands:
+  files      List available log files
+  show       Show the content of a log file
+  directory  Show the log directory path
+  parsed     Show parsed and structured log entries
+  stats      Show log statistics
+  export     Export logs in the requested format
+  cleanup    Clean up log files older than N days
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo log files
+List available log files
+
+Usage: aigo log files
+
+Options:
+  -h, --help  Print help
+
+===== aigo log show
+Show the content of a log file
+
+Usage: aigo log show [OPTIONS] <FILENAME>
+
+Arguments:
+  <FILENAME>  Log filename to display (must not contain path separators)
+
+Options:
+  -n, --tail <TAIL>  Print only the last N lines
+  -h, --help         Print help
+
+===== aigo log directory
+Show the log directory path
+
+Usage: aigo log directory
+
+Options:
+  -h, --help  Print help
+
+===== aigo log parsed
+Show parsed and structured log entries
+
+Usage: aigo log parsed [OPTIONS]
+
+Options:
+  -l, --level <LEVEL>  Filter entries by log level (e.g. error, warn, info, debug)
+  -h, --help           Print help
+
+===== aigo log stats
+Show log statistics
+
+Usage: aigo log stats [FILENAME]
+
+Arguments:
+  [FILENAME]  Optional filename to show statistics for a specific log file
+
+Options:
+  -h, --help  Print help
+
+===== aigo log export
+Export logs in the requested format
+
+Usage: aigo log export [OPTIONS]
+
+Options:
+  -f, --format <FORMAT>  Output format: json (default) or csv [default: json]
+  -h, --help             Print help
+
+===== aigo log cleanup
+Clean up log files older than N days
+
+Usage: aigo log cleanup --days <DAYS>
+
+Options:
+  -d, --days <DAYS>  Number of days to retain log files (older files are removed)
+  -h, --help         Print help
+
+########## aigo conversation
+Conversation management
+
+Usage: aigo conversation <COMMAND>
+
+Commands:
+  list      List conversations
+  show      Show a conversation by ID
+  create    Create a new conversation
+  delete    Delete a conversation
+  rename    Rename a conversation (update its title)
+  pin       Pin or unpin a conversation
+  validate  Validate conversations
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo conversation list
+List conversations
+
+Usage: aigo conversation list [OPTIONS]
+
+Options:
+  -p, --page <PAGE>  Page number for pagination
+  -h, --help         Print help
+
+===== aigo conversation show
+Show a conversation by ID
+
+Usage: aigo conversation show <ID>
+
+Arguments:
+  <ID>  Conversation ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo conversation create
+Create a new conversation
+
+Usage: aigo conversation create [OPTIONS]
+
+Options:
+  -t, --title <TITLE>  Optional title for the conversation
+  -h, --help           Print help
+
+===== aigo conversation delete
+Delete a conversation
+
+Usage: aigo conversation delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Conversation ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo conversation rename
+Rename a conversation (update its title)
+
+Usage: aigo conversation rename <ID> <TITLE>
+
+Arguments:
+  <ID>     Conversation ID
+  <TITLE>  New title
+
+Options:
+  -h, --help  Print help
+
+===== aigo conversation pin
+Pin or unpin a conversation
+
+Usage: aigo conversation pin <ID>
+
+Arguments:
+  <ID>  Conversation ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo conversation validate
+Validate conversations
+
+Usage: aigo conversation validate
+
+Options:
+  -h, --help  Print help
+
+########## aigo folder
+Folder management
+
+Usage: aigo folder <COMMAND>
+
+Commands:
+  list    List all folders
+  tree    Show folder hierarchy as a tree
+  create  Create a new folder
+  delete  Delete a folder
+  rename  Rename a folder
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo folder list
+List all folders
+
+Usage: aigo folder list
+
+Options:
+  -h, --help  Print help
+
+===== aigo folder tree
+Show folder hierarchy as a tree
+
+Usage: aigo folder tree
+
+Options:
+  -h, --help  Print help
+
+===== aigo folder create
+Create a new folder
+
+Usage: aigo folder create [OPTIONS] <NAME>
+
+Arguments:
+  <NAME>  Folder name
+
+Options:
+  -p, --parent <PARENT>  Parent folder ID (omit for root level)
+  -h, --help             Print help
+
+===== aigo folder delete
+Delete a folder
+
+Usage: aigo folder delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Folder ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo folder rename
+Rename a folder
+
+Usage: aigo folder rename <ID> <NAME>
+
+Arguments:
+  <ID>    Folder ID
+  <NAME>  New folder name
+
+Options:
+  -h, --help  Print help
+
+########## aigo memory
+Memory namespace and entry management
+
+Usage: aigo memory <COMMAND>
+
+Commands:
+  namespace  Memory namespace operations
+  entry      Memory entry operations
+  search     Search memory entries across namespaces
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo memory namespace
+Memory namespace operations
+
+Usage: aigo memory namespace <COMMAND>
+
+Commands:
+  list    List all memory namespaces
+  create  Create a new memory namespace
+  delete  Delete a memory namespace
+  toggle  Toggle a namespace enabled/disabled
+  export  Export a memory namespace to JSON
+  import  Import memory from a JSON file
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory namespace list
+List all memory namespaces
+
+Usage: aigo memory namespace list
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory namespace create
+Create a new memory namespace
+
+Usage: aigo memory namespace create <NAME>
+
+Arguments:
+  <NAME>  Namespace name
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory namespace delete
+Delete a memory namespace
+
+Usage: aigo memory namespace delete <ID>
+
+Arguments:
+  <ID>  Namespace ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory namespace toggle
+Toggle a namespace enabled/disabled
+
+Usage: aigo memory namespace toggle <ID>
+
+Arguments:
+  <ID>  Namespace ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory namespace export
+Export a memory namespace to JSON
+
+Usage: aigo memory namespace export [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Namespace ID
+
+Options:
+  -o, --output <OUTPUT>  Output file path (prints to stdout if omitted)
+  -h, --help             Print help
+
+----- aigo memory namespace import
+Import memory from a JSON file
+
+Usage: aigo memory namespace import <FILE>
+
+Arguments:
+  <FILE>  Path to the JSON file to import
+
+Options:
+  -h, --help  Print help
+
+===== aigo memory entry
+Memory entry operations
+
+Usage: aigo memory entry <COMMAND>
+
+Commands:
+  list    List entries in a namespace
+  create  Create a new memory entry
+  delete  Delete a memory entry
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory entry list
+List entries in a namespace
+
+Usage: aigo memory entry list <NAMESPACE_ID>
+
+Arguments:
+  <NAMESPACE_ID>  Namespace ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo memory entry create
+Create a new memory entry
+
+Usage: aigo memory entry create [OPTIONS] --content <CONTENT> <NAMESPACE_ID>
+
+Arguments:
+  <NAMESPACE_ID>  Namespace ID
+
+Options:
+  -c, --content <CONTENT>    Entry content (the memory text)
+      --metadata <METADATA>  Optional metadata as a JSON string
+  -h, --help                 Print help
+
+----- aigo memory entry delete
+Delete a memory entry
+
+Usage: aigo memory entry delete <NAMESPACE_ID> <ENTRY_ID>
+
+Arguments:
+  <NAMESPACE_ID>  Namespace ID
+  <ENTRY_ID>      Entry ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo memory search
+Search memory entries across namespaces
+
+Usage: aigo memory search <QUERY>
+
+Arguments:
+  <QUERY>  Search query string
+
+Options:
+  -h, --help  Print help
+
+########## aigo plugin
+Plugin management
+
+Usage: aigo plugin <COMMAND>
+
+Commands:
+  list         List all installed plugins
+  install      Install a plugin from a source URL or identifier
+  install-zip  Install a plugin from a local ZIP archive
+  info         Show detailed information about a plugin
+  uninstall    Uninstall a plugin
+  toggle       Enable or disable a plugin
+  settings     Manage plugin settings
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo plugin list
+List all installed plugins
+
+Usage: aigo plugin list
+
+Options:
+  -h, --help  Print help
+
+===== aigo plugin install
+Install a plugin from a source URL or identifier
+
+Usage: aigo plugin install <SOURCE>
+
+Arguments:
+  <SOURCE>  Plugin source (URL or registry identifier)
+
+Options:
+  -h, --help  Print help
+
+===== aigo plugin install-zip
+Install a plugin from a local ZIP archive
+
+Usage: aigo plugin install-zip <PATH>
+
+Arguments:
+  <PATH>  Path to the plugin ZIP file
+
+Options:
+  -h, --help  Print help
+
+===== aigo plugin info
+Show detailed information about a plugin
+
+Usage: aigo plugin info <ID>
+
+Arguments:
+  <ID>  Plugin ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo plugin uninstall
+Uninstall a plugin
+
+Usage: aigo plugin uninstall [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Plugin ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo plugin toggle
+Enable or disable a plugin
+
+Usage: aigo plugin toggle <ID>
+
+Arguments:
+  <ID>  Plugin ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo plugin settings
+Manage plugin settings
+
+Usage: aigo plugin settings <ID> [COMMAND]
+
+Commands:
+  set   Set a plugin setting value
+  help  Print this message or the help of the given subcommand(s)
+
+Arguments:
+  <ID>  Plugin ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo plugin settings set
+Set a plugin setting value
+
+Usage: aigo plugin settings <ID> set <KEY> <VALUE>
+
+Arguments:
+  <KEY>    Setting key
+  <VALUE>  Setting value
+
+Options:
+  -h, --help  Print help
+
+########## aigo mcp
+MCP (Model Context Protocol) server management
+
+Usage: aigo mcp <COMMAND>
+
+Commands:
+  list        List all configured MCP servers
+  add         Add a new MCP server
+  remove      Remove an MCP server
+  connect     Connect to an MCP server
+  disconnect  Disconnect from an MCP server
+  status      Show MCP server connection status
+  tools       List available tools (all servers or a specific server)
+  test        Test connectivity to an MCP server
+  logs        Show logs for an MCP server
+  restart     Restart an MCP server
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp list
+List all configured MCP servers
+
+Usage: aigo mcp list
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp add
+Add a new MCP server
+
+Usage: aigo mcp add [OPTIONS] --command <COMMAND> <NAME>
+
+Arguments:
+  <NAME>  Server name
+
+Options:
+  -c, --command <COMMAND>  Command to launch the MCP server
+  -a, --args [<ARGS>...]   Arguments to pass to the command
+  -e, --env [<ENV>...]     Environment variables (KEY=VALUE format)
+  -h, --help               Print help
+
+===== aigo mcp remove
+Remove an MCP server
+
+Usage: aigo mcp remove <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp connect
+Connect to an MCP server
+
+Usage: aigo mcp connect <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp disconnect
+Disconnect from an MCP server
+
+Usage: aigo mcp disconnect <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp status
+Show MCP server connection status
+
+Usage: aigo mcp status <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp tools
+List available tools (all servers or a specific server)
+
+Usage: aigo mcp tools [NAME]
+
+Arguments:
+  [NAME]  Server name or ID (omit to list tools from all servers)
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp test
+Test connectivity to an MCP server
+
+Usage: aigo mcp test <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo mcp logs
+Show logs for an MCP server
+
+Usage: aigo mcp logs [OPTIONS] <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -n, --tail <TAIL>  Number of log lines to show (most recent)
+  -h, --help         Print help
+
+===== aigo mcp restart
+Restart an MCP server
+
+Usage: aigo mcp restart <NAME>
+
+Arguments:
+  <NAME>  Server name or ID
+
+Options:
+  -h, --help  Print help
+
+########## aigo schedule
+Task schedule management
+
+Usage: aigo schedule <COMMAND>
+
+Commands:
+  list           List all schedules
+  create         Create a new schedule
+  show           Show details for a schedule
+  update         Update a schedule
+  delete         Delete a schedule
+  toggle         Enable or disable a schedule
+  run            Trigger an immediate run of a schedule
+  executions     List executions for a schedule
+  validate-cron  Validate a cron expression
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo schedule list
+List all schedules
+
+Usage: aigo schedule list
+
+Options:
+  -h, --help  Print help
+
+===== aigo schedule create
+Create a new schedule
+
+Usage: aigo schedule create [OPTIONS] --cron <CRON> <NAME>
+
+Arguments:
+  <NAME>  Schedule name
+
+Options:
+  -c, --cron <CRON>      Cron expression (e.g. "0 * * * *")
+  -a, --action <ACTION>  Action to perform (e.g. a model ID or command key)
+      --enabled          Whether the schedule is enabled on creation
+  -h, --help             Print help
+
+===== aigo schedule show
+Show details for a schedule
+
+Usage: aigo schedule show <ID>
+
+Arguments:
+  <ID>  Schedule ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo schedule update
+Update a schedule
+
+Usage: aigo schedule update [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Schedule ID
+
+Options:
+  -c, --cron <CRON>      New cron expression
+  -a, --action <ACTION>  New action
+  -n, --name <NAME>      New name
+  -h, --help             Print help
+
+===== aigo schedule delete
+Delete a schedule
+
+Usage: aigo schedule delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Schedule ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo schedule toggle
+Enable or disable a schedule
+
+Usage: aigo schedule toggle <ID>
+
+Arguments:
+  <ID>  Schedule ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo schedule run
+Trigger an immediate run of a schedule
+
+Usage: aigo schedule run <ID>
+
+Arguments:
+  <ID>  Schedule ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo schedule executions
+List executions for a schedule
+
+Usage: aigo schedule executions <ID>
+
+Arguments:
+  <ID>  Schedule ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo schedule validate-cron
+Validate a cron expression
+
+Usage: aigo schedule validate-cron <EXPR>
+
+Arguments:
+  <EXPR>  Cron expression to validate (e.g. "0 * * * *")
+
+Options:
+  -h, --help  Print help
+
+########## aigo lifecycle
+Model lifecycle management (health, pinning, config)
+
+Usage: aigo lifecycle <COMMAND>
+
+Commands:
+  health  Check health of lifecycle-managed models
+  config  Show lifecycle configuration
+  pin     Pin a model to keep it loaded in memory
+  unpin   Unpin a model (allow it to be evicted)
+  pinned  List all pinned models
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo lifecycle health
+Check health of lifecycle-managed models
+
+When called without a model ID, checks all models. When called with a model ID, checks that specific model.
+
+Usage: aigo lifecycle health [MODEL_ID]
+
+Arguments:
+  [MODEL_ID]
+          Model ID to check (omit to check all models)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo lifecycle config
+Show lifecycle configuration
+
+Usage: aigo lifecycle config [COMMAND]
+
+Commands:
+  set   Set a configuration key to a value
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo lifecycle config set
+Set a configuration key to a value
+
+Usage: aigo lifecycle config set <KEY> <VALUE>
+
+Arguments:
+  <KEY>    Configuration key
+  <VALUE>  Configuration value
+
+Options:
+  -h, --help  Print help
+
+===== aigo lifecycle pin
+Pin a model to keep it loaded in memory
+
+Usage: aigo lifecycle pin <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to pin
+
+Options:
+  -h, --help  Print help
+
+===== aigo lifecycle unpin
+Unpin a model (allow it to be evicted)
+
+Usage: aigo lifecycle unpin <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to unpin
+
+Options:
+  -h, --help  Print help
+
+===== aigo lifecycle pinned
+List all pinned models
+
+Usage: aigo lifecycle pinned
+
+Options:
+  -h, --help  Print help
+
+########## aigo key
+Access key management
+
+Usage: aigo key <COMMAND>
+
+Commands:
+  list     List all access keys
+  create   Create a new access key
+  show     Show details for a specific access key
+  update   Update an access key
+  delete   Delete an access key
+  rotate   Rotate an access key (generates a new key value)
+  enable   Enable an access key
+  disable  Disable an access key
+  audit    Show audit log for access keys
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo key list
+List all access keys
+
+Usage: aigo key list
+
+Options:
+  -h, --help  Print help
+
+===== aigo key create
+Create a new access key
+
+Usage: aigo key create [OPTIONS] --name <NAME>
+
+Options:
+  -n, --name <NAME>                Human-readable name for the key
+  -s, --scopes <SCOPES>            Comma-separated list of permission scopes
+      --description <DESCRIPTION>  Optional description for the key
+      --expires-at <EXPIRES_AT>    Set an expiry date (ISO 8601, e.g. 2026-12-31)
+  -h, --help                       Print help
+
+===== aigo key show
+Show details for a specific access key
+
+Usage: aigo key show <ID>
+
+Arguments:
+  <ID>  Key ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo key update
+Update an access key
+
+Usage: aigo key update [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Key ID
+
+Options:
+  -n, --name <NAME>                New name
+  -s, --scopes <SCOPES>            New comma-separated scopes
+      --description <DESCRIPTION>  New description
+      --expires-at <EXPIRES_AT>    New expiry date (ISO 8601)
+  -h, --help                       Print help
+
+===== aigo key delete
+Delete an access key
+
+Usage: aigo key delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Key ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo key rotate
+Rotate an access key (generates a new key value)
+
+Usage: aigo key rotate <ID>
+
+Arguments:
+  <ID>  Key ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo key enable
+Enable an access key
+
+Usage: aigo key enable <ID>
+
+Arguments:
+  <ID>  Key ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo key disable
+Disable an access key
+
+Usage: aigo key disable <ID>
+
+Arguments:
+  <ID>  Key ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo key audit
+Show audit log for access keys
+
+When called without --key, shows audit log for all keys. When called with --key, shows audit log for that specific key.
+
+Usage: aigo key audit [OPTIONS]
+
+Options:
+  -k, --key <KEY>
+          Key ID to show audit log for (omit for all keys)
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+########## aigo diffusion
+Diffusion model management and image generation
+
+Usage: aigo diffusion <COMMAND>
+
+Commands:
+  models    List available diffusion models
+  load      Load a diffusion model
+  unload    Unload a diffusion model
+  status    Show diffusion server status
+  generate  Generate an image from a text prompt
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo diffusion models
+List available diffusion models
+
+Usage: aigo diffusion models
+
+Options:
+  -h, --help  Print help
+
+===== aigo diffusion load
+Load a diffusion model
+
+Usage: aigo diffusion load <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to load
+
+Options:
+  -h, --help  Print help
+
+===== aigo diffusion unload
+Unload a diffusion model
+
+Usage: aigo diffusion unload [OPTIONS] <MODEL_ID>
+
+Arguments:
+  <MODEL_ID>  Model ID to unload
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo diffusion status
+Show diffusion server status
+
+Usage: aigo diffusion status
+
+Options:
+  -h, --help  Print help
+
+===== aigo diffusion generate
+Generate an image from a text prompt
+
+Usage: aigo diffusion generate [OPTIONS] --prompt <PROMPT>
+
+Options:
+  -p, --prompt <PROMPT>
+          Text prompt for generation
+      --negative-prompt <NEGATIVE_PROMPT>
+          Negative prompt (what to avoid)
+  -m, --model <MODEL>
+          Model ID to use for generation
+      --width <WIDTH>
+          Width in pixels [default: 512]
+      --height <HEIGHT>
+          Height in pixels [default: 512]
+      --steps <STEPS>
+          Number of inference steps [default: 20]
+      --guidance-scale <GUIDANCE_SCALE>
+          Guidance scale (classifier-free guidance strength) [default: 7.5]
+      --seed <SEED>
+          Random seed (-1 for random) [default: -1]
+  -o, --output <OUTPUT>
+          Output file path (saves image to file)
+  -h, --help
+          Print help
+
+########## aigo image
+Generated image management
+
+Usage: aigo image <COMMAND>
+
+Commands:
+  list    List all generated images
+  show    Show details for a specific image
+  delete  Delete a generated image
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo image list
+List all generated images
+
+Usage: aigo image list
+
+Options:
+  -h, --help  Print help
+
+===== aigo image show
+Show details for a specific image
+
+Usage: aigo image show <ID>
+
+Arguments:
+  <ID>  Image ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo image delete
+Delete a generated image
+
+Usage: aigo image delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Image ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+########## aigo audio
+Audio transcription and processing
+
+Usage: aigo audio <COMMAND>
+
+Commands:
+  transcribe  Transcribe an audio file to text
+  status      Show audio server status
+  start       Start the audio processing server
+  stop        Stop the audio processing server
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo audio transcribe
+Transcribe an audio file to text
+
+Usage: aigo audio transcribe [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>  Path to the audio file
+
+Options:
+  -l, --language <LANGUAGE>  Language of the audio (e.g. "en", "ko", "ja")
+  -m, --model <MODEL>        Model to use for transcription
+  -h, --help                 Print help
+
+===== aigo audio status
+Show audio server status
+
+Usage: aigo audio status
+
+Options:
+  -h, --help  Print help
+
+===== aigo audio start
+Start the audio processing server
+
+Usage: aigo audio start
+
+Options:
+  -h, --help  Print help
+
+===== aigo audio stop
+Stop the audio processing server
+
+Usage: aigo audio stop
+
+Options:
+  -h, --help  Print help
+
+########## aigo translate
+Text translation
+
+Usage: aigo translate <COMMAND>
+
+Commands:
+  text       Translate text from one language to another
+  languages  List supported translation languages
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo translate text
+Translate text from one language to another
+
+Pass text as argument, or pipe it via stdin if no argument is given.
+
+Usage: aigo translate text [OPTIONS] --from <FROM> --to <TO> [TEXT]
+
+Arguments:
+  [TEXT]
+          Text to translate (reads from stdin if not provided)
+
+Options:
+      --from <FROM>
+          Source language code (e.g. "en", "ko", "auto")
+
+      --to <TO>
+          Target language code (e.g. "en", "ko")
+
+  -m, --model <MODEL>
+          Model or engine to use for translation
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo translate languages
+List supported translation languages
+
+Usage: aigo translate languages
+
+Options:
+  -h, --help  Print help
+
+########## aigo glossary
+Translation glossary management
+
+Usage: aigo glossary <COMMAND>
+
+Commands:
+  list    List all glossaries
+  create  Create a new glossary
+  show    Show details for a glossary
+  delete  Delete a glossary
+  export  Export a glossary to a file
+  import  Import entries into a glossary from a file
+  entry   Manage glossary entries
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo glossary list
+List all glossaries
+
+Usage: aigo glossary list
+
+Options:
+  -h, --help  Print help
+
+===== aigo glossary create
+Create a new glossary
+
+Usage: aigo glossary create [OPTIONS] <NAME>
+
+Arguments:
+  <NAME>  Glossary name
+
+Options:
+      --source-lang <SOURCE_LANG>  Source language code
+      --target-lang <TARGET_LANG>  Target language code
+  -h, --help                       Print help
+
+===== aigo glossary show
+Show details for a glossary
+
+Usage: aigo glossary show <ID>
+
+Arguments:
+  <ID>  Glossary ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo glossary delete
+Delete a glossary
+
+Usage: aigo glossary delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Glossary ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo glossary export
+Export a glossary to a file
+
+Usage: aigo glossary export [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Glossary ID
+
+Options:
+  -f, --format <FORMAT>  Export format (csv or tbx) [default: csv]
+  -h, --help             Print help
+
+===== aigo glossary import
+Import entries into a glossary from a file
+
+Usage: aigo glossary import [OPTIONS] <ID> <FILE>
+
+Arguments:
+  <ID>    Glossary ID
+  <FILE>  File to import (CSV or TBX)
+
+Options:
+  -f, --format <FORMAT>  File format (csv or tbx; auto-detected from extension if not set)
+  -h, --help             Print help
+
+===== aigo glossary entry
+Manage glossary entries
+
+Usage: aigo glossary entry <COMMAND>
+
+Commands:
+  add     Add a new entry to a glossary
+  delete  Delete an entry from a glossary
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo glossary entry add
+Add a new entry to a glossary
+
+Usage: aigo glossary entry add [OPTIONS] --source <SOURCE> --target <TARGET> <ID>
+
+Arguments:
+  <ID>  Glossary ID
+
+Options:
+      --source <SOURCE>  Source term
+      --target <TARGET>  Target term (translation)
+      --pos <POS>        Part of speech (e.g. noun, verb)
+      --note <NOTE>      Optional note or comment
+  -h, --help             Print help
+
+----- aigo glossary entry delete
+Delete an entry from a glossary
+
+Usage: aigo glossary entry delete [OPTIONS] <ID> <ENTRY_ID>
+
+Arguments:
+  <ID>        Glossary ID
+  <ENTRY_ID>  Entry ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+########## aigo agent-profile
+Agent profile management
+
+Usage: aigo agent-profile <COMMAND>
+
+Commands:
+  list       List all agent profiles
+  create     Create a new agent profile
+  show       Show details for an agent profile
+  delete     Delete an agent profile
+  export     Export an agent profile to a file
+  import     Import an agent profile from a file
+  duplicate  Duplicate an existing agent profile
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-profile list
+List all agent profiles
+
+Usage: aigo agent-profile list
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-profile create
+Create a new agent profile
+
+Usage: aigo agent-profile create [OPTIONS] <NAME>
+
+Arguments:
+  <NAME>  Profile name
+
+Options:
+      --system-prompt <SYSTEM_PROMPT>  System prompt for the agent
+  -m, --model <MODEL>                  Model ID to use
+      --temperature <TEMPERATURE>      Temperature (0.0-2.0)
+      --max-tokens <MAX_TOKENS>        Maximum tokens per response
+      --description <DESCRIPTION>      Description of the agent profile
+  -h, --help                           Print help
+
+===== aigo agent-profile show
+Show details for an agent profile
+
+Usage: aigo agent-profile show <ID>
+
+Arguments:
+  <ID>  Profile ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-profile delete
+Delete an agent profile
+
+Usage: aigo agent-profile delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Profile ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo agent-profile export
+Export an agent profile to a file
+
+Usage: aigo agent-profile export <ID> <FILE>
+
+Arguments:
+  <ID>    Profile ID
+  <FILE>  Output file path
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-profile import
+Import an agent profile from a file
+
+Usage: aigo agent-profile import <FILE>
+
+Arguments:
+  <FILE>  Profile file to import
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-profile duplicate
+Duplicate an existing agent profile
+
+Usage: aigo agent-profile duplicate [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Source profile ID
+
+Options:
+  -n, --name <NAME>  Name for the duplicated profile
+  -h, --help         Print help
+
+########## aigo agent-registry
+Agent registry management
+
+Usage: aigo agent-registry <COMMAND>
+
+Commands:
+  list           List agents in the registry index
+  install        Install an agent from the registry
+  refresh        Refresh the registry index from all sources
+  sources        List registry sources
+  add-source     Add a new registry source
+  remove-source  Remove a registry source
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-registry list
+List agents in the registry index
+
+Usage: aigo agent-registry list
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-registry install
+Install an agent from the registry
+
+Usage: aigo agent-registry install <ID>
+
+Arguments:
+  <ID>  Registry agent ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-registry refresh
+Refresh the registry index from all sources
+
+Usage: aigo agent-registry refresh
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-registry sources
+List registry sources
+
+Usage: aigo agent-registry sources
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent-registry add-source
+Add a new registry source
+
+Usage: aigo agent-registry add-source [OPTIONS] <URL>
+
+Arguments:
+  <URL>  Source URL
+
+Options:
+  -n, --name <NAME>  Source name/alias
+  -h, --help         Print help
+
+===== aigo agent-registry remove-source
+Remove a registry source
+
+Usage: aigo agent-registry remove-source [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Source ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+########## aigo agent
+Agent runtime execution (runs, approvals, tools, settings)
+
+Usage: aigo agent <COMMAND>
+
+Commands:
+  run                 Start a new agent run
+  list                List agent runs
+  show                Show details of an agent run
+  status              Show the status of an agent run
+  context             Show the context usage of an agent run
+  pause               Pause an agent run
+  resume              Resume a paused agent run
+  stop                Stop an agent run
+  delete              Delete an agent run
+  approve             Approve a pending tool call
+  deny                Deny a pending tool call
+  sub-agents          List sub-agents of a run
+  spawn               Spawn a new sub-agent under a parent run
+  compression-prompt  Show the compression prompt for a run
+  compress            Apply context compression to a run using a user-provided summary
+  tools               List available tools
+  tool-exec           Execute a tool directly
+  settings            Manage agent runtime settings
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent run
+Start a new agent run
+
+Usage: aigo agent run [OPTIONS] <TASK>
+
+Arguments:
+  <TASK>  Task description for the agent
+
+Options:
+  -p, --profile <PROFILE>              Agent profile ID
+  -m, --model <MODEL>                  Model ID override
+      --tools <TOOLS>                  Comma-separated enabled tool names (required by the backend; defaults to an empty list when not provided)
+      --max-steps <MAX_STEPS>          Maximum execution iterations (maps to AgentStartOptions.maxIterations)
+      --working-dir <WORKING_DIR>      Custom working directory for file operations
+      --system-prompt <SYSTEM_PROMPT>  Custom system prompt
+      --wait                           Wait for completion, polling status
+  -h, --help                           Print help
+
+===== aigo agent list
+List agent runs
+
+Usage: aigo agent list [OPTIONS]
+
+Options:
+      --limit <LIMIT>    Maximum number of runs to return
+      --offset <OFFSET>  Number of runs to skip
+  -h, --help             Print help
+
+===== aigo agent show
+Show details of an agent run
+
+Usage: aigo agent show <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent status
+Show the status of an agent run
+
+Usage: aigo agent status <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent context
+Show the context usage of an agent run
+
+Usage: aigo agent context <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent pause
+Pause an agent run
+
+Usage: aigo agent pause <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent resume
+Resume a paused agent run
+
+Usage: aigo agent resume <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent stop
+Stop an agent run
+
+Usage: aigo agent stop <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent delete
+Delete an agent run
+
+Usage: aigo agent delete [OPTIONS] <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo agent approve
+Approve a pending tool call
+
+Usage: aigo agent approve [OPTIONS] <RUN_ID> <CALL_ID>
+
+Arguments:
+  <RUN_ID>   Run ID
+  <CALL_ID>  Tool call ID
+
+Options:
+      --remember  Remember this decision for future tool calls with the same name
+  -h, --help      Print help
+
+===== aigo agent deny
+Deny a pending tool call
+
+Usage: aigo agent deny [OPTIONS] <RUN_ID> <CALL_ID>
+
+Arguments:
+  <RUN_ID>   Run ID
+  <CALL_ID>  Tool call ID
+
+Options:
+      --reason <REASON>  Optional reason for denial
+  -h, --help             Print help
+
+===== aigo agent sub-agents
+List sub-agents of a run
+
+Usage: aigo agent sub-agents <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Parent run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent spawn
+Spawn a new sub-agent under a parent run.
+
+The backend requires a task description, a display name, and the enabled tool list; these arguments are mandatory.
+
+Usage: aigo agent spawn [OPTIONS] <RUN_ID> <TASK> <NAME>
+
+Arguments:
+  <RUN_ID>
+          Parent run ID
+
+  <TASK>
+          Sub-agent task description (required by backend)
+
+  <NAME>
+          Sub-agent display name (required by backend)
+
+Options:
+      --tools <TOOLS>
+          Comma-separated enabled tool names (required; defaults to empty)
+
+  -p, --profile <PROFILE>
+          Sub-agent profile ID
+
+  -m, --model <MODEL>
+          Model ID override
+
+      --max-steps <MAX_STEPS>
+          Maximum execution iterations
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo agent compression-prompt
+Show the compression prompt for a run
+
+Usage: aigo agent compression-prompt <RUN_ID>
+
+Arguments:
+  <RUN_ID>  Run ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent compress
+Apply context compression to a run using a user-provided summary.
+
+Typical workflow: 1. `aigo agent compression-prompt <run_id>` — retrieve the prompt 2. Run the prompt through an LLM to produce a summary 3. `aigo agent compress <run_id> --summary <text>` (or `--from-file`)
+
+Usage: aigo agent compress [OPTIONS] <RUN_ID>
+
+Arguments:
+  <RUN_ID>
+          Run ID
+
+Options:
+      --summary <SUMMARY>
+          Summary text to inject as the compressed context
+
+      --from-file <FROM_FILE>
+          Read the summary from a file instead of --summary
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo agent tools
+List available tools
+
+Usage: aigo agent tools [OPTIONS]
+
+Options:
+      --builtin  Show only built-in tools
+      --mcp      Show only MCP tools
+  -h, --help     Print help
+
+===== aigo agent tool-exec
+Execute a tool directly
+
+Usage: aigo agent tool-exec <TOOL_NAME> <ARGS_JSON>
+
+Arguments:
+  <TOOL_NAME>  Tool name
+  <ARGS_JSON>  Tool arguments as a JSON object
+
+Options:
+  -h, --help  Print help
+
+===== aigo agent settings
+Manage agent runtime settings
+
+Usage: aigo agent settings <COMMAND>
+
+Commands:
+  show   Show current agent runtime settings
+  set    Set an agent runtime setting (fetches current settings, mutates the target key, and PUTs the full object back)
+  reset  Reset agent runtime settings to defaults
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo agent settings show
+Show current agent runtime settings
+
+Usage: aigo agent settings show
+
+Options:
+  -h, --help  Print help
+
+----- aigo agent settings set
+Set an agent runtime setting (fetches current settings, mutates the target key, and PUTs the full object back)
+
+Usage: aigo agent settings set <KEY> <VALUE>
+
+Arguments:
+  <KEY>    Setting key (camelCase, e.g. `maxIterations`, `maxToolCalls`, `defaultTimeout`, `showThinkingProcess`, `autoScrollSteps`, `contextCompressionThreshold`, `requireApprovalFor`, `allowedPaths`, `deniedPaths`)
+  <VALUE>  Setting value. Comma-separated for list fields (`requireApprovalFor`, `allowedPaths`, `deniedPaths`)
+
+Options:
+  -h, --help  Print help
+
+----- aigo agent settings reset
+Reset agent runtime settings to defaults
+
+Usage: aigo agent settings reset [OPTIONS]
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+########## aigo node
+Node sharing, discovery, and distributed routing
+
+Usage: aigo node <COMMAND>
+
+Commands:
+  sharing         Manage local node sharing (expose this node to peers)
+  list            List registered peer nodes
+  register        Register a peer node using a connection key
+  request         Request a connection key from a remote node and register it
+  add-discovered  Register a peer from a discovered node entry (completes request + register in one step)
+  discover        Manage mDNS discovery (listen for peers on the local network)
+  show            Show details for a registered peer node
+  details         Show extended details for a registered peer node
+  remove          Remove a registered peer node
+  ping            Ping a specific node, or ping all nodes when no fingerprint is given
+  test            Test connection to a node
+  retry           Retry a failed node connection
+  config          Update a node's load configuration with a JSON object
+  models          List models currently loaded on a remote node
+  load            Load a model on a remote node
+  unload          Unload a model from a remote node
+  lb              Show or update the distributed load-balancing configuration
+  pool            Show the distributed pool status
+  routing-stats   Show routing statistics
+  help            Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo node sharing
+Manage local node sharing (expose this node to peers)
+
+Usage: aigo node sharing <COMMAND>
+
+Commands:
+  status         Show node sharing status and configuration
+  config         Update node sharing configuration with a JSON object
+  keygen         Generate a connection key so other nodes can register with us
+  revoke         Revoke an active connection key
+  interfaces     List available network interfaces
+  fingerprint    Show the local node fingerprint
+  clients        List clients that have registered with this node
+  remove-client  Remove a registered client
+  cleanup        Clean up expired registrations
+  mdns           Enable or disable mDNS advertising
+  mdns-refresh   Refresh mDNS advertising (re-publish the current record)
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing status
+Show node sharing status and configuration
+
+Usage: aigo node sharing status
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing config
+Update node sharing configuration with a JSON object
+
+Usage: aigo node sharing config <CONFIG_JSON>
+
+Arguments:
+  <CONFIG_JSON>  JSON object with fields `enabled`, `nodeName`, `listenPort`
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing keygen
+Generate a connection key so other nodes can register with us
+
+Usage: aigo node sharing keygen [OPTIONS] --node-name <NODE_NAME> --interface <INTERFACE>
+
+Options:
+      --node-name <NODE_NAME>      Node display name embedded in the key
+      --interface <INTERFACE>      Network interface to advertise
+      --ttl-minutes <TTL_MINUTES>  Time-to-live in minutes
+  -h, --help                       Print help
+
+----- aigo node sharing revoke
+Revoke an active connection key
+
+Usage: aigo node sharing revoke <TOKEN>
+
+Arguments:
+  <TOKEN>  Connection key token
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing interfaces
+List available network interfaces
+
+Usage: aigo node sharing interfaces
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing fingerprint
+Show the local node fingerprint
+
+Usage: aigo node sharing fingerprint
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing clients
+List clients that have registered with this node
+
+Usage: aigo node sharing clients
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing remove-client
+Remove a registered client
+
+Usage: aigo node sharing remove-client <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Client fingerprint
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing cleanup
+Clean up expired registrations
+
+Usage: aigo node sharing cleanup
+
+Options:
+  -h, --help  Print help
+
+----- aigo node sharing mdns
+Enable or disable mDNS advertising
+
+Usage: aigo node sharing mdns [OPTIONS]
+
+Options:
+      --enable   Enable mDNS advertising
+      --disable  Disable mDNS advertising
+  -h, --help     Print help
+
+----- aigo node sharing mdns-refresh
+Refresh mDNS advertising (re-publish the current record)
+
+Usage: aigo node sharing mdns-refresh
+
+Options:
+  -h, --help  Print help
+
+===== aigo node list
+List registered peer nodes
+
+Usage: aigo node list
+
+Options:
+  -h, --help  Print help
+
+===== aigo node register
+Register a peer node using a connection key
+
+Usage: aigo node register <CONNECTION_KEY>
+
+Arguments:
+  <CONNECTION_KEY>  Connection key (issued by the remote node via `sharing keygen`)
+
+Options:
+  -h, --help  Print help
+
+===== aigo node request
+Request a connection key from a remote node and register it.
+
+Performs POST /nodes/register/request which only returns a connection key; to complete registration in a single step use `node add-discovered` or call `node register` with the returned key.
+
+Usage: aigo node request <TARGET> [PORT]
+
+Arguments:
+  <TARGET>
+          Remote target as `host port`, `host:port`, or full URL
+
+  [PORT]
+          Remote port when `target` is a bare host name
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo node add-discovered
+Register a peer from a discovered node entry (completes request + register in one step)
+
+Usage: aigo node add-discovered <TARGET> [PORT]
+
+Arguments:
+  <TARGET>  Discovered node fingerprint (full or unique prefix), or a direct `host port`, `host:port`, or full URL target
+  [PORT]    Remote port when `target` is a bare host name
+
+Options:
+  -h, --help  Print help
+
+===== aigo node discover
+Manage mDNS discovery (listen for peers on the local network)
+
+Usage: aigo node discover [OPTIONS]
+
+Options:
+      --start  Start the mDNS discovery service
+      --stop   Stop the mDNS discovery service
+      --clear  Clear discovered node cache
+  -h, --help   Print help
+
+===== aigo node show
+Show details for a registered peer node
+
+Usage: aigo node show <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+
+Options:
+  -h, --help  Print help
+
+===== aigo node details
+Show extended details for a registered peer node
+
+Usage: aigo node details <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+
+Options:
+  -h, --help  Print help
+
+===== aigo node remove
+Remove a registered peer node
+
+Usage: aigo node remove [OPTIONS] <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo node ping
+Ping a specific node, or ping all nodes when no fingerprint is given
+
+Usage: aigo node ping [FINGERPRINT]
+
+Arguments:
+  [FINGERPRINT]  Node fingerprint (omit to ping all nodes)
+
+Options:
+  -h, --help  Print help
+
+===== aigo node test
+Test connection to a node
+
+Usage: aigo node test <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+
+Options:
+  -h, --help  Print help
+
+===== aigo node retry
+Retry a failed node connection
+
+Usage: aigo node retry <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+
+Options:
+  -h, --help  Print help
+
+===== aigo node config
+Update a node's load configuration with a JSON object
+
+Usage: aigo node config <FINGERPRINT> <CONFIG_JSON>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+  <CONFIG_JSON>  JSON object with load config fields, e.g. `{"priority": 8, "maxLoadPercent": 90, "includeInRouting": true}`
+
+Options:
+  -h, --help  Print help
+
+===== aigo node models
+List models currently loaded on a remote node
+
+Usage: aigo node models <FINGERPRINT>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+
+Options:
+  -h, --help  Print help
+
+===== aigo node load
+Load a model on a remote node
+
+Usage: aigo node load [OPTIONS] <FINGERPRINT> <MODEL_ID>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+  <MODEL_ID>     Model ID
+
+Options:
+      --model-path <MODEL_PATH>          Optional model path override
+      --context-length <CONTEXT_LENGTH>  Context length override
+      --gpu-layers <GPU_LAYERS>          GPU layer count override (-1 for all)
+  -h, --help                             Print help
+
+===== aigo node unload
+Unload a model from a remote node
+
+Usage: aigo node unload <FINGERPRINT> <MODEL_ID>
+
+Arguments:
+  <FINGERPRINT>  Node fingerprint
+  <MODEL_ID>     Model ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo node lb
+Show or update the distributed load-balancing configuration
+
+Usage: aigo node lb <COMMAND>
+
+Commands:
+  show  Show the current load-balancing configuration
+  set   Update the load-balancing configuration with a JSON object
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo node lb show
+Show the current load-balancing configuration
+
+Usage: aigo node lb show
+
+Options:
+  -h, --help  Print help
+
+----- aigo node lb set
+Update the load-balancing configuration with a JSON object
+
+Usage: aigo node lb set <CONFIG_JSON>
+
+Arguments:
+  <CONFIG_JSON>  Full `LoadBalancingConfig` JSON object
+
+Options:
+  -h, --help  Print help
+
+===== aigo node pool
+Show the distributed pool status
+
+Usage: aigo node pool
+
+Options:
+  -h, --help  Print help
+
+===== aigo node routing-stats
+Show routing statistics
+
+Usage: aigo node routing-stats
+
+Options:
+  -h, --help  Print help
+
+########## aigo mesh
+Mesh connection management
+
+Usage: aigo mesh <COMMAND>
+
+Commands:
+  list           List mesh connections
+  add            Add a new mesh connection
+  show           Show details of a mesh connection
+  update         Update a mesh connection with a JSON object
+  remove         Remove a mesh connection
+  toggle         Toggle a mesh connection (enable/disable)
+  health         Check health of mesh connections
+  models         List models across mesh connections
+  select-models  Update the selected models for a mesh connection
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo mesh list
+List mesh connections
+
+Usage: aigo mesh list [OPTIONS]
+
+Options:
+      --type <TYPE>  Filter by connection type (`backend_ai_go`, `continuum_router`, `backend_ai_cluster`)
+  -h, --help         Print help
+
+===== aigo mesh add
+Add a new mesh connection
+
+Usage: aigo mesh add [OPTIONS] --name <NAME> --type <TYPE> <BASE_URL>
+
+Arguments:
+  <BASE_URL>  Base URL of the peer
+
+Options:
+      --name <NAME>                User-friendly connection name
+      --type <TYPE>                Connection type (`backend_ai_go`, `continuum_router`, `backend_ai_cluster`)
+      --api-key <API_KEY>          API key for authentication
+      --admin-token <ADMIN_TOKEN>  Admin token (for GO peers)
+  -h, --help                       Print help
+
+===== aigo mesh show
+Show details of a mesh connection
+
+Usage: aigo mesh show <ID>
+
+Arguments:
+  <ID>  Connection ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo mesh update
+Update a mesh connection with a JSON object
+
+Usage: aigo mesh update <ID> <UPDATE_JSON>
+
+Arguments:
+  <ID>           Connection ID
+  <UPDATE_JSON>  Partial `MeshConnectionUpdate` JSON object
+
+Options:
+  -h, --help  Print help
+
+===== aigo mesh remove
+Remove a mesh connection
+
+Usage: aigo mesh remove [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Connection ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo mesh toggle
+Toggle a mesh connection (enable/disable)
+
+Usage: aigo mesh toggle [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Connection ID
+
+Options:
+      --enable   Enable the connection
+      --disable  Disable the connection
+  -h, --help     Print help
+
+===== aigo mesh health
+Check health of mesh connections
+
+Usage: aigo mesh health [ID]
+
+Arguments:
+  [ID]  Connection ID (omit to check all)
+
+Options:
+  -h, --help  Print help
+
+===== aigo mesh models
+List models across mesh connections
+
+Usage: aigo mesh models [OPTIONS]
+
+Options:
+      --selected  Show only selected models
+  -h, --help      Print help
+
+===== aigo mesh select-models
+Update the selected models for a mesh connection
+
+Usage: aigo mesh select-models <ID> <MODELS>
+
+Arguments:
+  <ID>      Connection ID
+  <MODELS>  Comma-separated list of model IDs
+
+Options:
+  -h, --help  Print help
+
+########## aigo squad
+Squad management for multi-agent orchestration
+
+Usage: aigo squad <COMMAND>
+
+Commands:
+  list            List all squads
+  create          Create a squad from a JSON body
+  show            Show details for a squad
+  update          Update a squad with a JSON body
+  delete          Delete a squad
+  restore         Restore a squad from a workspace manifest
+  workspace       Squad workspace lifecycle commands
+  task            Squad task management
+  memory          Squad agent memory commands
+  session         Squad agent session commands
+  message         Send a message to an agent in a squad
+  conversation    Show the conversation for an agent in a squad
+  execute         Submit a plan execution to a squad
+  approve         Approve a plan execution
+  reject          Reject a plan execution with feedback
+  execution       Show details for a plan execution
+  cancel          Cancel a running plan execution
+  files           List workspace files for a squad
+  cat             Read a workspace file in a squad
+  search          Search workspace files in a squad
+  activity        Show the activity log for a squad
+  history         Squad execution history
+  analytics       Show squad analytics (tokens, costs, throughput)
+  budget          Squad budget management
+  emergency-stop  Emergency stop (abort all running executions for a squad)
+  template        Squad template management
+  discussion      Squad discussion room management
+  help            Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad list
+List all squads
+
+Usage: aigo squad list
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad create
+Create a squad from a JSON body
+
+Usage: aigo squad create <BODY_JSON>
+
+Arguments:
+  <BODY_JSON>  JSON object matching `CreateSquadRequest` (at minimum `name` and `workspacePath`)
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad show
+Show details for a squad
+
+Usage: aigo squad show <ID>
+
+Arguments:
+  <ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad update
+Update a squad with a JSON body
+
+Usage: aigo squad update <ID> <BODY_JSON>
+
+Arguments:
+  <ID>         Squad ID
+  <BODY_JSON>  JSON object matching `UpdateSquadRequest`
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad delete
+Delete a squad
+
+Usage: aigo squad delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Squad ID
+
+Options:
+      --delete-workspace  Also delete the squad's workspace directory. By default the workspace is kept (matches backend `keepWorkspace=true`)
+  -y, --yes               Skip confirmation prompt
+  -h, --help              Print help
+
+===== aigo squad restore
+Restore a squad from a workspace manifest
+
+Usage: aigo squad restore <WORKSPACE_PATH>
+
+Arguments:
+  <WORKSPACE_PATH>  Absolute path to the workspace directory containing `.squad-config.json`
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad workspace
+Squad workspace lifecycle commands
+
+Usage: aigo squad workspace <COMMAND>
+
+Commands:
+  init      Initialize the workspace directory for a squad
+  status    Show the workspace status for a squad
+  clean     Remove the workspace for a squad
+  validate  Validate a workspace path
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad workspace init
+Initialize the workspace directory for a squad
+
+Usage: aigo squad workspace init <SQUAD_ID> <PATH>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <PATH>      Workspace directory path
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad workspace status
+Show the workspace status for a squad
+
+Usage: aigo squad workspace status <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad workspace clean
+Remove the workspace for a squad
+
+Usage: aigo squad workspace clean [OPTIONS] <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+      --archive  Archive the workspace before removing it
+  -y, --yes      Skip confirmation prompt
+  -h, --help     Print help
+
+----- aigo squad workspace validate
+Validate a workspace path
+
+Usage: aigo squad workspace validate <PATH>
+
+Arguments:
+  <PATH>  Workspace path to validate
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad task
+Squad task management
+
+Usage: aigo squad task <COMMAND>
+
+Commands:
+  create  Create a task from a JSON body
+  list    List tasks for a squad
+  graph   Show the task dependency graph for a squad
+  show    Show details for a task
+  status  Update a task's status
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad task create
+Create a task from a JSON body
+
+Usage: aigo squad task create <SQUAD_ID> <BODY_JSON>
+
+Arguments:
+  <SQUAD_ID>   Squad ID
+  <BODY_JSON>  JSON object matching `CreateTaskRequest` (at minimum `title` and `description`)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad task list
+List tasks for a squad
+
+Usage: aigo squad task list <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad task graph
+Show the task dependency graph for a squad
+
+Usage: aigo squad task graph <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad task show
+Show details for a task
+
+Usage: aigo squad task show <SQUAD_ID> <TASK_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <TASK_ID>   Task ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad task status
+Update a task's status
+
+Usage: aigo squad task status <SQUAD_ID> <TASK_ID> <STATUS>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <TASK_ID>   Task ID
+  <STATUS>    New status (snake_case value from `ManagedTaskStatus`)
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad memory
+Squad agent memory commands
+
+Usage: aigo squad memory <COMMAND>
+
+Commands:
+  init      Initialize the memory bank for a squad
+  search    Search memory bank entries
+  read      Read an agent's memory for a squad
+  write     Write content to an agent's memory section
+  sections  List memory sections for an agent
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad memory init
+Initialize the memory bank for a squad
+
+Usage: aigo squad memory init <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad memory search
+Search memory bank entries
+
+Usage: aigo squad memory search [OPTIONS] <SQUAD_ID> <QUERY>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <QUERY>     Search query
+
+Options:
+      --agent <AGENT>      Filter by agent ID
+      --section <SECTION>  Filter by section name
+      --case-sensitive     Case-sensitive matching
+      --limit <LIMIT>      Maximum results to return
+  -h, --help               Print help
+
+----- aigo squad memory read
+Read an agent's memory for a squad
+
+Usage: aigo squad memory read <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad memory write
+Write content to an agent's memory section
+
+Usage: aigo squad memory write [OPTIONS] --section <SECTION> <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+      --section <SECTION>      Memory section name
+      --content <CONTENT>      Content to write (or read from --from-file)
+      --from-file <FROM_FILE>  Read content from a file
+      --overwrite              Replace the section contents instead of appending
+  -h, --help                   Print help
+
+----- aigo squad memory sections
+List memory sections for an agent
+
+Usage: aigo squad memory sections <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad session
+Squad agent session commands
+
+Usage: aigo squad session <COMMAND>
+
+Commands:
+  start   Start an agent session
+  stop    Stop an agent session
+  status  Show the session status for an agent
+  list    List sessions for an agent
+  new     Create a new session for an agent
+  show    Show a specific session for an agent
+  delete  Delete a specific session
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session start
+Start an agent session
+
+Usage: aigo squad session start <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session stop
+Stop an agent session
+
+Usage: aigo squad session stop <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session status
+Show the session status for an agent
+
+Usage: aigo squad session status <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session list
+List sessions for an agent
+
+Usage: aigo squad session list <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session new
+Create a new session for an agent
+
+Usage: aigo squad session new <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session show
+Show a specific session for an agent
+
+Usage: aigo squad session show <SQUAD_ID> <AGENT_ID> <SESSION_ID>
+
+Arguments:
+  <SQUAD_ID>    Squad ID
+  <AGENT_ID>    Agent ID
+  <SESSION_ID>  Session ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad session delete
+Delete a specific session
+
+Usage: aigo squad session delete [OPTIONS] <SQUAD_ID> <AGENT_ID> <SESSION_ID>
+
+Arguments:
+  <SQUAD_ID>    Squad ID
+  <AGENT_ID>    Agent ID
+  <SESSION_ID>  Session ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo squad message
+Send a message to an agent in a squad
+
+Usage: aigo squad message <SQUAD_ID> <AGENT_ID> <TEXT>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+  <TEXT>      Message text
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad conversation
+Show the conversation for an agent in a squad
+
+Usage: aigo squad conversation <SQUAD_ID> <AGENT_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <AGENT_ID>  Agent ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad execute
+Submit a plan execution to a squad
+
+Usage: aigo squad execute [OPTIONS] <SQUAD_ID> <REQUEST>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <REQUEST>   User request text for the planner
+
+Options:
+      --auto-approve  Skip the plan approval step
+      --wait          Wait for execution to reach a terminal state, polling status every 2 seconds
+  -h, --help          Print help
+
+===== aigo squad approve
+Approve a plan execution
+
+Usage: aigo squad approve <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad reject
+Reject a plan execution with feedback
+
+Usage: aigo squad reject --feedback <FEEDBACK> <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+      --feedback <FEEDBACK>  Feedback for the planner
+  -h, --help                 Print help
+
+===== aigo squad execution
+Show details for a plan execution
+
+Usage: aigo squad execution <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad cancel
+Cancel a running plan execution
+
+Usage: aigo squad cancel <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad files
+List workspace files for a squad
+
+Usage: aigo squad files <SQUAD_ID> [PATH]
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  [PATH]      Workspace-relative path (omit for workspace root)
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad cat
+Read a workspace file in a squad
+
+Usage: aigo squad cat <SQUAD_ID> <FILE_PATH>
+
+Arguments:
+  <SQUAD_ID>   Squad ID
+  <FILE_PATH>  Workspace-relative file path
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad search
+Search workspace files in a squad
+
+Usage: aigo squad search <SQUAD_ID> <QUERY>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+  <QUERY>     Search query
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad activity
+Show the activity log for a squad
+
+Usage: aigo squad activity [OPTIONS] <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+      --persisted  Force reload the persisted `logs/events.jsonl` file from the workspace (hits `/activity-log/load`). Without this flag, only the in-memory buffer is returned, which may be empty after a server restart
+  -h, --help       Print help
+
+===== aigo squad history
+Squad execution history
+
+Usage: aigo squad history <COMMAND>
+
+Commands:
+  list    List the execution history for a squad
+  show    Show details for an execution history entry
+  logs    Show logs for an execution history entry
+  report  Generate a report for an execution history entry
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad history list
+List the execution history for a squad
+
+Usage: aigo squad history list <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad history show
+Show details for an execution history entry
+
+Usage: aigo squad history show <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad history logs
+Show logs for an execution history entry
+
+Usage: aigo squad history logs <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad history report
+Generate a report for an execution history entry
+
+Usage: aigo squad history report <SQUAD_ID> <EXECUTION_ID>
+
+Arguments:
+  <SQUAD_ID>      Squad ID
+  <EXECUTION_ID>  Execution ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad analytics
+Show squad analytics (tokens, costs, throughput)
+
+Usage: aigo squad analytics <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad budget
+Squad budget management
+
+Usage: aigo squad budget <COMMAND>
+
+Commands:
+  show   Show the budget configuration for a squad
+  set    Update the budget configuration with a JSON body
+  usage  Show the current budget usage for a squad
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad budget show
+Show the budget configuration for a squad
+
+Usage: aigo squad budget show <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad budget set
+Update the budget configuration with a JSON body
+
+Usage: aigo squad budget set <SQUAD_ID> <BODY_JSON>
+
+Arguments:
+  <SQUAD_ID>   Squad ID
+  <BODY_JSON>  JSON object matching `BudgetConfig`
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad budget usage
+Show the current budget usage for a squad
+
+Usage: aigo squad budget usage <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad emergency-stop
+Emergency stop (abort all running executions for a squad)
+
+Usage: aigo squad emergency-stop <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo squad template
+Squad template management
+
+Usage: aigo squad template <COMMAND>
+
+Commands:
+  list     List available squad templates
+  show     Show a squad template
+  import   Import a squad template from a file
+  export   Export a squad template to stdout (or to a file with --output)
+  delete   Delete a squad template
+  save     Save an existing squad as a new template
+  install  Install a squad template from the shared registry catalog
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad template list
+List available squad templates
+
+Usage: aigo squad template list
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad template show
+Show a squad template
+
+Usage: aigo squad template show <TEMPLATE_ID>
+
+Arguments:
+  <TEMPLATE_ID>  Template ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad template import
+Import a squad template from a file
+
+Usage: aigo squad template import <FILE>
+
+Arguments:
+  <FILE>  Path to the template JSON file
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad template export
+Export a squad template to stdout (or to a file with --output)
+
+Usage: aigo squad template export [OPTIONS] <TEMPLATE_ID>
+
+Arguments:
+  <TEMPLATE_ID>  Template ID
+
+Options:
+  -o, --output <OUTPUT>  Write the template JSON to this file instead of stdout
+  -h, --help             Print help
+
+----- aigo squad template delete
+Delete a squad template
+
+Usage: aigo squad template delete [OPTIONS] <TEMPLATE_ID>
+
+Arguments:
+  <TEMPLATE_ID>  Template ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+----- aigo squad template save
+Save an existing squad as a new template
+
+Usage: aigo squad template save [OPTIONS] --name <NAME> <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Source squad ID
+
+Options:
+      --name <NAME>                Template display name
+      --description <DESCRIPTION>  Template description
+      --icon <ICON>                Template icon (emoji or icon name)
+  -h, --help                       Print help
+
+----- aigo squad template install
+Install a squad template from the shared registry catalog
+
+Usage: aigo squad template install [OPTIONS] --path <PATH>
+
+Options:
+      --path <PATH>            Relative path to the template in the registry source
+      --source-id <SOURCE_ID>  Registry source ID (defaults to the default/first enabled source)
+  -h, --help                   Print help
+
+===== aigo squad discussion
+Squad discussion room management
+
+Usage: aigo squad discussion <COMMAND>
+
+Commands:
+  create          Create a discussion room from a JSON body
+  list            List discussions for a squad
+  list-completed  List completed discussions for a squad
+  show            Show a discussion room
+  delete          Delete a discussion room
+  start           Start the discussion orchestrator
+  pause           Pause the discussion orchestrator
+  resume          Resume a paused discussion
+  stop            Stop the discussion orchestrator
+  post            Enqueue a user message in a discussion
+  cancel-message  Cancel a queued user message
+  mode            Set the discussion mode (moderated | brainstorm)
+  strategy        Set or clear the strategy override
+  turn-budget     Set the turn budget
+  conclude        Synthesize a structured conclusion
+  handoff         Build a handoff request from a concluded discussion
+  export          Export the transcript (markdown | json | plainText)
+  analytics       Show discussion analytics
+  help            Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion create
+Create a discussion room from a JSON body
+
+Usage: aigo squad discussion create [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (CreateDiscussionRequest: squadId/topic/participants/mode/turnBudget)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo squad discussion list
+List discussions for a squad
+
+Usage: aigo squad discussion list <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion list-completed
+List completed discussions for a squad
+
+Usage: aigo squad discussion list-completed <SQUAD_ID>
+
+Arguments:
+  <SQUAD_ID>  Squad ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion show
+Show a discussion room
+
+Usage: aigo squad discussion show <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion delete
+Delete a discussion room
+
+Usage: aigo squad discussion delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+----- aigo squad discussion start
+Start the discussion orchestrator
+
+Usage: aigo squad discussion start <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion pause
+Pause the discussion orchestrator
+
+Usage: aigo squad discussion pause <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion resume
+Resume a paused discussion
+
+Usage: aigo squad discussion resume <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion stop
+Stop the discussion orchestrator
+
+Usage: aigo squad discussion stop <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion post
+Enqueue a user message in a discussion
+
+Usage: aigo squad discussion post [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+      --message <MESSAGE>  Convenience: message text (a client-side id is generated)
+      --json <JSON>        Inline JSON body (PostDiscussionMessageRequest: id/content/mentions)
+      --file <FILE>        Read the JSON body from a file
+  -h, --help               Print help
+
+----- aigo squad discussion cancel-message
+Cancel a queued user message
+
+Usage: aigo squad discussion cancel-message <ID> <MESSAGE_ID>
+
+Arguments:
+  <ID>          Discussion ID
+  <MESSAGE_ID>  Queued message ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion mode
+Set the discussion mode (moderated | brainstorm)
+
+Usage: aigo squad discussion mode <ID> <MODE>
+
+Arguments:
+  <ID>    Discussion ID
+  <MODE>  Mode value (moderated | brainstorm)
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion strategy
+Set or clear the strategy override
+
+Pass a strategy (moderated | brainstorm | roundRobin | autonomous) to set it, or omit it (or pass "none"/"clear") to revert to the mode-default mapping.
+
+Usage: aigo squad discussion strategy <ID> [STRATEGY]
+
+Arguments:
+  <ID>
+          Discussion ID
+
+  [STRATEGY]
+          Strategy value, or "none"/"clear"/omit to clear the override
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+----- aigo squad discussion turn-budget
+Set the turn budget
+
+Usage: aigo squad discussion turn-budget <ID> <BUDGET>
+
+Arguments:
+  <ID>      Discussion ID
+  <BUDGET>  New turn budget
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion conclude
+Synthesize a structured conclusion
+
+Usage: aigo squad discussion conclude [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+      --force  Bypass the synthesis cool-down gate
+  -h, --help   Print help
+
+----- aigo squad discussion handoff
+Build a handoff request from a concluded discussion
+
+Usage: aigo squad discussion handoff <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo squad discussion export
+Export the transcript (markdown | json | plainText)
+
+Usage: aigo squad discussion export [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+      --format <FORMAT>  Export format (markdown | json | plainText); defaults to markdown
+  -h, --help             Print help
+
+----- aigo squad discussion analytics
+Show discussion analytics
+
+Usage: aigo squad discussion analytics <ID>
+
+Arguments:
+  <ID>  Discussion ID
+
+Options:
+  -h, --help  Print help
+
+########## aigo supervisor
+Supervisor agent policy, audit, and webhook management
+
+Usage: aigo supervisor <COMMAND>
+
+Commands:
+  status     Show the supervisor status
+  start      Start the supervisor agent
+  stop       Stop the supervisor agent
+  config     Supervisor configuration
+  policies   List active supervisor policies
+  fallbacks  List fallback configurations
+  audit      Query the supervisor audit log
+  forecast   Show current failure / demand forecasts
+  tuning     Supervisor adaptive tuning status
+  webhook    Supervisor webhook management
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor status
+Show the supervisor status
+
+Usage: aigo supervisor status
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor start
+Start the supervisor agent
+
+Usage: aigo supervisor start
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor stop
+Stop the supervisor agent
+
+Usage: aigo supervisor stop
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor config
+Supervisor configuration
+
+Usage: aigo supervisor config <COMMAND>
+
+Commands:
+  show  Show the current configuration
+  set   Update the configuration with a JSON body matching `SupervisorConfig`
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo supervisor config show
+Show the current configuration
+
+Usage: aigo supervisor config show
+
+Options:
+  -h, --help  Print help
+
+----- aigo supervisor config set
+Update the configuration with a JSON body matching `SupervisorConfig`.
+
+Keys must be camelCase (the backend struct uses `#[serde(rename_all = "camelCase")]`), e.g. `fastTickSecs`, `memoryPressureThreshold`, `enabled`.
+
+Usage: aigo supervisor config set <BODY_JSON>
+
+Arguments:
+  <BODY_JSON>
+          Full `SupervisorConfig` JSON object (camelCase keys)
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo supervisor policies
+List active supervisor policies
+
+Usage: aigo supervisor policies
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor fallbacks
+List fallback configurations
+
+Usage: aigo supervisor fallbacks
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor audit
+Query the supervisor audit log
+
+Usage: aigo supervisor audit [OPTIONS]
+
+Options:
+      --from <FROM>
+          Start of date range. Accepts RFC 3339 (e.g. `2026-04-01T00:00:00Z`) or a plain `YYYY-MM-DD` date, which is normalized to `T00:00:00Z` client-side before being sent. Relative day forms `today`, `yesterday`, and `<Nd>` (e.g. `7d`) are also accepted
+
+      --to <TO>
+          End of date range. Accepts RFC 3339 or a plain `YYYY-MM-DD` date, which is normalized to `T23:59:59Z` client-side (inclusive end-of-day). Relative day forms `today`, `yesterday`, and `<Nd>` (e.g. `7d`) are also accepted
+
+      --model <MODEL>
+          Filter by model ID
+
+      --action <ACTION>
+          Filter by action type (free-form string match)
+
+      --tier <TIER>
+          Filter by tick tier
+
+          Possible values:
+          - fast:   Fast tick loop (1-5 seconds)
+          - medium: Medium tick loop (10-30 seconds)
+          - slow:   Slow tick loop (60+ seconds)
+
+      --limit <LIMIT>
+          Maximum results
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+===== aigo supervisor forecast
+Show current failure / demand forecasts
+
+Usage: aigo supervisor forecast
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor tuning
+Supervisor adaptive tuning status
+
+Usage: aigo supervisor tuning <COMMAND>
+
+Commands:
+  show     Show current adaptive tuning status
+  history  Show tuning adjustment history
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo supervisor tuning show
+Show current adaptive tuning status
+
+Usage: aigo supervisor tuning show
+
+Options:
+  -h, --help  Print help
+
+----- aigo supervisor tuning history
+Show tuning adjustment history
+
+Usage: aigo supervisor tuning history
+
+Options:
+  -h, --help  Print help
+
+===== aigo supervisor webhook
+Supervisor webhook management
+
+Usage: aigo supervisor webhook <COMMAND>
+
+Commands:
+  list    List registered webhooks
+  create  Register a new webhook
+  delete  Delete a webhook
+  test    Send a test event to a webhook
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo supervisor webhook list
+List registered webhooks
+
+Usage: aigo supervisor webhook list
+
+Options:
+  -h, --help  Print help
+
+----- aigo supervisor webhook create
+Register a new webhook
+
+Usage: aigo supervisor webhook create [OPTIONS] --name <NAME> <URL>
+
+Arguments:
+  <URL>  Webhook URL
+
+Options:
+      --name <NAME>      Display name for the webhook
+      --events <EVENTS>  Comma-separated event filters (snake_case values from `WebhookEventType`: `health_changed`, `auto_restart`, `model_evicted`, `model_preloaded`, `fallback_activated`, `fallback_deactivated`, `resource_alert`, `parameter_tuned`, `failure_predicted`). Empty or omitted = subscribe to all
+  -h, --help             Print help
+
+----- aigo supervisor webhook delete
+Delete a webhook
+
+Usage: aigo supervisor webhook delete [OPTIONS] <WEBHOOK_ID>
+
+Arguments:
+  <WEBHOOK_ID>  Webhook ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+----- aigo supervisor webhook test
+Send a test event to a webhook
+
+Usage: aigo supervisor webhook test <WEBHOOK_ID>
+
+Arguments:
+  <WEBHOOK_ID>  Webhook ID
+
+Options:
+  -h, --help  Print help
+
+########## aigo cowork
+Collaborative workspace management
+
+Usage: aigo cowork <COMMAND>
+
+Commands:
+  folders           List shared cowork folders
+  add-folder        Add a folder to the cowork workspace
+  remove-folder     Remove a folder from the cowork workspace
+  instructions      Show the current cowork instructions
+  set-instructions  Set the cowork instructions content
+  help              Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo cowork folders
+List shared cowork folders
+
+Usage: aigo cowork folders
+
+Options:
+  -h, --help  Print help
+
+===== aigo cowork add-folder
+Add a folder to the cowork workspace
+
+Usage: aigo cowork add-folder <PATH>
+
+Arguments:
+  <PATH>  Path to the folder to add
+
+Options:
+  -h, --help  Print help
+
+===== aigo cowork remove-folder
+Remove a folder from the cowork workspace
+
+Usage: aigo cowork remove-folder [OPTIONS] <PATH>
+
+Arguments:
+  <PATH>  Path of the folder to remove
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo cowork instructions
+Show the current cowork instructions
+
+Usage: aigo cowork instructions
+
+Options:
+  -h, --help  Print help
+
+===== aigo cowork set-instructions
+Set the cowork instructions content
+
+Usage: aigo cowork set-instructions [CONTENT]
+
+Arguments:
+  [CONTENT]  Instructions content (reads from stdin if not provided)
+
+Options:
+  -h, --help  Print help
+
+########## aigo extension
+Extension skills and subagent/AGENTS.md import management
+
+Usage: aigo extension <COMMAND>
+
+Commands:
+  skill     Skill management (list, CRUD, parse, invoke, import, fork)
+  agent     Subagent / `AGENTS.md` import onto an agent profile
+  discover  Discover importable Claude Code / Codex artifacts on disk
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo extension skill
+Skill management (list, CRUD, parse, invoke, import, fork)
+
+Usage: aigo extension skill <COMMAND>
+
+Commands:
+  list                List installed extension skills
+  show                Show a skill by ID
+  create              Create a skill from a JSON body (ExtensionSkill shape)
+  update              Update a skill by ID from a JSON body (ExtensionSkill shape)
+  delete              Delete a skill by ID
+  enable              Enable a skill
+  disable             Disable a skill
+  invoke              Render a stored skill for invocation
+  import-file         Import a skill from a local file path on the server host
+  import-url          Import a skill from an https:// URL
+  parse               Parse skill content into the canonical skill shape (no persistence)
+  activation-preview  Preview how a skill's tool grants map onto the permission model
+  fork                `context: fork` skill preview / run
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill list
+List installed extension skills
+
+Usage: aigo extension skill list
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill show
+Show a skill by ID
+
+Usage: aigo extension skill show <ID>
+
+Arguments:
+  <ID>  Skill ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill create
+Create a skill from a JSON body (ExtensionSkill shape)
+
+Usage: aigo extension skill create [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo extension skill update
+Update a skill by ID from a JSON body (ExtensionSkill shape)
+
+Usage: aigo extension skill update [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Skill ID
+
+Options:
+      --json <JSON>  Inline JSON body
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo extension skill delete
+Delete a skill by ID
+
+Usage: aigo extension skill delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Skill ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+----- aigo extension skill enable
+Enable a skill
+
+Usage: aigo extension skill enable <ID>
+
+Arguments:
+  <ID>  Skill ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill disable
+Disable a skill
+
+Usage: aigo extension skill disable <ID>
+
+Arguments:
+  <ID>  Skill ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill invoke
+Render a stored skill for invocation
+
+Usage: aigo extension skill invoke [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Skill ID
+
+Options:
+      --json <JSON>  Inline JSON body (InvokeSkillRequest: args/sessionId/isLocalEngine); defaults to `{}` when neither --json nor --file is given
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo extension skill import-file
+Import a skill from a local file path on the server host
+
+Usage: aigo extension skill import-file <PATH>
+
+Arguments:
+  <PATH>  Path to a SKILL.md / command / prompt file (resolved on the server)
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill import-url
+Import a skill from an https:// URL
+
+Usage: aigo extension skill import-url <URL>
+
+Arguments:
+  <URL>  https:// URL of a raw SKILL.md / command / prompt
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension skill parse
+Parse skill content into the canonical skill shape (no persistence)
+
+Usage: aigo extension skill parse [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (ParseSkillRequest: content/sourceHint)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo extension skill activation-preview
+Preview how a skill's tool grants map onto the permission model
+
+Usage: aigo extension skill activation-preview [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (ParseSkillRequest: content/sourceHint)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo extension skill fork
+`context: fork` skill preview / run
+
+Usage: aigo extension skill fork <COMMAND>
+
+Commands:
+  preview  Preview how a fork skill would run as a subagent (no spawn)
+  run      Run a fork skill as a subagent
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo extension agent
+Subagent / `AGENTS.md` import onto an agent profile
+
+Usage: aigo extension agent <COMMAND>
+
+Commands:
+  parse   Preview the agent-profile projection of a subagent .md / AGENTS.md
+  import  Import a subagent .md / AGENTS.md as a persisted agent profile
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo extension agent parse
+Preview the agent-profile projection of a subagent .md / AGENTS.md
+
+Usage: aigo extension agent parse [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (AgentDefinitionRequest: content/sourceHint/nameOverride)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+----- aigo extension agent import
+Import a subagent .md / AGENTS.md as a persisted agent profile
+
+Usage: aigo extension agent import [OPTIONS]
+
+Options:
+      --json <JSON>  Inline JSON body (AgentDefinitionRequest: content/sourceHint/nameOverride)
+      --file <FILE>  Read the JSON body from a file
+  -h, --help         Print help
+
+===== aigo extension discover
+Discover importable Claude Code / Codex artifacts on disk
+
+Usage: aigo extension discover
+
+Options:
+  -h, --help  Print help
+
+########## aigo session
+Inference and squad-agent session management
+
+Usage: aigo session <COMMAND>
+
+Commands:
+  list         List all active sessions
+  show         Show a single session by ID
+  terminate    Terminate an active session
+  alias        Rename the exposed model alias of a running LLM-serving session
+  diagnostics  Show a diagnostics snapshot for a session
+  history      Terminated-session history
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+===== aigo session list
+List all active sessions
+
+Usage: aigo session list
+
+Options:
+  -h, --help  Print help
+
+===== aigo session show
+Show a single session by ID
+
+Usage: aigo session show <ID>
+
+Arguments:
+  <ID>  Session ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo session terminate
+Terminate an active session
+
+Usage: aigo session terminate [OPTIONS] <ID>
+
+Arguments:
+  <ID>  Session ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+===== aigo session alias
+Rename the exposed model alias of a running LLM-serving session
+
+Usage: aigo session alias <ID> <ALIAS>
+
+Arguments:
+  <ID>     Session ID
+  <ALIAS>  New alias to expose this session under in `/v1/models`
+
+Options:
+  -h, --help  Print help
+
+===== aigo session diagnostics
+Show a diagnostics snapshot for a session
+
+Usage: aigo session diagnostics <ID>
+
+Arguments:
+  <ID>  Session ID
+
+Options:
+  -h, --help  Print help
+
+===== aigo session history
+Terminated-session history
+
+Usage: aigo session history <COMMAND>
+
+Commands:
+  list    List terminated-session history entries
+  show    Show a single history entry by ID
+  clear   Clear all history entries
+  delete  Delete a single history entry by ID
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+----- aigo session history list
+List terminated-session history entries
+
+Usage: aigo session history list
+
+Options:
+  -h, --help  Print help
+
+----- aigo session history show
+Show a single history entry by ID
+
+Usage: aigo session history show <ID>
+
+Arguments:
+  <ID>  History entry (session) ID
+
+Options:
+  -h, --help  Print help
+
+----- aigo session history clear
+Clear all history entries
+
+Usage: aigo session history clear [OPTIONS]
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+----- aigo session history delete
+Delete a single history entry by ID
+
+Usage: aigo session history delete [OPTIONS] <ID>
+
+Arguments:
+  <ID>  History entry (session) ID
+
+Options:
+  -y, --yes   Skip confirmation prompt
+  -h, --help  Print help
+
+########## aigo chat
+One-shot chat completion
+
+Usage: aigo chat [OPTIONS] [MESSAGE]
+
+Arguments:
+  [MESSAGE]
+          Message to send (reads from stdin if not provided)
+
+Options:
+  -m, --model <MODEL>
+          Model to use for completion
+
+      --max-tokens <MAX_TOKENS>
+          Maximum tokens to generate
+          
+          [default: 1024]
+
+      --temperature <TEMPERATURE>
+          Sampling temperature (0.0-2.0)
+          
+          [default: 0.7]
+
+  -s, --system <SYSTEM>
+          System prompt to prepend
+
+      --reasoning-effort <LEVEL>
+          Reasoning effort level for reasoning models; use "none" to disable thinking mode
+          
+          [possible values: none, low, medium, high, xhigh]
+
+      --no-think
+          Disable thinking mode (sets chat_template_kwargs.enable_thinking=false); takes precedence over --reasoning-effort
+
+      --thinking-budget <N>
+          Per-request cap on tokens inside the `<think>` block.
+          
+          Matches llama.cpp / mlxcel-server / vLLM semantics: -1 = unlimited, 0 = immediate end, N > 0 = hard cap of N tokens. Sent as the per-request body field `thinking_budget_tokens`, which is engine-agnostic (works on both llama-server and mlxcel-server).
+
+      --preserve-thinking
+          Preserve `<think>` blocks from all prior assistant turns (Qwen3.6+).
+          
+          Sets `chat_template_kwargs.preserve_thinking=true`. Orthogonal to `--reasoning-effort` / `--no-think`: both `enable_thinking` and `preserve_thinking` coexist in the same kwargs object when flags are combined. Older Qwen3/3.5 models accept the flag but the behavior is unvalidated.
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+########## aigo complete
+One-shot text completion
+
+Usage: aigo complete [OPTIONS] [PROMPT]
+
+Arguments:
+  [PROMPT]  Prompt text (reads from stdin if not provided)
+
+Options:
+  -m, --model <MODEL>              Model to use for completion
+      --max-tokens <MAX_TOKENS>    Maximum tokens to generate [default: 256]
+      --temperature <TEMPERATURE>  Sampling temperature (0.0-2.0) [default: 0.7]
+  -h, --help                       Print help

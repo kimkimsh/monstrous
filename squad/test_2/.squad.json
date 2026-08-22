@@ -1,0 +1,144 @@
+{
+  "squadId": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+  "squadName": "Research Squad-test",
+  "initializedAt": "2026-08-22T11:46:07.676375+00:00",
+  "appVersion": "1.12.1",
+  "config": {
+    "id": "2f2cb96d-f543-46e4-8d4f-52b6ad3722ef",
+    "name": "Research Squad-test",
+    "description": "A research squad with planning, information gathering, analysis, and summarization roles.",
+    "workspacePath": "/Users/mark-mac/workspace/monstrous/squad/test_2",
+    "agents": [
+      {
+        "id": "agent-1787398903663-ivwa7p6",
+        "name": "Planner",
+        "description": "",
+        "icon": "📋",
+        "role": {
+          "type": "planner"
+        },
+        "systemPrompt": "You are a research coordinator. Break down research questions into focused subtasks for researchers and analysts. Define the scope, methodology, and deliverables for each task. Ensure the research is comprehensive, unbiased, and well-sourced.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      },
+      {
+        "id": "agent-1787398903663-fxuz71j",
+        "name": "Researcher",
+        "description": "",
+        "icon": "🔍",
+        "role": {
+          "type": "custom",
+          "value": "Researcher"
+        },
+        "systemPrompt": "You are a thorough researcher who gathers comprehensive information on assigned topics. Identify key facts, data points, and perspectives from reliable sources. Organize findings clearly with proper attribution. Flag areas of uncertainty or conflicting information.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file",
+            "brave_search"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      },
+      {
+        "id": "agent-1787398903663-z47ly8b",
+        "name": "Analyst",
+        "description": "",
+        "icon": "📊",
+        "role": {
+          "type": "custom",
+          "value": "Analyst"
+        },
+        "systemPrompt": "You are a critical thinker and data analyst. Evaluate research findings for patterns, contradictions, and insights. Apply logical reasoning to draw conclusions from evidence. Identify gaps in the research and recommend areas for further investigation.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      },
+      {
+        "id": "agent-1787398903663-nu95xxz",
+        "name": "Summarizer",
+        "description": "",
+        "icon": "📄",
+        "role": {
+          "type": "custom",
+          "value": "Summarizer"
+        },
+        "systemPrompt": "You are an expert at synthesizing complex information into clear, concise summaries. Distill key findings and insights from research and analysis into accessible language. Structure summaries with appropriate headings, bullet points, and highlights for easy reading.",
+        "instructions": "",
+        "toolConfig": {
+          "enabledTools": [
+            "read_file",
+            "write_file"
+          ],
+          "disabledTools": [],
+          "toolPermissionOverrides": {},
+          "customToolConfigs": {}
+        },
+        "modelPreferences": {
+          "preferredModelId": "unsloth/gpt-oss-20b",
+          "minContextWindow": null,
+          "requiresToolCalling": true,
+          "requiresVision": false
+        },
+        "memoryEnabled": true,
+        "settingsOverrides": null,
+        "sourceProfileId": null,
+        "executionMode": "in_process"
+      }
+    ],
+    "plannerAgentId": "agent-1787398903663-ivwa7p6",
+    "status": {
+      "type": "idle"
+    },
+    "createdAt": "2026-08-22T11:42:49.088374+00:00",
+    "updatedAt": "2026-08-22T11:46:07.674135+00:00"
+  }
+}

@@ -74,5 +74,65 @@
     "dependsOn": [],
     "createdAt": "2026-08-22T09:22:24.983140Z",
     "completedAt": "2026-08-22T09:22:47.840903Z"
+  },
+  {
+    "id": "c77dacc0-19ff-49ad-99b9-742046ac0f85",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "d721555c-8a76-4b6f-a904-0b4f9a9c1d14",
+    "title": "Solve inequality",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:35:52.732802Z",
+    "completedAt": "2026-08-22T11:36:17.419885Z"
+  },
+  {
+    "id": "e11a538e-c9af-4a51-b9e3-11fa12157648",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "c088ed84-6596-42f8-b57e-f43bb6ceb8cf",
+    "title": "Compute maximum of quadratic",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:39:45.803190Z",
+    "completedAt": "2026-08-22T11:40:11.898549Z"
+  },
+  {
+    "id": "ec0e5b86-bf65-471e-ae3f-3b6aa132fd00",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "c088ed84-6596-42f8-b57e-f43bb6ceb8cf",
+    "title": "Expand quadratic expression",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:39:45.806633Z",
+    "completedAt": "2026-08-22T11:40:20.174482Z"
+  },
+  {
+    "id": "f984ffe6-afe7-463b-943f-a7b12c8de9aa",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "96dac2c6-f134-4078-942b-9bfc842005c8",
+    "title": "Compute Correct Complex Division",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:41:13.346874Z",
+    "completedAt": "2026-08-22T11:41:23.264734Z"
+  },
+  {
+    "id": "75223f7e-fcd2-454d-a6f1-0987a780868f",
+    "squadId": "36e6827e-4143-43fc-8815-329b243944bf",
+    "planId": "c088ed84-6596-42f8-b57e-f43bb6ceb8cf",
+    "title": "Check status of max task",
+    "status": "done",
+    "priority": "low",
+    "assignedTo": "agent-1787387157647-ztcvzv5",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T11:39:45.806072Z",
+    "completedAt": "2026-08-22T11:39:55.867085Z"
   }
 ]

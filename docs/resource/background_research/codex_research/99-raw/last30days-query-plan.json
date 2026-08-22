@@ -1,0 +1,35 @@
+{
+  "intent": "concept",
+  "freshness_mode": "evergreen_ok",
+  "cluster_mode": "none",
+  "subqueries": [
+    {
+      "label": "primary",
+      "search_query": "LLM multi agent token efficiency coordination coding agents",
+      "ranking_query": "What recent empirical evidence and practitioner experience shows when multi-agent LLM systems improve accuracy enough to justify coordination and token cost?",
+      "sources": ["reddit", "x", "youtube", "tiktok", "instagram", "hackernews", "polymarket"],
+      "weight": 1.0
+    },
+    {
+      "label": "equal-budget",
+      "search_query": "single agent multi agent equal token budget benchmark",
+      "ranking_query": "What controlled comparisons under equal token budgets show about single-agent versus multi-agent performance?",
+      "sources": ["reddit", "youtube", "hackernews", "x"],
+      "weight": 0.9
+    },
+    {
+      "label": "coding",
+      "search_query": "coding agents handoff verification patch generation context",
+      "ranking_query": "Which coding-agent handoff and verification patterns are reliable and token-efficient, especially with fixed context and no tools?",
+      "sources": ["reddit", "youtube", "hackernews", "github", "x"],
+      "weight": 0.8
+    },
+    {
+      "label": "observability",
+      "search_query": "AI agent trace observability token cost early exit",
+      "ranking_query": "Which trace and observability signals help optimize multi-agent cost, early exit, and failure ownership?",
+      "sources": ["reddit", "youtube", "hackernews", "x"],
+      "weight": 0.6
+    }
+  ]
+}
