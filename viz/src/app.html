@@ -599,31 +599,87 @@ function contractOf(request){
   if(/FINAL ANSWER:\s*\\+boxed\s*\{/.test(r)||/\\+boxed\{<answer>\}/.test(r)) return "boxed";
   if(/ANSWER:\s*<letter>/.test(r)) return "letter";
   if(/\boption letter\b|\bsingle letter\b|answer letter/i.test(r)) return "letter";
+  // 객관식 문항은 보기 목록이 곧 계약이다. 계약 절이 잘려 나갔어도 요구되는 것은
+  // 보기 중 하나의 문자 하나이고, 채점기(letter_match)가 보는 것도 그것뿐이다.
+  // 그래서 이 경우는 판정을 미루지 않는다.
+  if(/^Options:\s*$/m.test(r)&&optionsOf(r).length>=2) return "letter";
   // 계약 절이 통째로 없으면 모델이 형식을 들은 적이 없다는 뜻이다. 못 알아본 것과 구분한다.
   if(!r.includes(REQOUT)) return "missing";
   return "unknown";
 }
 
-/* generic 트랙의 계약: 마지막 줄이 "ANSWER: X" 여야 하고 X 는 보기 문자 하나다.
-   규칙상 여러 개면 마지막 것이 채점된다. */
-function inspectLetter(text){
-  const t=String(text||""), checks=[];
-  const all=[...t.matchAll(/^[ \t]*ANSWER:[ \t]*(.*)$/gmi)];
-  const last=all.length?all[all.length-1]:null;
-  checks.push({k:"ANSWER: 줄", ok:!!last, d:last?"발견 (마지막 것 사용)":"없음. judge 가 추출할 것이 없습니다"});
-  const raw=last?last[1].trim():"";
-  const one=/^[A-Za-z]$/.test(raw);
-  checks.push({k:"보기 문자 하나", ok:one, d:raw?(one?`"${raw}"`:`"${raw.slice(0,20)}" — 문자 하나가 아닙니다`):"빈 값"});
+/* generic(객관식) 문항의 보기 목록. 지문의 "Options:" 절에 A. … J. 로 붙어 있다.
+   이 절이 있다는 것 자체가 계약이다 — 보기 중 하나의 문자를 내면 된다.
+   그래서 === REQUIRED OUTPUT === 절이 잘려 나갔어도 무엇을 요구하는지는 알 수 있고,
+   "계약 미전송"으로 판정을 미룰 이유가 없다. */
+function optionsOf(request){
+  const r=String(request||"");
+  const i=r.search(/^Options:\s*$/m);
+  if(i<0) return [];
+  return [...r.slice(i).matchAll(/^\s*([A-Z])\.\s+(.+?)\s*$/gm)].map(m=>({letter:m[1], text:m[2]}));
+}
+
+/* 보기 문자를 뽑는다. 채점기는 letter_match 이므로 필요한 것은 문자 하나다.
+   지문이 온전하면 "ANSWER: X" 줄을 요구하지만, 계약 절이 잘린 실행에서도
+   문자 하나만 나오면 채점은 된다. 그래서 두 경로를 모두 본다. */
+function inspectLetter(text,options){
+  const t=String(text||""), checks=[], opts=options||[];
+  const lines=t.split(/\r?\n/);
+
+  // 1) 지문이 요구하는 형태
+  const tagged=[...t.matchAll(/^[ \t]*ANSWER:[ \t]*(.*)$/gmi)];
+  const tag=tagged.length?tagged[tagged.length-1]:null;
+  const tagBody=tag?tag[1].trim():"";
+
+  // 2) 형태가 없으면 마지막 비어 있지 않은 줄이 문자 하나인지 본다
+  let bare=null;
+  for(let i=lines.length-1;i>=0;i--){
+    const s=lines[i].trim(); if(!s) continue;
+    const m=s.match(/^\(?([A-Za-z])[).:]?$/);
+    if(m){ bare={letter:m[1], line:i, raw:s}; }
+    break;
+  }
+
+  const body=/^[A-Za-z]$/.test(tagBody)?tagBody:(bare?bare.letter:tagBody);
+  const has=/^[A-Za-z]$/.test(body);
+  checks.push({k:"보기 문자", ok:has,
+    d:has?`"${body}"${tag?" (ANSWER: 줄)":" (마지막 줄)"}`
+        :(tagBody?`"${tagBody.slice(0,24)}" — 문자 하나가 아닙니다`:"응답에서 보기 문자를 찾지 못했습니다")});
+
+  // 보기 목록이 있으면 그 안에 드는 문자인지까지 본다. 목록에 없는 문자는 채점되지 않는다.
+  if(opts.length){
+    const inSet=has&&opts.some(o=>o.letter===body.toUpperCase());
+    checks.push({k:"보기 목록 안", ok:inSet,
+      d:inSet?`${opts.length}개 보기 중 하나`:has?`목록에 ${body.toUpperCase()} 가 없습니다`:"—"});
+  }
   const required=checks.every(c=>c.ok);
-  // 여기까지가 필수. 아래는 권장이다 — boxed 쪽의 "FINAL ANSWER:" 접두사와 같은 취급이다.
-  // 지문은 대문자 형태를 보여주지만 채점기가 대소문자를 구분하는지는 확인되지 않았다.
-  // 확인 안 된 것 때문에 "채점 불가"로 단정하지 않는다.
-  const exact=!!last&&/^[ \t]*ANSWER:/.test(last[0])&&/^[A-Z]$/.test(raw);
-  checks.push({k:"대문자 표기 (권장)", ok:exact||null,
-    d:exact?"지문 형태 그대로":"대소문자가 다릅니다. 채점기가 구분하는지는 확인되지 않았습니다"});
-  const si=last?last.index:-1;
-  return {gradable:required, advisory:!exact, checks, body:raw, si,
-          ei:si>=0?si+last[0].length:-1, text:t, kind:"letter"};
+
+  // 값은 맞는데 문자를 안 낸 경우를 짚는다.
+  // 실측: 보기가 "D. $1,680" 인 문항에 스쿼드가 \boxed{1680} 을 냈다.
+  // 답을 알고도 형식 하나 때문에 0점이 되는 자리라서 화면에 반드시 보여야 한다.
+  let hint=null;
+  if(!required&&opts.length){
+    const norm=s=>String(s).toLowerCase().replace(/[\s,$]/g,"");
+    const cand=[];
+    const b=lastBoxed(t); if(b&&b.body) cand.push(b.body);
+    for(let i=lines.length-1;i>=0&&cand.length<4;i--){ const s=lines[i].trim(); if(s) cand.push(s); }
+    for(const c of cand){
+      const hitOpt=opts.find(o=>norm(o.text)===norm(c)||norm(o.text).includes(norm(c))&&norm(c).length>2);
+      if(hitOpt){ hint={letter:hitOpt.letter, text:hitOpt.text, gave:c}; break; }
+    }
+  }
+  if(hint) checks.push({k:"값은 보기와 일치", ok:null,
+    d:`"${hint.gave.slice(0,24)}" 는 보기 ${hint.letter} (${hint.text.slice(0,24)}) 와 같습니다. 문자만 냈으면 채점됐습니다`});
+
+  // 지문 형태(ANSWER: 대문자)는 권장으로만 본다 — 채점기가 그 줄을 요구하는지는 확인되지 않았다.
+  const exact=!!tag&&/^[A-Z]$/.test(tagBody);
+  checks.push({k:"ANSWER: 대문자 형태 (권장)", ok:exact||null,
+    d:exact?"지문 형태 그대로":tag?"대소문자가 다릅니다. 채점기가 구분하는지는 확인되지 않았습니다"
+                              :"ANSWER: 줄이 없습니다. 문자만으로 채점되는지는 확인되지 않았습니다"});
+
+  const si=tag?tag.index:(bare?t.indexOf(bare.raw,t.length-200):-1);
+  return {gradable:required, advisory:!exact, hint, checks, body, si,
+          ei:si>=0?si+(tag?tag[0].length:(bare?bare.raw.length:0)):-1, text:t, kind:"letter"};
 }
 
 /* 채점 판정 한 줄. 같은 분기를 곳곳에 복사해 두면 분류가 하나 늘 때마다 어긋난다.
@@ -672,9 +728,9 @@ function inspectBoxed(text){
           si:b?b.start:-1, ei:b?b.end:-1, text:t, kind:"boxed"};
 }
 
-function inspectAnswer(text,kind){
+function inspectAnswer(text,kind,options){
   if(kind==="boxed")  return inspectBoxed(text);
-  if(kind==="letter") return inspectLetter(text);
+  if(kind==="letter") return inspectLetter(text,options);
   if(kind==="unknown"||kind==="missing"){
     // 계약을 모르면 판정하지 않는다. 모르는 것을 "불합격"으로 적으면 화면이 거짓말을 한다.
     // 다만 두 경우의 이유는 다르다 — 못 알아본 것과, 애초에 보내지 않은 것.
@@ -954,6 +1010,7 @@ function build(){
 
     const contract=contractOf(request);
     const track=trackOf(request);
+    const options=optionsOf(request);       // 객관식이면 보기 목록. 아니면 빈 배열
 
     // 태스크 구간 — 재생의 뼈대. task-status-changed(in_progress) 가 시작,
     // task-completed 가 끝이다. 없으면 원문 로그의 "assigned to agent" 줄, 그것도
@@ -974,7 +1031,7 @@ function build(){
       return {
         ...t, start, end,
         meta:RAW.task.get(t.taskId)||null,
-        answer:inspectAnswer(t.output,contract),
+        answer:inspectAnswer(t.output,contract,options),
         fail:t.status==="failed"||t.error?classify(t.error):null
       };
     });
@@ -984,7 +1041,7 @@ function build(){
         const p=e.payload||{};
         tasks.push({taskId:p.taskId, title:p.taskTitle, status:p.success?"completed":"failed",
           output:"", error:p.error, agentName:null, durationMs:null,
-          meta:RAW.task.get(p.taskId)||null, answer:inspectAnswer("",contract),
+          meta:RAW.task.get(p.taskId)||null, answer:inspectAnswer("",contract,options),
           fail:p.success?null:classify(p.error)});
       }
     }
@@ -999,7 +1056,7 @@ function build(){
         const title=m[1];
         if(!seen.has(title)) seen.set(title,{taskId:null, title, agentName:m[3]||m[4]||null,
           status:"running", output:"", error:null, durationMs:null, meta:null,
-          answer:inspectAnswer("",contract), fail:null, partial:true});
+          answer:inspectAnswer("",contract,options), fail:null, partial:true});
         const t=seen.get(title);
         if(m[4]){ t.status="completed"; t.agentName=m[4]; }
         if(m[5]){ t.status="failed"; t.error=m[5]; t.fail=classify(m[5]); }
@@ -1045,7 +1102,17 @@ function build(){
     }
     const tokEstimated=tokenCurve.length>0;
 
-    const final=inspectAnswer(h.finalResult,contract);
+    const final=inspectAnswer(h.finalResult,contract,options);
+
+    // 스쿼드가 스스로 남긴 라우팅 표시.
+    // LEDGER Squad 의 응답 끝에 {"a":"Reasoner","track":"math","conf":0.99} 형태로 붙는다.
+    // 스쿼드가 문항을 어느 트랙으로 봤는지가 여기 적혀 있고, 그게 곧 어느 출력 계약을
+    // 쓸지를 정한다. 트랙을 잘못 찍으면 형식이 통째로 어긋나 0점이 된다.
+    // 지문에서 우리가 찍은 트랙과 나란히 놓는 것이 이 값의 쓸모다.
+    const routeText=[h.finalResult||"", ...tasks.map(t=>t.output||"")].filter(Boolean).join("\n");
+    const marks=[...routeText.matchAll(/\{"a":"([^"]*)","track":"([^"]*)","conf":([0-9.]+)\}/g)]
+      .map(m=>({who:m[1], track:m[2], conf:Number(m[3])}));
+    const route=marks.length?marks[marks.length-1]:null;   // 마지막 것이 최종 판단
     const t0=ms(h.startedAt)??ms(evs[0]?.timestamp)??ms(logLines[0]?.timestamp);
     const t1=ms(h.completedAt)??ms(evs[evs.length-1]?.timestamp)??ms(logLines[logLines.length-1]?.timestamp);
     const tu=h.totalTokenUsage||pick("execution-completed")?.payload?.tokenUsage||{promptTokens:0,completionTokens:0};
@@ -1108,6 +1175,7 @@ function build(){
       request, planTitle:h.planTitle||"", partial,
       aigoStatus:h.status||pick("execution-completed")?"completed":"unknown",
       tasks, final, carriers, gradable:!!grad, gradCarrier:grad, blocker, contract, track,
+      route, routeMarks:marks, options,
       blockKind:blocker==="blocked"?(tasks.find(t=>t.fail)?.fail.kind||"—"):null,
       counts, tokens:tu, t0, t1, tokenCurve, tokUnattributed, tokEstimated,
       durationMs:h.durationMs??((t0&&t1)?t1-t0:null),
@@ -1433,6 +1501,34 @@ const EN={
   "대소문자가 다릅니다. 채점기가 구분하는지는 확인되지 않았습니다":
     "case differs; whether the grader is case-sensitive is unverified",
   "{0} — 문자 하나가 아닙니다":"{0} — not a single letter",
+  // ── 스쿼드 라우팅 (스쿼드가 응답에 남기는 track 마커) ──
+  "스쿼드 라우팅":"Squad routing","지문 기준":"From the prompt","스쿼드 판단":"Squad's call",
+  "결과":"Result","일치":"match","어긋남":"mismatch","지문과 일치":"matches the prompt",
+  "맞았다면 썼어야 할 계약":"contract it should have used",
+  "— 지문 기준으로는":"— from the prompt:","· 계약은":"· contract",
+  "스쿼드가 응답에 {\"a\":…,\"track\":…,\"conf\":…} 로 스스로 찍은 트랙을 남깁니다. 트랙이 곧 출력 계약입니다. 여기서 틀리면 형식이 통째로 어긋나 0점이 됩니다.":
+    "The squad writes <code>{\"a\":…,\"track\":…,\"conf\":…}</code> into its response — <b>the track it decided on itself</b>. <b>The track is the output contract.</b> Get it wrong and the entire format is wrong, which scores 0.",
+  "어긋난 {0}건은 확신도가 낮아서 틀린 것이 아닙니다. 그중 {1}건은 conf {2} 이상입니다 — 스쿼드는 확신했고, 확신한 채로 다른 트랙의 형식을 냈습니다. 확신도로는 이 오류를 걸러낼 수 없습니다. 지문에 Options: 절이 있는지 같은 모양으로 먼저 갈라야 합니다.":
+    "<b>The {0} mismatched runs were not low-confidence guesses.</b> {1} of them sit at <b>conf {2} or above</b> — the squad was sure, and confidently produced another track's format. Confidence cannot filter this out. The split has to come from the <b>shape of the prompt</b> first, such as whether it carries an <code>Options:</code> section.",
+  "어긋난 {0}건은 확신도가 낮아서 틀린 것이 아닙니다. 확신도로는 이 오류를 걸러낼 수 없습니다. 지문에 Options: 절이 있는지 같은 모양으로 먼저 갈라야 합니다.":
+    "<b>The {0} mismatched runs were not low-confidence guesses.</b> Confidence cannot filter this out. The split has to come from the <b>shape of the prompt</b> first, such as whether it carries an <code>Options:</code> section.",
+  "지금까지는 스쿼드가 찍은 트랙이 지문과 모두 일치합니다.":
+    "So far every track the squad picked matches the prompt.",
+  // ── 객관식(generic) 판정 ──
+  "보기":"Options","보기 문자":"option letter","보기 목록 안":"within the option list",
+  "값은 보기와 일치":"value matches an option",
+  "ANSWER: 대문자 형태 (권장)":"ANSWER: uppercase form (advisory)",
+  "응답에서 보기 문자를 찾지 못했습니다":"no option letter found in the response",
+  "ANSWER: 줄이 없습니다. 문자만으로 채점되는지는 확인되지 않았습니다":
+    "no ANSWER: line; whether a bare letter is graded is unverified",
+  "{0}개 보기 중 하나":"one of {0} options",
+  // 값은 맞고 문자를 안 낸 경우 — 문단이 <code>/<b> 로 잘려 조각으로 들어온다
+  "답은 맞혔는데 보기 문자를 내지 않았습니다.":"The answer was right; the option letter was not.",
+  "응답의":"The response's","는 보기":"matches option",
+  "와 같은 값입니다. 채점기는":"in value. The grader is",
+  "라서 값이 아니라":", so it reads the",
+  "문자 하나":"letter alone","를 봅니다.":", not the value.",
+  "한 글자만 냈으면 점수가 됐습니다.":"on its own would have scored.",
   "출력 계약 불명":"unknown output contract","보기 문자":"option letter",
   // 이 계약만 spec 이 형식이 아니라 설명문이다. <code> 안이라 순회가 닿지 않아 여기서 태운다.
   "요청 지문에서 계약을 찾지 못함":"no contract found in the prompt",
@@ -1691,6 +1787,13 @@ const EN_RE=[
   [/^(.*) · 태스크 (\d+)\/(\d+) 성공$/,"$1 · $2/$3 tasks succeeded"],
   [/^waves: (.+) ⚠ 플래너 폴백$/,"waves: $1 ⚠ planner fallback"],
   [/^(.*) · 로그에서 추정( ·)?$/,"$1 · inferred from the log$2"],
+  // 객관식 판정의 설명문 — 보기 문자와 값이 그대로 끼어 있다
+  [/^"(.+)" 는 보기 ([A-Z]) \((.+)\) 와 같습니다\. 문자만 냈으면 채점됐습니다$/,
+   "“$1” equals option $2 ($3) — the letter alone would have been graded"],
+  [/^"(.+)" \(ANSWER: 줄\)$/,"“$1” (ANSWER: line)"],
+  [/^"(.+)" \(마지막 줄\)$/,"“$1” (last line)"],
+  [/^목록에 ([A-Z]) 가 없습니다$/,"$1 is not in the list"],
+  [/^"(.+)" — 문자 하나가 아닙니다$/,"“$1” — not a single letter"],
   // 출력 계약 이름이 가운데 끼는 문장. 계약이 넷이라 통짜 키로는 넷씩 늘어난다.
   [/^에는 결과가 들어 있는데 응답 텍스트에는 (.+) 가 없습니다\. judge 가 가져갈 것이 없으므로 0점입니다\.$/,
    "holds the result, but the response text has no $1. The judge has nothing to take, so it scores 0."],
@@ -1921,16 +2024,36 @@ function paneOverview(P,e){
           ? `<span style="color:var(--warn)">— ${t("이 트랙의 계약은")} <code>${esc(t(CONTRACT[TRACK[e.track].contract].spec))}</code>${t("인데 지문에 없습니다")}</span>`
           : ""}</dd>
       <dt>출력 계약</dt><dd><code>${esc(t(CONTRACT[e.contract].spec))}</code></dd>
+      ${e.route?`<dt>스쿼드 라우팅</dt><dd>${(()=>{
+        const ok=e.route.track===e.track;
+        return `<code>${esc(e.route.who)}</code> → `+
+          `<span class="pill trk" style="border-color:${TRACK[e.route.track]?.c||"var(--fg-faint)"};color:${TRACK[e.route.track]?.c||"var(--fg-faint)"}">${esc(e.route.track)}</span>`+
+          ` conf ${e.route.conf}`+
+          (ok?` <span class="pill ok">${t("지문과 일치")}</span>`
+             :` <span class="pill bad">${t("어긋남")}</span> ${t("— 지문 기준으로는")} <b>${TRACK[e.track].label}</b> `+
+              `${t("· 계약은")} <code>${esc(t(CONTRACT[TRACK[e.track].contract].spec))}</code>`);
+      })()}</dd>`:""}
       <dt>채점 적격</dt><dd>${e.gradable
         ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있습니다`
         :e.blocker==="nocontract"?`<span class="pill warn">계약 미전송</span>. 요청 지문에 <code>=== REQUIRED OUTPUT ===</code> 절이 없어 모델이 형식을 들은 적이 없습니다`
         :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었습니다`
         :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span>. 호출이 거부돼 응답 자체가 없습니다`
         :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다`}</dd>
+      ${e.options.length?`<dt>보기</dt><dd>${e.options.length} ·
+        <span style="color:var(--fg-dim)">${e.options.map(o=>esc(o.letter)).join(" ")}</span></dd>`:""}
       <dt>토큰</dt><dd>${fmt(tokTotal)} (in ${fmt(e.tokens.promptTokens)} · out ${fmt(e.tokens.completionTokens)})</dd>
       <dt>소요</dt><dd>${secs(e.durationMs)}</dd>
       <dt>웨이브</dt><dd>${e.waves.length?e.waves.map((w,i)=>`W${i+1}: ${w.length}개`).join(" · "):"—"}</dd>
     </dl>`;
+  // 객관식에서 값은 맞히고 보기 문자를 안 낸 경우.
+  // 답을 알고도 형식 하나 때문에 0점이 되는 자리라 반드시 보여야 한다.
+  const nearMiss=e.carriers.find(c=>c.a&&c.a.hint)?.a.hint;
+  if(nearMiss) h+=`<p class="note" style="border-color:var(--warn)">
+    <b>답은 맞혔는데 보기 문자를 내지 않았습니다.</b>
+    응답의 <code>${esc(String(nearMiss.gave).slice(0,24))}</code> 는 보기
+    <b>${esc(nearMiss.letter)}. ${esc(nearMiss.text.slice(0,40))}</b> 와 같은 값입니다.
+    채점기는 <code>letter_match</code> 라서 값이 아니라 <b>문자 하나</b>를 봅니다.
+    <code>${esc(nearMiss.letter)}</code> 한 글자만 냈으면 점수가 됐습니다.</p>`;
   if(e.plannerWarning) h+=`<p class="note"><b>플래너 폴백이 걸렸습니다.</b> ${esc(e.plannerWarning)}
     <br>→ 요청이 분해되지 않고 <b>모든 에이전트에게 원본이 그대로</b> 들어갔습니다. 문항 하나에 풀 컨텍스트 호출이 에이전트 수만큼 발생합니다.</p>`;
   h+=`</div>`;
@@ -2033,6 +2156,40 @@ function trackCard(X){
     모델에게 형식을 말해 주지 않은 실행입니다.</p></div>`;
 }
 
+/* 스쿼드가 스스로 찍은 트랙과 지문에서 우리가 읽은 트랙을 맞춰 본다.
+   트랙이 곧 출력 계약이므로, 라우팅이 틀리면 형식이 통째로 어긋나 0점이 된다.
+   마커를 남기는 스쿼드가 있을 때만 나온다 — 없는 데이터에 카드를 세우지 않는다. */
+function routeCard(X){
+  const R=X.filter(e=>e.route);
+  if(!R.length) return "";
+  const hit=R.filter(e=>e.route.track===e.track);
+  const miss=R.filter(e=>e.route.track!==e.track);
+  const rows=R.map(e=>{
+    const ok=e.route.track===e.track;
+    const want=TRACK[e.track], got=TRACK[e.route.track];
+    return `<tr${ok?"":' style="background:color-mix(in srgb,var(--bad) 8%,transparent)"'}>
+      <td>${esc(one(e.request).slice(0,44))}</td>
+      <td><span class="pill trk" style="border-color:${want.c};color:${want.c}">${want.label}</span></td>
+      <td><span class="pill trk" style="border-color:${got?.c||"var(--fg-faint)"};color:${got?.c||"var(--fg-faint)"}">${esc(e.route.track)}</span></td>
+      <td class="n">${e.route.conf}</td>
+      <td>${ok?`<span class="pill ok">${t("일치")}</span>`:`<span class="pill bad">${t("어긋남")}</span>`}</td>
+      <td>${ok?"—":`<code style="font-size:10px">${esc(t(CONTRACT[want.contract].spec))}</code>`}</td>
+    </tr>`;}).join("");
+  return `<div class="card"${miss.length?' style="border-color:var(--bad)"':""}>
+    <h2>${t("스쿼드 라우팅")} · ${hit.length} / ${R.length}</h2>
+    <p class="q">스쿼드가 응답에 <code>{"a":…,"track":…,"conf":…}</code> 로 <b>스스로 찍은 트랙</b>을 남깁니다.
+    <b>트랙이 곧 출력 계약입니다.</b> 여기서 틀리면 형식이 통째로 어긋나 0점이 됩니다.</p>
+    <table><tr><th>${t("요청")}</th><th>${t("지문 기준")}</th><th>${t("스쿼드 판단")}</th>
+      <th class="n">conf</th><th>${t("결과")}</th><th>${t("맞았다면 썼어야 할 계약")}</th></tr>${rows}</table>
+    ${miss.length?`<p class="note"><b>어긋난 ${miss.length}건은 확신도가 낮아서 틀린 것이 아닙니다.</b>
+      ${miss.some(e=>e.route.conf>=0.9)?`그중 ${miss.filter(e=>e.route.conf>=0.9).length}건은 <b>conf 0.9 이상</b>입니다 —
+      스쿼드는 확신했고, 확신한 채로 다른 트랙의 형식을 냈습니다.`:""}
+      확신도로는 이 오류를 걸러낼 수 없습니다. 지문에 <code>Options:</code> 절이 있는지 같은
+      <b>모양으로 먼저 갈라야</b> 합니다.</p>`
+    :`<p class="note">지금까지는 스쿼드가 찍은 트랙이 지문과 모두 일치합니다.</p>`}
+  </div>`;
+}
+
 function paneAll(P){
   const X=S.execs;
   if(!X.length){ P.innerHTML=`<div class="card"><p class="q">로드된 실행이 없습니다.</p></div>`; return; }
@@ -2041,7 +2198,7 @@ function paneAll(P){
        <button id="sum-toggle" class="fold" aria-expanded="${S.showSum?"true":"false"}">${S.showSum?"▾":"▸"}</button>
        ${t("채점 적격성")} · ${t("전체 실행")}</h2>
        <div id="sum-body" ${S.showSum?"":"hidden"}></div></div>`+
-    trackCard(X)+
+    trackCard(X)+routeCard(X)+
     `<div class="card"><h2>${t("전체 실행 간트")}</h2>
        <p class="q">모든 실행을 한 시간축에 올립니다. 색은 위상입니다.
        실행 사이의 빈칸은 아무도 일하지 않은 시간입니다.</p>
