@@ -240,3 +240,27 @@ Final amount: **≈ $32,328**
 원인은 프롬프트에 있다. `.squad.json` 의 `systemPrompt` 는 "구현하세요", "작성하세요"라고만
 말하고 출력 계약을 한 번도 언급하지 않는다. 도구가 열려 있고 프롬프트가 파일 작업을 시키면
 파일을 쓰는 쪽이 자연스러운 행동이다.
+
+
+## tasks/*.md — 시도 단위 기록
+
+```
+- [08:31] Started execution (attempt 1)
+- [08:32] Failed (terminal)
+```
+
+시도 번호는 `events.jsonl` 에 없고 이 파일에만 있다. 태스크 표에 그대로 보여주고
+시도가 2회 이상이면 배지를 단다.
+
+## 안 쓰는 데이터
+
+전수 조사에서 확인한, 값이 비어 있어 화면에 올리지 않은 것들.
+
+| 필드 | 실측 |
+|---|---|
+| `tasks/*.json` 의 `result` | 25건 전부 `null` |
+| `tasks/*.json` 의 `artifacts` | 25건 전부 `[]` |
+| `tasks/*.json` 의 `tokenUsage` | 전부 `{0,0}` |
+| `retryCount` / `maxRetries` | 전부 `1` / `3` |
+| `agent-state-changed` | `idle` / `running` 두 값뿐 |
+| `artifacts/reports/*.md` | `history.json` 내용의 마크다운 사본 |
