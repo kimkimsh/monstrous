@@ -1,0 +1,21 @@
+{
+  "id": "ca64df96-003a-45cb-93b1-6ba0050821ba",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "faaf44f5-d3e3-48d3-a733-d650e1cd47fe",
+  "title": "Calculate Minimum Distance Squared",
+  "description": "Compute the function for distance squared from origin to a point on the graph y=1/2 x^2 - 9, find its minimum value, and return the minimum distance squared value.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T12:19:16.092229394Z",
+  "startedAt": "2026-08-22T12:19:16.094287121Z",
+  "completedAt": "2026-08-22T12:19:37.453491497Z"
+}

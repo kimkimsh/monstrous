@@ -58,5 +58,43 @@
     "dependsOn": [],
     "createdAt": "2026-08-22T12:00:13.908761233Z",
     "completedAt": "2026-08-22T12:00:45.616866560Z"
+  },
+  {
+    "id": "680b5721-c924-4a02-9d9a-f5b495c4b56e",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "d102d636-8b01-4b7b-a336-1aec74a9c012",
+    "title": "Solve inequality",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T12:17:44.179344639Z",
+    "completedAt": "2026-08-22T12:18:04.402225978Z"
+  },
+  {
+    "id": "ca64df96-003a-45cb-93b1-6ba0050821ba",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "faaf44f5-d3e3-48d3-a733-d650e1cd47fe",
+    "title": "Calculate Minimum Distance Squared",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-22T12:19:16.092229394Z",
+    "completedAt": "2026-08-22T12:19:37.453491497Z"
+  },
+  {
+    "id": "a6a3eb5a-dcd6-4c4b-8fc9-ebeef37da397",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "faaf44f5-d3e3-48d3-a733-d650e1cd47fe",
+    "title": "Format Final Answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-f3ic90y",
+    "dependsOn": [
+      "ca64df96-003a-45cb-93b1-6ba0050821ba"
+    ],
+    "createdAt": "2026-08-22T12:19:16.092982081Z",
+    "completedAt": "2026-08-22T12:19:45.633055990Z"
   }
 ]

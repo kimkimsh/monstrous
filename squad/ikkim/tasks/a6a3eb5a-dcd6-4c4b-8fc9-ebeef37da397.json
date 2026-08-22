@@ -1,0 +1,23 @@
+{
+  "id": "a6a3eb5a-dcd6-4c4b-8fc9-ebeef37da397",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "faaf44f5-d3e3-48d3-a733-d650e1cd47fe",
+  "title": "Format Final Answer",
+  "description": "Read the result of the 'Calculate Minimum Distance Squared' task and format it into the required output format: FINAL ANSWER: \boxed{<answer>}. Ensure the answer is an integer and placed inside \boxed{}.",
+  "assignedTo": "agent-1787395723981-f3ic90y",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "ca64df96-003a-45cb-93b1-6ba0050821ba"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T12:19:16.092982081Z",
+  "startedAt": "2026-08-22T12:19:37.758863977Z",
+  "completedAt": "2026-08-22T12:19:45.633055990Z"
+}

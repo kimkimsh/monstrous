@@ -1,0 +1,21 @@
+{
+  "id": "680b5721-c924-4a02-9d9a-f5b495c4b56e",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "d102d636-8b01-4b7b-a336-1aec74a9c012",
+  "title": "Solve inequality",
+  "description": "Solve the inequality − 4 < x^4 + 4x^2 < 21. Find all real x that satisfy it and express the solution as a union of intervals.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-22T12:17:44.179344639Z",
+  "startedAt": "2026-08-22T12:17:44.181805293Z",
+  "completedAt": "2026-08-22T12:18:04.402225978Z"
+}
