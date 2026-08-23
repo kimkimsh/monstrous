@@ -15,6 +15,18 @@ BASE=".baseline/preserved"
 fail(){ echo "FAIL: $1" >&2; exit 1; }
 ok(){ printf '  ok   %s\n' "$1"; }
 
+# 검사 두 개는 파이썬으로 쓰였다. 파이썬이 없는 자리에서 그 검사가 조용히 건너뛰어지면
+# 검사가 아니라 장식이 된다. 그래서 같은 규칙의 Perl 판을 같이 두고 둘 중 되는 쪽을 쓴다.
+# 윈도우의 python3 는 스토어 안내문만 찍고 끝나는 껍데기일 수 있어 실제로 돌려 보고 고른다.
+py_or_perl(){
+  local py="$1" pl="$2"; shift 2
+  if command -v python3 >/dev/null 2>&1 && python3 -c "import sys,re" >/dev/null 2>&1; then
+    python3 "$py" "$@"
+  else
+    perl "$pl" "$@"
+  fi
+}
+
 [ -f "$SRC" ] || fail "no source: $SRC"
 echo "checking $SRC"
 
@@ -89,19 +101,7 @@ ok "셀 게이지는 --on 을 전이한다"
 # ── 색 리터럴 ─────────────────────────────────────────────────────────
 # CSS 변수 정의와 인쇄용 흑백 말고는 hex 가 나오면 안 된다. 주석 안의 hex 는 세지
 # 않는다 — 왜 그 값인지 적어 둔 설명까지 위반으로 신고하면 검사가 주석을 쫓아낸다.
-python3 - "$SRC" <<'PYEOF' || fail "CSS 변수 밖에 색 리터럴이 있다"
-import re,sys
-src=open(sys.argv[1],encoding="utf-8").read()
-src=re.sub(r"/\*.*?\*/","",src,flags=re.S)          # 주석 제거
-bad=[]
-for i,line in enumerate(src.split("\n"),1):
-    for m in re.finditer(r"#[0-9a-fA-F]{6}\b",line):
-        if re.search(r"--[a-z0-9-]+\s*:\s*"+re.escape(m.group(0)),line): continue
-        if m.group(0).upper() in ("#000000","#FFFFFF","#999999"): continue
-        bad.append(f"{i}: {line.strip()[:90]}")
-for b in bad[:10]: print(b,file=sys.stderr)
-sys.exit(1 if bad else 0)
-PYEOF
+py_or_perl tools/colorlit.py tools/colorlit.pl "$SRC" || fail "CSS 변수 밖에 색 리터럴이 있다"
 ok "색 리터럴은 토큰 정의 안에만"
 
 # ── 보존 경계 ─────────────────────────────────────────────────────────
@@ -111,15 +111,19 @@ for k in contract failure collect model i18n load export; do
   [ -f "$BASE/$k.js" ] || fail "보존 기준선 $BASE/$k.js 가 없다"
   awk "/@preserve:begin $k \*\//{f=1;next} /@preserve:end $k \*\//{f=0} f" "$SRC" > "/tmp/new.$k"
   [ -s "/tmp/new.$k" ] || fail "보존 마커 $k 를 소스에서 못 찾았다"
-  diff -q "$BASE/$k.js" "/tmp/new.$k" >/dev/null || {
-    diff "$BASE/$k.js" "/tmp/new.$k" | head -20 >&2
+  # 줄끝은 체크아웃 설정이 정한다. CRLF 로 받은 자리에서 이 검사가 전부 실패하면
+  # 판정이 바뀐 것과 줄끝이 바뀐 것을 구분할 수 없다. 내용만 본다.
+  tr -d '\r' < "$BASE/$k.js" > "/tmp/base.$k"
+  tr -d '\r' < "/tmp/new.$k" > "/tmp/cmp.$k"
+  diff -q "/tmp/base.$k" "/tmp/cmp.$k" >/dev/null || {
+    diff "/tmp/base.$k" "/tmp/cmp.$k" | head -20 >&2
     fail "보존 구간 $k 가 변경됨"
   }
 done
 ok "보존 구간 7개 바이트 동일 (contract failure collect model i18n load export)"
 
 # ── 명암비 ────────────────────────────────────────────────────────────
-python3 tools/contrast.py "$SRC" || fail "명암비 미달"
+py_or_perl tools/contrast.py tools/contrast.pl "$SRC" || fail "명암비 미달"
 
 # ── 문법 ──────────────────────────────────────────────────────────────
 if command -v node >/dev/null 2>&1; then

@@ -48,10 +48,9 @@ const CONTRACT={
   patch  :{label:"패치 마커",     spec:"*** PATCH START *** … *** PATCH END ***"},
   boxed  :{label:"FINAL ANSWER",  spec:"FINAL ANSWER: \\boxed{<answer>}"},
   letter :{label:"ANSWER: <보기>", spec:"ANSWER: <letter> (줄에 다른 것 없이)"},
-  missing:{label:"계약 미전송",   spec:"요청 지문에 === REQUIRED OUTPUT === 절이 없음"},
+  none   :{label:"문항 아님",     spec:"세 트랙 중 어느 형식도 아닙니다"},
   unknown:{label:"출력 계약 불명", spec:"요청 지문에서 계약을 찾지 못함"}
 };
-const REQOUT="=== REQUIRED OUTPUT ===";
 /* 실제 형식을 가리키는 계약. missing·unknown 은 형식 이름이 아니라 상태라서
    "응답에 X 가 없다" 같은 문장에 그대로 끼워 넣으면 말이 안 된다. */
 const REAL_CONTRACT=new Set(["patch","boxed","letter"]);
@@ -66,8 +65,21 @@ function contractOf(request){
   // 그래서 이 경우는 판정을 미루지 않는다.
   if(/^Options:\s*$/m.test(r)&&optionsOf(r).length>=2) return "letter";
   // 계약 절이 통째로 없으면 모델이 형식을 들은 적이 없다는 뜻이다. 못 알아본 것과 구분한다.
-  if(!r.includes(REQOUT)) return "missing";
-  return "unknown";
+  // 세 트랙 중 어느 것으로도 안 보이면 벤치마크 문항이 아니다.
+  // 실측: test_4 의 실행 10건이 전부 "안녕" 두 글자였다. 스모크 테스트다.
+  // 채점 대상이 아니므로 판정하지 않는다.
+  const tr=trackOf(r);
+  if(tr==="unknown") return "none";
+  // 계약 절이 안 보여도 계약은 갔다. 트랙이 곧 계약이기 때문이다.
+  //
+  // 한동안 이 경우를 "계약 미전송"이라고 적었다. 틀렸다.
+  // history.json 의 request 는 모델에게 간 지문이 아니라 질문만 잘라 저장한 값이다 —
+  // 실측: 그렇게 분류된 실행 8건의 request 가 83~499자였는데, 계약 절 하나가 250자다.
+  // 애초에 들어갈 수가 없었다. 게다가 그중 6건의 응답에 \boxed{} 가 들어 있었다.
+  // 모델은 형식을 들었고, 로그가 그 부분을 안 남겼을 뿐이다.
+  //
+  // 로그에 없는 것을 "일어나지 않은 일"로 적으면 없는 잘못을 만들어 낸다.
+  return TRACK[tr].contract;
 }
 
 /* generic(객관식) 문항의 보기 목록. 지문의 "Options:" 절에 A. … J. 로 붙어 있다.
@@ -160,11 +172,11 @@ function inspectLetter(text,options){
 
 /* 채점 판정 한 줄. 같은 분기를 곳곳에 복사해 두면 분류가 하나 늘 때마다 어긋난다.
    실제로 "계약 미전송"을 넣으면서 여덟 군데가 동시에 틀렸다. */
-const UNDECIDED=new Set(["blocked","unknown","nocontract"]);
+const UNDECIDED=new Set(["blocked","unknown","notitem"]);
 function verdictOf(e){
   if(e.gradable)               return {k:"ok",  label:"채점 적격"};
+  if(e.blocker==="notitem")    return {k:"",    label:"문항 아님"};
   if(e.blocker==="blocked")    return {k:"warn",label:"실행 불가"};
-  if(e.blocker==="nocontract") return {k:"warn",label:"계약 미전송"};
   if(e.partial)                return {k:"",    label:"부분 기록"};
   if(e.blocker==="unknown")    return {k:"",    label:"판정 보류"};
   return {k:"bad", label:"답 형식 없음"};
@@ -207,14 +219,14 @@ function inspectBoxed(text){
 function inspectAnswer(text,kind,options){
   if(kind==="boxed")  return inspectBoxed(text);
   if(kind==="letter") return inspectLetter(text,options);
-  if(kind==="unknown"||kind==="missing"){
+  if(kind==="unknown"||kind==="none"){
     // 계약을 모르면 판정하지 않는다. 모르는 것을 "불합격"으로 적으면 화면이 거짓말을 한다.
-    // 다만 두 경우의 이유는 다르다 — 못 알아본 것과, 애초에 보내지 않은 것.
+    // 두 경우의 이유가 다르다 — 못 알아본 것과, 애초에 문항이 아닌 것.
     const t=String(text||"");
     return {gradable:null, kind, text:t, si:-1, ei:-1, body:"",
       checks:[{k:CONTRACT[kind].label, ok:null,
-        d:kind==="missing"?"요청 지문에 출력 계약이 없어 모델이 형식을 들은 적이 없습니다"
-                          :"이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다"}]};
+        d:kind==="none"?"세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다"
+                       :"이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다"}]};
   }
   const t=String(text||""), checks=[];
   const si=t.lastIndexOf(PS);                       // 규칙: 여러 개면 마지막 것

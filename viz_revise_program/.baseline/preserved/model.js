@@ -176,16 +176,15 @@ function build(){
 
     // 채점 불가의 원인을 구분한다.
     //   blocked    — 호출 자체가 거부됐다. 컨텍스트 초과·인프라 오류. 우리가 고칠 수 없는 영역
-    //   nocontract — 요청 지문에 출력 계약이 없었다. 모델은 형식을 들은 적이 없다.
-    //                ★ 러너에서 고칠 수 있는 영역이고, 아래 markers 와 원인이 완전히 다르다
-    //   unknown    — 계약 절은 있는데 우리가 못 알아봤다. 검사기를 고칠 쪽
+    //   notitem    — 벤치마크 문항이 아니다. 고칠 것도 없고 채점 대상도 아니다
+    //   unknown    — 트랙도 계약도 못 알아봤다. 검사기를 고칠 쪽
     //   markers    — 계약도 보냈고 실행도 됐는데 형식이 안 나왔다. ★ 프롬프트로 고칠 영역
     // 이것들을 한 숫자로 합치면 "무엇을 고쳐야 하는가"가 화면에서 사라진다.
     // 출력 유무로 판단하면 안 된다 — 실패한 태스크도 output 에
     // "Task assigned to `X` failed." 라는 자리표시 문자열이 들어간다. 상태로 판단한다.
     const anyDone=tasks.some(t=>t.status==="completed"||t.status==="done");
     const blocker=grad?null
-      :contract==="missing"?"nocontract"                          // 계약을 안 보냈다
+      :contract==="none"?"notitem"                                // 벤치마크 문항이 아니다
       :contract==="unknown"?"unknown"                             // 계약을 못 알아봤다
       :(!anyDone&&tasks.some(t=>t.fail))?"blocked":"markers";
 

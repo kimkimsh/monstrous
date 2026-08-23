@@ -577,21 +577,17 @@ function trackOf(request){
      letter — ANSWER: <letter>                                            (generic)
    계약을 안 보고 patch 마커만 검사하면 math 문항이 전부 "마커 없음"으로 오판된다.
 
-   "계약 없음"과 "계약 불명"은 다르다.
-     missing — 지문에 === REQUIRED OUTPUT === 절 자체가 없다. 모델은 형식을 들은 적이 없다.
-     unknown — 절은 있는데 우리가 못 알아봤다. 검사기를 고쳐야 할 쪽.
-   실측: ikkim 의 실행 13개 중 6개가 missing 이었다. 원본 문항에는 boxed 계약이 붙어 있는데
-   실행에 들어간 지문에서만 잘려 있었다. 이건 "판정 보류"가 아니라 러너 쪽에서 고칠 일이다. */
+   계약은 트랙마다 하나씩이고 세 트랙 모두 언제나 붙어서 나간다.
+   그래서 지문에서 계약 절을 못 찾아도 트랙을 알면 계약을 안다 — 트랙이 곧 계약이다.
+   로그의 request 는 모델에게 간 지문이 아니라 질문만 잘라 저장한 값이라 계약 절이 자주 빠진다. */
 const CONTRACT={
   patch  :{label:"패치 마커",     spec:"*** PATCH START *** … *** PATCH END ***"},
   boxed  :{label:"FINAL ANSWER",  spec:"FINAL ANSWER: \\boxed{<answer>}"},
   letter :{label:"ANSWER: <보기>", spec:"ANSWER: <letter> (줄에 다른 것 없이)"},
-  missing:{label:"계약 미전송",   spec:"요청 지문에 === REQUIRED OUTPUT === 절이 없음"},
   none   :{label:"문항 아님",     spec:"세 트랙 중 어느 형식도 아닙니다"},
   unknown:{label:"출력 계약 불명", spec:"요청 지문에서 계약을 찾지 못함"}
 };
-const REQOUT="=== REQUIRED OUTPUT ===";
-/* 실제 형식을 가리키는 계약. missing·unknown 은 형식 이름이 아니라 상태라서
+/* 실제 형식을 가리키는 계약. none·unknown 은 형식 이름이 아니라 상태라서
    "응답에 X 가 없다" 같은 문장에 그대로 끼워 넣으면 말이 안 된다. */
 const REAL_CONTRACT=new Set(["patch","boxed","letter"]);
 function contractOf(request){
@@ -606,12 +602,19 @@ function contractOf(request){
   if(/^Options:\s*$/m.test(r)&&optionsOf(r).length>=2) return "letter";
   // 세 트랙 중 어느 것으로도 안 보이면 벤치마크 문항이 아니다.
   // 실측: test_4 의 실행 10건이 전부 "안녕" 두 글자였다. 스모크 테스트다.
-  // 이걸 "계약 미전송"으로 세면 러너가 계약을 빠뜨린 건수가 부풀려진다 —
-  // 아무도 빠뜨리지 않았고, 애초에 채점 대상이 아니다.
-  if(trackOf(r)==="unknown") return "none";
-  // 계약 절이 통째로 없으면 모델이 형식을 들은 적이 없다는 뜻이다. 못 알아본 것과 구분한다.
-  if(!r.includes(REQOUT)) return "missing";
-  return "unknown";
+  // 채점 대상이 아니므로 판정하지 않는다.
+  const tr=trackOf(r);
+  if(tr==="unknown") return "none";
+  // 계약 절이 안 보여도 계약은 갔다. 트랙이 곧 계약이기 때문이다.
+  //
+  // 한동안 이 경우를 "계약 미전송"이라고 적었다. 틀렸다.
+  // history.json 의 request 는 모델에게 간 지문이 아니라 질문만 잘라 저장한 값이다 —
+  // 실측: 그렇게 분류된 실행 8건의 request 가 83~499자였는데, 계약 절 하나가 250자다.
+  // 애초에 들어갈 수가 없었다. 게다가 그중 6건의 응답에 \boxed{} 가 들어 있었다.
+  // 모델은 형식을 들었고, 로그가 그 부분을 안 남겼을 뿐이다.
+  //
+  // 로그에 없는 것을 "일어나지 않은 일"로 적으면 없는 잘못을 만들어 낸다.
+  return TRACK[tr].contract;
 }
 
 /* generic(객관식) 문항의 보기 목록. 지문의 "Options:" 절에 A. … J. 로 붙어 있다.
@@ -704,12 +707,11 @@ function inspectLetter(text,options){
 
 /* 채점 판정 한 줄. 같은 분기를 곳곳에 복사해 두면 분류가 하나 늘 때마다 어긋난다.
    실제로 "계약 미전송"을 넣으면서 여덟 군데가 동시에 틀렸다. */
-const UNDECIDED=new Set(["blocked","unknown","nocontract","notitem"]);
+const UNDECIDED=new Set(["blocked","unknown","notitem"]);
 function verdictOf(e){
   if(e.gradable)               return {k:"ok",  label:"채점 적격"};
   if(e.blocker==="notitem")    return {k:"",    label:"문항 아님"};
   if(e.blocker==="blocked")    return {k:"warn",label:"실행 불가"};
-  if(e.blocker==="nocontract") return {k:"warn",label:"계약 미전송"};
   if(e.partial)                return {k:"",    label:"부분 기록"};
   if(e.blocker==="unknown")    return {k:"",    label:"판정 보류"};
   return {k:"bad", label:"답 형식 없음"};
@@ -752,15 +754,14 @@ function inspectBoxed(text){
 function inspectAnswer(text,kind,options){
   if(kind==="boxed")  return inspectBoxed(text);
   if(kind==="letter") return inspectLetter(text,options);
-  if(kind==="unknown"||kind==="missing"||kind==="none"){
+  if(kind==="unknown"||kind==="none"){
     // 계약을 모르면 판정하지 않는다. 모르는 것을 "불합격"으로 적으면 화면이 거짓말을 한다.
-    // 세 경우의 이유가 서로 다르다 — 못 알아본 것, 보내지 않은 것, 애초에 문항이 아닌 것.
+    // 두 경우의 이유가 다르다 — 못 알아본 것과, 애초에 문항이 아닌 것.
     const t=String(text||"");
     return {gradable:null, kind, text:t, si:-1, ei:-1, body:"",
       checks:[{k:CONTRACT[kind].label, ok:null,
-        d:kind==="missing"?"요청 지문에 출력 계약이 없어 모델이 형식을 들은 적이 없습니다"
-         :kind==="none"?"세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다"
-                          :"이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다"}]};
+        d:kind==="none"?"세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다"
+                       :"이 문항의 출력 계약을 확인하지 못해 판정을 보류합니다"}]};
   }
   const t=String(text||""), checks=[];
   const si=t.lastIndexOf(PS);                       // 규칙: 여러 개면 마지막 것
@@ -1145,9 +1146,8 @@ function build(){
 
     // 채점 불가의 원인을 구분한다.
     //   blocked    — 호출 자체가 거부됐다. 컨텍스트 초과·인프라 오류. 우리가 고칠 수 없는 영역
-    //   nocontract — 요청 지문에 출력 계약이 없었다. 모델은 형식을 들은 적이 없다.
-    //                ★ 러너에서 고칠 수 있는 영역이고, 아래 markers 와 원인이 완전히 다르다
-    //   unknown    — 계약 절은 있는데 우리가 못 알아봤다. 검사기를 고칠 쪽
+    //   notitem    — 벤치마크 문항이 아니다. 고칠 것도 없고 채점 대상도 아니다
+    //   unknown    — 트랙도 계약도 못 알아봤다. 검사기를 고칠 쪽
     //   markers    — 계약도 보냈고 실행도 됐는데 형식이 안 나왔다. ★ 프롬프트로 고칠 영역
     // 이것들을 한 숫자로 합치면 "무엇을 고쳐야 하는가"가 화면에서 사라진다.
     // 출력 유무로 판단하면 안 된다 — 실패한 태스크도 output 에
@@ -1155,7 +1155,6 @@ function build(){
     const anyDone=tasks.some(t=>t.status==="completed"||t.status==="done");
     const blocker=grad?null
       :contract==="none"?"notitem"                                // 벤치마크 문항이 아니다
-      :contract==="missing"?"nocontract"                          // 계약을 안 보냈다
       :contract==="unknown"?"unknown"                             // 계약을 못 알아봤다
       :(!anyDone&&tasks.some(t=>t.fail))?"blocked":"markers";
 
@@ -1493,7 +1492,7 @@ const EN={
   "을 넣을 자리가 여기입니다.":", belongs.",
   // ── 트랙 (coding / math / generic) ──
   "트랙":"Track","트랙별":"By track","형식 없음":"no format",
-  "계약 미전송":"contract not sent","ANSWER: <보기>":"ANSWER: <letter>",
+  "ANSWER: <보기>":"ANSWER: <letter>",
   "요청 지문에 === REQUIRED OUTPUT === 절이 없음":"no === REQUIRED OUTPUT === section in the prompt",
   "지문에 === REQUIRED OUTPUT === 절이 없음":"no === REQUIRED OUTPUT === section in the prompt",
   "요청 지문에 출력 계약이 없어 모델이 형식을 들은 적이 없습니다":
@@ -1516,7 +1515,6 @@ const EN={
     "the response text carries no format for the grader to take. This run was never asked for one.",
   "에는 결과가 들어 있는데 응답 텍스트에는 채점기가 가져갈 형식이 없습니다. 이 실행은 애초에 형식을 요구받지 않았습니다.":
     "holds the result, but the response text carries no format for the grader to take. This run was never asked for one.",
-  "계약 미전송 {0}건 제외":"{0} with no contract sent excluded",
   // 벤치마크 문항이 아닌 실행 ("안녕" 같은 스모크 테스트)
   "문항 아님":"not an item","벤치마크 문항 아님":"not a benchmark item",
   "문항 아님 {0}건 제외":"{0} not benchmark items excluded","문항 아님 {0}":"{0} not items",
@@ -1526,7 +1524,6 @@ const EN={
     "matches none of the three track formats, so it is not up for grading",
   ". 세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다":
     ". It matches none of the three track formats, so it is not up for grading",
-  "계약 미전송 {0}":"{0} no contract sent",
   "ANSWER: 줄":"ANSWER: line","보기 문자 하나":"a single option letter",
   "대문자 표기 (권장)":"uppercase form (advisory)",
   "지문 형태 그대로":"exactly as the prompt shows",
@@ -1921,14 +1918,12 @@ function renderHeader(){
   const gradRan=ran.filter(e=>e.gradable).length;
   const nBlocked=S.execs.filter(e=>e.blocker==="blocked").length;
   const nUnknown=S.execs.filter(e=>e.blocker==="unknown").length;
-  const nNoCtr =S.execs.filter(e=>e.blocker==="nocontract").length;
   const nNotItem=S.execs.filter(e=>e.blocker==="notitem").length;
   $("#s-grad").textContent=gradRan+" / "+ran.length;
   $("#s-grad").style.color=ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)";
   $("#s-grad-d").textContent=[
     nBlocked?tn("실행 불가 {0}건 제외",nBlocked):"",
     nNotItem?tn("문항 아님 {0}건 제외",nNotItem):"",
-    nNoCtr?tn("계약 미전송 {0}건 제외",nNoCtr):"",
     nUnknown?tn("계약 불명 {0}건 제외",nUnknown):"",
     tn("답 형식 없음 {0}건",ran.length-gradRan)
   ].filter(Boolean).join(" · ");
@@ -2013,7 +2008,6 @@ function runSummaryCard(inner){
   const ran=S.execs.filter(x=>!UNDECIDED.has(x.blocker));
   const blocked=S.execs.filter(x=>x.blocker==="blocked");
   const unk=S.execs.filter(x=>x.blocker==="unknown");
-  const noctr=S.execs.filter(x=>x.blocker==="nocontract");
   const notitem=S.execs.filter(x=>x.blocker==="notitem");
   const gradRan=ran.filter(x=>x.gradable).length;
   const rows=S.execs.map(x=>{
@@ -2023,7 +2017,6 @@ function runSummaryCard(inner){
     const why=x.gradable?"—"
       :x.blocker==="blocked"?t("호출 거부")+(x.blockKind?" · "+x.blockKind:"")
       :x.blocker==="notitem"?t("벤치마크 문항 형식이 아님")
-      :x.blocker==="nocontract"?t("지문에 === REQUIRED OUTPUT === 절이 없음")
       :x.partial?t("부분 기록. history.json 에 없음"):x.blocker==="unknown"?t("출력 계약을 못 읽음")
       :REAL_CONTRACT.has(x.contract)?`${t(CONTRACT[x.contract].label)} 없음`:t("형식 없음");
     return `<tr${dim?' style="opacity:.55"':""}><td>${esc(one(x.request).slice(0,50)||x.id)}</td>`+
@@ -2050,7 +2043,6 @@ function runSummaryCard(inner){
       <div class="stat"><span>판정 가능</span><b style="font-size:19px">${ran.length} / ${n}</b><em>${
         [blocked.length?tn("호출 거부 {0}",blocked.length):"",
          notitem.length?tn("문항 아님 {0}",notitem.length):"",
-         noctr.length?tn("계약 미전송 {0}",noctr.length):"",
          unk.length?tn("계약 불명 {0}",unk.length):""].filter(Boolean).join(" · ")||t("전부 판정됨")} ${t("제외")}</em></div>
       <div class="stat"><span>그중 채점 적격</span><b style="font-size:19px;color:${ran.length&&gradRan<ran.length?"var(--bad)":"var(--ok)"}">${gradRan} / ${ran.length}</b><em>요구된 답 형식 존재</em></div>
     </div>
@@ -2088,7 +2080,6 @@ function paneOverview(P,e){
       <dt>채점 적격</dt><dd>${e.gradable
         ?`<span class="pill ok">적격</span>. <code>${esc(e.gradCarrier.who)}</code> 안에 있습니다`
         :e.blocker==="notitem"?`<span class="pill">문항 아님</span>. 세 트랙 중 어느 형식도 아닙니다. 채점 대상이 아닙니다`
-        :e.blocker==="nocontract"?`<span class="pill warn">계약 미전송</span>. 요청 지문에 <code>=== REQUIRED OUTPUT ===</code> 절이 없어 모델이 형식을 들은 적이 없습니다`
         :e.blocker==="unknown"?`<span class="pill">판정 보류</span>. 지문에서 출력 계약을 못 읽었습니다`
         :e.blocker==="blocked"?`<span class="pill warn">실행 불가</span>. 호출이 거부돼 응답 자체가 없습니다`
         :`<span class="pill bad">불가</span>. 어떤 응답에도 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다`}</dd>
@@ -2188,11 +2179,10 @@ function trackCard(X){
     const mine=X.filter(e=>e.track===k);
     const ran=mine.filter(e=>!UNDECIDED.has(e.blocker));
     const grad=ran.filter(e=>e.gradable).length;
-    const noctr=mine.filter(e=>e.blocker==="nocontract").length;
     const blocked=mine.filter(e=>e.blocker==="blocked").length;
     const notitem=mine.filter(e=>e.blocker==="notitem").length;
     const tok=mine.reduce((s,e)=>s+billed(e),0);
-    return {k, n:mine.length, ran:ran.length, grad, noctr, blocked, notitem, tok};
+    return {k, n:mine.length, ran:ran.length, grad, blocked, notitem, tok};
   });
   const maxN=Math.max(1,...rows.map(r=>r.n));
   return `<div class="card"><h2>${t("트랙별")}</h2>
@@ -2201,22 +2191,21 @@ function trackCard(X){
     <table>
       <tr><th>${t("트랙")}</th><th>${t("출력 계약")}</th><th class="n">${t("실행")}</th>
           <th class="n">${t("판정 가능")}</th><th class="n">${t("채점 적격")}</th>
-          <th class="n">${t("계약 미전송")}</th><th class="n">${t("실행 불가")}</th>
+          <th class="n">${t("실행 불가")}</th>
           <th class="n">${t("토큰")}</th><th></th></tr>`+
     rows.map(r=>`<tr>
       <td><span class="pill trk" style="border-color:${TRACK[r.k].c};color:${TRACK[r.k].c}">${TRACK[r.k].label}</span></td>
       <td><code style="font-size:10px">${r.k==="unknown"?esc(t("벤치마크 문항 아님")):esc(t(CONTRACT[TRACK[r.k].contract].spec))}</code></td>
       <td class="n">${r.n}</td><td class="n">${r.ran}</td>
       <td class="n"${r.ran&&r.grad<r.ran?' style="color:var(--bad)"':""}>${r.ran?`${r.grad} / ${r.ran}`:"—"}</td>
-      <td class="n"${r.noctr?' style="color:var(--warn)"':""}>${r.noctr||"—"}</td>
       <td class="n"${r.blocked?' style="color:var(--warn)"':""}>${r.blocked||"—"}</td>
       <td class="n">${fmt(r.tok)}</td>
       <td style="width:120px"><div class="mini" style="height:9px"><i style="width:${(r.n/maxN*100).toFixed(1)}%;background:${TRACK[r.k].c}"></i></div></td>
     </tr>`).join("")+`</table>
-    <p class="note"><b>트랙은 지문의 생김새로 찍습니다.</b>
-    계약이 있으면 계약이 곧 트랙이고, 계약이 잘려 나간 지문도 남은 수식과 꼬리 문장으로 알아봅니다.
-    그 구분이 필요한 이유가 바로 옆 칸에 있습니다 — <b>계약 미전송</b>은 트랙은 알아도
-    모델에게 형식을 말해 주지 않은 실행입니다.</p></div>`;
+    <p class="note"><b>트랙이 곧 출력 계약입니다.</b>
+    계약 절이 지문에 보이면 그것으로 찍고, 안 보이면 남은 수식과 꼬리 문장으로 트랙을 알아봅니다.
+    <b>로그의 요청 원문은 모델에게 간 지문이 아니라 질문만 잘라 저장한 값이라</b>
+    계약 절이 자주 빠져 있습니다. 그렇다고 계약이 안 간 것은 아닙니다.</p></div>`;
 }
 
 /* 스쿼드가 스스로 찍은 트랙과 지문에서 우리가 읽은 트랙을 맞춰 본다.
@@ -2620,7 +2609,7 @@ function artifactCard(e){
          <code>${answerish.map(r=>esc(r.a.name)).join("</code>, <code>")}</code> 에는 결과가 들어 있는데
          ${REAL_CONTRACT.has(e.contract)
            // 계약이 실제 형식일 때만 "무엇이 없다"고 적을 수 있다.
-           // missing 이면 형식 이름 자리에 "계약 미전송"이 들어가 문장이 성립하지 않는다.
+           // 문항이 아니면 형식 이름 자리에 상태가 들어가 문장이 성립하지 않는다.
            ? `응답 텍스트에는 ${esc(t(CONTRACT[e.contract].label))} 가 없습니다. judge 가 가져갈 것이 없으므로 0점입니다.`
            : `응답 텍스트에는 채점기가 가져갈 형식이 없습니다. 이 실행은 애초에 형식을 요구받지 않았습니다.`}<br>
          에이전트에게 <code>write_file</code> 이 열려 있고 시스템 프롬프트가 "구현하세요"라고만 말하면
