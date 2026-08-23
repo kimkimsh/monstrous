@@ -1,0 +1,21 @@
+{
+  "id": "1f0f554e-480c-4553-a063-d7d06046d63e",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+  "title": "Find integer y values",
+  "description": "Determine all integer values y such that y^2 <= 120 and y >= 0.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:30:21.121365563Z",
+  "startedAt": "2026-08-23T01:30:21.124084397Z",
+  "completedAt": "2026-08-23T01:30:32.165333859Z"
+}

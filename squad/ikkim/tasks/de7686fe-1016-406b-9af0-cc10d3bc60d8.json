@@ -1,0 +1,21 @@
+{
+  "id": "de7686fe-1016-406b-9af0-cc10d3bc60d8",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "f6aa8907-409a-4a23-b60d-63a5f71bd2f6",
+  "title": "Reasoner: A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee o",
+  "description": "A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee of 5 members that has at least one member from each party?\n\nThis problem's answer is an integer.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:15:19.943629309Z",
+  "startedAt": "2026-08-23T01:15:39.550732600Z",
+  "completedAt": "2026-08-23T01:15:48.581719002Z"
+}

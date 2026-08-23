@@ -1,0 +1,21 @@
+{
+  "id": "050b521e-ab59-480a-9953-84f0647452b1",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "77ce6ff8-d854-4a7a-96a0-3a3bd7b629d3",
+  "title": "Compute subcommittee count",
+  "description": "Compute the number of ways to form a subcommittee of 5 members from 8 Republicans and 6 Democrats such that at least one member from each party is included. The result should be an integer.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:01:52.629251404Z",
+  "startedAt": "2026-08-23T01:01:52.631474429Z",
+  "completedAt": "2026-08-23T01:01:59.176911778Z"
+}

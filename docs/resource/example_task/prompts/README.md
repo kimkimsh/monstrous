@@ -1,5 +1,10 @@
 # prompts — 트랙별 one-shot 프롬프트
 
+> **[2026-08-23 갱신]** 이 세 파일은 `squad/squad_template/monstrous_squad/add_prompt/`의 사본이다.
+> 원본은 그쪽이고, `validate_template.py`가 두 벌이 어긋나면 실패한다. 첫 줄이 `PLANNER:`로 시작하는 이유와
+> 되뱉기 안전성 규칙 셋은 그 폴더의 `README.md`에 있다.
+
+
 포털 Submit 탭이 요구하는 제출물이 **"Squad Template JSON 하나 + 트랙별 one-shot 프롬프트"** 다.
 이 세 파일이 제출물의 절반이고, 실험에서 가장 자주 고치게 될 자리다.
 

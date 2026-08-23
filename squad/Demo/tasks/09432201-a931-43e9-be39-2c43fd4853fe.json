@@ -1,0 +1,23 @@
+{
+  "id": "09432201-a931-43e9-be39-2c43fd4853fe",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "524c0f25-d4c2-4480-a710-32e05062da03",
+  "title": "Implement DP Count Function",
+  "description": "Implement the digit DP function count_up_to(n) that returns the number of Snake numbers <= n. Use memoization and handle numbers up to 10^18. The function should be efficient and correct.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "failed",
+  "priority": "high",
+  "dependsOn": [
+    "9ee01599-3b30-4294-8a88-4b96e6bbc168"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:54:31.101701001Z",
+  "startedAt": "2026-08-23T01:54:57.027627990Z",
+  "completedAt": "2026-08-23T01:54:57.412371641Z"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "6cf759db-b19b-4604-a334-52ac8bcc65d1",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "f6aa8907-409a-4a23-b60d-63a5f71bd2f6",
+  "title": "Patcher: A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee o",
+  "description": "A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee of 5 members that has at least one member from each party?\n\nThis problem's answer is an integer.\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nFINAL ANSWER: \\boxed{<answer>}\n\nPut the final answer, and nothing else, inside \\boxed{}.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.",
+  "assignedTo": "agent-1787409857695-wh2a7ia",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:15:19.942477974Z",
+  "startedAt": "2026-08-23T01:15:30.985941142Z",
+  "completedAt": "2026-08-23T01:15:39.244626892Z"
+}

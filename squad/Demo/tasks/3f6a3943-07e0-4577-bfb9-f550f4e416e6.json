@@ -1,0 +1,21 @@
+{
+  "id": "3f6a3943-07e0-4577-bfb9-f550f4e416e6",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "0227d729-6d0f-41af-81fb-92fc8fce6ae0",
+  "title": "Check status of solve task",
+  "description": "Check status of task 481c6eb8-ac7b-4598-8c1d-0dd68a95ea5d",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "low",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:38:27.281333135Z",
+  "startedAt": "2026-08-23T01:38:29.796553016Z",
+  "completedAt": "2026-08-23T01:38:33.573729496Z"
+}

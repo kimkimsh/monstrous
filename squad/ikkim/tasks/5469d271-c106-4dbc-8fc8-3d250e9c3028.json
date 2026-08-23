@@ -1,0 +1,21 @@
+{
+  "id": "5469d271-c106-4dbc-8fc8-3d250e9c3028",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+  "title": "Compute minimal distance a",
+  "description": "Compute the distance squared function from the origin to a point on the graph y=1/2 x^2 - 9, derive it, and find the critical point(s) that minimize the distance. Record the minimal distance value a.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:23:14.562238213Z",
+  "startedAt": "2026-08-23T01:23:35.422730462Z",
+  "completedAt": "2026-08-23T01:23:53.042245053Z"
+}

@@ -1,0 +1,288 @@
+[
+  {
+    "id": "5a24c6e9-3fd4-49cc-a4a1-83fae7f99b7d",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+    "title": "Solve integer count problem",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:30:21.120598339Z",
+    "completedAt": "2026-08-23T01:31:00.773651641Z"
+  },
+  {
+    "id": "1f0f554e-480c-4553-a063-d7d06046d63e",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+    "title": "Find integer y values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:30:21.121365563Z",
+    "completedAt": "2026-08-23T01:30:32.165333859Z"
+  },
+  {
+    "id": "f67c483b-5869-4164-9f6f-e52b5065ced2",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+    "title": "Find integer k values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:30:21.121943158Z",
+    "completedAt": "2026-08-23T01:31:10.318913335Z"
+  },
+  {
+    "id": "fdb1b06f-7c73-4221-988e-99cba39ee6af",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+    "title": "Find integer n values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:30:21.122476845Z",
+    "completedAt": "2026-08-23T01:31:20.072024884Z"
+  },
+  {
+    "id": "4038d638-d74d-4fec-8cab-10a965f5a7f2",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+    "title": "Find integer m values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:30:21.122945189Z",
+    "completedAt": "2026-08-23T01:30:44.811377873Z"
+  },
+  {
+    "id": "481c6eb8-ac7b-4598-8c1d-0dd68a95ea5d",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0227d729-6d0f-41af-81fb-92fc8fce6ae0",
+    "title": "Solve integer count problem",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:38:27.278258404Z",
+    "completedAt": "2026-08-23T01:38:42.912432176Z"
+  },
+  {
+    "id": "6beef76f-6d8e-42ea-bd21-8b8fec5f5955",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "49e6c9d4-e3d9-4bd1-8b4b-679c7c242df4",
+    "title": "Compute integer solutions",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:47:46.144102596Z",
+    "completedAt": "2026-08-23T01:48:14.693574647Z"
+  },
+  {
+    "id": "00665530-c50b-4f9e-a6d8-88959de7de1b",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "49e6c9d4-e3d9-4bd1-8b4b-679c7c242df4",
+    "title": "Generate final answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-irm22uc",
+    "dependsOn": [
+      "6beef76f-6d8e-42ea-bd21-8b8fec5f5955"
+    ],
+    "createdAt": "2026-08-23T01:47:46.144809810Z",
+    "completedAt": "2026-08-23T01:48:18.911445893Z"
+  },
+  {
+    "id": "1ef4452d-15ce-4c48-838b-405d3ec2916c",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+    "title": "Compute constant k for inverse variation",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:52:18.468409341Z",
+    "completedAt": "2026-08-23T01:52:27.271707334Z"
+  },
+  {
+    "id": "d3b8628b-b783-40cb-88d1-64d60a5132f1",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+    "title": "Compute constant k",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:52:18.469299936Z",
+    "completedAt": "2026-08-23T01:52:33.477144644Z"
+  },
+  {
+    "id": "d85265f4-225e-43ea-9624-e9c433130a52",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+    "title": "Compute x for y=3",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:52:18.470083632Z",
+    "completedAt": "2026-08-23T01:52:41.675959283Z"
+  },
+  {
+    "id": "9fb0cf96-3100-409a-86ef-722c4f3a6b84",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+    "title": "Compute x for y=3 with dependency",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [
+      "d3b8628b-b783-40cb-88d1-64d60a5132f1"
+    ],
+    "createdAt": "2026-08-23T01:52:18.470745569Z",
+    "completedAt": "2026-08-23T01:52:50.056822249Z"
+  },
+  {
+    "id": "1a255326-9896-4ac5-b68a-9518aad2e11b",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+    "title": "Generate final answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-irm22uc",
+    "dependsOn": [
+      "9fb0cf96-3100-409a-86ef-722c4f3a6b84"
+    ],
+    "createdAt": "2026-08-23T01:52:18.471283385Z",
+    "completedAt": "2026-08-23T01:52:54.323271508Z"
+  },
+  {
+    "id": "9ee01599-3b30-4294-8a88-4b96e6bbc168",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "524c0f25-d4c2-4480-a710-32e05062da03",
+    "title": "Algorithm Design for Snake Numbers",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:54:31.100932412Z",
+    "completedAt": "2026-08-23T01:54:56.723224117Z"
+  },
+  {
+    "id": "09432201-a931-43e9-be39-2c43fd4853fe",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "524c0f25-d4c2-4480-a710-32e05062da03",
+    "title": "Implement DP Count Function",
+    "status": "failed",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [
+      "9ee01599-3b30-4294-8a88-4b96e6bbc168"
+    ],
+    "createdAt": "2026-08-23T01:54:31.101701001Z",
+    "completedAt": "2026-08-23T01:54:57.412371641Z"
+  },
+  {
+    "id": "ee042473-1334-4071-9b36-a3720a6d734b",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "524c0f25-d4c2-4480-a710-32e05062da03",
+    "title": "Write solution.py",
+    "status": "failed",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-irm22uc",
+    "dependsOn": [
+      "09432201-a931-43e9-be39-2c43fd4853fe"
+    ],
+    "createdAt": "2026-08-23T01:54:31.102779697Z",
+    "completedAt": "2026-08-23T01:55:21.087890440Z"
+  },
+  {
+    "id": "fbd432ee-09c8-41ea-bc0f-6a77107cb9ac",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "846eeec1-af48-4eb1-890e-47d9d94afa19",
+    "title": "Compute kinetic energy loss fraction",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T02:01:19.340677173Z",
+    "completedAt": "2026-08-23T02:01:26.216083291Z"
+  },
+  {
+    "id": "8d6f86ac-7a7b-45b0-adbc-1a4f6c697cad",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "ff35a5e3-6ee8-42f9-b644-e0d68b4e6b75",
+    "title": "Create solution.py",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:56:02.910134937Z",
+    "completedAt": "2026-08-23T01:56:17.194368535Z"
+  },
+  {
+    "id": "aefeb5f8-276e-4b81-bd4a-db0b73d45c83",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7d6e2d2f-c801-4ed8-ba45-e10a9db4cb58",
+    "title": "프론트엔드 개발자: A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787395723981-irm22uc",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:59:11.279627751Z",
+    "completedAt": "2026-08-23T02:00:38.617134929Z"
+  },
+  {
+    "id": "1a827889-46c8-4cc0-9462-43f16668ee42",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7d6e2d2f-c801-4ed8-ba45-e10a9db4cb58",
+    "title": "백엔드 개발자: A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:59:11.280311001Z",
+    "completedAt": "2026-08-23T01:59:14.225771329Z"
+  },
+  {
+    "id": "35c45502-031c-4f33-9880-1d109963d9b7",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7d6e2d2f-c801-4ed8-ba45-e10a9db4cb58",
+    "title": "코드 리뷰어: A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787395723981-f3ic90y",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:59:11.281015232Z",
+    "completedAt": "2026-08-23T01:59:50.892685101Z"
+  },
+  {
+    "id": "018586c3-8d73-450e-98e8-e9bf8aa6eeb5",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0227d729-6d0f-41af-81fb-92fc8fce6ae0",
+    "title": "Check task status",
+    "status": "done",
+    "priority": "low",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:38:27.279941965Z",
+    "completedAt": "2026-08-23T01:38:29.492077495Z"
+  },
+  {
+    "id": "3f6a3943-07e0-4577-bfb9-f550f4e416e6",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0227d729-6d0f-41af-81fb-92fc8fce6ae0",
+    "title": "Check status of solve task",
+    "status": "done",
+    "priority": "low",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:38:27.281333135Z",
+    "completedAt": "2026-08-23T01:38:33.573729496Z"
+  }
+]

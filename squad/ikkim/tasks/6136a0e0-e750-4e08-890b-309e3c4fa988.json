@@ -1,0 +1,21 @@
+{
+  "id": "6136a0e0-e750-4e08-890b-309e3c4fa988",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "4cf730e5-3b87-4328-b1de-651bb851277b",
+  "title": "Find integer k values and corresponding x",
+  "description": "Determine all integer values k such that sqrt(120 - sqrt(x)) = k and find corresponding x values. Provide the list of x values and k values.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:03:26.824864447Z",
+  "startedAt": "2026-08-23T01:03:39.131500782Z",
+  "completedAt": "2026-08-23T01:04:11.473641229Z"
+}

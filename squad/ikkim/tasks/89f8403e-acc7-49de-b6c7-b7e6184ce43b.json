@@ -1,0 +1,23 @@
+{
+  "id": "89f8403e-acc7-49de-b6c7-b7e6184ce43b",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+  "title": "Compute Domain and Smallest x (after simplification)",
+  "description": "Compute the domain of the function g(x) = sqrt((x-3)^2-(x-8)^2) and determine the smallest real number x in that domain. This task depends on Simplify Expression task.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "aec6461d-1480-4beb-8264-17e16c9991b2"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:17:59.843231650Z",
+  "startedAt": "2026-08-23T01:18:47.647626970Z",
+  "completedAt": "2026-08-23T01:18:55.509456111Z"
+}

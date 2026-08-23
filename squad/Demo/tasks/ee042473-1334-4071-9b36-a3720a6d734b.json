@@ -1,0 +1,23 @@
+{
+  "id": "ee042473-1334-4071-9b36-a3720a6d734b",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "524c0f25-d4c2-4480-a710-32e05062da03",
+  "title": "Write solution.py",
+  "description": "Write the solution.py file implementing the DP count function and main logic. The file should be self-contained, use the patch format, and produce correct output for given inputs.",
+  "assignedTo": "agent-1787395723981-irm22uc",
+  "createdBy": "planner",
+  "status": "failed",
+  "priority": "high",
+  "dependsOn": [
+    "09432201-a931-43e9-be39-2c43fd4853fe"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:54:31.102779697Z",
+  "startedAt": "2026-08-23T01:54:57.716633834Z",
+  "completedAt": "2026-08-23T01:55:21.087890440Z"
+}
