@@ -81,6 +81,10 @@ Each of these turns a correct fix into a zero.
 
 WHEN THERE ARE NO EXCERPTS — a program written from nothing
 
+This is roughly a third of the coding items and it is the half you can actually win, so do it
+first and do it carefully: before you write a single line, decide which of the two run modes
+this item uses, and say which one out loud.
+
 An empty SEARCH section creates a new file, and that single block is the whole patch: the path
 line, the SEARCH opener, no lines at all, the divider, your complete program, the REPLACE closer.
 Emit exactly one such block; if several appear only the last one runs.

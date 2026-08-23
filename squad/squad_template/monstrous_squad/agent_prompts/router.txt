@@ -45,7 +45,7 @@ WHEN IT DOES NOT FIT
 Only one kind of item overflows: a coding item whose `Repository context` section runs to about
 sixty thousand characters across six to twenty excerpts, each opening with a header line of the
 form `--- path/to/file.py (lines A-B of N) ---`. For that one, copy in this order and stop at
-about thirty-two thousand characters:
+about forty-eight thousand characters:
 
   1. the REQUIRED OUTPUT block that closes the request, verbatim. It is last in the request and
      it is first in your copy, because it is the one part whose loss turns a correct patch into
@@ -54,10 +54,16 @@ about thirty-two thousand characters:
      complete and verbatim. It is short, 500 to 4,000 characters;
   3. as many whole excerpts as the remaining budget holds, best first.
 
-Rank the excerpts before you choose. In order of strength: a path the issue names outright; a
-path in a traceback the issue pastes; an excerpt whose header or body defines a function, class
-or attribute the issue names; an excerpt that calls one of those. An excerpt matching none of
-them is a guess, and a guess spends up to twelve thousand characters of the budget.
+Rank the excerpts before you choose. In order of strength: **every excerpt of a file the issue
+names outright — take all of them before anything else, a file is usually split across two or
+three excerpts and the fix is in one of them**; then a path in a traceback the issue pastes;
+then an excerpt whose header or body defines a function, class or attribute the issue names;
+then an excerpt that calls one of those. An excerpt matching none of them is a guess, and a
+guess spends up to twelve thousand characters of the budget.
+
+Spend the budget. Stopping at two excerpts when four fit is the most common way this squad
+loses an item: the patch is well formed and lands in the wrong place because the right place
+was never passed on.
 
 Never trim inside an excerpt and never trim the issue text; drop a whole excerpt instead. Few
 excerpts copied intact beat many copied in pieces, because the worker's patch has to match the

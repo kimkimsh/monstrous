@@ -1,0 +1,309 @@
+<!-- ══════════════ 01 · 표지 ══════════════ -->
+<section class="s" style="grid-template-rows:1fr">
+  <div class="dotgrid" style="position:absolute;inset:0"></div>
+  <div style="position:absolute;left:56px;right:56px;top:38px;height:var(--bd);background:var(--line-strong)"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;justify-content:center;padding-bottom:186px">
+    <div style="display:flex;align-items:center;gap:30px">
+      <span class="ember" style="line-height:0">{{glyph:logo:104}}</span>
+      <div>
+        <h1 style="font:700 76px/.92 var(--font-mono);letter-spacing:.05em">MONSTROUS</h1>
+        <p class="lbl" style="margin-top:13px;color:var(--fg-dim);font-size:16px">
+          에이전트 스쿼드와 트레이스 뷰어</p>
+      </div>
+    </div>
+
+    <p class="dek" style="max-width:52ch;margin-top:28px;font-size:23px">
+      모델 하나 뒤에 자리 셋. 그리고 버린 실행들이 어디서 샜는지 보여주는 HTML 파일 하나.
+    </p>
+
+    <div class="row" style="margin-top:30px;gap:var(--s8);align-items:flex-end">
+      <div class="stat"><span class="k">에이전트</span><b class="v">3</b></div>
+      <div class="stat"><span class="k">모델</span><b class="v">1</b></div>
+      <div class="stat"><span class="k">문항당 호출</span><b class="v">2</b></div>
+      <div style="margin-left:auto;text-align:right">
+        <span style="font:700 var(--fs-micro)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+              color:var(--fg-faint)">hidden 세트</span>
+        <div class="row" style="gap:var(--s3);align-items:baseline;margin-top:6px">
+          <span class="chip">{{glyph:coding:13}} coding 38</span>
+          <span class="chip">{{glyph:math:13}} math 13</span>
+          <span class="chip">{{glyph:generic:13}} generic 96</span>
+          <b class="mono" style="font-size:40px;letter-spacing:-.02em">147</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:56px;right:56px;bottom:78px">
+    <div class="lbl" style="font-size:13px;margin-bottom:11px">
+      스쿼드 전체가 겨냥하는 건 문자열 셋이다</div>
+    <div class="row" style="gap:var(--s3)">
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:coding:12}} coding</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">*** PATCH START *** &hellip; *** PATCH END ***</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:math:12}} math</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">FINAL ANSWER: \boxed{&lt;answer&gt;}</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:generic:12}} generic</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">ANSWER: &lt;letter&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>JUNCTIONX Korea 2026 &nbsp;&middot;&nbsp; Lablup + FuriosaAI &nbsp;&middot;&nbsp; Build the Ultimate Agent Squad</b>
+    <b>Team Monstrous &nbsp;&middot;&nbsp; 김성현 &nbsp;&middot;&nbsp; 이주형 &nbsp;&middot;&nbsp; 김일권</b>
+  </div>
+</section>
+
+<!-- ══════════════ 02 · 셋이 문항 하나를 이렇게 푼다 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성</div>
+    <h2 class="st wide">에이전트 셋, 문항 하나, 모델 호출 두 번.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise grow" style="display:flex;flex-direction:column">
+        <div class="lbl">벤치마크 문항 하나가 여기로 들어온다</div>
+
+          <div class="flow">
+           <div class="fl-rows">
+            <div class="fl-rail" style="top:24px;bottom:15px"></div>
+
+            <div class="fl-row">
+              <span class="gl ember">{{glyph:router:30}}</span>
+              <b class="nm">Router</b>
+              <p class="tx">요청을 글자 그대로 태스크 하나에 옮겨 담고,
+                <code>REQUIRED&nbsp;OUTPUT</code> 블록이 가리키는 자리로 보낸다.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl plum">{{glyph:coder:26}}</span>
+              <b class="nm">Coder</b>
+              <p class="tx">저장소 패치를 쓰거나, 프로그램을 새로 쓴다.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl lime">{{glyph:solver:26}}</span>
+              <b class="nm">Solver</b>
+              <p class="tx">수학, 객관식, 그리고 둘 중 어느 것도 아닌 것.</p>
+            </div>
+           </div>
+          </div>
+
+        <div style="border-top:var(--bd) dashed var(--line-strong);padding-top:var(--s3)">
+          <div class="lbl" style="color:var(--accent)">&darr;&nbsp; 이 태스크의 출력이 채점된다</div>
+          <div class="row mt3" style="align-items:flex-end;gap:var(--s6)">
+            <div>
+              <div style="font:700 var(--fs-micro)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+                   color:var(--fg-faint);white-space:nowrap">문항당 호출</div>
+              <div class="row mt2" style="align-items:center;gap:var(--s3)">
+                <div class="gauge" style="--cells:9;--on:2;--c:var(--accent)"></div>
+                <b class="mono" style="font-size:26px">2</b>
+              </div>
+            </div>
+            <div style="border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+              <p class="note">플래너 한 턴, 워커 한 턴. 첫 제출은 같은 147문항에
+                요청 <b class="mono">1,192</b>건, 문항당 <b class="mono">8.1</b>번이었다.
+                <code>create_task</code>가 돌아온 뒤 플래너가 한 턴을 더 도는지는 평가 러너에서
+                아직 확인하지 못했다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:none;width:328px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p acc tight" style="background:var(--panel-2);flex:none">
+          <div class="lbl">100점 배분</div>
+          <table class="t-tight mt2"><tbody>
+            <tr><td>벤치마크 점수</td><td class="n num">40</td></tr>
+            <tr><td>시각화</td><td class="n num">30</td></tr>
+            <tr><td><b>토큰 효율</b></td><td class="n num ember">30</td></tr>
+          </tbody></table>
+        </div>
+        <div class="p tight" style="flex:none">
+          <div class="lbl">모델 하나로 세 자리를 다 돌린다</div>
+          <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
+          <p class="note mt2">모델을 하나 더 넣어 얻는 손잡이는 추론 강도뿐인데,
+            템플릿에는 그걸 에이전트별로 지정할 수단이 없다.</p>
+        </div>
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">동점이면</div>
+          <p class="note mt2">총 토큰이 먼저 가른다. 토큰까지 같으면 <span class="nb">wall-clock</span>으로 간다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">02</span></div>
+</section>
+
+<!-- ══════════════ 03 · 채점기는 출력 하나만 읽는다 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 채점기가 읽는 자리</span></div>
+    <h2 class="st wide">답과 채점기 사이에 놓인 홉 하나하나가 답을 잃을 자리다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise">
+      <p class="q">채점기는 <code>finalResult</code>를 먼저 열고, 그걸 상태 보고라며 물린 다음,
+        마지막 웨이브부터 태스크를 거꾸로 훑어 진짜 출력을 찾는다. 기록된 28건 전부 2단계까지
+        내려갔다. 그러니 실무에서는 <b>마지막 태스크의 출력이 곧 답</b>이고,
+        답을 쓴 자리가 읽히는 자리여야 한다.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0">{{glyph:no:20}}</span>
+          파일로 들어갔다<span class="sub">실행 2건</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          도구를 쥔 에이전트가 문항을 풀어 놓고, 답은 워크스페이스 파일에 저장하고,
+          응답에는 &ldquo;작업 완료&rdquo;만 썼다.
+          <b>채점기는 워크스페이스를 열지 않는다.</b></p>
+        <p class="note mt2">지금은 세 자리 전부 <code>enabledTools</code>가 비어 있고,
+          비어 있지 않으면 <code>validate_template.py</code>가 템플릿을 물린다.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">앱이 찍은 것</span>
+            <span class="said">완료</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">채점기가 본 것</span>
+            <span class="stamp" data-v="bad"><b>답 없음</b><em class="ko">형식 미검출</em></span></div>
+        </div>
+      </div>
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0">{{glyph:no:20}}</span>
+          검토 자리가 다시 썼다<span class="sub">v1 설계</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          검토 자리를 마지막에 뒀는데, 그 자리에는 문제 본문이 도착하는 경로가 없었다.
+          확인할 수도 없는 답을 다시 쓴 셈이다.</p>
+        <p class="note mt2">지금은 푸는 자리가 끝내는 자리다. 검증은 자리를 옮겼다 &mdash; 10쪽.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">답이 있던 곳</span>
+            <span class="said">웨이브 1</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">채점기가 읽은 곳</span>
+            <span class="said">웨이브 3</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="bad"><b>도달 못 함</b><em class="ko">홉에서 유실</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">03</span></div>
+</section>
+
+<!-- ══════════════ 04 · 그러면 왜 하나가 아닌가 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 그러면 왜 하나가 아닌가</span></div>
+    <h2 class="st wide">하나는 앱이 못 박았고, 하나는 계산에서 나왔다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise">
+        <div class="p-t"><span class="ember" style="line-height:0">{{glyph:router:24}}</span>
+          플래너 자리는 앱이 못 박아 뒀다<span class="sub">플랫폼</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          요청 전문을 보는 컴포넌트는 플래너 하나뿐이다. 워커는 플래너가 만든 태스크의
+          <code>description</code>만 받는다. 자리를 없앨 수 없으니 할 일을 깎았다.
+          <b>Router는 <code>create_task</code>를 한 번 부르고 끝낸다.</b></p>
+      </div>
+      <div class="p raise">
+        <div class="p-t"><span class="plum" style="line-height:0">{{glyph:coder:24}}</span>
+          Coder와 Solver를 가른 건 길이다<span class="sub">계산</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          Coder 계약이 <b>7,698자</b>고 그중 1,943자가 파서가 강제하는 패치 형식이다.
+          두 자리를 합치면 math 문항마다 닿지도 않을 파서 규칙을 같이 실어 나른다.</p>
+        <div class="kv mt2"><span class="k">합쳤을 때 물리는 문항</span>
+          <b class="mono">147개 중 109개</b></div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">coding 요청 중앙값</span>
+          <b class="v" style="font-size:44px">63,812 B</b>
+          <span class="d">공개된 coding 요청 20건 기준</span>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+            사람 수는 사고가 났을 때의 배수이기도 하다. 플래너 호출이 실패하면 앱은 요청을 쪼개지 않고
+            <b>플래너 아닌 자리 전부</b>에 전문을 그대로 뿌린다. 이 중앙값이면 자리 하나가 늘 때마다
+            coding 문항 하나에서 63,812바이트가 더 나간다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">04</span></div>
+</section>
+
+<!-- ══════════════ 05 · 지문이 물은 네 가지 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 지문이 물은 네 가지</span></div>
+    <h2 class="st wide">둘에는 이름이 붙고, 둘에는 일부러 안 붙였다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise" style="background:var(--panel-2)">
+      <table><thead><tr>
+        <th style="width:29%">지문의 질문</th><th style="width:17%">누가</th><th>어떻게</th>
+      </tr></thead><tbody>
+        <tr><td>누가 코드를 읽는가</td><td class="k lat ember">Router</td>
+            <td>저장소 발췌를 순서 매겨 고르고 태스크에 옮긴다</td></tr>
+        <tr><td>누가 코드를 고치는가</td><td class="k lat plum">Coder</td>
+            <td>패치를 쓴다. 패치 마커를 내는 자리는 여기뿐이다</td></tr>
+        <tr><td>누가 결과를 검증하는가</td><td class="k faint">한 자리가 아니다</td>
+            <td>에이전트 안에서 한 번, 빌드에서 또 한 번 &mdash; 10쪽</td></tr>
+        <tr><td>누가 포기를 판단하는가</td><td class="k faint">규칙 네 군데</td>
+            <td>플랜 그래프가 실행 전에 굳어서 에이전트로는 못 만든다 &mdash; 11쪽</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="p raise">
+      <div class="p-t" style="font-size:20px">자리마다 자기 일에 서명한다
+        <span class="sub">응답 첫 줄 &middot; Router는 태스크 제목</span></div>
+      <p class="note" style="margin-bottom:var(--s3)">자리마다 압축한 JSON 한 줄을 쓴다.
+        <code>a</code>가 자리를 적고 나머지 키는 서로 다르다. 뷰어는 산문에서 짐작하는 대신
+        이 줄을 읽어 어느 에이전트가 뭘 냈는지 안다.</p>
+      <div class="g3">
+        <div>
+          <div class="lbl ember" style="font-size:13px;margin-bottom:7px">Router</div>
+          <pre>{"a":"Router",
+ "track":"coding",
+ "copy":"anchors",
+ "chars":31840}</pre>
+        </div>
+        <div>
+          <div class="lbl plum" style="font-size:13px;margin-bottom:7px">Coder</div>
+          <pre>{"a":"Coder",
+ "kind":"repo",
+ "edits":2,
+ "site":"query.py"}</pre>
+        </div>
+        <div>
+          <div class="lbl lime" style="font-size:13px;margin-bottom:7px">Solver</div>
+          <pre>{"a":"Solver",
+ "kind":"math",
+ "conf":0.82}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      뒤의 두 답에는 사람 이름이 없다. 이유는 계약 셋을 보고 나면 훨씬 쉽게 보인다.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">05</span></div>
+</section>

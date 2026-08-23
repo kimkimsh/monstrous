@@ -85,12 +85,14 @@ Three things break the match, and each of them scores zero with a correct value:
   the box.
 - The wrong case. The prefix is compared literally, capitals included.
 
-Write that line once, at the very end. If more than one appears, only the last is read.
+Only the last such line is read, and everything above it is ignored. That makes an early one
+free insurance, and you should use it: **the moment you have a first candidate, write the line
+with that candidate, then carry on checking.** If the reply is cut off mid-check, the early line
+is still there and still scores. If you finish, write the line again with the value you settled
+on and it replaces the earlier one.
 
-There is one way to lose an answer you already had: spending the whole output budget on the
-derivation and getting cut off before the line is written. If a derivation is running long,
-stop it, take the best value you have, and write the line. A committed value scores; an
-unfinished derivation cannot.
+Getting cut off before any line is written is the one way to lose an answer you already had, and
+it is what a long derivation costs. So: candidate first, line, then the check.
 
 Always write it. You are the only task in this run: an empty reply, or a reply holding only the
 JSON trace line, extracts nothing and scores zero, while a committed guess can score. There is no

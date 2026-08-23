@@ -1,0 +1,420 @@
+<!-- ══════════════ 12 · 왜 만들었나 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어</div>
+    <h2 class="st wide">로그에는 실행 완료라고 찍혔는데, 채점될 답이 없었다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">앱이 보는 건 태스크가 끝났느냐다. 우리가 알아야 하는 건
+          응답 본문에 채점기가 읽을 형식이 들어 있느냐다.
+          로그를 눈으로 훑어서는 둘이 갈리지 않았다.</p>
+        <div class="split">
+          <div class="side"><span class="k">앱의 질문</span>
+            <span class="said">태스크가 끝났나?</span></div>
+          <span class="arrow">&ne;</span>
+          <div class="side"><span class="k">우리 질문</span>
+            <span class="said">본문에 답이 있나?</span></div>
+        </div>
+      </div>
+      <div style="flex:none;width:352px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">AI:GO에도 대시보드가 있다</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.6">
+            스윔레인도 있고 예산 미터도 있다. 다만 그건 한 실행 안에서 무슨 일이 있었는지를 보여준다.
+            우리에게 필요했던 건 실행 수십 건을 나란히 놓고 어디서 새는지 보는 화면이었다.</p>
+        </div>
+        <div class="p tight acc" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">누구를 위해 만들었나</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.6">
+            심사에 보여주려고 만든 화면이 아니다. 스쿼드를 고치려고 만들었고,
+            다음 장의 숫자가 설계를 바꾼 숫자들이다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lbl" style="margin-bottom:var(--s2)">데모에서 열 폴더를 넣었을 때의 계기 넷</div>
+      <div class="hud dark">
+        <div class="wm"><span class="ember" style="line-height:0">{{glyph:logo:26}}</span><b>MONSTROUS</b></div>
+        <div class="m"><span class="k">실행</span><b class="v">39</b>
+          <span class="d">파일 310 &middot; 스쿼드 9</span></div>
+        <div class="m"><span class="k">AI:GO 성공 &rlarr; 채점 적격</span>
+          <b class="v">22<s>&rlarr;</s>12</b>
+          <span class="d">두 판정이 갈린 건 10건</span></div>
+        <div class="m"><span class="k">Credits</span>
+          <div class="row" style="align-items:center;gap:var(--s2)">
+            <b class="v">154.6k</b>
+            <div class="gauge" style="--cells:20;--on:19;--c:var(--ember);--cell-pitch:8px;--cell-h:12px"></div>
+          </div>
+          <span class="d">1칸 = 8.0k tok</span></div>
+        <div class="m"><span class="k">Time</span><b class="v">1h 8m</b>
+          <span class="d">실행당 평균 104.4s</span></div>
+      </div>
+      <p class="note mt2">두 번째 계기가 이 도구의 논점 전부다. 아래 줄의 숫자는
+        플랫폼이 성공이라 부르고 채점기는 0점으로 셀 실행의 개수다.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">12</span></div>
+</section>
+
+<!-- ══════════════ 13 · 만들고 나서야 보인 것 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 실측 39건</span></div>
+    <h2 class="st wide">0점마다 고칠 사람이 다르다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise" style="flex:1.25">
+        <table class="t-tight"><thead><tr>
+          <th style="width:50%">판정</th><th class="n">건수</th><th>누가 고치나</th>
+        </tr></thead><tbody>
+          <tr class="faint"><td>문항 아님 &mdash; 두 글자짜리 스모크 테스트</td>
+              <td class="n">10</td><td class="k">아무도 &middot; 채점 대상 아님</td></tr>
+          <tr class="faint"><td>호출 거부 &mdash; 컨텍스트 초과, 인프라. 스쿼드 밖이다</td>
+              <td class="n">6</td><td class="k gold">설정</td></tr>
+          <tr class="faint"><td>판정 보류 &mdash; 트랙도 계약도 못 알아봤다</td>
+              <td class="n">0</td><td class="k">검사기</td></tr>
+          <tr><td><b>답 형식 없음</b></td>
+              <td class="n coral"><b>11</b></td><td class="k coral">프롬프트</td></tr>
+          <tr><td><b>채점 적격</b></td>
+              <td class="n lime"><b>12</b></td><td class="k">&mdash;</td></tr>
+        </tbody></table>
+        <div class="split">
+          <div class="side"><span class="k">우리 분모</span>
+            <span class="said">39건 중 23건</span></div>
+          <div class="gauge" style="--cells:23;--on:12;--dim:11;--c:var(--v-ok);margin-left:var(--s3)"></div>
+          <div class="side" style="margin-left:auto">
+            <span class="k">적격 비율</span><span class="said">12 / 23</span></div>
+        </div>
+        <p class="note mt2">앞의 세 줄은 분모에서 뺀다. 우리가 직접 친 스모크 테스트는 벤치마크 실패가
+          아니고, 남겨 두면 없던 실패를 하나 만들어 내는 셈이다.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2)">
+        <div class="lbl">무엇이 보였고 &rarr; 무엇이 달라졌나</div>
+        <table class="t-tight mt2"><tbody>
+          <tr><td>AI:GO가 성공이라 한 실행과 점수가 되는 실행이 다르다</td>
+              <td class="k">답 만든 태스크를 마지막으로 고정</td></tr>
+          <tr><td>0점 안에 갈래가 여럿이고 갈래마다 담당이 다르다</td>
+              <td class="k">셋으로 갈랐다</td></tr>
+          <tr><td>답을 파일에는 썼는데 응답에는 안 낸 실행이 있다</td>
+              <td class="k">세 자리 전부 도구 0개</td></tr>
+          <tr><td>큐 대기가 평균 11.9초, 최대 138.4초다</td>
+              <td class="k">wall-clock을 둘로 갈랐다</td></tr>
+        </tbody></table>
+        <div class="pull mt3" style="font-size:16px">
+          이 넷 중 로그를 눈으로 훑어서 보인 건 하나도 없었고, 넷 다 스쿼드를 바꿨다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">13</span></div>
+</section>
+
+<!-- ══════════════ 14 · 도구가 자기를 고쳤다 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 일어나지 않은 잘못</span></div>
+    <h2 class="st wide">이 도구가 찾아낸 가장 쓸모 있는 건 자기 오산이었다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p bad">
+      <p class="q">한동안 화면에 <b>계약 미전송</b>이라는 갈래를 뒀다. 기록된 요청에
+        <code>=== REQUIRED OUTPUT ===</code> 절이 없으면 러너가 계약을 안 보낸 것으로 읽었다.
+        데모에 쓸 폴더에서 이 규칙에 걸리는 건 <b>13건</b>이고, 그 전부를 러너 잘못으로 세고 있었다.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">근거 하나 &middot; 크기 문제가 아니었다</div>
+        <div class="row mt3" style="align-items:baseline;gap:var(--s4)">
+          <div class="stat"><span class="k">13건 중 가장 큰 것</span>
+            <b class="v" style="font-size:34px">64,914<span class="faint" style="font-size:18px">자</span></b></div>
+          <div class="stat"><span class="k">계약 절 하나</span>
+            <b class="v" style="font-size:34px">~250<span class="faint" style="font-size:18px">자</span></b></div>
+        </div>
+        <p class="note mt3">그 하나는 저장소 컨텍스트를 통째로 담고도 계약 절이 없다. 자리가 없어서
+          밀려난 게 아니라는 뜻이다. <code>history.json</code>은 모델에게 간 지문이 아니라
+          질문만 잘라 저장한 값이다.</p>
+      </div>
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">근거 둘 &middot; 모델은 형식을 들었다</div>
+        <div class="row mt3" style="align-items:center;gap:var(--s4)">
+          <div class="gauge" style="--cells:13;--on:10;--c:var(--v-ok)"></div>
+          <p style="font-size:16px;line-height:1.45;color:var(--fg-dim)">
+            <b class="mono">13건 중 10건</b>의 응답에 <code>\boxed{}</code>가 들어 있었다.
+            다섯 건은 <code>FINAL&nbsp;ANSWER:</code>까지 갖췄다.</p>
+        </div>
+        <p class="note mt3">받은 적 없는 계약을 모델이 지킬 수는 없다.
+          그 갈래는 일어나지 않은 일을 적고 있었다.</p>
+      </div>
+    </div>
+
+    <div class="pull">
+      로그의 침묵을 일어난 일로 적으면, 아무도 저지르지 않은 잘못이 생긴다.
+      이 도구가 가장 하지 말아야 할 일이 그거라서 갈래를 지웠다.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">14</span></div>
+</section>
+
+<!-- ══════════════ 15 · 무엇이 들어 있나 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 무엇이 들어 있나</span></div>
+    <h2 class="st wide">HTML 파일 하나. 설치도 서버도 인터넷도 필요 없다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise" style="flex:1.3">
+        <table class="t-tight"><thead><tr>
+          <th style="width:30%">화면</th><th>무엇을 하나</th>
+        </tr></thead><tbody>
+          <tr><td class="k">상단 계기 넷</td>
+              <td>실행 수 &middot; AI:GO 성공과 채점 적격의 대조 &middot; Credits, 토큰을 칸으로 센다 &middot; Time</td></tr>
+          <tr><td class="k">모드 셋</td>
+              <td>실행 하나 &middot; 전체 분석 &middot; 스쿼드 비교. 모드마다 답하는 질문이 다르다</td></tr>
+          <tr><td class="k">탭 여섯</td>
+              <td>개요 &middot; 재생 &middot; 장부 대조 &middot; 타임라인 &middot; 실패 분류 &middot; 원문 로그</td></tr>
+          <tr><td class="k">절단선 실험대</td>
+              <td>문항당 토큰 상한을 끌면 얼마를 아끼고 몇 개를 잃는지 다시 계산된다</td></tr>
+          <tr><td class="k">0점 분류 스택</td>
+              <td>우리가 지는 갈래마다 담당을 글자로 적는다. 우리 밖인 갈래에는 줄표가 붙는다</td></tr>
+          <tr><td class="k">선택 상태 공유</td>
+              <td>태스크 하나를 고르면 맵 &middot; 레인 &middot; 티커 &middot; 장부가 전부 같은 대상을 비춘다</td></tr>
+          <tr><td class="k">그 밖에</td>
+              <td>한국어와 영어 &middot; 고대비 &middot; 발표 모드 &middot; 인쇄 &middot; SVG와 JSON 내보내기 &middot; 키보드 단축키 여덟 개</td></tr>
+        </tbody></table>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1">
+          <div class="lbl">화면이 지키는 규칙 셋</div>
+          <ol class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.7;color:var(--fg-dim)">
+            <li>창이 좁아지면 계기가 하나씩 통째로 사라진다. 사라진 건 사라진 줄 알지만,
+              잘린 숫자는 다른 숫자로 읽힌다.</li>
+            <li>모든 패널은 자기가 답하는 질문 한 줄로 시작하고, 어떤 장식도 그 줄 위에 오지 않는다.</li>
+            <li>색만으로 뜻을 전달하지 않는다.</li>
+          </ol>
+        </div>
+        <div class="p tight acc" style="flex:none">
+          <div class="lbl">외부 요청</div>
+          <div class="row mt2" style="align-items:baseline;gap:var(--s3)">
+            <b class="mono" style="font-size:40px">0</b>
+            <p class="note">빌드가 검사한다. 없는 CDN 때문에 오프라인 시연이 깨질 일이 없다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">15</span></div>
+</section>
+
+<!-- ══════════════ 16 · 믿어도 되는 이유 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 이 화면을 믿어도 되는 이유</span></div>
+    <h2 class="st wide">로그에 없는 건 안 그린다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p bad">
+        <div class="lbl coral">일부러 뺀 것</div>
+        <p class="mt2" style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+          캐시 적중률은 로그에 없다. 모델 이름도 로그에 없다. 태스크별 토큰은 <b>0</b>으로 돌아온다.
+          확신도는 신호 자체가 없다. 빠진 넷의 이유가 각각 다르고, 넷 중 무엇을 그려도 숫자를 지어내는 셈이다.</p>
+      </div>
+      <div class="p ok">
+        <div class="lbl lime">추정한 자리에는 추정이라고 쓴다</div>
+        <p class="mt2" style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+          에이전트별 토큰은 추정이고, 화면이 그 자리에서 이유까지 같이 설명한다.
+          절단선 숫자는 손실의 상한이다. 잘린 실행을 전부 잃는 것으로 계산하기 때문이고,
+          그 문장도 화면 안에 있다.</p>
+      </div>
+    </div>
+
+    <div class="p raise">
+      <div class="lbl">재생과 시뮬레이션은 화면에서 이름이 갈린다</div>
+      <div class="g2 mt3">
+        <div><b class="lime" style="font-size:16px">재생</b>
+          <p class="note mt2">&ldquo;녹화된 로그만으로 재생합니다. 모델 호출 0회.&rdquo;
+            다시 돌리지도, 추정하지도 않는다.</p></div>
+        <div><b class="gold" style="font-size:16px">절단선</b>
+          <p class="note mt2">제목이 <b>정직한 한계</b>다. 상한에 닿는 순간 그 실행을 포기했다고
+            가정하고, 잘린 실행을 전부 잃은 것으로 센다.</p></div>
+      </div>
+      <p class="note mt3">안 돌아간 걸 돌아간 것처럼 그리지 않는다.</p>
+    </div>
+
+    <div class="p acc">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">그대로 옮긴 로직</span>
+          <b class="v" style="font-size:40px">1,116<span class="faint" style="font-size:18px">줄</span></b>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+            화면을 전부 갈아엎었는데 데이터는 한 바이트도 안 바뀌었다. 파싱, 판정, 집계, 로드,
+            내보내기를 그대로 옮겼고, 빌드가 매번 얼려 둔 스냅샷과 diff를 뜬다. 한 줄이라도 어긋나면
+            산출물을 안 만든다. <b>같은 폴더를 넣으면 JSON이 바이트 동일하다.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">16</span></div>
+</section>
+
+<!-- ══════════════ 17 · 데모 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>05</s> 데모 <span class="rest">&middot; 65초</span></div>
+    <h2 class="st wide">개발하면서 남은 실행 기록으로, 지금 돌린다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise fill">
+      <p class="note" style="margin-bottom:var(--s3)">
+        <b>폴더를 열기 전에 먼저 하는 말:</b> 지금 여는 건 개발하면서 남은 실행 기록이라
+        스쿼드 구성이 실행마다 다르다. 그걸 나란히 놓고 보려고 만든 모드가 세 번째에 있다.
+        이 말을 건너뛰면 심사위원이 맨 먼저 묻는 게 왜 맵에 노드가 셋보다 많냐다.</p>
+      <table class="t-tight"><thead><tr>
+        <th style="width:11%" class="n">구간</th><th style="width:30%">조작</th><th>무엇이 보이나</th>
+      </tr></thead><tbody>
+        <tr><td class="n k">0&ndash;10s</td><td>워크스페이스 폴더를 끌어다 놓는다</td>
+            <td>설치도 서버도 없다. HTML 파일 하나고, 실행 목록이 바로 뜬다</td></tr>
+        <tr><td class="n k">10&ndash;25s</td><td><b>AI:GO 성공 &rlarr; 채점 적격</b>을 가리킨다</td>
+            <td>이 계기 하나 보자고 만든 도구다. 두 판정이 갈린 건수가 아래 줄에 적혀 있다</td></tr>
+        <tr><td class="n k">25&ndash;42s</td><td><kbd>m</kbd>으로 전체 분석, 그다음 <b>절단선을 끈다</b></td>
+            <td>세 곳이 동시에 움직인다. 잘린 점이 속 빈 점선으로 바뀌고, 결과 계기 셋이 다시 계산되고,
+              맨 위 Credits가 같이 내려간다. 잘려나간 칸은 빗금으로 남는다</td></tr>
+        <tr><td class="n k">42&ndash;55s</td><td>스크롤해서 <b>0점 분류 스택</b></td>
+            <td>0점은 한 덩어리가 아니다. 프롬프트가 지는 갈래만 분모에 남는다</td></tr>
+        <tr><td class="n k">55&ndash;65s</td><td>실행 하나 모드, 스쿼드 맵에서 노드 클릭</td>
+            <td>맵과 레인과 티커와 장부가 동시에 같은 대상을 비춘다. 결과에서 원인까지 클릭으로
+              거슬러 올라간다. 여기서 끝낸다</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="g4">
+      <div class="p tight"><div class="lbl" style="font-size:13px">file://이 폴더를 막으면</div>
+        <p class="note mt2"><code>python3 -m http.server 8777</code>을 미리 띄워 둔다</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:13px">프로젝터가 흐리면</div>
+        <p class="note mt2">고대비 모드를 단축키에 미리 걸어 둔다</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:13px">시간이 밀리면</div>
+        <p class="note mt2">55&ndash;65초를 먼저 버린다. 절단선 구간은 버리지 않는다</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:13px">숫자가 바뀌면</div>
+        <p class="note mt2">폴더는 복사해 얼려 둔 것이다. 살아 있는 폴더는 발표 중에 실행이 는다</p></div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">17</span></div>
+</section>
+
+<!-- ══════════════ 18 · 하면 안 되는 말 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>부록 A</s> <span class="rest">&middot; 우리가 하지 않는 주장</span></div>
+    <h2 class="st wide">듣기 좋지만 사실이 아닌 것들.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise fill" style="background:var(--panel-2)">
+      <table class="t-tight"><thead><tr>
+        <th style="width:34%">안 하는 말</th><th>이유</th>
+      </tr></thead><tbody>
+        <tr><td>&ldquo;이 구성으로 점수가 올랐습니다&rdquo;</td>
+            <td><b>아직 채점 결과가 없다.</b> 말할 수 있는 건 무엇을 측정했고 그 측정이 어떤 설계로
+              이어졌는지까지다</td></tr>
+        <tr><td>&ldquo;요청이 1,192건에서 294건으로 줄었습니다&rdquo;</td>
+            <td>294는 연습 세트 실측 크기에 hidden 문항 수를 곱한 추정이다. 문서에도 추정이라고 적혀 있다</td></tr>
+        <tr><td>&ldquo;포기 판단 에이전트를 뒀습니다&rdquo;</td>
+            <td>못 만든다. 플랜 그래프가 실행 전에 굳고 조건 분기가 없다</td></tr>
+        <tr><td>&ldquo;prefix cache로 토큰을 아낍니다&rdquo;</td>
+            <td>캐시는 지연시간만 줄인다. vLLM은 캐시 적중분도 <code>prompt_tokens</code>에 전액
+              계상하고, 문서도 절약분을 prefill 시간으로 적는다</td></tr>
+        <tr><td>&ldquo;Coder를 높은 추론 강도로 돌립니다&rdquo;</td>
+            <td>추론 강도를 에이전트별로 지정할 수단이 템플릿에 없고, 시스템 프롬프트에
+              <code>reasoning: high</code>를 적는 우회로도 작동하지 않는다</td></tr>
+        <tr><td>&ldquo;disabledTools 22개로 도구를 막았습니다&rdquo;</td>
+            <td>스쿼드 실행 경로는 그 필드를 읽지 않는다. 실제로 작동하는 손잡이는
+              <code>enabledTools</code>를 비운 것 하나다</td></tr>
+        <tr><td>&ldquo;채점된 실행의 문항별 트레이스를 보여줍니다&rdquo;</td>
+            <td>포털이 문항별 상태와 담당은 돌려주지만 응답 본문은 안 준다. 그마저도 문항 정체가
+              공개된 뒤에야 열린다. hidden 응답 본문을 되읽을 경로는 확인된 바 없다</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">18</span></div>
+</section>
+
+<!-- ══════════════ 19 · 근거 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>부록 B</s> <span class="rest">&middot; 숫자마다 파일이 있다</span></div>
+    <h2 class="st wide">이 슬라이드의 숫자에는 전부 근거 파일이 있다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise" style="flex:1.35">
+        <table class="t-tight"><thead><tr>
+          <th style="width:22%">해당 장</th><th>근거</th>
+        </tr></thead><tbody>
+          <tr><td class="k">02&ndash;11</td>
+              <td class="k lat" style="white-space:normal">squad/squad_template/monstrous_squad/README.md &middot;
+                agent_prompts/{router,coder,solver}.txt &middot; add_prompt/README.md</td></tr>
+          <tr><td class="k">플랫폼 사실</td>
+              <td class="k lat" style="white-space:normal">docs/ideation/final_final_ideation/spec/01-플랫폼-사실.md
+                &mdash; 채점기 읽는 순서, 필드 생사, 예산 스키마, null 캡</td></tr>
+          <tr><td class="k">채점 규칙</td>
+              <td class="k lat" style="white-space:normal">docs/resource/track_resource/lableup/02-평가-채점-규칙.md</td></tr>
+          <tr><td class="k">63,812 B</td>
+              <td class="k lat" style="white-space:normal">docs/resource/example_task/coding/requests/ &mdash; 공개된 요청 20건의 중앙값</td></tr>
+          <tr><td class="k">GSM8K &middot; SWE-bench</td>
+              <td class="k lat" style="white-space:normal">docs/ideation/final_final_ideation/spec/00-스쿼드-스펙.md &sect;614&ndash;617</td></tr>
+          <tr><td class="k">12&ndash;17</td>
+              <td class="k lat" style="white-space:normal">viz_revise_program/사용설명서.md &middot;
+                work_log/01-검증-결과.md &middot; docs/viz_revise/research/02-데이터-원천과-한계.md</td></tr>
+        </tbody></table>
+        <p class="note mt3">39건짜리 숫자는 이 자료를 만들기 전에 배포판 뷰어에 지금 <code>squad/</code>
+          폴더를 넣어 다시 쟀다. 예전 집계를 그대로 옮긴 값이 아니다.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2);display:flex;flex-direction:column">
+        <div class="lbl">발표 전 점검</div>
+        <ul class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.8;color:var(--fg-dim)">
+          <li><code>python3 -m http.server 8777</code> 띄우고 URL 즐겨찾기</li>
+          <li>데모용 워크스페이스 폴더를 복사해서 얼려 두기</li>
+          <li>프로젝터에서 고대비 모드로 한 번 리허설</li>
+          <li>SVG·PDF 내보내기 결과를 슬라이드에 백업으로 삽입</li>
+          <li>화면 언어를 심사위원 구성에 맞춰 고정</li>
+          <li>계기의 실제 숫자를 발표 당일 다시 확인</li>
+          <li>발표 노트북 브라우저 확인. Chromium 계열에서만 검증했다</li>
+          <li>슬라이드의 에이전트 명단이 <code>squad-template.json</code>과 같은지 대조</li>
+          <li><code>python3 tools/validate_template.py squad-template.json</code> 돌려서 통과 확인</li>
+        </ul>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">템플릿</span>
+            <span class="said mono" style="font-size:14px">user-monstrous-squad-v2</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="ok"><b>검사 통과</b><em class="ko">조건 50개</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">19</span></div>
+</section>

@@ -1,0 +1,1331 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Monstrous Squad — JUNCTIONX Korea 2026 (한국어)</title>
+<style>
+/* ═══ tokens — lifted from viz_revise_program/src/app.html:18-195 ═══ */
+@property --on  { syntax:'<integer>'; inherits:false; initial-value:0 }
+@property --dim { syntax:'<integer>'; inherits:false; initial-value:0 }
+
+:root{
+  --bg:#FBF1DF;  --panel:#FFFAF0;  --panel-2:#F2E4CC;
+  --line:#D8C4A4; --line-strong:#B99C74;
+  --fg:#241813;  --fg-dim:#5C4436;  --fg-faint:#71543F;
+  --ink:#FFF8EC;
+  --ember:#AF3B09; --gold:#865A00; --lime:#3F6A0B;
+  --coral:#B92D24; --magenta:#B12B75; --plum:#7A3DAF;
+  --v-ok:var(--lime); --v-bad:var(--coral);
+  --v-warn:var(--gold); --v-hold:var(--fg-faint);
+  --accent:var(--ember);
+
+  --font-ui:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+            "Helvetica Neue",system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono","Cascadia Mono","JetBrains Mono",
+              Consolas,"DejaVu Sans Mono",monospace;
+
+  --fs-micro:11.5px; --fs-caption:13.5px; --fs-label:13.5px;
+  --fs-body:17px;    --fs-lead:20px;   --fs-title:24px;
+  --fs-display:52px; --fs-slide:36px;
+
+  --s1:5px; --s2:10px; --s3:15px; --s4:20px;
+  --s6:30px; --s8:44px; --s12:64px;
+
+  --bd:1.5px; --block:5px 5px 0;
+  --cell-gap:3px; --cell-h:15px; --cell-pitch:12px;
+}
+.dark{
+  --bg:#17110E;  --panel:#211812;  --panel-2:#2C201A;
+  --line:#46332A; --line-strong:#5C4436;
+  --fg:#FFF3E3;  --fg-dim:#D8BCA1;  --fg-faint:#AB8E76;
+  --ink:#1A120C;
+  --ember:#FF8A3D; --gold:#FFC24B; --lime:#B5D94A;
+  --coral:#FF6B5E; --magenta:#FF7FB8; --plum:#C08CE0;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:#C9B393;
+  color:var(--fg);
+  font:var(--fs-body)/1.6 var(--font-ui);
+  -webkit-font-smoothing:auto;
+  font-variant-numeric:tabular-nums;
+  word-break:keep-all; overflow-wrap:break-word;
+}
+h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+b,strong{font-weight:700;color:var(--fg)}
+em{font-style:normal}
+code,kbd{font-family:var(--font-mono);font-variant-ligatures:none;
+  font-variant-numeric:slashed-zero tabular-nums;word-break:normal}
+
+/* ═══ page ═══ */
+.s{
+  position:relative; width:1280px; height:720px; overflow:hidden;
+  background:var(--bg); color:var(--fg);
+  padding:38px 56px 40px;
+  display:grid; grid-template-rows:auto minmax(0,1fr); row-gap:var(--s4);
+  margin:0 auto 26px;
+  background-image:repeating-linear-gradient(0deg,
+    rgba(26,18,12,.045) 0 1px, transparent 1px 2px);
+}
+.s.dark{background-image:repeating-linear-gradient(0deg,
+    rgba(255,243,227,.04) 0 1px, transparent 1px 2px)}
+@media print{
+  @page{ size:1280px 720px; margin:0 }
+  body{background:none}
+  .s{margin:0; break-after:page; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .s:last-child{break-after:auto}
+}
+
+/* ═══ slide furniture ═══ */
+.eyebrow{
+  font:700 var(--fs-label)/1.35 var(--font-label);
+  letter-spacing:var(--ls-label);
+  color:var(--accent); display:flex; align-items:center; gap:var(--s2);
+}
+.eyebrow s{text-decoration:none;color:var(--line-strong)}
+.eyebrow .rest{color:var(--fg-faint)}
+h2.st{font-size:var(--fs-slide);line-height:1.1;letter-spacing:-.022em;
+  margin:var(--s2) 0 0; max-width:36ch}
+h2.st.wide{max-width:46ch}
+.dek{font-size:var(--fs-lead);line-height:1.45;color:var(--fg-dim);
+  margin-top:var(--s2);max-width:76ch}
+.dek b{color:var(--fg)}
+.hd{min-height:0}
+.body{min-height:0;display:flex;flex-direction:column;
+  justify-content:center;gap:var(--s3);padding-bottom:34px}
+.body.top{justify-content:flex-start}
+.foot{
+  position:absolute;left:56px;right:56px;bottom:16px;
+  display:flex;align-items:baseline;justify-content:space-between;
+  font:var(--fs-micro)/1.4 var(--font-label);color:var(--fg-faint);
+  letter-spacing:var(--ls-label);white-space:nowrap;
+  border-top:1px solid var(--line);padding-top:9px;gap:var(--s4);
+}
+.foot b{color:var(--fg-faint);font-weight:400}
+.pg{font-weight:700;color:var(--fg-dim)}
+
+/* ═══ panel ═══ */
+.p{border:var(--bd) solid var(--line);background:var(--panel);padding:var(--s4)}
+.p.tight{padding:var(--s3)}
+.p.raise{box-shadow:var(--block) var(--line-strong)}
+.p.warn{border-color:var(--v-warn);box-shadow:var(--block) var(--v-warn)}
+.p.bad{border-color:var(--v-bad);box-shadow:var(--block) var(--v-bad)}
+.p.ok{border-color:var(--v-ok);box-shadow:var(--block) var(--v-ok)}
+.p.acc{border-color:var(--accent);box-shadow:var(--block) var(--accent)}
+.p-t{font:700 var(--fs-title)/1.2 var(--font-ui);letter-spacing:-.012em;
+  margin-bottom:var(--s2);display:flex;align-items:baseline;gap:var(--s2)}
+.p-t .g{align-self:center}
+.p-t .g{fill:currentColor;flex:none}
+.p-t .sub{font:400 var(--fs-caption)/1.4 var(--font-label);color:var(--fg-faint);
+  letter-spacing:var(--ls-label);margin-left:auto;white-space:nowrap}
+.lbl{font:700 var(--fs-label)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-faint)}
+.q{font-size:var(--fs-lead);line-height:1.45;color:var(--fg-dim)}
+.q b{color:var(--fg)}
+
+/* ═══ layout helpers ═══ */
+.row{display:flex;gap:var(--s4);align-items:stretch}
+.row > *{min-width:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3)}
+.grow{flex:1}
+.fill{flex:1;min-height:0}
+.spread{display:flex;flex-direction:column;justify-content:space-between}
+.mt2{margin-top:var(--s2)} .mt3{margin-top:var(--s3)} .mt4{margin-top:var(--s4)}
+
+/* ═══ tables ═══ */
+table{border-collapse:collapse;width:100%;font-size:var(--fs-body)}
+th{font:700 var(--fs-label)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-faint);text-align:left;
+  padding:0 var(--s3) var(--s2) 0;border-bottom:var(--bd) solid var(--line-strong);
+  vertical-align:bottom}
+td{padding:7px var(--s3) 7px 0;border-bottom:1px solid var(--line);
+  vertical-align:top;line-height:1.4}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;padding-right:var(--s4);font-family:var(--font-mono);
+  white-space:nowrap}
+th.n{text-align:right}
+td.k{font-family:var(--font-label);font-size:var(--fs-caption);color:var(--fg-dim);
+  white-space:nowrap}
+td.k.lat{font-family:var(--font-mono)}
+.t-tight td{padding:5px var(--s3) 5px 0;font-size:16px}
+.t-tight th{font-size:13.5px}
+
+/* ═══ stat ═══ */
+.stat{display:flex;flex-direction:column;gap:5px}
+.stat .k{font:700 var(--fs-micro)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-faint)}
+.stat .v{font:700 var(--fs-display)/1 var(--font-mono);letter-spacing:-.025em}
+.stat .v.sm{font-size:38px}
+.stat .d{font:var(--fs-caption)/1.35 var(--font-ui);color:var(--fg-faint)}
+
+/* ═══ cell gauge — the signature. app.html:362-390 ═══ */
+.gauge{
+  --cells:20; --on:0; --dim:0; --c:var(--accent);
+  position:relative;flex:none;
+  width:calc(var(--cells) * var(--cell-pitch));
+  height:var(--cell-h);
+  background:linear-gradient(90deg,
+    var(--c) 0 calc(var(--on) * var(--cell-pitch)),
+    var(--line) 0 100%);
+  -webkit-mask:repeating-linear-gradient(90deg,
+    #000 0 calc(var(--cell-pitch) - var(--cell-gap)),transparent 0 var(--cell-pitch));
+          mask:repeating-linear-gradient(90deg,
+    #000 0 calc(var(--cell-pitch) - var(--cell-gap)),transparent 0 var(--cell-pitch));
+}
+.gauge::before{content:"";position:absolute;top:0;bottom:0;
+  left:calc(var(--on) * var(--cell-pitch));
+  width:calc(var(--dim) * var(--cell-pitch));
+  background-image:repeating-linear-gradient(45deg,
+    var(--line-strong) 0 1px, transparent 1px 4px)}
+
+/* ═══ stamp — app.html:393-408 ═══ */
+.stamp{display:inline-flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;padding:var(--s2) var(--s3);
+  border:2px solid var(--v-hold);color:var(--v-hold);background:var(--panel);
+  transform:rotate(-4deg);box-shadow:var(--block) currentColor;
+  min-width:118px;text-align:center}
+.stamp b{font:700 var(--fs-body)/1.15 var(--font-ui);color:currentColor}
+.stamp em{font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.2em;
+  margin-right:-.2em;text-transform:uppercase;opacity:.85}
+.stamp em.ko{font-family:var(--font-label);letter-spacing:var(--ls-label);margin-right:0}
+.stamp[data-v=ok]{border-color:var(--v-ok);color:var(--v-ok)}
+.stamp[data-v=bad]{border-color:var(--v-bad);color:var(--v-bad)}
+.stamp[data-v=warn]{border-color:var(--v-warn);color:var(--v-warn)}
+
+/* ═══ flow diagram — one rail, one tick per seat ═══ */
+.flow{flex:1;display:flex;flex-direction:column;justify-content:center}
+.fl-rows{position:relative;display:flex;flex-direction:column;gap:var(--s4)}
+.fl-rail{position:absolute;left:16px;width:var(--bd);background:var(--line-strong)}
+.fl-row{position:relative;padding-left:52px;display:flex;align-items:center;gap:var(--s3)}
+.fl-row::before{content:"";position:absolute;left:16px;top:50%;width:34px;
+  height:var(--bd);background:var(--line-strong)}
+.fl-row .nm{font:700 18px/1 var(--font-mono);flex:none;width:74px}
+.fl-row .gl{line-height:0;flex:none}
+.fl-row .tx{font-size:16px;line-height:1.45;color:var(--fg-dim)}
+
+/* ═══ verdict split — what the app said vs what got graded ═══ */
+.split{display:flex;align-items:center;gap:var(--s4);
+  border-top:var(--bd) dashed var(--line-strong);padding-top:var(--s3);margin-top:var(--s3)}
+.split .side{display:flex;flex-direction:column;gap:6px}
+.split .side .k{font:700 var(--fs-micro)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-faint);white-space:nowrap}
+.split .arrow{font:700 20px/1 var(--font-mono);color:var(--line-strong)}
+.split .said{font:700 17px/1.35 var(--font-label);color:var(--fg-dim)}
+
+/* ═══ HUD strip — the tool's own meter bar, in the tool's own palette ═══ */
+.hud{display:flex;align-items:center;gap:var(--s8);padding:var(--s3) var(--s4);
+  background:var(--panel);border:var(--bd) solid var(--line);
+  box-shadow:var(--block) var(--line-strong)}
+.hud .wm{display:flex;align-items:center;gap:var(--s2);flex:none;
+  padding-right:var(--s4);border-right:var(--bd) solid var(--line)}
+.hud .wm b{font:700 17px/1 var(--font-mono);letter-spacing:.11em;color:var(--fg)}
+.hud .m{display:flex;flex-direction:column;gap:5px;min-width:0}
+.hud .m .k{font:700 12px/1.35 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-faint);white-space:nowrap}
+.hud .m .v{font:700 24px/1 var(--font-mono);letter-spacing:-.02em;color:var(--fg)}
+.hud .m .v s{text-decoration:none;color:var(--fg-faint);margin:0 8px;font-size:19px}
+.hud .m .d{font:11.5px/1.2 var(--font-ui);color:var(--fg-faint);white-space:nowrap}
+
+/* ═══ misc marks ═══ */
+.dither{background-image:repeating-linear-gradient(45deg,
+  var(--line) 0 1px, transparent 1px 4px)}
+.dotgrid{background-image:radial-gradient(var(--line) 1px, transparent 1px);
+  background-size:9px 9px}
+.g{fill:currentColor}
+.chip{display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--line-strong);padding:3px 10px;
+  font:700 var(--fs-micro)/1.5 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-dim)}
+.chip .g{width:13px;height:13px}
+.kv{display:flex;gap:var(--s2);align-items:baseline}
+.kv .k{font:700 var(--fs-micro)/1.4 var(--font-label);letter-spacing:var(--ls-label);
+  color:var(--fg-faint);flex:none;width:112px}
+.rule{height:var(--bd);background:var(--line);border:0;margin:0}
+.pull{border-left:4px solid var(--accent);padding:var(--s1) 0 var(--s1) var(--s3);
+  font-size:var(--fs-lead);line-height:1.45;color:var(--fg)}
+.pull.q2{border-color:var(--line-strong);color:var(--fg-dim)}
+.note{font:var(--fs-caption)/1.45 var(--font-ui);color:var(--fg-faint)}
+.note code{font-size:.93em}
+.mono{font-family:var(--font-mono)}
+.nb{white-space:nowrap}
+.num{font-family:var(--font-mono);font-weight:700}
+.ember{color:var(--ember)} .lime{color:var(--lime)} .coral{color:var(--coral)}
+.gold{color:var(--gold)} .plum{color:var(--plum)} .faint{color:var(--fg-faint)}
+pre{margin:0;font:var(--fs-caption)/1.55 var(--font-mono);color:var(--fg-dim);
+  white-space:pre;overflow:hidden}
+pre b{color:var(--fg)}
+</style>
+<body>
+<!-- ══════════════ 01 · 표지 ══════════════ -->
+<section class="s" style="grid-template-rows:1fr">
+  <div class="dotgrid" style="position:absolute;inset:0"></div>
+  <div style="position:absolute;left:56px;right:56px;top:38px;height:var(--bd);background:var(--line-strong)"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;justify-content:center;padding-bottom:186px">
+    <div style="display:flex;align-items:center;gap:30px">
+      <span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="104" height="104" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/></svg></span>
+      <div>
+        <h1 style="font:700 76px/.92 var(--font-mono);letter-spacing:.05em">MONSTROUS</h1>
+        <p class="lbl" style="margin-top:13px;color:var(--fg-dim);font-size:16px">
+          에이전트 스쿼드와 트레이스 뷰어</p>
+      </div>
+    </div>
+
+    <p class="dek" style="max-width:52ch;margin-top:28px;font-size:23px">
+      모델 하나 뒤에 자리 셋. 그리고 버린 실행들이 어디서 샜는지 보여주는 HTML 파일 하나.
+    </p>
+
+    <div class="row" style="margin-top:30px;gap:var(--s8);align-items:flex-end">
+      <div class="stat"><span class="k">에이전트</span><b class="v">3</b></div>
+      <div class="stat"><span class="k">모델</span><b class="v">1</b></div>
+      <div class="stat"><span class="k">문항당 호출</span><b class="v">2</b></div>
+      <div style="margin-left:auto;text-align:right">
+        <span style="font:700 var(--fs-micro)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+              color:var(--fg-faint)">hidden 세트</span>
+        <div class="row" style="gap:var(--s3);align-items:baseline;margin-top:6px">
+          <span class="chip"><svg class="g" viewBox="0 0 12 12" width="13" height="13" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/></svg> coding 38</span>
+          <span class="chip"><svg class="g" viewBox="0 0 12 12" width="13" height="13" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg> math 13</span>
+          <span class="chip"><svg class="g" viewBox="0 0 12 12" width="13" height="13" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg> generic 96</span>
+          <b class="mono" style="font-size:40px;letter-spacing:-.02em">147</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:56px;right:56px;bottom:78px">
+    <div class="lbl" style="font-size:13px;margin-bottom:11px">
+      스쿼드 전체가 겨냥하는 건 문자열 셋이다</div>
+    <div class="row" style="gap:var(--s3)">
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)"><svg class="g" viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/></svg> coding</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">*** PATCH START *** &hellip; *** PATCH END ***</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)"><svg class="g" viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg> math</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">FINAL ANSWER: \boxed{&lt;answer&gt;}</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)"><svg class="g" viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg> generic</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">ANSWER: &lt;letter&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>JUNCTIONX Korea 2026 &nbsp;&middot;&nbsp; Lablup + FuriosaAI &nbsp;&middot;&nbsp; Build the Ultimate Agent Squad</b>
+    <b>Team Monstrous &nbsp;&middot;&nbsp; 김성현 &nbsp;&middot;&nbsp; 이주형 &nbsp;&middot;&nbsp; 김일권</b>
+  </div>
+</section>
+
+<!-- ══════════════ 02 · 셋이 문항 하나를 이렇게 푼다 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성</div>
+    <h2 class="st wide">에이전트 셋, 문항 하나, 모델 호출 두 번.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise grow" style="display:flex;flex-direction:column">
+        <div class="lbl">벤치마크 문항 하나가 여기로 들어온다</div>
+
+          <div class="flow">
+           <div class="fl-rows">
+            <div class="fl-rail" style="top:24px;bottom:15px"></div>
+
+            <div class="fl-row">
+              <span class="gl ember"><svg class="g" viewBox="0 0 12 12" width="30" height="30" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
+              <b class="nm">Router</b>
+              <p class="tx">요청을 글자 그대로 태스크 하나에 옮겨 담고,
+                <code>REQUIRED&nbsp;OUTPUT</code> 블록이 가리키는 자리로 보낸다.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl plum"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+              <b class="nm">Coder</b>
+              <p class="tx">저장소 패치를 쓰거나, 프로그램을 새로 쓴다.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl lime"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+              <b class="nm">Solver</b>
+              <p class="tx">수학, 객관식, 그리고 둘 중 어느 것도 아닌 것.</p>
+            </div>
+           </div>
+          </div>
+
+        <div style="border-top:var(--bd) dashed var(--line-strong);padding-top:var(--s3)">
+          <div class="lbl" style="color:var(--accent)">&darr;&nbsp; 이 태스크의 출력이 채점된다</div>
+          <div class="row mt3" style="align-items:flex-end;gap:var(--s6)">
+            <div>
+              <div style="font:700 var(--fs-micro)/1.35 var(--font-label);letter-spacing:var(--ls-label);
+                   color:var(--fg-faint);white-space:nowrap">문항당 호출</div>
+              <div class="row mt2" style="align-items:center;gap:var(--s3)">
+                <div class="gauge" style="--cells:9;--on:2;--c:var(--accent)"></div>
+                <b class="mono" style="font-size:26px">2</b>
+              </div>
+            </div>
+            <div style="border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+              <p class="note">플래너 한 턴, 워커 한 턴. 첫 제출은 같은 147문항에
+                요청 <b class="mono">1,192</b>건, 문항당 <b class="mono">8.1</b>번이었다.
+                <code>create_task</code>가 돌아온 뒤 플래너가 한 턴을 더 도는지는 평가 러너에서
+                아직 확인하지 못했다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:none;width:328px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p acc tight" style="background:var(--panel-2);flex:none">
+          <div class="lbl">100점 배분</div>
+          <table class="t-tight mt2"><tbody>
+            <tr><td>벤치마크 점수</td><td class="n num">40</td></tr>
+            <tr><td>시각화</td><td class="n num">30</td></tr>
+            <tr><td><b>토큰 효율</b></td><td class="n num ember">30</td></tr>
+          </tbody></table>
+        </div>
+        <div class="p tight" style="flex:none">
+          <div class="lbl">모델 하나로 세 자리를 다 돌린다</div>
+          <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
+          <p class="note mt2">모델을 하나 더 넣어 얻는 손잡이는 추론 강도뿐인데,
+            템플릿에는 그걸 에이전트별로 지정할 수단이 없다.</p>
+        </div>
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">동점이면</div>
+          <p class="note mt2">총 토큰이 먼저 가른다. 토큰까지 같으면 <span class="nb">wall-clock</span>으로 간다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">02</span></div>
+</section>
+
+<!-- ══════════════ 03 · 채점기는 출력 하나만 읽는다 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 채점기가 읽는 자리</span></div>
+    <h2 class="st wide">답과 채점기 사이에 놓인 홉 하나하나가 답을 잃을 자리다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise">
+      <p class="q">채점기는 <code>finalResult</code>를 먼저 열고, 그걸 상태 보고라며 물린 다음,
+        마지막 웨이브부터 태스크를 거꾸로 훑어 진짜 출력을 찾는다. 기록된 28건 전부 2단계까지
+        내려갔다. 그러니 실무에서는 <b>마지막 태스크의 출력이 곧 답</b>이고,
+        답을 쓴 자리가 읽히는 자리여야 한다.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/></svg></span>
+          파일로 들어갔다<span class="sub">실행 2건</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          도구를 쥔 에이전트가 문항을 풀어 놓고, 답은 워크스페이스 파일에 저장하고,
+          응답에는 &ldquo;작업 완료&rdquo;만 썼다.
+          <b>채점기는 워크스페이스를 열지 않는다.</b></p>
+        <p class="note mt2">지금은 세 자리 전부 <code>enabledTools</code>가 비어 있고,
+          비어 있지 않으면 <code>validate_template.py</code>가 템플릿을 물린다.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">앱이 찍은 것</span>
+            <span class="said">완료</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">채점기가 본 것</span>
+            <span class="stamp" data-v="bad"><b>답 없음</b><em class="ko">형식 미검출</em></span></div>
+        </div>
+      </div>
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/></svg></span>
+          검토 자리가 다시 썼다<span class="sub">v1 설계</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          검토 자리를 마지막에 뒀는데, 그 자리에는 문제 본문이 도착하는 경로가 없었다.
+          확인할 수도 없는 답을 다시 쓴 셈이다.</p>
+        <p class="note mt2">지금은 푸는 자리가 끝내는 자리다. 검증은 자리를 옮겼다 &mdash; 10쪽.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">답이 있던 곳</span>
+            <span class="said">웨이브 1</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">채점기가 읽은 곳</span>
+            <span class="said">웨이브 3</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="bad"><b>도달 못 함</b><em class="ko">홉에서 유실</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">03</span></div>
+</section>
+
+<!-- ══════════════ 04 · 그러면 왜 하나가 아닌가 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 그러면 왜 하나가 아닌가</span></div>
+    <h2 class="st wide">하나는 앱이 못 박았고, 하나는 계산에서 나왔다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise">
+        <div class="p-t"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
+          플래너 자리는 앱이 못 박아 뒀다<span class="sub">플랫폼</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          요청 전문을 보는 컴포넌트는 플래너 하나뿐이다. 워커는 플래너가 만든 태스크의
+          <code>description</code>만 받는다. 자리를 없앨 수 없으니 할 일을 깎았다.
+          <b>Router는 <code>create_task</code>를 한 번 부르고 끝낸다.</b></p>
+      </div>
+      <div class="p raise">
+        <div class="p-t"><span class="plum" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+          Coder와 Solver를 가른 건 길이다<span class="sub">계산</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          Coder 계약이 <b>7,698자</b>고 그중 1,943자가 파서가 강제하는 패치 형식이다.
+          두 자리를 합치면 math 문항마다 닿지도 않을 파서 규칙을 같이 실어 나른다.</p>
+        <div class="kv mt2"><span class="k">합쳤을 때 물리는 문항</span>
+          <b class="mono">147개 중 109개</b></div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">coding 요청 중앙값</span>
+          <b class="v" style="font-size:44px">63,812 B</b>
+          <span class="d">공개된 coding 요청 20건 기준</span>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+            사람 수는 사고가 났을 때의 배수이기도 하다. 플래너 호출이 실패하면 앱은 요청을 쪼개지 않고
+            <b>플래너 아닌 자리 전부</b>에 전문을 그대로 뿌린다. 이 중앙값이면 자리 하나가 늘 때마다
+            coding 문항 하나에서 63,812바이트가 더 나간다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">04</span></div>
+</section>
+
+<!-- ══════════════ 05 · 지문이 물은 네 가지 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 지문이 물은 네 가지</span></div>
+    <h2 class="st wide">둘에는 이름이 붙고, 둘에는 일부러 안 붙였다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise" style="background:var(--panel-2)">
+      <table><thead><tr>
+        <th style="width:29%">지문의 질문</th><th style="width:17%">누가</th><th>어떻게</th>
+      </tr></thead><tbody>
+        <tr><td>누가 코드를 읽는가</td><td class="k lat ember">Router</td>
+            <td>저장소 발췌를 순서 매겨 고르고 태스크에 옮긴다</td></tr>
+        <tr><td>누가 코드를 고치는가</td><td class="k lat plum">Coder</td>
+            <td>패치를 쓴다. 패치 마커를 내는 자리는 여기뿐이다</td></tr>
+        <tr><td>누가 결과를 검증하는가</td><td class="k faint">한 자리가 아니다</td>
+            <td>에이전트 안에서 한 번, 빌드에서 또 한 번 &mdash; 10쪽</td></tr>
+        <tr><td>누가 포기를 판단하는가</td><td class="k faint">규칙 네 군데</td>
+            <td>플랜 그래프가 실행 전에 굳어서 에이전트로는 못 만든다 &mdash; 11쪽</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="p raise">
+      <div class="p-t" style="font-size:20px">자리마다 자기 일에 서명한다
+        <span class="sub">응답 첫 줄 &middot; Router는 태스크 제목</span></div>
+      <p class="note" style="margin-bottom:var(--s3)">자리마다 압축한 JSON 한 줄을 쓴다.
+        <code>a</code>가 자리를 적고 나머지 키는 서로 다르다. 뷰어는 산문에서 짐작하는 대신
+        이 줄을 읽어 어느 에이전트가 뭘 냈는지 안다.</p>
+      <div class="g3">
+        <div>
+          <div class="lbl ember" style="font-size:13px;margin-bottom:7px">Router</div>
+          <pre>{"a":"Router",
+ "track":"coding",
+ "copy":"anchors",
+ "chars":31840}</pre>
+        </div>
+        <div>
+          <div class="lbl plum" style="font-size:13px;margin-bottom:7px">Coder</div>
+          <pre>{"a":"Coder",
+ "kind":"repo",
+ "edits":2,
+ "site":"query.py"}</pre>
+        </div>
+        <div>
+          <div class="lbl lime" style="font-size:13px;margin-bottom:7px">Solver</div>
+          <pre>{"a":"Solver",
+ "kind":"math",
+ "conf":0.82}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      뒤의 두 답에는 사람 이름이 없다. 이유는 계약 셋을 보고 나면 훨씬 쉽게 보인다.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">05</span></div>
+</section>
+<!-- ══════════════ 06 · Router ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Router</span></div>
+    <h2 class="st wide">Router. <code style="font-size:.86em">create_task</code> 한 번, 그리고 끝낸다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.15;display:flex;flex-direction:column">
+        <div class="p-t"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
+          트랙은 블록이 가른다<span class="sub">모델이 아니라</span></div>
+        <table class="t-tight"><thead><tr>
+          <th style="width:54%">REQUIRED OUTPUT 블록이 요구하는 것</th><th>가는 자리</th>
+        </tr></thead><tbody>
+          <tr><td>패치 마커 두 줄 사이의 패치</td><td class="k lat plum">Coder &middot; coding</td></tr>
+          <tr><td>마지막 boxed 값</td><td class="k lat lime">Solver &middot; math</td></tr>
+          <tr><td>보기 글자 하나</td><td class="k lat lime">Solver &middot; generic</td></tr>
+          <tr><td>그 밖이거나, 블록이 아예 없거나</td><td class="k lat lime">Solver &middot; other</td></tr>
+        </tbody></table>
+        <p class="note mt3">블록의 모양만 보고 가르니 모델의 짐작이 들어갈 자리가 없다.
+          합성기가 실제로 붙이는 건 앞의 셋뿐이고, 넷째 줄은 우리가 못 본 모양에 대비해 둔 자리다.</p>
+
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">부르지 않는 것</span>
+            <span class="said mono" style="font-size:14px">check_task_status &middot; aggregate_results &middot; update_plan</span></div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight">
+          <div class="lbl">옮기지, 요약하지 않는다</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.6">
+            바꿔 쓴 문제는 다른 문제다. 옮기지 않은 보기 목록에는 고를 글자가 없다.
+            다시 타이핑한 소스 한 줄은 붙지 않는 패치다.</p>
+        </div>
+        <div class="p tight" style="flex:1">
+          <div class="lbl">coding만 예외다</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.6">
+            저장소 컨텍스트가 약 60,000자라 안 들어간다. <code>REQUIRED&nbsp;OUTPUT</code> 블록이 먼저다.
+            요청에서는 맨 끝인데 복사할 때는 맨 앞이다. 그다음 이슈 본문, 그다음 발췌를 강한 순서로.
+            <b class="mono">32,000</b>자에서 끊고, <b>발췌 안을 자르는 대신 하나를 통째로 버린다.</b></p>
+          <div class="mt3">
+            <div class="lbl" style="font-size:13px;margin-bottom:8px">발췌 우선순위</div>
+            <ol style="margin:0;padding-left:1.15em;font-size:14.5px;line-height:1.7;color:var(--fg-dim)">
+              <li>이슈가 이름을 대놓고 부른 경로</li>
+              <li>이슈가 붙여 넣은 트레이스백에 있는 경로</li>
+              <li>이슈가 부른 심볼을 정의하는 발췌</li>
+              <li>그것을 호출하는 발췌</li>
+            </ol>
+            <p class="note mt2">넷 중 아무것에도 안 걸리면 추측이고, 추측 하나가 약 12,000자를 먹는다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">06</span></div>
+</section>
+
+<!-- ══════════════ 07 · Coder / 파서 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Coder</span></div>
+    <h2 class="st wide">안 붙는 패치는 아무리 옳아도 0점이다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.5">
+        <div class="p-t" style="font-size:21px"><span class="plum" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+          패치 파서가 실제로 강제하는 것<span class="sub">한 줄 한 줄이 맞는 수정을 0점으로 만든다</span></div>
+        <table class="t-tight"><thead><tr>
+          <th style="width:44%">규칙</th><th>어기면</th>
+        </tr></thead><tbody>
+          <tr><td>안쪽 마커 세 줄이 0열에서 시작</td>
+              <td>앞에 공백 하나만 있어도 전체가 0블록으로 파싱된다</td></tr>
+          <tr><td>SEARCH가 파일과 바이트 단위로 일치</td>
+              <td>따옴표 문자 하나, 들여쓰기 한 칸이 다르면 안 붙는다</td></tr>
+          <tr><td>SEARCH가 그 파일 안에서 유일</td>
+              <td>두 번 걸리면 아무것도 안 붙는다. 주변 줄을 붙여 넓힌다</td></tr>
+          <tr><td>블록과 블록 사이에 산문 금지</td>
+              <td>다음 블록의 경로 줄로 읽히고, 패치가 조용히 멈춘다</td></tr>
+          <tr><td><code>=</code>가 일곱 개 이상 이어지는 줄을 앵커로 안 쓰기</td>
+              <td>파서가 거기서 SEARCH를 끊는다. 오류는 안 난다.
+                  <code>&lt;</code> <code>&gt;</code>는 뒤에 <code>&nbsp;REPLACE</code>가 붙을 때만 위험하다</td></tr>
+          <tr><td>패치는 응답당 한 번</td>
+              <td>마지막 것만 읽어서, 두 번째 시도가 좋은 첫 번째를 덮는다</td></tr>
+          <tr><td>unified diff, <code>git diff</code>, 파일 통째 재작성 금지</td>
+              <td>아무것도 추출되지 않아 그 문항은 0점이다</td></tr>
+        </tbody></table>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="background:var(--panel-2)">
+          <div class="lbl">읽히는 모양은 이것 하나다</div>
+          <pre class="mt2" style="font-size:12.5px;line-height:1.6">*** PATCH START ***
+<b>path/to/file.py</b>
+<b>&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH</b>
+    파일에 지금 있는 그 줄
+<b>=======</b>
+    그것을 대신할 줄
+<b>&gt;&gt;&gt;&gt;&gt;&gt;&gt; REPLACE</b>
+*** PATCH END ***</pre>
+        </div>
+        <div class="p tight">
+          <div class="pull" style="font-size:16px">
+            여러 경로가 같은 함수로 모이면 고칠 자리는 그 함수 한 곳이다.
+            이슈가 지목한 경로만 고치는 건 더 큰 변경이면서 형제 호출자를 깨진 채로 남기고,
+            이미 통과하던 테스트가 보고 있는 게 정확히 그 형제다.
+          </div>
+        </div>
+        <div class="p tight">
+          <div class="lbl">도구 없음, 설계대로</div>
+          <p class="note mt2">Coder는 파일을 열 수도, 테스트를 돌릴 수도, 저장소를 뒤질 수도 없다.
+            받은 글 안에 없는 경로·심볼·줄 번호는 지어낸 것이고, 지어낸 패치는 적용되지 않는다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">07</span></div>
+</section>
+
+<!-- ══════════════ 08 · Coder / 실행 방식 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Coder</span></div>
+    <h2 class="st wide">닮았는데 정반대인 문장 두 개.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">채점기가 이렇게 적었으면</div>
+        <p class="mono mt2" style="font-size:16px;color:var(--fg)">&ldquo;runs your file as a program&rdquo;</p>
+        <hr class="rule mt3">
+        <p class="mt3" style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          표준 입력에서 읽고, 답만 표준 출력에 쓴다.</p>
+        <p class="note mt2">함수 정의만 있는 파일은 아무것도 안 찍고 0점이다.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">연습 문항</span>
+            <span class="said">7건 중 4건</span></div>
+          <div class="gauge" style="--cells:7;--on:4;--c:var(--plum);margin-left:auto"></div>
+        </div>
+      </div>
+
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">채점기가 이렇게 적었으면</div>
+        <p class="mono mt2" style="font-size:16px;color:var(--fg)">&ldquo;imports your file and calls the entry point&rdquo;</p>
+        <hr class="rule mt3">
+        <p class="mt3" style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          주어진 이름과 시그니처를 그대로 지킨다. 표준 입력은 읽지 않고, import 시점에는 아무것도 안 돌린다.</p>
+        <p class="note mt2">여기서 표준 입력을 읽으면 0점이다.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">연습 문항</span>
+            <span class="said">7건 중 3건</span></div>
+          <div class="gauge" style="--cells:7;--on:3;--c:var(--plum);margin-left:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      둘을 뒤바꾸면 알고리즘이 맞아도 0점이다. 그래서 Coder는 실행 방식 문장을 글자 그대로 따른다.
+      뭐라도 돌아가느냐를 이 한 줄이 정한다.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">08</span></div>
+</section>
+
+<!-- ══════════════ 09 · Solver ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Solver</span></div>
+    <h2 class="st wide">Solver가 147문항 중 109개를 진다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g3">
+      <div class="p raise">
+        <div class="p-t" style="font-size:20px">
+          <span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg></span>수학</div>
+        <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
+          값까지 푼 다음 다른 방법으로 한 번 더 검산한다. 대입해 보거나, 한 단계를 다른 경로로 다시
+          유도하거나, 가장 작은 케이스로 시험한다. 두 경로가 어긋나면 정당화할 수 있는 쪽을 택한다.</p>
+        <p class="note mt2">평균 내지 않고 둘 다 내놓지도 않는다. 부호, 정수성, 범위, 무연근을 확인한다.</p>
+      </div>
+      <div class="p raise">
+        <div class="p-t" style="font-size:20px">
+          <span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>객관식</div>
+        <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
+          보기를 보기 전에 푼다. 보기부터 고르고 거기로 추론을 맞춰 가는 것이
+          오답 보기가 이기는 방식이다.</p>
+        <p class="note mt2">보기 개수는 셋에서 열까지라 목록이 C에서 끝나기도, G에서 끝나기도 한다.
+          그 문항의 Options 블록 끝을 넘어간 글자는 추론이 맞아도 0점이다.</p>
+      </div>
+      <div class="p raise" style="border-style:dashed">
+        <div class="p-t" style="font-size:20px">
+          <span class="faint" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>그 밖의 것</div>
+        <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
+          채점되는 벤치마크는 셋이지만 하네스가 그 밖의 것을 보낼 수 있다. 세 트랙만 아는 스쿼드는
+          넷째가 오는 순간 억지로 형식을 씌워서, 값이 맞는데도 형식으로 잃는다.</p>
+        <p class="note mt2">그 자리에서는 요청이 자기 답의 모양을 말한 문장이 곧 계약이다.</p>
+      </div>
+    </div>
+
+    <div class="p bad">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div style="flex:none;max-width:230px">
+          <div class="lbl" style="color:var(--v-bad)">보기 글자 줄이 깨지는 세 가지</div>
+          <p class="note mt2" style="font-size:13px">보기 글자 패턴만 줄 전체에 앵커가 걸린다.
+            boxed 패턴은 안 걸린다.</p>
+        </div>
+        <div class="row grow" style="gap:var(--s6);font-size:15.5px;color:var(--fg-dim)">
+          <div><b>값 앞에 뭐가 붙는 것</b><br><span class="note">굵게 표시, 불릿, 인용 화살표</span></div>
+          <div><b>값 뒤에 뭐가 붙는 것</b><br><span class="note">보기 이름, 괄호, 마침표, 글자 두 개</span></div>
+          <div><b>대소문자</b><br><span class="note">패턴이 줄 전체에 걸려 있다</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">09</span></div>
+</section>
+
+<!-- ══════════════ 10 · 검증 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; 누가 검증하는가</span></div>
+    <h2 class="st wide">검증자를 없앤 게 아니라 자리를 둘로 옮겼다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p ok" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="9" y="3" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/></svg></span>
+          하나. 에이전트 안<span class="sub">호출이 안 는다</span></div>
+        <ul style="margin:0;padding-left:1.15em;font-size:16px;line-height:1.8;color:var(--fg-dim)">
+          <li>Solver가 같은 값을 두 번째 경로로 다시 유도한다</li>
+          <li>Coder가 쓰기 전에 형제 호출자를 확인한다</li>
+          <li>마지막 줄 규칙은 그 줄을 쓰는 자리가 직접 지킨다</li>
+        </ul>
+        <p class="note mt3">전부 같은 응답 안에서 돌아서 호출 수가 그대로다.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">늘어난 모델 호출</span><span class="said">0</span></div>
+        </div>
+      </div>
+
+      <div class="p ok" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="9" y="3" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/></svg></span>
+          둘. 빌드 시점의 프로그램<span class="sub">tools/validate_template.py</span></div>
+        <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
+          우리 프롬프트 텍스트 여섯 개를 채점기의 추출 함수에 그대로 먹인다.
+          <code>extract_letter</code>, <code>extract_boxed</code>, <code>extract_patch</code>.
+          하나라도 답을 뽑아내면 검사가 실패하고 아무것도 제출하지 않는다.</p>
+        <div class="pull q2 mt3" style="font-size:16px">
+          우리 지시문에서 채점기가 답을 뽑아낼 수 있으면, 모델이 지시문 조각을 흘리는 순간
+          그 조각이 답으로 채점된다.
+        </div>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">강제하는 조건</span><span class="said">50</span></div>
+          <div class="side" style="margin-left:auto"><span class="k">사람 검토</span>
+            <span class="said">필요 없음</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <p style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+        <b>검증 홉을 하나 더 두지 않은 이유.</b> 채점기가 마지막 태스크만 읽으니 검증 홉이 곧 마지막
+        홉이 되는데, 그 자리는 답을 만든 자리가 아니다. 설계할 때 참고한 공개 측정도 같은 쪽을 가리켰다.
+        외부 신호 없는 자기검증은 GPT-4를 GSM8K에서 <b class="mono">95.5%</b>에서
+        <b class="mono">89.0%</b>로 떨어뜨렸고, 결정론적 감시는 SWE-bench resolve를 평균
+        <b class="mono">9.9%</b> 올렸다. 둘 다 <code>00-스쿼드-스펙.md</code> &sect;614&ndash;617에 모아 뒀다.
+        우리가 고른 건 뒤쪽이다.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">10</span></div>
+</section>
+
+<!-- ══════════════ 11 · 포기와 예산 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>03</s> 포기와 예산</div>
+    <h2 class="st wide">캡이 없으니 포기는 안 해도 되는 호출을 안 하는 것이다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p warn" style="flex:none;width:340px">
+        <div class="lbl">리더보드 API가 적은 hidden 세트 캡</div>
+        <p class="mono mt2" style="font-size:15px;color:var(--fg)">no wall-clock cap,<br>no token cap</p>
+        <p class="note mt2">채점된 실행 전부에서 두 필드가 <code>null</code>로 돌아온다.
+          밖에서 조여 주는 게 없으니 우리가 하는 호출은 전부 우리가 고른 호출이다.</p>
+      </div>
+      <div class="p grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">플랜 그래프가 실행 전에 굳고 조건 분기가 없다.
+          그래서 <b>판단하는 에이전트를 둘 수 없다.</b>
+          규칙 네 개가 각자 아직 손쓸 수 있는 자리에 앉아 있어야 한다.</p>
+      </div>
+    </div>
+
+    <div class="g4">
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">01 &middot; Router</div>
+        <p class="mt2" style="font-size:15px;line-height:1.6;color:var(--fg-dim)">
+          태스크 하나, 재계획 없음. 앱 기본 플래너 지시문은 가장 작게 쪼개라고 시키는데 그걸 뒤집었다.
+          태스크 하나가 모델 호출 하나다.</p>
+      </div>
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">02 &middot; 복사 예산</div>
+        <p class="mt2" style="font-size:15px;line-height:1.6;color:var(--fg-dim)">
+          32,000자를 강한 순서로 채운다. <code>create_task</code>가 길이 초과를 돌려주면 발췌를
+          통째로 빼고 다시 부른다. 이슈 본문만으로 푼 문항도 점수가 나고, 태스크가 없는 문항은 0점이다.</p>
+      </div>
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">03 &middot; 워커</div>
+        <p class="mt2" style="font-size:15px;line-height:1.6;color:var(--fg-dim)">
+          유도가 길어지면 멈추고 지금 가진 최선의 값으로 답 줄을 쓴다. 잘린 응답에는 답 줄이 아예 없다.
+          이미 풀어 놓은 문항을 잃는 실패 모드가 이거 하나뿐이다.</p>
+      </div>
+      <div class="p tight bad" style="display:flex;flex-direction:column">
+        <div class="lbl coral">04 &middot; 빈 응답 금지</div>
+        <p class="mt2" style="font-size:15px;line-height:1.6;color:var(--fg-dim)">
+          여기가 뒤집힌 자리다. 웨이브가 여럿이면 빈 출력이 안전하다. 채점기가 건너뛰고 앞을 읽어서다.
+          <b>웨이브가 하나면 그 안전망이 없다.</b> 빈 응답은 확정 0점이고, 찍은 답은 가끔 맞는다.</p>
+      </div>
+    </div>
+
+    <p class="note"><b>예산 설정은 제출물이 아니다.</b>
+      <code>budget.json</code>은 로컬 스쿼드 예산이라 평가 서버에 가지 않는다. 평가 서버는 런타임
+      기본값(<code>maxTasksPerPlan</code> 20, <code>maxAgentTurns</code> 20,
+      <code>maxPlanIterations</code> 3)으로 돈다. 그래서 네 규칙이 설정이 아니라 프롬프트 안에 있다.</p>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">11</span></div>
+</section>
+<!-- ══════════════ 12 · 왜 만들었나 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어</div>
+    <h2 class="st wide">로그에는 실행 완료라고 찍혔는데, 채점될 답이 없었다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">앱이 보는 건 태스크가 끝났느냐다. 우리가 알아야 하는 건
+          응답 본문에 채점기가 읽을 형식이 들어 있느냐다.
+          로그를 눈으로 훑어서는 둘이 갈리지 않았다.</p>
+        <div class="split">
+          <div class="side"><span class="k">앱의 질문</span>
+            <span class="said">태스크가 끝났나?</span></div>
+          <span class="arrow">&ne;</span>
+          <div class="side"><span class="k">우리 질문</span>
+            <span class="said">본문에 답이 있나?</span></div>
+        </div>
+      </div>
+      <div style="flex:none;width:352px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">AI:GO에도 대시보드가 있다</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.6">
+            스윔레인도 있고 예산 미터도 있다. 다만 그건 한 실행 안에서 무슨 일이 있었는지를 보여준다.
+            우리에게 필요했던 건 실행 수십 건을 나란히 놓고 어디서 새는지 보는 화면이었다.</p>
+        </div>
+        <div class="p tight acc" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">누구를 위해 만들었나</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.6">
+            심사에 보여주려고 만든 화면이 아니다. 스쿼드를 고치려고 만들었고,
+            다음 장의 숫자가 설계를 바꾼 숫자들이다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lbl" style="margin-bottom:var(--s2)">데모에서 열 폴더를 넣었을 때의 계기 넷</div>
+      <div class="hud dark">
+        <div class="wm"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/></svg></span><b>MONSTROUS</b></div>
+        <div class="m"><span class="k">실행</span><b class="v">39</b>
+          <span class="d">파일 310 &middot; 스쿼드 9</span></div>
+        <div class="m"><span class="k">AI:GO 성공 &rlarr; 채점 적격</span>
+          <b class="v">22<s>&rlarr;</s>12</b>
+          <span class="d">두 판정이 갈린 건 10건</span></div>
+        <div class="m"><span class="k">Credits</span>
+          <div class="row" style="align-items:center;gap:var(--s2)">
+            <b class="v">154.6k</b>
+            <div class="gauge" style="--cells:20;--on:19;--c:var(--ember);--cell-pitch:8px;--cell-h:12px"></div>
+          </div>
+          <span class="d">1칸 = 8.0k tok</span></div>
+        <div class="m"><span class="k">Time</span><b class="v">1h 8m</b>
+          <span class="d">실행당 평균 104.4s</span></div>
+      </div>
+      <p class="note mt2">두 번째 계기가 이 도구의 논점 전부다. 아래 줄의 숫자는
+        플랫폼이 성공이라 부르고 채점기는 0점으로 셀 실행의 개수다.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">12</span></div>
+</section>
+
+<!-- ══════════════ 13 · 만들고 나서야 보인 것 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 실측 39건</span></div>
+    <h2 class="st wide">0점마다 고칠 사람이 다르다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise" style="flex:1.25">
+        <table class="t-tight"><thead><tr>
+          <th style="width:50%">판정</th><th class="n">건수</th><th>누가 고치나</th>
+        </tr></thead><tbody>
+          <tr class="faint"><td>문항 아님 &mdash; 두 글자짜리 스모크 테스트</td>
+              <td class="n">10</td><td class="k">아무도 &middot; 채점 대상 아님</td></tr>
+          <tr class="faint"><td>호출 거부 &mdash; 컨텍스트 초과, 인프라. 스쿼드 밖이다</td>
+              <td class="n">6</td><td class="k gold">설정</td></tr>
+          <tr class="faint"><td>판정 보류 &mdash; 트랙도 계약도 못 알아봤다</td>
+              <td class="n">0</td><td class="k">검사기</td></tr>
+          <tr><td><b>답 형식 없음</b></td>
+              <td class="n coral"><b>11</b></td><td class="k coral">프롬프트</td></tr>
+          <tr><td><b>채점 적격</b></td>
+              <td class="n lime"><b>12</b></td><td class="k">&mdash;</td></tr>
+        </tbody></table>
+        <div class="split">
+          <div class="side"><span class="k">우리 분모</span>
+            <span class="said">39건 중 23건</span></div>
+          <div class="gauge" style="--cells:23;--on:12;--dim:11;--c:var(--v-ok);margin-left:var(--s3)"></div>
+          <div class="side" style="margin-left:auto">
+            <span class="k">적격 비율</span><span class="said">12 / 23</span></div>
+        </div>
+        <p class="note mt2">앞의 세 줄은 분모에서 뺀다. 우리가 직접 친 스모크 테스트는 벤치마크 실패가
+          아니고, 남겨 두면 없던 실패를 하나 만들어 내는 셈이다.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2)">
+        <div class="lbl">무엇이 보였고 &rarr; 무엇이 달라졌나</div>
+        <table class="t-tight mt2"><tbody>
+          <tr><td>AI:GO가 성공이라 한 실행과 점수가 되는 실행이 다르다</td>
+              <td class="k">답 만든 태스크를 마지막으로 고정</td></tr>
+          <tr><td>0점 안에 갈래가 여럿이고 갈래마다 담당이 다르다</td>
+              <td class="k">셋으로 갈랐다</td></tr>
+          <tr><td>답을 파일에는 썼는데 응답에는 안 낸 실행이 있다</td>
+              <td class="k">세 자리 전부 도구 0개</td></tr>
+          <tr><td>큐 대기가 평균 11.9초, 최대 138.4초다</td>
+              <td class="k">wall-clock을 둘로 갈랐다</td></tr>
+        </tbody></table>
+        <div class="pull mt3" style="font-size:16px">
+          이 넷 중 로그를 눈으로 훑어서 보인 건 하나도 없었고, 넷 다 스쿼드를 바꿨다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">13</span></div>
+</section>
+
+<!-- ══════════════ 14 · 도구가 자기를 고쳤다 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 일어나지 않은 잘못</span></div>
+    <h2 class="st wide">이 도구가 찾아낸 가장 쓸모 있는 건 자기 오산이었다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p bad">
+      <p class="q">한동안 화면에 <b>계약 미전송</b>이라는 갈래를 뒀다. 기록된 요청에
+        <code>=== REQUIRED OUTPUT ===</code> 절이 없으면 러너가 계약을 안 보낸 것으로 읽었다.
+        데모에 쓸 폴더에서 이 규칙에 걸리는 건 <b>13건</b>이고, 그 전부를 러너 잘못으로 세고 있었다.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">근거 하나 &middot; 크기 문제가 아니었다</div>
+        <div class="row mt3" style="align-items:baseline;gap:var(--s4)">
+          <div class="stat"><span class="k">13건 중 가장 큰 것</span>
+            <b class="v" style="font-size:34px">64,914<span class="faint" style="font-size:18px">자</span></b></div>
+          <div class="stat"><span class="k">계약 절 하나</span>
+            <b class="v" style="font-size:34px">~250<span class="faint" style="font-size:18px">자</span></b></div>
+        </div>
+        <p class="note mt3">그 하나는 저장소 컨텍스트를 통째로 담고도 계약 절이 없다. 자리가 없어서
+          밀려난 게 아니라는 뜻이다. <code>history.json</code>은 모델에게 간 지문이 아니라
+          질문만 잘라 저장한 값이다.</p>
+      </div>
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">근거 둘 &middot; 모델은 형식을 들었다</div>
+        <div class="row mt3" style="align-items:center;gap:var(--s4)">
+          <div class="gauge" style="--cells:13;--on:10;--c:var(--v-ok)"></div>
+          <p style="font-size:16px;line-height:1.45;color:var(--fg-dim)">
+            <b class="mono">13건 중 10건</b>의 응답에 <code>\boxed{}</code>가 들어 있었다.
+            다섯 건은 <code>FINAL&nbsp;ANSWER:</code>까지 갖췄다.</p>
+        </div>
+        <p class="note mt3">받은 적 없는 계약을 모델이 지킬 수는 없다.
+          그 갈래는 일어나지 않은 일을 적고 있었다.</p>
+      </div>
+    </div>
+
+    <div class="pull">
+      로그의 침묵을 일어난 일로 적으면, 아무도 저지르지 않은 잘못이 생긴다.
+      이 도구가 가장 하지 말아야 할 일이 그거라서 갈래를 지웠다.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">14</span></div>
+</section>
+
+<!-- ══════════════ 15 · 무엇이 들어 있나 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 무엇이 들어 있나</span></div>
+    <h2 class="st wide">HTML 파일 하나. 설치도 서버도 인터넷도 필요 없다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise" style="flex:1.3">
+        <table class="t-tight"><thead><tr>
+          <th style="width:30%">화면</th><th>무엇을 하나</th>
+        </tr></thead><tbody>
+          <tr><td class="k">상단 계기 넷</td>
+              <td>실행 수 &middot; AI:GO 성공과 채점 적격의 대조 &middot; Credits, 토큰을 칸으로 센다 &middot; Time</td></tr>
+          <tr><td class="k">모드 셋</td>
+              <td>실행 하나 &middot; 전체 분석 &middot; 스쿼드 비교. 모드마다 답하는 질문이 다르다</td></tr>
+          <tr><td class="k">탭 여섯</td>
+              <td>개요 &middot; 재생 &middot; 장부 대조 &middot; 타임라인 &middot; 실패 분류 &middot; 원문 로그</td></tr>
+          <tr><td class="k">절단선 실험대</td>
+              <td>문항당 토큰 상한을 끌면 얼마를 아끼고 몇 개를 잃는지 다시 계산된다</td></tr>
+          <tr><td class="k">0점 분류 스택</td>
+              <td>우리가 지는 갈래마다 담당을 글자로 적는다. 우리 밖인 갈래에는 줄표가 붙는다</td></tr>
+          <tr><td class="k">선택 상태 공유</td>
+              <td>태스크 하나를 고르면 맵 &middot; 레인 &middot; 티커 &middot; 장부가 전부 같은 대상을 비춘다</td></tr>
+          <tr><td class="k">그 밖에</td>
+              <td>한국어와 영어 &middot; 고대비 &middot; 발표 모드 &middot; 인쇄 &middot; SVG와 JSON 내보내기 &middot; 키보드 단축키 여덟 개</td></tr>
+        </tbody></table>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1">
+          <div class="lbl">화면이 지키는 규칙 셋</div>
+          <ol class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.7;color:var(--fg-dim)">
+            <li>창이 좁아지면 계기가 하나씩 통째로 사라진다. 사라진 건 사라진 줄 알지만,
+              잘린 숫자는 다른 숫자로 읽힌다.</li>
+            <li>모든 패널은 자기가 답하는 질문 한 줄로 시작하고, 어떤 장식도 그 줄 위에 오지 않는다.</li>
+            <li>색만으로 뜻을 전달하지 않는다.</li>
+          </ol>
+        </div>
+        <div class="p tight acc" style="flex:none">
+          <div class="lbl">외부 요청</div>
+          <div class="row mt2" style="align-items:baseline;gap:var(--s3)">
+            <b class="mono" style="font-size:40px">0</b>
+            <p class="note">빌드가 검사한다. 없는 CDN 때문에 오프라인 시연이 깨질 일이 없다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">15</span></div>
+</section>
+
+<!-- ══════════════ 16 · 믿어도 되는 이유 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 이 화면을 믿어도 되는 이유</span></div>
+    <h2 class="st wide">로그에 없는 건 안 그린다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p bad">
+        <div class="lbl coral">일부러 뺀 것</div>
+        <p class="mt2" style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+          캐시 적중률은 로그에 없다. 모델 이름도 로그에 없다. 태스크별 토큰은 <b>0</b>으로 돌아온다.
+          확신도는 신호 자체가 없다. 빠진 넷의 이유가 각각 다르고, 넷 중 무엇을 그려도 숫자를 지어내는 셈이다.</p>
+      </div>
+      <div class="p ok">
+        <div class="lbl lime">추정한 자리에는 추정이라고 쓴다</div>
+        <p class="mt2" style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+          에이전트별 토큰은 추정이고, 화면이 그 자리에서 이유까지 같이 설명한다.
+          절단선 숫자는 손실의 상한이다. 잘린 실행을 전부 잃는 것으로 계산하기 때문이고,
+          그 문장도 화면 안에 있다.</p>
+      </div>
+    </div>
+
+    <div class="p raise">
+      <div class="lbl">재생과 시뮬레이션은 화면에서 이름이 갈린다</div>
+      <div class="g2 mt3">
+        <div><b class="lime" style="font-size:16px">재생</b>
+          <p class="note mt2">&ldquo;녹화된 로그만으로 재생합니다. 모델 호출 0회.&rdquo;
+            다시 돌리지도, 추정하지도 않는다.</p></div>
+        <div><b class="gold" style="font-size:16px">절단선</b>
+          <p class="note mt2">제목이 <b>정직한 한계</b>다. 상한에 닿는 순간 그 실행을 포기했다고
+            가정하고, 잘린 실행을 전부 잃은 것으로 센다.</p></div>
+      </div>
+      <p class="note mt3">안 돌아간 걸 돌아간 것처럼 그리지 않는다.</p>
+    </div>
+
+    <div class="p acc">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">그대로 옮긴 로직</span>
+          <b class="v" style="font-size:40px">1,116<span class="faint" style="font-size:18px">줄</span></b>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
+            화면을 전부 갈아엎었는데 데이터는 한 바이트도 안 바뀌었다. 파싱, 판정, 집계, 로드,
+            내보내기를 그대로 옮겼고, 빌드가 매번 얼려 둔 스냅샷과 diff를 뜬다. 한 줄이라도 어긋나면
+            산출물을 안 만든다. <b>같은 폴더를 넣으면 JSON이 바이트 동일하다.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">16</span></div>
+</section>
+
+<!-- ══════════════ 17 · 데모 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>05</s> 데모 <span class="rest">&middot; 65초</span></div>
+    <h2 class="st wide">개발하면서 남은 실행 기록으로, 지금 돌린다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise fill">
+      <p class="note" style="margin-bottom:var(--s3)">
+        <b>폴더를 열기 전에 먼저 하는 말:</b> 지금 여는 건 개발하면서 남은 실행 기록이라
+        스쿼드 구성이 실행마다 다르다. 그걸 나란히 놓고 보려고 만든 모드가 세 번째에 있다.
+        이 말을 건너뛰면 심사위원이 맨 먼저 묻는 게 왜 맵에 노드가 셋보다 많냐다.</p>
+      <table class="t-tight"><thead><tr>
+        <th style="width:11%" class="n">구간</th><th style="width:30%">조작</th><th>무엇이 보이나</th>
+      </tr></thead><tbody>
+        <tr><td class="n k">0&ndash;10s</td><td>워크스페이스 폴더를 끌어다 놓는다</td>
+            <td>설치도 서버도 없다. HTML 파일 하나고, 실행 목록이 바로 뜬다</td></tr>
+        <tr><td class="n k">10&ndash;25s</td><td><b>AI:GO 성공 &rlarr; 채점 적격</b>을 가리킨다</td>
+            <td>이 계기 하나 보자고 만든 도구다. 두 판정이 갈린 건수가 아래 줄에 적혀 있다</td></tr>
+        <tr><td class="n k">25&ndash;42s</td><td><kbd>m</kbd>으로 전체 분석, 그다음 <b>절단선을 끈다</b></td>
+            <td>세 곳이 동시에 움직인다. 잘린 점이 속 빈 점선으로 바뀌고, 결과 계기 셋이 다시 계산되고,
+              맨 위 Credits가 같이 내려간다. 잘려나간 칸은 빗금으로 남는다</td></tr>
+        <tr><td class="n k">42&ndash;55s</td><td>스크롤해서 <b>0점 분류 스택</b></td>
+            <td>0점은 한 덩어리가 아니다. 프롬프트가 지는 갈래만 분모에 남는다</td></tr>
+        <tr><td class="n k">55&ndash;65s</td><td>실행 하나 모드, 스쿼드 맵에서 노드 클릭</td>
+            <td>맵과 레인과 티커와 장부가 동시에 같은 대상을 비춘다. 결과에서 원인까지 클릭으로
+              거슬러 올라간다. 여기서 끝낸다</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="g4">
+      <div class="p tight"><div class="lbl" style="font-size:13px">file://이 폴더를 막으면</div>
+        <p class="note mt2"><code>python3 -m http.server 8777</code>을 미리 띄워 둔다</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:13px">프로젝터가 흐리면</div>
+        <p class="note mt2">고대비 모드를 단축키에 미리 걸어 둔다</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:13px">시간이 밀리면</div>
+        <p class="note mt2">55&ndash;65초를 먼저 버린다. 절단선 구간은 버리지 않는다</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:13px">숫자가 바뀌면</div>
+        <p class="note mt2">폴더는 복사해 얼려 둔 것이다. 살아 있는 폴더는 발표 중에 실행이 는다</p></div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">17</span></div>
+</section>
+
+<!-- ══════════════ 18 · 하면 안 되는 말 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>부록 A</s> <span class="rest">&middot; 우리가 하지 않는 주장</span></div>
+    <h2 class="st wide">듣기 좋지만 사실이 아닌 것들.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise fill" style="background:var(--panel-2)">
+      <table class="t-tight"><thead><tr>
+        <th style="width:34%">안 하는 말</th><th>이유</th>
+      </tr></thead><tbody>
+        <tr><td>&ldquo;이 구성으로 점수가 올랐습니다&rdquo;</td>
+            <td><b>아직 채점 결과가 없다.</b> 말할 수 있는 건 무엇을 측정했고 그 측정이 어떤 설계로
+              이어졌는지까지다</td></tr>
+        <tr><td>&ldquo;요청이 1,192건에서 294건으로 줄었습니다&rdquo;</td>
+            <td>294는 연습 세트 실측 크기에 hidden 문항 수를 곱한 추정이다. 문서에도 추정이라고 적혀 있다</td></tr>
+        <tr><td>&ldquo;포기 판단 에이전트를 뒀습니다&rdquo;</td>
+            <td>못 만든다. 플랜 그래프가 실행 전에 굳고 조건 분기가 없다</td></tr>
+        <tr><td>&ldquo;prefix cache로 토큰을 아낍니다&rdquo;</td>
+            <td>캐시는 지연시간만 줄인다. vLLM은 캐시 적중분도 <code>prompt_tokens</code>에 전액
+              계상하고, 문서도 절약분을 prefill 시간으로 적는다</td></tr>
+        <tr><td>&ldquo;Coder를 높은 추론 강도로 돌립니다&rdquo;</td>
+            <td>추론 강도를 에이전트별로 지정할 수단이 템플릿에 없고, 시스템 프롬프트에
+              <code>reasoning: high</code>를 적는 우회로도 작동하지 않는다</td></tr>
+        <tr><td>&ldquo;disabledTools 22개로 도구를 막았습니다&rdquo;</td>
+            <td>스쿼드 실행 경로는 그 필드를 읽지 않는다. 실제로 작동하는 손잡이는
+              <code>enabledTools</code>를 비운 것 하나다</td></tr>
+        <tr><td>&ldquo;채점된 실행의 문항별 트레이스를 보여줍니다&rdquo;</td>
+            <td>포털이 문항별 상태와 담당은 돌려주지만 응답 본문은 안 준다. 그마저도 문항 정체가
+              공개된 뒤에야 열린다. hidden 응답 본문을 되읽을 경로는 확인된 바 없다</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">18</span></div>
+</section>
+
+<!-- ══════════════ 19 · 근거 ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>부록 B</s> <span class="rest">&middot; 숫자마다 파일이 있다</span></div>
+    <h2 class="st wide">이 슬라이드의 숫자에는 전부 근거 파일이 있다.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise" style="flex:1.35">
+        <table class="t-tight"><thead><tr>
+          <th style="width:22%">해당 장</th><th>근거</th>
+        </tr></thead><tbody>
+          <tr><td class="k">02&ndash;11</td>
+              <td class="k lat" style="white-space:normal">squad/squad_template/monstrous_squad/README.md &middot;
+                agent_prompts/{router,coder,solver}.txt &middot; add_prompt/README.md</td></tr>
+          <tr><td class="k">플랫폼 사실</td>
+              <td class="k lat" style="white-space:normal">docs/ideation/final_final_ideation/spec/01-플랫폼-사실.md
+                &mdash; 채점기 읽는 순서, 필드 생사, 예산 스키마, null 캡</td></tr>
+          <tr><td class="k">채점 규칙</td>
+              <td class="k lat" style="white-space:normal">docs/resource/track_resource/lableup/02-평가-채점-규칙.md</td></tr>
+          <tr><td class="k">63,812 B</td>
+              <td class="k lat" style="white-space:normal">docs/resource/example_task/coding/requests/ &mdash; 공개된 요청 20건의 중앙값</td></tr>
+          <tr><td class="k">GSM8K &middot; SWE-bench</td>
+              <td class="k lat" style="white-space:normal">docs/ideation/final_final_ideation/spec/00-스쿼드-스펙.md &sect;614&ndash;617</td></tr>
+          <tr><td class="k">12&ndash;17</td>
+              <td class="k lat" style="white-space:normal">viz_revise_program/사용설명서.md &middot;
+                work_log/01-검증-결과.md &middot; docs/viz_revise/research/02-데이터-원천과-한계.md</td></tr>
+        </tbody></table>
+        <p class="note mt3">39건짜리 숫자는 이 자료를 만들기 전에 배포판 뷰어에 지금 <code>squad/</code>
+          폴더를 넣어 다시 쟀다. 예전 집계를 그대로 옮긴 값이 아니다.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2);display:flex;flex-direction:column">
+        <div class="lbl">발표 전 점검</div>
+        <ul class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.8;color:var(--fg-dim)">
+          <li><code>python3 -m http.server 8777</code> 띄우고 URL 즐겨찾기</li>
+          <li>데모용 워크스페이스 폴더를 복사해서 얼려 두기</li>
+          <li>프로젝터에서 고대비 모드로 한 번 리허설</li>
+          <li>SVG·PDF 내보내기 결과를 슬라이드에 백업으로 삽입</li>
+          <li>화면 언어를 심사위원 구성에 맞춰 고정</li>
+          <li>계기의 실제 숫자를 발표 당일 다시 확인</li>
+          <li>발표 노트북 브라우저 확인. Chromium 계열에서만 검증했다</li>
+          <li>슬라이드의 에이전트 명단이 <code>squad-template.json</code>과 같은지 대조</li>
+          <li><code>python3 tools/validate_template.py squad-template.json</code> 돌려서 통과 확인</li>
+        </ul>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">템플릿</span>
+            <span class="said mono" style="font-size:14px">user-monstrous-squad-v2</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="ok"><b>검사 통과</b><em class="ko">조건 50개</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">19</span></div>
+</section>
+
+</body>
