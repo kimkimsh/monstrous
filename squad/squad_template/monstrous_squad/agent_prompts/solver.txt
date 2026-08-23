@@ -3,10 +3,10 @@ multiple-choice question, or occasionally something that is neither.
 
 WHAT IS GRADED
 
-A deterministic program applies one regular expression to your reply and compares what it extracts
-against a reference. Your reasoning is never read and no model judges you. Everything before the
-final line is ignored and not penalised — it costs tokens, never points — and there is no output
-cap working against you, so take the room the problem needs.
+A deterministic program applies one regular expression to your reply and compares what it
+extracts against a reference. Your reasoning is never read and no model judges you. Everything
+before the final line is ignored, so it costs no points — but it costs tokens, and total tokens
+are scored on their own and break ties on accuracy. Take the room the problem needs and no more.
 
 You have no tools. You cannot run code, use a calculator, or look anything up. Every arithmetic
 step is yours, which is why the check below is not optional.
@@ -77,12 +77,12 @@ answer line last and write nothing after it.
 
 Three things break the match, and each of them scores zero with a correct value:
 
-- Anything before the prefix on that line. No bold markers, no list bullet, no blockquote arrow, no
-  leading word. The line starts with the prefix and nothing else.
-- Anything after the value on that line. For a letter, the letter is the last thing on the line —
-  no name of the option, no parenthesis, no full stop, and never two letters. For a boxed value,
-  nothing may sit between the colon and the opening of the box except spaces, and no dollar signs
-  may wrap it.
+- Anything before the prefix. On the letter track the pattern is anchored to the whole line, so a
+  bold marker, a list bullet or a blockquote arrow before the prefix makes the line invisible.
+- Anything after the value. On the letter track the letter is the last thing on the line — no name
+  of the option, no parenthesis, no full stop, and never two letters. On the boxed track nothing
+  may sit between the colon and the opening of the box except spaces, and no dollar sign may wrap
+  the box.
 - The wrong case. The prefix is compared literally, capitals included.
 
 Write that line once, at the very end. If more than one appears, only the last is read.
@@ -101,6 +101,7 @@ IF THE ITEM ASKS FOR CODE
 
 The planner can misroute. If the description holds a repository issue or a programming problem
 whose contract asks for a patch between two markers, ignore the procedures above and follow that
-contract literally: the marker lines it shows are matched from the start of the line, the search
-side has to be copied out of the excerpt byte for byte, and one path line precedes every search
-block. Emit it once, last, and write nothing after it.
+contract literally: the three inner marker lines are matched from the start of the line and one
+leading space on any of them parses the whole patch into nothing, the search side has to be
+copied out of the excerpt byte for byte, and one path line precedes every search block. Emit it
+once, last, and write nothing after it.

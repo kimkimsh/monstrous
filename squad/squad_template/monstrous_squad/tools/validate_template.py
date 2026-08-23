@@ -68,6 +68,9 @@ PROMPT_TRACKS = ("coding", "math", "generic")
 STATUS_SUMMARY = re.compile(r"^\s*\*\*Execution (complete|failed)\*\*\s*—", re.MULTILINE)
 # The planner reads this line first and it decides which agent answers the item.
 PLANNER_LINE = re.compile(r"^PLANNER: .*?assign it to (\w+)", re.S)
+# The planner copies from this line down; it is the only boundary between text addressed to
+# the planner and text that has to reach the worker byte for byte.
+ITEM_DELIMITER = "--- ITEM ---"
 
 failures = []
 notes = []
@@ -220,7 +223,10 @@ def check_agents(t):
 
 
 def check_planner_names_its_team(t):
-    """The planner assigns by agent name; a name it never learned cannot be assigned."""
+    """create_task takes an agent id ("ID of the agent to assign this task to", from the tool
+    schema in the app binary), and the planner reads that id off its team roster, which prints
+    `**<name>** (ID: ...)`. So the routing instruction has to name the agent, or the planner has
+    no way to pick the right line."""
     agents = t.get("agents") or []
     planner = next((a for a in agents if str(a.get("role", "")).lower() == "planner"), None)
     if planner is None:
@@ -231,7 +237,10 @@ def check_planner_names_its_team(t):
     if missing:
         fail(f"{planner['name']}: systemPrompt never names {missing}, so the planner has no "
              f"instruction that routes work there")
-    note(f"planner {planner['name']!r} routes to {workers}")
+    if ITEM_DELIMITER not in prompt:
+        fail(f"{planner['name']}: systemPrompt never mentions {ITEM_DELIMITER!r}, which is the "
+             f"boundary the one-shot prompts tell it to copy from")
+    note(f"planner {planner['name']!r} routes to {workers}, copies from {ITEM_DELIMITER!r}")
 
 
 def check_no_extractable_answer(t):
@@ -297,6 +306,12 @@ def check_one_shot_prompts(path, t):
         if not text.rstrip().endswith("{{TASK}}"):
             fail(f"add_prompt/{track}.txt does not end with {{{{TASK}}}}; the item has to "
                  f"land last so the stable prefix stays cacheable")
+        if text.count(ITEM_DELIMITER) != 1:
+            fail(f"add_prompt/{track}.txt has {text.count(ITEM_DELIMITER)} {ITEM_DELIMITER!r} "
+                 f"lines; the planner copies from that boundary, so it must occur exactly once")
+        elif text.index("{{TASK}}") < text.index(ITEM_DELIMITER):
+            fail(f"add_prompt/{track}.txt puts {{{{TASK}}}} above {ITEM_DELIMITER!r}; the item "
+                 f"would then sit in the half addressed to the planner and never be copied")
         match = PLANNER_LINE.match(text)
         if not match:
             fail(f"add_prompt/{track}.txt does not open with a PLANNER line naming an agent; "
