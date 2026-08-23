@@ -1,0 +1,21 @@
+{
+  "id": "5a24c6e9-3fd4-49cc-a4a1-83fae7f99b7d",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+  "title": "Solve integer count problem",
+  "description": "Compute the number of real values of x such that sqrt(120 - sqrt(x)) is an integer.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:30:21.120598339Z",
+  "startedAt": "2026-08-23T01:30:45.116791317Z",
+  "completedAt": "2026-08-23T01:31:00.773651641Z"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "9ee01599-3b30-4294-8a88-4b96e6bbc168",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "524c0f25-d4c2-4480-a710-32e05062da03",
+  "title": "Algorithm Design for Snake Numbers",
+  "description": "Design the algorithm for counting Snake numbers up to a given n using digit DP. Outline the DP state, transitions, and base cases.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:54:31.100932412Z",
+  "startedAt": "2026-08-23T01:54:31.104384254Z",
+  "completedAt": "2026-08-23T01:54:56.723224117Z"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "9fb0cf96-3100-409a-86ef-722c4f3a6b84",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+  "title": "Compute x for y=3 with dependency",
+  "description": "Using the constant k found earlier, solve for x when y=3 in the equation y = k / sqrt(x). Ensure x is an integer.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "d3b8628b-b783-40cb-88d1-64d60a5132f1"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:52:18.470745569Z",
+  "startedAt": "2026-08-23T01:52:41.980448166Z",
+  "completedAt": "2026-08-23T01:52:50.056822249Z"
+}

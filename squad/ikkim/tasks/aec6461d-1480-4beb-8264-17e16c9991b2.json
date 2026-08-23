@@ -1,0 +1,21 @@
+{
+  "id": "aec6461d-1480-4beb-8264-17e16c9991b2",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+  "title": "Simplify Expression",
+  "description": "Simplify the expression inside the square root: (x-3)^2-(x-8)^2 and provide the simplified form.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:17:59.839792276Z",
+  "startedAt": "2026-08-23T01:18:10.955877959Z",
+  "completedAt": "2026-08-23T01:18:25.443520747Z"
+}

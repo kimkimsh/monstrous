@@ -1,0 +1,21 @@
+{
+  "id": "f02e0df1-7394-4dda-8247-2d3b1a11644f",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "ff1e517c-e06f-4678-8265-4892c563bed5",
+  "title": "Compute cookie assortment count",
+  "description": "Compute the number of different assortments of six cookies from three types (chocolate chip, oatmeal, peanut butter) where each type has at least six cookies and cookies of the same type are indistinguishable. Use stars and bars to find the number of nonnegative integer solutions to x+y+z=6.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:12:22.310012293Z",
+  "startedAt": "2026-08-23T01:12:22.312212321Z",
+  "completedAt": "2026-08-23T01:12:29.064778460Z"
+}

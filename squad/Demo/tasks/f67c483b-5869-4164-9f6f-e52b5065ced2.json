@@ -1,0 +1,21 @@
+{
+  "id": "f67c483b-5869-4164-9f6f-e52b5065ced2",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+  "title": "Find integer k values",
+  "description": "Determine all integer values k such that k^2 <= 120 and k >= 0.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:30:21.121943158Z",
+  "startedAt": "2026-08-23T01:31:01.078162907Z",
+  "completedAt": "2026-08-23T01:31:10.318913335Z"
+}

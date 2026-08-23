@@ -344,26 +344,281 @@
     "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
     "planId": "46782320-0b5d-43fc-b999-1ebe91beb804",
     "title": "Compute cookie assortment count",
-    "status": "in_progress",
+    "status": "done",
     "priority": "high",
     "assignedTo": "agent-1787409857695-bz4vhum",
     "dependsOn": [],
     "createdAt": "2026-08-23T01:00:26.771866684Z",
-    "completedAt": null
+    "completedAt": "2026-08-23T01:00:40.359128743Z"
   },
   {
     "id": "b544d021-0c8c-4b8e-9116-a88297332f8a",
     "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
     "planId": "46782320-0b5d-43fc-b999-1ebe91beb804",
     "title": "Return final answer",
-    "status": "pending",
+    "status": "done",
     "priority": "high",
     "assignedTo": "agent-1787409857695-bz4vhum",
     "dependsOn": [
       "42cd0373-9666-4a5a-bc1e-53f69e22007a"
     ],
     "createdAt": "2026-08-23T01:00:26.772776800Z",
-    "completedAt": null
+    "completedAt": "2026-08-23T01:00:43.481424946Z"
+  },
+  {
+    "id": "050b521e-ab59-480a-9953-84f0647452b1",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "77ce6ff8-d854-4a7a-96a0-3a3bd7b629d3",
+    "title": "Compute subcommittee count",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:01:52.629251404Z",
+    "completedAt": "2026-08-23T01:01:59.176911778Z"
+  },
+  {
+    "id": "56f349fd-d279-4184-bf31-f10bda0cad5f",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "4cf730e5-3b87-4328-b1de-651bb851277b",
+    "title": "Solve integer condition problem",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:03:26.823658485Z",
+    "completedAt": "2026-08-23T01:03:38.825811511Z"
+  },
+  {
+    "id": "6136a0e0-e750-4e08-890b-309e3c4fa988",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "4cf730e5-3b87-4328-b1de-651bb851277b",
+    "title": "Find integer k values and corresponding x",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:03:26.824864447Z",
+    "completedAt": "2026-08-23T01:04:11.473641229Z"
+  },
+  {
+    "id": "12092100-d221-4921-babf-05e77d3263a7",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "4cf730e5-3b87-4328-b1de-651bb851277b",
+    "title": "Aggregate final answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-4w5pm9d",
+    "dependsOn": [
+      "56f349fd-d279-4184-bf31-f10bda0cad5f",
+      "6136a0e0-e750-4e08-890b-309e3c4fa988"
+    ],
+    "createdAt": "2026-08-23T01:03:26.825780979Z",
+    "completedAt": "2026-08-23T01:04:38.199985094Z"
+  },
+  {
+    "id": "f02e0df1-7394-4dda-8247-2d3b1a11644f",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "ff1e517c-e06f-4678-8265-4892c563bed5",
+    "title": "Compute cookie assortment count",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:12:22.310012293Z",
+    "completedAt": "2026-08-23T01:12:29.064778460Z"
+  },
+  {
+    "id": "9b31b673-8d41-4f79-9f76-b7da2f5f1211",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+    "title": "Compute Domain and Smallest x",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:17:59.838603497Z",
+    "completedAt": "2026-08-23T01:18:10.649590074Z"
+  },
+  {
+    "id": "aec6461d-1480-4beb-8264-17e16c9991b2",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+    "title": "Simplify Expression",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:17:59.839792276Z",
+    "completedAt": "2026-08-23T01:18:25.443520747Z"
+  },
+  {
+    "id": "f06b2f72-b643-4e5c-9735-ca1e2be46da4",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+    "title": "Generate Final Answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-wh2a7ia",
+    "dependsOn": [
+      "9b31b673-8d41-4f79-9f76-b7da2f5f1211"
+    ],
+    "createdAt": "2026-08-23T01:17:59.840908564Z",
+    "completedAt": "2026-08-23T01:19:01.426764652Z"
+  },
+  {
+    "id": "72907cdc-7328-42ea-9c3e-77401bb217f9",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+    "title": "Update Compute Domain Dependency",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [
+      "aec6461d-1480-4beb-8264-17e16c9991b2"
+    ],
+    "createdAt": "2026-08-23T01:17:59.842182862Z",
+    "completedAt": "2026-08-23T01:18:47.342354010Z"
+  },
+  {
+    "id": "89f8403e-acc7-49de-b6c7-b7e6184ce43b",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+    "title": "Compute Domain and Smallest x (after simplification)",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [
+      "aec6461d-1480-4beb-8264-17e16c9991b2"
+    ],
+    "createdAt": "2026-08-23T01:17:59.843231650Z",
+    "completedAt": "2026-08-23T01:18:55.509456111Z"
+  },
+  {
+    "id": "6eb01ca3-d0d4-4ffe-a53a-84ca5bb3cac0",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "5ceedbd3-2267-4b48-9ff0-c635c07797db",
+    "title": "Solve inequality",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:21:02.093045118Z",
+    "completedAt": "2026-08-23T01:21:20.923558500Z"
+  },
+  {
+    "id": "131600f8-7edf-4292-a4fc-3b27f348b9c1",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+    "title": "Compute distance function and critical points",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:23:14.561113217Z",
+    "completedAt": "2026-08-23T01:23:35.118987993Z"
+  },
+  {
+    "id": "5469d271-c106-4dbc-8fc8-3d250e9c3028",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+    "title": "Compute minimal distance a",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:23:14.562238213Z",
+    "completedAt": "2026-08-23T01:23:53.042245053Z"
+  },
+  {
+    "id": "441ed72c-ddf2-43ae-9f9a-70096a68397f",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+    "title": "Compute a^2",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [
+      "5469d271-c106-4dbc-8fc8-3d250e9c3028"
+    ],
+    "createdAt": "2026-08-23T01:23:14.563237717Z",
+    "completedAt": "2026-08-23T01:23:57.283666507Z"
+  },
+  {
+    "id": "9ed84272-c758-4a7e-8312-ea3f3f74d3fd",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+    "title": "Aggregate final answer",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-4w5pm9d",
+    "dependsOn": [
+      "131600f8-7edf-4292-a4fc-3b27f348b9c1",
+      "5469d271-c106-4dbc-8fc8-3d250e9c3028",
+      "441ed72c-ddf2-43ae-9f9a-70096a68397f"
+    ],
+    "createdAt": "2026-08-23T01:23:14.564248074Z",
+    "completedAt": "2026-08-23T01:24:23.684146680Z"
+  },
+  {
+    "id": "7b42ac2b-0384-4828-bec4-8a53c317a236",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7f88c808-2f4f-46eb-8b57-eea051ea82a5",
+    "title": "Determine integer k values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:43:28.480301158Z",
+    "completedAt": "2026-08-23T01:43:50.492261707Z"
+  },
+  {
+    "id": "aeb54d97-a8f8-4fe6-9401-5350d2205c20",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7f88c808-2f4f-46eb-8b57-eea051ea82a5",
+    "title": "Find integer y values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:43:28.481389707Z",
+    "completedAt": "2026-08-23T01:43:56.859405887Z"
+  },
+  {
+    "id": "73550a07-8685-48f8-9930-91184d9b2a30",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7f88c808-2f4f-46eb-8b57-eea051ea82a5",
+    "title": "Find integer k values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:43:28.482304469Z",
+    "completedAt": "2026-08-23T01:43:44.809058006Z"
+  },
+  {
+    "id": "72967528-e216-44bf-a696-a6505c5dccc5",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7f88c808-2f4f-46eb-8b57-eea051ea82a5",
+    "title": "Find integer n values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:43:28.483305276Z",
+    "completedAt": "2026-08-23T01:43:38.380452405Z"
+  },
+  {
+    "id": "cd44ad04-f832-49d9-9360-63d51672f37c",
+    "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+    "planId": "7f88c808-2f4f-46eb-8b57-eea051ea82a5",
+    "title": "Find integer k values",
+    "status": "done",
+    "priority": "high",
+    "assignedTo": "agent-1787395723981-cb9sntq",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:43:28.484337862Z",
+    "completedAt": "2026-08-23T01:44:03.686491175Z"
   },
   {
     "id": "5bc968a0-e034-4cad-8678-375a308e216a",
@@ -628,5 +883,41 @@
     "dependsOn": [],
     "createdAt": "2026-08-22T14:32:20.797890313Z",
     "completedAt": "2026-08-22T14:37:17.841144530Z"
+  },
+  {
+    "id": "6cf759db-b19b-4604-a334-52ac8bcc65d1",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "f6aa8907-409a-4a23-b60d-63a5f71bd2f6",
+    "title": "Patcher: A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee o",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787409857695-wh2a7ia",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:15:19.942477974Z",
+    "completedAt": "2026-08-23T01:15:39.244626892Z"
+  },
+  {
+    "id": "de7686fe-1016-406b-9af0-cc10d3bc60d8",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "f6aa8907-409a-4a23-b60d-63a5f71bd2f6",
+    "title": "Reasoner: A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee o",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:15:19.943629309Z",
+    "completedAt": "2026-08-23T01:15:48.581719002Z"
+  },
+  {
+    "id": "4aa3a96a-b961-45e3-a4bc-158c28f85dcf",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "f6aa8907-409a-4a23-b60d-63a5f71bd2f6",
+    "title": "Emitter: A Senate committee has 8 Republicans and 6 Democrats.  In how many ways can we form a subcommittee o",
+    "status": "done",
+    "priority": "medium",
+    "assignedTo": "agent-1787409857695-4w5pm9d",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:15:19.944623902Z",
+    "completedAt": "2026-08-23T01:15:30.681664744Z"
   }
 ]

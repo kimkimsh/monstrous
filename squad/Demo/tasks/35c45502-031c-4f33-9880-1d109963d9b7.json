@@ -1,0 +1,21 @@
+{
+  "id": "35c45502-031c-4f33-9880-1d109963d9b7",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "7d6e2d2f-c801-4ed8-ba45-e10a9db4cb58",
+  "title": "코드 리뷰어: A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return",
+  "description": "A rotating mirror experiment, to measure the speed of light, is set up on Mt. Wilson with the return mirror on Mt. San Antonia 35377 meters away. When the 8-face mirror rotates at a speed of 530rpsno shift of the light source is obtained. Calculate the velocity of light.\n\nOptions:\nA. 2.00 ×10^8 m/sec\nB. 3.00 ×10^8 m/sec\nC. 1.00 × 10^9 m/sec\nD. 1.50 × 10^8 m/sec\nE. 2.50 × 10^8 m/sec\nF. 4.00 ×10^8 m/sec\nG. 6.00 × 10^8 m/sec\nH. 7.00 × 10^8 m/sec\nI. 3.50 × 10^8 m/sec\nJ. 5.00 ×10^8 m/sec\n\n=== REQUIRED OUTPUT ===\nEnd your answer with a line of exactly this form:\n\nANSWER: <letter>\n\nReplace <letter> with the single letter of the option you choose, and write nothing else\non that line.\nIf more than one appears, the last one is used.\nAnything before it is ignored, not penalised.",
+  "assignedTo": "agent-1787395723981-f3ic90y",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "medium",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:59:11.281015232Z",
+  "startedAt": "2026-08-23T01:59:14.529936048Z",
+  "completedAt": "2026-08-23T01:59:50.892685101Z"
+}

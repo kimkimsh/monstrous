@@ -1,0 +1,21 @@
+{
+  "id": "d85265f4-225e-43ea-9624-e9c433130a52",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+  "title": "Compute x for y=3",
+  "description": "Using the constant k found earlier, solve for x when y=3 in the equation y = k / sqrt(x). Ensure x is an integer.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:52:18.470083632Z",
+  "startedAt": "2026-08-23T01:52:33.782284169Z",
+  "completedAt": "2026-08-23T01:52:41.675959283Z"
+}

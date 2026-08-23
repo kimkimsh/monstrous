@@ -1,0 +1,21 @@
+{
+  "id": "56f349fd-d279-4184-bf31-f10bda0cad5f",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "4cf730e5-3b87-4328-b1de-651bb851277b",
+  "title": "Solve integer condition problem",
+  "description": "Solve for the number of real values of x such that sqrt(120 - sqrt(x)) is an integer. Provide the integer answer.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:03:26.823658485Z",
+  "startedAt": "2026-08-23T01:03:26.828414632Z",
+  "completedAt": "2026-08-23T01:03:38.825811511Z"
+}

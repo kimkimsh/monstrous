@@ -1,0 +1,23 @@
+{
+  "id": "1a255326-9896-4ac5-b68a-9518aad2e11b",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "7e3c32ac-bd69-4076-b109-450137d9122d",
+  "title": "Generate final answer",
+  "description": "Generate the final answer in the required format using the result from the 'Compute x for y=3 with dependency' task.",
+  "assignedTo": "agent-1787395723981-irm22uc",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "9fb0cf96-3100-409a-86ef-722c4f3a6b84"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:52:18.471283385Z",
+  "startedAt": "2026-08-23T01:52:50.361064787Z",
+  "completedAt": "2026-08-23T01:52:54.323271508Z"
+}

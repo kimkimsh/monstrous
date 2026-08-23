@@ -1,0 +1,23 @@
+{
+  "id": "72907cdc-7328-42ea-9c3e-77401bb217f9",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "0b1dd4f9-ce0c-4ea2-8a32-b83e7c3d0326",
+  "title": "Update Compute Domain Dependency",
+  "description": "Update Compute Domain and Smallest x task to depend on Simplify Expression task",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "aec6461d-1480-4beb-8264-17e16c9991b2"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:17:59.842182862Z",
+  "startedAt": "2026-08-23T01:18:25.749483453Z",
+  "completedAt": "2026-08-23T01:18:47.342354010Z"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "441ed72c-ddf2-43ae-9f9a-70096a68397f",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+  "title": "Compute a^2",
+  "description": "Using the minimal distance a found in the previous task, compute a^2 and verify it is an integer.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "5469d271-c106-4dbc-8fc8-3d250e9c3028"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:23:14.563237717Z",
+  "startedAt": "2026-08-23T01:23:53.347543377Z",
+  "completedAt": "2026-08-23T01:23:57.283666507Z"
+}

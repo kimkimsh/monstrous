@@ -1,0 +1,25 @@
+{
+  "id": "9ed84272-c758-4a7e-8312-ea3f3f74d3fd",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "40651b07-9cb1-4203-8124-db68cf7f8ff8",
+  "title": "Aggregate final answer",
+  "description": "Aggregate results from tasks 131600f8-7edf-4292-a4fc-3b27f348b9c1, 5469d271-c106-4dbc-8fc8-3d250e9c3028, and 441ed72c-ddf2-43ae-9f9a-70096a68397f to produce the final answer in the required format.",
+  "assignedTo": "agent-1787409857695-4w5pm9d",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [
+    "131600f8-7edf-4292-a4fc-3b27f348b9c1",
+    "5469d271-c106-4dbc-8fc8-3d250e9c3028",
+    "441ed72c-ddf2-43ae-9f9a-70096a68397f"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:23:14.564248074Z",
+  "startedAt": "2026-08-23T01:23:57.590276343Z",
+  "completedAt": "2026-08-23T01:24:23.684146680Z"
+}

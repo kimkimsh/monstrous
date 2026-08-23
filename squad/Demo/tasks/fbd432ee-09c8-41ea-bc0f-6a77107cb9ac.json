@@ -1,0 +1,21 @@
+{
+  "id": "fbd432ee-09c8-41ea-bc0f-6a77107cb9ac",
+  "squadId": "0fc4c17b-0ece-4ace-9a0b-c3d6855acd37",
+  "planId": "846eeec1-af48-4eb1-890e-47d9d94afa19",
+  "title": "Compute kinetic energy loss fraction",
+  "description": "Compute the fraction of initial kinetic energy lost in a one-dimensional inelastic collision where a particle of mass 2m collides with a particle of mass m at rest and they stick together. Provide the numerical fraction and the corresponding option letter.",
+  "assignedTo": "agent-1787395723981-cb9sntq",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T02:01:19.340677173Z",
+  "startedAt": "2026-08-23T02:01:19.343384741Z",
+  "completedAt": "2026-08-23T02:01:26.216083291Z"
+}

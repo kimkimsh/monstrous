@@ -1,0 +1,21 @@
+{
+  "id": "6eb01ca3-d0d4-4ffe-a53a-84ca5bb3cac0",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "5ceedbd3-2267-4b48-9ff0-c635c07797db",
+  "title": "Solve inequality",
+  "description": "Solve the inequality \n-4 < x^4 + 4x^2 < 21 for real x and express the solution set in interval notation.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:21:02.093045118Z",
+  "startedAt": "2026-08-23T01:21:02.097005925Z",
+  "completedAt": "2026-08-23T01:21:20.923558500Z"
+}

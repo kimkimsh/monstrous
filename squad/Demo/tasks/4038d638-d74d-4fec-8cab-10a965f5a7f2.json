@@ -1,0 +1,21 @@
+{
+  "id": "4038d638-d74d-4fec-8cab-10a965f5a7f2",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "03e74447-0f05-4f4a-b60c-f8187db0c876",
+  "title": "Find integer m values",
+  "description": "Determine all integer values m such that 0 <= m and m^2 <= 120.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "done",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:30:21.122945189Z",
+  "startedAt": "2026-08-23T01:30:32.468647276Z",
+  "completedAt": "2026-08-23T01:30:44.811377873Z"
+}
