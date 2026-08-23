@@ -5120,13 +5120,18 @@ const DEMO_CAP=[
   ["폴더 하나. 설치도 서버도 없습니다","One folder. No install, no server"],
   ["AI:GO 는 {aigo}건이 성공이라고 적었습니다. 점수가 되는 건 {grad}건입니다",
    "AI:GO recorded {aigo} successes. {grad} of them would score"],
+  ["여기서 끊었다면 얼마를 아끼고 몇 점을 잃었을까 — 모델을 다시 돌리지 않고 계산합니다",
+   "Cap the spend here: what it saves, what it costs — computed without rerunning anything"],
+  ["트랙마다 요구하는 출력 형식이 다릅니다. 합치면 어디가 새는지 안 보입니다",
+   "Each track demands a different format. Merge them and you cannot see which one leaks"],
   ["0점은 한 덩어리가 아닙니다. 갈래마다 고칠 사람이 다릅니다",
    "A zero is not one thing. Each branch has a different owner"],
-  ["트랙마다 요구하는 출력 형식이 다릅니다","Each track demands a different output format"],
+  ["길게 쓴다고 맞는 게 아닙니다. 형식을 못 맞춘 실행이 얼마나 아까웠는지도 봅니다",
+   "Longer is not better. And we show how close the near misses came"],
   ["{line}","{line}"],
   ["녹화된 로그만으로 재생합니다. 모델 호출 0회","Replayed from the log alone. Zero model calls"],
-  ["상한을 걸면 얼마를 아끼고 무엇을 잃는지 즉시 계산합니다",
-   "Cap the spend and see what it saves and costs, instantly"],
+  ["같은 문항을 푼 서로 다른 스쿼드를 나란히 놓습니다",
+   "Different squads on the same items, side by side"],
   ["로그에 있는 것만 씁니다","Only what the log actually holds"]
 ];
 
@@ -5167,47 +5172,82 @@ function demoPick(){
   return null;
 }
 
-/* 60초 · 8비트. at 은 시작 시각(ms)이다. */
+/* 한 화면을 위에서 아래까지 밀어 준다.
+   자막만 바뀌고 화면이 가만히 있으면 그 아래에 무엇이 더 있는지 영상에 안 남는다.
+   시작과 끝을 부드럽게 한다 — 등속으로 밀면 멈추는 순간이 툭 끊겨서 편집 실수처럼 보인다. */
+function demoScroll(el,ms){
+  if(!el) return;
+  const max=el.scrollHeight-el.clientHeight;
+  if(max<=8) return;
+  const STEPS=Math.max(8,Math.round(ms/80));
+  let i=0;
+  const h=setInterval(()=>{
+    if(!S.demo){ clearInterval(h); return; }
+    i++;
+    const v=i/STEPS;
+    el.scrollTop=max*(v<.5 ? 2*v*v : 1-Math.pow(-2*v+2,2)/2);
+    if(i>=STEPS) clearInterval(h);
+  },80);
+  S.demoT.push(h);
+}
+
+/* 60초. 화면을 앱이 놓인 순서대로 훑는다 —
+   실행 하나 → 전체 분석(위에서 아래로) → 고른 실행(위에서 아래로) → 재생 → 스쿼드 비교.
+   앵커로 튀지 않는다. 튀면 그 사이에 무엇이 있었는지가 영상에서 사라진다. */
 function demoRun(){
   if(!S.execs.length||S.demo) return;
-  S.demo=true;
+  S.demo=true; S.demoT=[];
   const cap=$("#demo-cap");
   if(!cap) return;
   cap.hidden=false;
 
   const p=demoPick();
   const d=decidable(S.execs);
+  const manySquads=(S.squads||[]).length>1;
   const fill=s=>String(s)
     .replace("{aigo}",S.execs.filter(aigoOk).length)
     .replace("{grad}",d.grad)
     .replace("{line}",LANG==="en"?(p?p.en:""):(p?p.ko:""));
-
-  const say=i=>{
-    const [ko,en]=DEMO_CAP[i];
-    $("#demo-text").textContent=fill(LANG==="en"?en:ko);
-  };
+  const say=i=>{ $("#demo-text").textContent=fill(LANG==="en"?DEMO_CAP[i][1]:DEMO_CAP[i][0]); };
   const TOTAL=60000;
-  const to=(sel)=>document.querySelector("#pane-all "+sel)?.scrollIntoView({block:"center"});
 
   /* [시작 시각(ms), 자막 번호, 그때 할 일] */
   const BEATS=[
     // 시작은 늘 같은 그림이어야 한다 — 주소에 남아 있던 선택·탭이 첫 컷을 바꾸면 안 된다.
     [    0, 0, ()=>{ S.sel=null; setTab("overview"); setMode("exec"); renderList(); renderPane(); }],
-    [ 6000, 1, null],
-    [14000, 2, ()=>{ setMode("all"); to(".blocker"); }],
-    [22000, 3, ()=>to(".by-track")],
-    [29000, 4, ()=>{ if(p){ setMode("exec"); S.sel=p.e.id; renderList(); setTab("overview"); } }],
-    [40000, 5, ()=>{ if(p){ setTab("replay"); $("#rp-play")?.click(); } }],
-    [49000, 6, ()=>{ setMode("all"); to(".cut"); demoSlide(); }],
-    [56000, 7, null]
+    [ 5000, 1, null],
+    // 전체 분석. 절단선을 먼저 밀고, 그다음 화면 전체를 훑는다.
+    [10000, 2, ()=>{ setMode("all"); setTimeout(demoSlide,700); }],
+    [14000, 3, ()=>demoScroll($("#pane-all"),14000)],
+    [20000, 4, null],
+    [26000, 5, null],
+    // 고른 실행의 개요. 여기도 아래까지 민다 — 카드가 예닐곱 장 쌓여 있다.
+    [30000, 6, ()=>{ if(p){ setMode("exec"); S.sel=p.e.id; renderList(); setTab("overview"); }
+                     setTimeout(()=>demoScroll($("#pane"),10000),600); }],
+    [42000, 7, ()=>{ if(p){ setTab("replay"); $("#rp-play")?.click(); } }],
+    [52000, manySquads?8:9, ()=>{ if(manySquads){ setMode("cmp");
+                     setTimeout(()=>demoScroll($("#pane-cmp"),5000),500); } }],
+    [57000, 9, null]
   ];
-  for(const [ms,i,run] of BEATS) setTimeout(()=>{
-    if(!S.demo) return;
-    if(run) run();
-    say(i);
-    cap.style.setProperty("--p",(ms/TOTAL).toFixed(3));
-  },ms);
-  setTimeout(()=>{ S.demo=false; cap.hidden=true; cap.style.setProperty("--p","0"); },TOTAL);
+  for(const [ms,i,run] of BEATS){
+    S.demoT.push(setTimeout(()=>{
+      if(!S.demo) return;
+      if(run) run();
+      say(i);
+      cap.style.setProperty("--p",(ms/TOTAL).toFixed(3));
+    },ms));
+  }
+  S.demoT.push(setTimeout(demoStop,TOTAL));
+}
+
+/* 60초가 지나면 자막만 걷는다. 화면은 마지막 상태 그대로 둔다 —
+   촬영이 몇 초 늦게 끝나도 마지막 프레임이 빈 화면이 되지 않게. */
+function demoStop(){
+  S.demo=false;
+  for(const h of (S.demoT||[])){ clearTimeout(h); clearInterval(h); }
+  S.demoT=[];
+  const cap=$("#demo-cap");
+  if(cap){ cap.hidden=true; cap.style.setProperty("--p","0"); }
 }
 
 /* 절단선을 사람이 끄는 것처럼 천천히 민다. 한 번에 옮기면 계기가 튀어서 안 읽힌다.
@@ -5218,11 +5258,13 @@ function demoSlide(){
   const from=Number(el.value), to=Math.round(from*0.42), STEPS=24;
   let i=0;
   const h=setInterval(()=>{
+    if(!S.demo){ clearInterval(h); return; }
     i++;
     el.value=String(Math.round(from+(to-from)*(i/STEPS)));
     el.dispatchEvent(new Event("input",{bubbles:true}));
     if(i>=STEPS) clearInterval(h);
   },130);
+  S.demoT.push(h);
 }
 
 /* @preserve:begin export */
