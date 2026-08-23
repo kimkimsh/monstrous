@@ -1093,7 +1093,7 @@ html[data-contrast="1"] .drop-grid{display:none}
 .demo-bar{
   position:absolute; left:0; top:0; height:2px; width:100%;
   transform:scaleX(var(--p,0)); transform-origin:left; background:var(--accent);
-  transition:transform 800ms var(--ease-move);
+  transition:transform 120ms var(--ease-move);
 }
 
 </style>
@@ -5117,22 +5117,17 @@ function selectExec(id,opts){
    자막은 화면 아래 띠 하나뿐이다. 영상에 목소리를 얹든 안 얹든 읽히게. */
 
 const DEMO_CAP=[
-  ["폴더 하나. 설치도 서버도 없습니다","One folder. No install, no server"],
-  ["AI:GO 는 {aigo}건이 성공이라고 적었습니다. 점수가 되는 건 {grad}건입니다",
-   "AI:GO recorded {aigo} successes. {grad} of them would score"],
-  ["여기서 끊었다면 얼마를 아끼고 몇 점을 잃었을까 — 모델을 다시 돌리지 않고 계산합니다",
-   "Cap the spend here: what it saves, what it costs — computed without rerunning anything"],
-  ["트랙마다 요구하는 출력 형식이 다릅니다. 합치면 어디가 새는지 안 보입니다",
-   "Each track demands a different format. Merge them and you cannot see which one leaks"],
-  ["0점은 한 덩어리가 아닙니다. 갈래마다 고칠 사람이 다릅니다",
-   "A zero is not one thing. Each branch has a different owner"],
-  ["길게 쓴다고 맞는 게 아닙니다. 형식을 못 맞춘 실행이 얼마나 아까웠는지도 봅니다",
-   "Longer is not better. And we show how close the near misses came"],
+  ["AI:GO 는 {aigo}건이 성공이라고 적었습니다 · 점수가 되는 건 {grad}건",
+   "AI:GO recorded {aigo} successes · {grad} of them would score"],
   ["{line}","{line}"],
-  ["녹화된 로그만으로 재생합니다. 모델 호출 0회","Replayed from the log alone. Zero model calls"],
-  ["같은 문항을 푼 서로 다른 스쿼드를 나란히 놓습니다",
-   "Different squads on the same items, side by side"],
-  ["로그에 있는 것만 씁니다","Only what the log actually holds"]
+  ["녹화된 로그로만 재생합니다 · 모델 호출 0회","Replayed from the log alone · zero model calls"],
+  ["채점기가 읽는 바이트를 그대로","The exact bytes the grader reads"],
+  ["시간이 어디에 쓰였는가","Where the time went"],
+  ["우리 잘못인가 인프라 잘못인가","Our fault, or the infrastructure's"],
+  ["AI:GO 가 남긴 원문","What AI:GO actually wrote"],
+  ["여기서 끊었다면 얼마를 아끼고 몇 점을 잃었을까","Cap it here — what it saves, what it costs"],
+  ["0점은 네 갈래 · 갈래마다 고칠 사람이 다릅니다","A zero splits four ways · each has a different owner"],
+  ["같은 문항, 다른 스쿼드","Same items, different squads"]
 ];
 
 /* 이 데이터에서 가장 할 말이 많은 실행을 고른다. 위에서부터 찾고 없으면 내려간다. */
@@ -5142,28 +5137,28 @@ function demoPick(){
   const cands=[
     // 1순위 — 라우팅이 어긋났고 값은 맞은 실행. 할 이야기가 가장 많다.
     [e=>e.route&&e.route.track!==e.track&&near(e),
-     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다. 답은 맞고 형식이 틀렸습니다`,
-     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track}. Right answer, wrong format`],
+     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 답은 맞고 형식이 틀렸습니다`,
+     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track} · right answer, wrong format`],
     // 2순위 — 값은 맞았는데 형식 때문에 0점
     [near,
      ()=>`답은 맞혔는데 채점기가 읽는 형식이 아닙니다`,
-     ()=>`The answer is right; it is not in the shape the grader reads`],
+     ()=>`Right answer, not in the shape the grader reads`],
     // 3순위 — 라우팅만 어긋난 실행
     [e=>e.route&&e.route.track!==e.track,
-     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다. 트랙이 곧 출력 계약입니다`,
-     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track}. The track is the contract`],
+     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 트랙이 곧 출력 계약입니다`,
+     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track} · the track is the contract`],
     // 4순위 — 형식만 못 맞춘 실행
     [e=>e.blocker==="markers",
-     e=>`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)} 가 없어 0점입니다`,
-     e=>`It ran and answered, but without ${t(CONTRACT[e.contract].label)} it scores 0`],
+     e=>`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)} 가 없습니다`,
+     e=>`It ran and answered, but without ${t(CONTRACT[e.contract].label)}`],
     // 5순위 — 호출 자체가 거부된 실행
     [e=>e.blocker==="blocked",
-     ()=>`모델이 요청을 받지도 못했습니다. 프롬프트로는 못 고칩니다`,
-     ()=>`The model never received the request. No prompt fixes this`],
+     ()=>`모델이 요청을 받지도 못했습니다 · 프롬프트로는 못 고칩니다`,
+     ()=>`The model never received the request · no prompt fixes this`],
     // 마지막 — 아무거나. 적격이라도 보여준다.
     [()=>true,
-     e=>`${t(verdictOf(e).label)} — 채점기가 읽는 바이트를 그대로 봅니다`,
-     e=>`${t(verdictOf(e).label)} — this is the byte the grader reads`]
+     e=>`${t(verdictOf(e).label)} · 채점기가 읽는 바이트를 그대로 봅니다`,
+     e=>`${t(verdictOf(e).label)} · this is the byte the grader reads`]
   ];
   for(const [test,ko,en] of cands){
     const hit=X.find(test);
@@ -5174,26 +5169,33 @@ function demoPick(){
 
 /* 한 화면을 위에서 아래까지 밀어 준다.
    자막만 바뀌고 화면이 가만히 있으면 그 아래에 무엇이 더 있는지 영상에 안 남는다.
-   시작과 끝을 부드럽게 한다 — 등속으로 밀면 멈추는 순간이 툭 끊겨서 편집 실수처럼 보인다. */
+
+   높이를 매 걸음 다시 잰다. 패널이 그려지자마자 재면 차트가 아직 자리를 안 잡아
+   스크롤 여유가 0 으로 나오고, 그러면 화면이 통째로 안 움직인다.
+   scrollTop 대입 대신 scrollTo({behavior:"auto"}) 를 쓴다 — 어딘가에서 smooth 가 켜져 있으면
+   80ms 마다 새 애니메이션이 얹혀 제자리걸음이 된다. */
 function demoScroll(el,ms){
   if(!el) return;
-  const max=el.scrollHeight-el.clientHeight;
-  if(max<=8) return;
   const STEPS=Math.max(8,Math.round(ms/80));
   let i=0;
   const h=setInterval(()=>{
     if(!S.demo){ clearInterval(h); return; }
+    const max=el.scrollHeight-el.clientHeight;
     i++;
-    const v=i/STEPS;
-    el.scrollTop=max*(v<.5 ? 2*v*v : 1-Math.pow(-2*v+2,2)/2);
+    if(max>8){
+      const v=i/STEPS;
+      // 시작과 끝을 부드럽게. 등속으로 밀면 멈추는 순간이 툭 끊긴다.
+      el.scrollTo({top:max*(v<.5 ? 2*v*v : 1-Math.pow(-2*v+2,2)/2), behavior:"auto"});
+    }
     if(i>=STEPS) clearInterval(h);
   },80);
   S.demoT.push(h);
 }
 
 /* 60초. 화면을 앱이 놓인 순서대로 훑는다 —
-   실행 하나 → 전체 분석(위에서 아래로) → 고른 실행(위에서 아래로) → 재생 → 스쿼드 비교.
-   앵커로 튀지 않는다. 튀면 그 사이에 무엇이 있었는지가 영상에서 사라진다. */
+   실행 하나의 탭 여섯 개를 차례로 지나고, 전체 분석, 스쿼드 비교로 닫는다.
+   각 화면은 위에서 아래까지 민다. 앵커로 튀지 않는다 —
+   튀면 그 사이에 무엇이 있었는지가 영상에서 사라진다. */
 function demoRun(){
   if(!S.execs.length||S.demo) return;
   S.demo=true; S.demoT=[];
@@ -5210,33 +5212,46 @@ function demoRun(){
     .replace("{line}",LANG==="en"?(p?p.en:""):(p?p.ko:""));
   const say=i=>{ $("#demo-text").textContent=fill(LANG==="en"?DEMO_CAP[i][1]:DEMO_CAP[i][0]); };
   const TOTAL=60000;
+  // 탭을 갈아탄 뒤 화면이 그려질 틈을 주고 민다.
+  const tab=(name,ms)=>{ setTab(name); S.demoT.push(setTimeout(()=>demoScroll($("#pane"),ms),500)); };
 
   /* [시작 시각(ms), 자막 번호, 그때 할 일] */
   const BEATS=[
     // 시작은 늘 같은 그림이어야 한다 — 주소에 남아 있던 선택·탭이 첫 컷을 바꾸면 안 된다.
     [    0, 0, ()=>{ S.sel=null; setTab("overview"); setMode("exec"); renderList(); renderPane(); }],
-    [ 5000, 1, null],
-    // 전체 분석. 절단선을 먼저 밀고, 그다음 화면 전체를 훑는다.
-    [10000, 2, ()=>{ setMode("all"); setTimeout(demoSlide,700); }],
-    [14000, 3, ()=>demoScroll($("#pane-all"),14000)],
-    [20000, 4, null],
-    [26000, 5, null],
-    // 고른 실행의 개요. 여기도 아래까지 민다 — 카드가 예닐곱 장 쌓여 있다.
-    [30000, 6, ()=>{ if(p){ setMode("exec"); S.sel=p.e.id; renderList(); setTab("overview"); }
-                     setTimeout(()=>demoScroll($("#pane"),10000),600); }],
-    [42000, 7, ()=>{ if(p){ setTab("replay"); $("#rp-play")?.click(); } }],
-    [52000, manySquads?8:9, ()=>{ if(manySquads){ setMode("cmp");
-                     setTimeout(()=>demoScroll($("#pane-cmp"),5000),500); } }],
-    [57000, 9, null]
+    // 실행 하나 — 탭 여섯 개를 순서대로
+    [ 5000, 1, ()=>{ if(p){ S.sel=p.e.id; renderList(); } tab("overview",6500); }],
+    [14000, 2, ()=>{ setTab("replay"); $("#rp-play")?.click(); }],
+    [23000, 3, ()=>tab("ledger",5000)],
+    [30000, 4, ()=>tab("timeline",5000)],
+    [37000, 5, ()=>tab("failure",4000)],
+    [43000, 6, ()=>tab("raw",2500)],
+    // 전체 분석 — 절단선을 먼저 밀고 화면을 훑는다
+    [47000, 7, ()=>{ setMode("all");
+                     S.demoT.push(setTimeout(demoSlide,600));
+                     S.demoT.push(setTimeout(()=>demoScroll($("#pane-all"),7000),1800)); }],
+    [52000, 8, null],
+    [56000, manySquads?9:8, ()=>{ if(manySquads){ setMode("cmp");
+                     S.demoT.push(setTimeout(()=>demoScroll($("#pane-cmp"),3000),400)); } }]
   ];
   for(const [ms,i,run] of BEATS){
     S.demoT.push(setTimeout(()=>{
       if(!S.demo) return;
       if(run) run();
       say(i);
-      cap.style.setProperty("--p",(ms/TOTAL).toFixed(3));
     },ms));
   }
+
+  // 남은 시간 막대. 100ms 마다 직접 옮긴다 — 전이 하나로 걸면 감속 설정에서 통째로 죽고,
+  // requestAnimationFrame 은 탭이 뒤로 가면 아예 안 돈다. 타이머는 어느 쪽에서도 계속 간다.
+  const t0=Date.now();
+  const bar=setInterval(()=>{
+    const v=Math.min(1,(Date.now()-t0)/TOTAL);
+    cap.style.setProperty("--p",v.toFixed(4));
+    if(v>=1) clearInterval(bar);
+  },100);
+  S.demoT.push(bar);
+
   S.demoT.push(setTimeout(demoStop,TOTAL));
 }
 
@@ -5252,10 +5267,10 @@ function demoStop(){
 
 /* 절단선을 사람이 끄는 것처럼 천천히 민다. 한 번에 옮기면 계기가 튀어서 안 읽힌다.
    requestAnimationFrame 이 아니라 타이머로 민다 — 촬영 중 다른 창을 만지면 rAF 가 멈춰서
-   슬라이더가 중간에 선 채로 남는다. 24단이면 손으로 끈 것과 구분되지 않는다. */
+   슬라이더가 중간에 선 채로 남는다. 20단이면 손으로 끈 것과 구분되지 않는다. */
 function demoSlide(){
   const el=$("#w-cut"); if(!el) return;
-  const from=Number(el.value), to=Math.round(from*0.42), STEPS=24;
+  const from=Number(el.value), to=Math.round(from*0.42), STEPS=20;
   let i=0;
   const h=setInterval(()=>{
     if(!S.demo){ clearInterval(h); return; }
@@ -5263,7 +5278,7 @@ function demoSlide(){
     el.value=String(Math.round(from+(to-from)*(i/STEPS)));
     el.dispatchEvent(new Event("input",{bubbles:true}));
     if(i>=STEPS) clearInterval(h);
-  },130);
+  },55);
   S.demoT.push(h);
 }
 
