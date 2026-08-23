@@ -1080,6 +1080,22 @@ html[data-contrast="1"] .drop-grid{display:none}
   .gauge,.rp-bar,.rp-wait,.legend i,.sm-key i,.row-bar,.sq-card .bar{
     -webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+.demo-cap{
+  position:fixed; left:0; right:0; bottom:0; z-index:40;
+  background:var(--panel); border-top:1px solid var(--line);
+  padding:16px 24px; font-size:var(--fs-lead); color:var(--fg);
+  text-align:center; line-height:1.5;
+}
+.demo-cap[hidden]{display:none}
+/* 남은 시간 막대. 비트마다 그 시각의 비율로 옮긴다.
+   requestAnimationFrame 은 탭이 뒤로 가면 아예 안 돌고, 한 번에 60초짜리 전이를 걸면
+   감속 설정에서 통째로 죽는다. 단계로 옮기면 어느 쪽에서도 남은 시간이 읽힌다. */
+.demo-bar{
+  position:absolute; left:0; top:0; height:2px; width:100%;
+  transform:scaleX(var(--p,0)); transform-origin:left; background:var(--accent);
+  transition:transform 120ms var(--ease-move);
+}
+
 </style>
 </head>
 <body>
@@ -4444,7 +4460,7 @@ function blockerCard(X){
       Object.keys(BLOCKER_LABEL).map(k=>
         `<tr><td>${t(BLOCKER_LABEL[k])}</td><td><code>${BLOCKER_EN[k]}</code></td>`+
         `<td>${t(BLOCKER_OWNER[k])}</td></tr>`).join("")+
-      `</table></div>`));
+      `</table></div>`),"blocker");
 }
 
 function nearCard(X){
@@ -4982,6 +4998,9 @@ function syncHash(){
   if(LANG!=="ko") p.set("l",LANG);
   if(S.sideOpen===false) p.set("s","0");
   if(S.sideW&&S.sideW!==SIDE_DEF) p.set("sw",String(S.sideW));
+  /* 시연 중에는 화면이 계속 바뀌고 그때마다 여기가 주소를 다시 쓴다.
+     demo 를 안 남기면 새로고침했을 때 시연이 다시 시작되지 않는다 — 촬영을 다시 갈 때 곤란하다. */
+  if(S.demoPin!=null) p.set("demo",S.demoPin);
   const s=p.toString();
   /* sandbox·data: origin 에서는 replaceState 가 던진다. 주소 갱신이 앱을 죽이면 안 된다. */
   try{ history.replaceState(null,"",s?"#"+s:location.pathname); }
@@ -4994,6 +5013,9 @@ function applyHash(){
   if(p.get("w")) $("#f-ws").value=p.get("w");
   if(p.get("v")==="cards"){ S.cards=true; $("#btn-view").textContent="▦"; }
   if(p.get("l")) setLang(p.get("l"));
+  // #demo — 자동 시연. 폴더가 들어온 뒤에 시작한다.
+  // #demo 만 쓰면 알아서 고르고, #demo=<실행id 앞자리> 면 1부를 그 실행으로 못박는다.
+  if(p.has("demo")){ S.demoPin=p.get("demo")||""; setTimeout(demoRun,600); }
   if(p.get("sw")) setSideWidth(+p.get("sw"));
   setSideOpen(p.get("s")!=="0");
   const e=p.get("e"); if(e&&S.execs.some(x=>x.id===e)) S.sel=e;
@@ -5087,6 +5109,235 @@ function selectExec(id,opts){
   if(li) li.scrollIntoView({block:"nearest"});
 }
 
+
+/* ── 자동 시연 ──
+   1분짜리 영상을 찍는 데 사람이 클릭할 시간이 없다. 주소에 #demo 를 붙이면
+   폴더를 넣는 순간부터 60초 동안 스스로 돌면서 아래 자막을 바꿔 준다.
+
+   실행을 id 로 고르지 않는다. 촬영 데이터가 그때그때 다르기 때문이다.
+   "라우팅이 어긋난 실행", "가장 아까운 실행" 처럼 성격으로 찾고, 없으면 다음 후보로 내려간다.
+   그래서 어떤 워크스페이스를 넣어도 같은 이야기가 나온다 — 숫자만 그 데이터의 것으로 바뀐다.
+
+   자막은 화면 아래 띠 하나뿐이다. 영상에 목소리를 얹든 안 얹든 읽히게. */
+
+const DEMO_CAP=[
+  ["AI:GO 는 {aigo}건이 성공이라고 적었습니다 · 점수가 되는 건 {grad}건",
+   "AI:GO recorded {aigo} successes · {grad} of them would score"],
+  ["{line}","{line}"],
+  ["녹화된 로그로만 재생합니다 · 모델 호출 0회","Replayed from the log alone · zero model calls"],
+  ["채점기가 읽는 바이트를 그대로","The exact bytes the grader reads"],
+  ["시간이 어디에 쓰였는가","Where the time went"],
+  ["우리 잘못인가 인프라 잘못인가","Our fault, or the infrastructure's"],
+  ["AI:GO 가 남긴 원문","What AI:GO actually wrote"],
+  ["여기서 끊었다면 얼마를 아끼고 몇 점을 잃었을까","Cap it here — what it saves, what it costs"],
+  ["0점은 네 갈래 · 갈래마다 고칠 사람이 다릅니다","A zero splits four ways · each has a different owner"],
+  ["같은 문항을 푼 두 스쿼드 · 토큰도 시간도 다릅니다",
+   "Two squads on the same item · different tokens, different time"],
+  ["{alt1}","{alt1}"],
+  ["{alt2}","{alt2}"]
+];
+
+/* 시연에 쓸 실행을 고른다.
+   깊게 파는 것은 하나뿐이고(탭 여섯 개), 나머지 두 트랙은 개요만 스쳐 지나간다.
+   세 트랙이 다 나오되 하나만 끝까지 판다 — 90초에 셋을 다 파면 아무것도 안 남는다.
+
+   id 로 고르지 않는다. 촬영 데이터가 그때그때 다르기 때문이다. */
+function demoPick(pin){
+  const X=S.execs;
+  // #demo=<실행id 앞자리> 로 1부를 못박을 수 있다. 촬영에서 특정 문항을 쓰기로 정했을 때.
+  const pinned=pin?X.find(e=>e.id.startsWith(pin)):null;
+  const near=e=>e.carriers&&e.carriers.some(c=>c.a&&(c.a.hint||c.a.near));
+  const line=e=>
+      e.route&&e.route.track!==e.track&&near(e)
+        ? [`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 답은 맞고 형식이 틀렸습니다`,
+           `A ${TRACK[e.track].label} item routed as ${e.route.track} · right answer, wrong format`]
+    : near(e)
+        ? [`답은 맞혔는데 채점기가 읽는 형식이 아닙니다`,
+           `Right answer, not in the shape the grader reads`]
+    : e.route&&e.route.track!==e.track
+        ? [`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 트랙이 곧 출력 계약입니다`,
+           `A ${TRACK[e.track].label} item routed as ${e.route.track} · the track is the contract`]
+    : e.blocker==="markers"
+        ? [`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)}가 없습니다`,
+           `It ran and answered, but without ${t(CONTRACT[e.contract].label)}`]
+    : e.blocker==="blocked"
+        ? [`모델이 요청을 받지도 못했습니다 · 프롬프트로는 못 고칩니다`,
+           `The model never received the request · no prompt fixes this`]
+    : e.gradable
+        ? [`채점 적격 · 응답에서 ${t(CONTRACT[e.contract].label)}를 찾았습니다`,
+           `Gradable · the ${t(CONTRACT[e.contract].label)} is right there in the response`]
+    :   [`${t(verdictOf(e).label)} · 채점기가 읽는 바이트를 그대로 봅니다`,
+         `${t(verdictOf(e).label)} · this is the byte the grader reads`];
+
+  /* 먼저 스쿼드를 고른다. 트랙을 가장 많이 덮는 쪽 — 같으면 실행이 많은 쪽.
+     한 스쿼드에서 세 트랙이 다 나와야 "이 스쿼드가 트랙마다 어떻게 다른가"를 말할 수 있다.
+     실측 촬영본: 풀스택 개발 스쿼드가 6실행으로 coding·math·generic 을 다 덮고,
+     다른 스쿼드는 math 뿐이다. 스쿼드를 안 고르고 실행부터 찾으면 그때그때 달라진다. */
+  const tracksOf=s=>new Set(s.execs.map(e=>e.track).filter(k=>k!=="unknown")).size;
+  const home=pinned
+    ? (S.squads||[]).find(s=>s.sq===pinned.sq)
+    : (S.squads||[]).slice()
+        .sort((a,b)=>tracksOf(b)-tracksOf(a) || b.execs.length-a.execs.length)[0];
+  const H=home?home.execs:X;
+
+  /* 그 안에서 깊게 팔 실행.
+     정상적으로 채점된 실행을 먼저 본다 — 시연은 도구가 무엇을 보여주는지를 보이는 자리이고,
+     첫 사례가 실패면 도구 자랑이 아니라 스쿼드 흉이 된다.
+     같은 적격 중에서는 태스크가 많은 쪽 — 재생·타임라인·장부가 다 찬다. */
+  const grad=H.filter(e=>e.gradable).sort((a,b)=>b.tasks.length-a.tasks.length);
+  const main=pinned
+   || grad[0]
+   || H.find(e=>e.route&&e.route.track!==e.track&&near(e))
+   || H.find(near)
+   || H.find(e=>e.track==="coding")
+   || H.find(e=>e.track!=="unknown")
+   || H[0] || X[0];
+  if(!main) return null;
+
+  /* 나머지 두 트랙에서 하나씩. 같은 스쿼드를 먼저 보고, 없으면 어디서든 가져온다 —
+     트랙이 다 나오는 편이 스쿼드가 같은 것보다 중요하다. */
+  const order=["coding","math","generic"].filter(k=>k!==main.track);
+  const alts=[];
+  for(const k of order){
+    // 여기서도 적격을 먼저 본다. 없으면 그 트랙의 아무 실행.
+    const hit=H.find(e=>e.track===k&&e.gradable) || H.find(e=>e.track===k)
+           || X.find(e=>e.track===k&&e.gradable) || X.find(e=>e.track===k);
+    if(hit) alts.push(hit);
+  }
+  // 은/는 을 붙이면 트랙 이름이 영문이라 받침 판단이 틀린다. "의" 로 피한다.
+  const altLine=e=>[
+    `${TRACK[e.track].label} 의 출력 계약 · ${t(CONTRACT[TRACK[e.track].contract].spec)}`,
+    `The ${TRACK[e.track].label} contract · ${t(CONTRACT[TRACK[e.track].contract].spec)}`];
+
+  const [ko,en]=line(main);
+  return {e:main, ko, en, alts, altLine};
+}
+
+/* 한 화면을 위에서 아래까지 밀어 준다.
+   자막만 바뀌고 화면이 가만히 있으면 그 아래에 무엇이 더 있는지 영상에 안 남는다.
+
+   높이를 매 걸음 다시 잰다. 패널이 그려지자마자 재면 차트가 아직 자리를 안 잡아
+   스크롤 여유가 0 으로 나오고, 그러면 화면이 통째로 안 움직인다.
+   scrollTop 대입 대신 scrollTo({behavior:"auto"}) 를 쓴다 — 어딘가에서 smooth 가 켜져 있으면
+   80ms 마다 새 애니메이션이 얹혀 제자리걸음이 된다. */
+function demoScroll(el,ms){
+  if(!el) return;
+  const STEPS=Math.max(8,Math.round(ms/80));
+  let i=0;
+  const h=setInterval(()=>{
+    if(!S.demo){ clearInterval(h); return; }
+    const max=el.scrollHeight-el.clientHeight;
+    i++;
+    if(max>40){
+      const v=i/STEPS;
+      // 시작과 끝을 부드럽게. 등속으로 밀면 멈추는 순간이 툭 끊긴다.
+      el.scrollTo({top:max*(v<.5 ? 2*v*v : 1-Math.pow(-2*v+2,2)/2), behavior:"auto"});
+    }
+    if(i>=STEPS) clearInterval(h);
+  },80);
+  S.demoT.push(h);
+}
+
+/* 90초.
+     1부 (0~56s)  문항 하나를 끝까지 — 탭 여섯 개를 순서대로
+     2부 (56~79s) 전체 분석 · 스쿼드 비교
+     3부 (79~90s) 안 보여준 트랙 둘을 개요로
+   각 화면은 위에서 아래까지 민다. 앵커로 튀지 않는다 —
+   튀면 그 사이에 무엇이 있었는지가 영상에서 사라진다. */
+function demoRun(){
+  if(!S.execs.length||S.demo) return;
+  S.demo=true; S.demoT=[];
+  const cap=$("#demo-cap");
+  if(!cap) return;
+  cap.hidden=false;
+
+  const p=demoPick(S.demoPin);
+  const d=decidable(S.execs);
+  const manySquads=(S.squads||[]).length>1;
+  const alt=i=>(p&&p.alts[i])?p.altLine(p.alts[i]):["",""];
+  const fill=s=>String(s)
+    .replace("{aigo}",S.execs.filter(aigoOk).length)
+    .replace("{grad}",d.grad)
+    .replace("{line}",LANG==="en"?(p?p.en:""):(p?p.ko:""))
+    .replace("{alt1}",alt(0)[LANG==="en"?1:0])
+    .replace("{alt2}",alt(1)[LANG==="en"?1:0]);
+  const say=i=>{ $("#demo-text").textContent=fill(LANG==="en"?DEMO_CAP[i][1]:DEMO_CAP[i][0]); };
+  const TOTAL=90000;
+  // 탭을 갈아탄 뒤 화면이 그려질 틈을 주고 민다.
+  const tab=(name,ms)=>{ setTab(name); S.demoT.push(setTimeout(()=>demoScroll($("#pane"),ms),450)); };
+  const show=e=>{ setMode("exec"); S.sel=e.id; renderList(); setTab("overview"); };
+
+  /* [시작 시각(ms), 자막 번호, 그때 할 일] */
+  const BEATS=[
+    // 1부 — 문항 하나를 끝까지
+    [    0,  0, ()=>{ if(p) show(p.e); S.demoT.push(setTimeout(()=>demoScroll($("#pane"),8000),1400)); }],
+    [ 6000,  1, null],
+    [14000,  2, ()=>{ setTab("replay"); $("#rp-play")?.click(); }],
+    [26000,  3, ()=>tab("ledger",7000)],
+    [35000,  4, ()=>tab("timeline",6000)],
+    [43000,  5, ()=>tab("failure",5000)],
+    [50000,  6, ()=>tab("raw",4000)],
+    // 2부 — 전체로 넓힌다
+    [56000,  7, ()=>{ setMode("all");
+                      S.demoT.push(setTimeout(demoSlide,500));
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane-all"),8000),1800)); }],
+    [66000,  8, null],
+    [72000,  9, ()=>{ if(manySquads){ setMode("cmp");
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane-cmp"),5000),400)); } }],
+    // 3부 — 안 보여준 트랙 둘
+    [79000, 10, ()=>{ if(p&&p.alts[0]){ show(p.alts[0]);
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane"),4000),700)); } }],
+    [85000, 11, ()=>{ if(p&&p.alts[1]){ show(p.alts[1]);
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane"),3000),700)); } }]
+  ];
+  for(const [ms,i,run] of BEATS){
+    S.demoT.push(setTimeout(()=>{
+      if(!S.demo) return;
+      if(run) run();
+      say(i);
+    },ms));
+  }
+
+  // 남은 시간 막대. 100ms 마다 직접 옮긴다 — 전이 하나로 걸면 감속 설정에서 통째로 죽고,
+  // requestAnimationFrame 은 탭이 뒤로 가면 아예 안 돈다. 타이머는 어느 쪽에서도 계속 간다.
+  const t0=Date.now();
+  const bar=setInterval(()=>{
+    const v=Math.min(1,(Date.now()-t0)/TOTAL);
+    cap.style.setProperty("--p",v.toFixed(4));
+    if(v>=1) clearInterval(bar);
+  },100);
+  S.demoT.push(bar);
+
+  S.demoT.push(setTimeout(demoStop,TOTAL));
+}
+
+/* 90초가 지나면 자막만 걷는다. 화면은 마지막 상태 그대로 둔다 —
+   촬영이 몇 초 늦게 끝나도 마지막 프레임이 빈 화면이 되지 않게. */
+function demoStop(){
+  S.demo=false;
+  for(const h of (S.demoT||[])){ clearTimeout(h); clearInterval(h); }
+  S.demoT=[];
+  const cap=$("#demo-cap");
+  if(cap){ cap.hidden=true; cap.style.setProperty("--p","0"); }
+}
+
+/* 절단선을 사람이 끄는 것처럼 천천히 민다. 한 번에 옮기면 계기가 튀어서 안 읽힌다.
+   requestAnimationFrame 이 아니라 타이머로 민다 — 촬영 중 다른 창을 만지면 rAF 가 멈춰서
+   슬라이더가 중간에 선 채로 남는다. 20단이면 손으로 끈 것과 구분되지 않는다. */
+function demoSlide(){
+  const el=$("#w-cut"); if(!el) return;
+  const from=Number(el.value), to=Math.round(from*0.42), STEPS=20;
+  let i=0;
+  const h=setInterval(()=>{
+    if(!S.demo){ clearInterval(h); return; }
+    i++;
+    el.value=String(Math.round(from+(to-from)*(i/STEPS)));
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+    if(i>=STEPS) clearInterval(h);
+  },55);
+  S.demoT.push(h);
+}
+
 /* @preserve:begin export */
 /* ── 내보내기 ──
    CSP 없이 순수 브라우저 기능만 쓴다. Blob + a[download] 면 라이브러리가 필요 없다. */
@@ -5138,5 +5389,10 @@ $("#btn-json").onclick=()=>{
 };
 /* @preserve:end export */
 </script>
+<!-- 자동 시연 자막. #demo 로 열었을 때만 나온다. -->
+<div class="demo-cap" id="demo-cap" hidden>
+  <div class="demo-bar" id="demo-bar"></div>
+  <span id="demo-text"></span>
+</div>
 </body>
 </html>
