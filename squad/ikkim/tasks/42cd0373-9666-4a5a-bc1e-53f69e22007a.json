@@ -1,0 +1,21 @@
+{
+  "id": "42cd0373-9666-4a5a-bc1e-53f69e22007a",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "46782320-0b5d-43fc-b999-1ebe91beb804",
+  "title": "Compute cookie assortment count",
+  "description": "Compute the number of different assortments of six cookies that can be selected from a tray containing chocolate chip, oatmeal, and peanut butter cookies, with at least six of each type. Cookies of the same type are indistinguishable. Return the integer answer.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "in_progress",
+  "priority": "high",
+  "dependsOn": [],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 1,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:00:26.771866684Z",
+  "startedAt": "2026-08-23T01:00:26.774488769Z",
+  "completedAt": null
+}

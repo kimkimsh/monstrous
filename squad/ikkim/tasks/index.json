@@ -340,6 +340,32 @@
     "completedAt": "2026-08-22T15:09:43.613834715Z"
   },
   {
+    "id": "42cd0373-9666-4a5a-bc1e-53f69e22007a",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "46782320-0b5d-43fc-b999-1ebe91beb804",
+    "title": "Compute cookie assortment count",
+    "status": "in_progress",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [],
+    "createdAt": "2026-08-23T01:00:26.771866684Z",
+    "completedAt": null
+  },
+  {
+    "id": "b544d021-0c8c-4b8e-9116-a88297332f8a",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "planId": "46782320-0b5d-43fc-b999-1ebe91beb804",
+    "title": "Return final answer",
+    "status": "pending",
+    "priority": "high",
+    "assignedTo": "agent-1787409857695-bz4vhum",
+    "dependsOn": [
+      "42cd0373-9666-4a5a-bc1e-53f69e22007a"
+    ],
+    "createdAt": "2026-08-23T01:00:26.772776800Z",
+    "completedAt": null
+  },
+  {
     "id": "5bc968a0-e034-4cad-8678-375a308e216a",
     "squadId": "a9b9db2b-694f-44e6-9a2a-0dd8ece6b36a",
     "planId": "33f1e322-7b90-4852-b9b8-5ea7ea8012f3",

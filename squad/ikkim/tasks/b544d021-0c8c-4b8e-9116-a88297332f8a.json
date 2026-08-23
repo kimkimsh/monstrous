@@ -1,0 +1,23 @@
+{
+  "id": "b544d021-0c8c-4b8e-9116-a88297332f8a",
+  "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+  "planId": "46782320-0b5d-43fc-b999-1ebe91beb804",
+  "title": "Return final answer",
+  "description": "Read the result of the cookie assortment count task and produce the final answer as an integer string.",
+  "assignedTo": "agent-1787409857695-bz4vhum",
+  "createdBy": "planner",
+  "status": "pending",
+  "priority": "high",
+  "dependsOn": [
+    "42cd0373-9666-4a5a-bc1e-53f69e22007a"
+  ],
+  "result": null,
+  "error": null,
+  "artifacts": [],
+  "tokenUsage": 0,
+  "retryCount": 0,
+  "maxRetries": 3,
+  "createdAt": "2026-08-23T01:00:26.772776800Z",
+  "startedAt": null,
+  "completedAt": null
+}

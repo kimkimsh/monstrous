@@ -131,5 +131,12 @@
     "startedAt": "2026-08-22T15:08:07.712163242Z",
     "lastUpdatedAt": "2026-08-22T15:09:44.420699020Z",
     "entryCount": 13
+  },
+  {
+    "executionId": "d329662e-8f5a-49ac-896b-3b757aae41fc",
+    "squadId": "0316eb7e-32d4-414b-b12b-00615efdb5a8",
+    "startedAt": "2026-08-23T01:00:26.768305817Z",
+    "lastUpdatedAt": "2026-08-23T01:00:26.773660720Z",
+    "entryCount": 2
   }
 ]
