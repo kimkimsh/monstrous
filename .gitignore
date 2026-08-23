@@ -70,3 +70,7 @@ viz/runs/
 # Browser console logs from MCP browser tooling
 .playwright-mcp/
 .regression-input/
+
+# 화면 녹화본 (커밋하려면 여기서 빼고 LFS 를 쓴다)
+*.mp4
+*.mov
