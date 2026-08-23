@@ -5127,7 +5127,8 @@ const DEMO_CAP=[
   ["AI:GO 가 남긴 원문","What AI:GO actually wrote"],
   ["여기서 끊었다면 얼마를 아끼고 몇 점을 잃었을까","Cap it here — what it saves, what it costs"],
   ["0점은 네 갈래 · 갈래마다 고칠 사람이 다릅니다","A zero splits four ways · each has a different owner"],
-  ["같은 문항, 다른 스쿼드","Same items, different squads"],
+  ["같은 문항을 푼 두 스쿼드 · 토큰도 시간도 다릅니다",
+   "Two squads on the same item · different tokens, different time"],
   ["{alt1}","{alt1}"],
   ["{alt2}","{alt2}"]
 ];
@@ -5151,7 +5152,7 @@ function demoPick(){
         ? [`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 트랙이 곧 출력 계약입니다`,
            `A ${TRACK[e.track].label} item routed as ${e.route.track} · the track is the contract`]
     : e.blocker==="markers"
-        ? [`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)} 가 없습니다`,
+        ? [`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)}가 없습니다`,
            `It ran and answered, but without ${t(CONTRACT[e.contract].label)}`]
     : e.blocker==="blocked"
         ? [`모델이 요청을 받지도 못했습니다 · 프롬프트로는 못 고칩니다`,
@@ -5159,14 +5160,24 @@ function demoPick(){
     :   [`${t(verdictOf(e).label)} · 채점기가 읽는 바이트를 그대로 봅니다`,
          `${t(verdictOf(e).label)} · this is the byte the grader reads`];
 
-  /* 깊게 팔 실행. 할 이야기가 많은 쪽을 먼저 찾고, 없으면 coding — 탭 여섯 개가 가장 잘 찬다. */
+  /* 먼저 스쿼드를 고른다. 트랙을 가장 많이 덮는 쪽 — 같으면 실행이 많은 쪽.
+     한 스쿼드에서 세 트랙이 다 나와야 "이 스쿼드가 트랙마다 어떻게 다른가"를 말할 수 있다.
+     실측 촬영본: 풀스택 개발 스쿼드가 6실행으로 coding·math·generic 을 다 덮고,
+     다른 스쿼드는 math 뿐이다. 스쿼드를 안 고르고 실행부터 찾으면 그때그때 달라진다. */
+  const tracksOf=s=>new Set(s.execs.map(e=>e.track).filter(k=>k!=="unknown")).size;
+  const home=(S.squads||[]).slice()
+    .sort((a,b)=>tracksOf(b)-tracksOf(a) || b.execs.length-a.execs.length)[0];
+  const H=home?home.execs:X;
+
+  /* 그 안에서 깊게 팔 실행. 할 이야기가 많은 쪽을 먼저 찾고,
+     없으면 coding — 탭 여섯 개가 가장 잘 찬다. */
   const main=
-      X.find(e=>e.route&&e.route.track!==e.track&&near(e))
-   || X.find(near)
-   || X.find(e=>e.route&&e.route.track!==e.track)
-   || X.find(e=>e.track==="coding")
-   || X.find(e=>e.track!=="unknown")
-   || X[0];
+      H.find(e=>e.route&&e.route.track!==e.track&&near(e))
+   || H.find(near)
+   || H.find(e=>e.route&&e.route.track!==e.track)
+   || H.find(e=>e.track==="coding")
+   || H.find(e=>e.track!=="unknown")
+   || H[0] || X[0];
   if(!main) return null;
 
   /* 나머지 두 트랙에서 하나씩. 같은 스쿼드를 먼저 보고, 없으면 어디서든 가져온다 —
@@ -5174,7 +5185,7 @@ function demoPick(){
   const order=["coding","math","generic"].filter(k=>k!==main.track);
   const alts=[];
   for(const k of order){
-    const hit=X.find(e=>e.track===k&&e.sq===main.sq) || X.find(e=>e.track===k);
+    const hit=H.find(e=>e.track===k) || X.find(e=>e.track===k);
     if(hit) alts.push(hit);
   }
   // 은/는 을 붙이면 트랙 이름이 영문이라 받침 판단이 틀린다. "의" 로 피한다.
@@ -5201,7 +5212,7 @@ function demoScroll(el,ms){
     if(!S.demo){ clearInterval(h); return; }
     const max=el.scrollHeight-el.clientHeight;
     i++;
-    if(max>8){
+    if(max>40){
       const v=i/STEPS;
       // 시작과 끝을 부드럽게. 등속으로 밀면 멈추는 순간이 툭 끊긴다.
       el.scrollTo({top:max*(v<.5 ? 2*v*v : 1-Math.pow(-2*v+2,2)/2), behavior:"auto"});
