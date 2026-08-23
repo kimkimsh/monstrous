@@ -1080,6 +1080,22 @@ html[data-contrast="1"] .drop-grid{display:none}
   .gauge,.rp-bar,.rp-wait,.legend i,.sm-key i,.row-bar,.sq-card .bar{
     -webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+.demo-cap{
+  position:fixed; left:0; right:0; bottom:0; z-index:40;
+  background:var(--panel); border-top:1px solid var(--line);
+  padding:16px 24px; font-size:var(--fs-lead); color:var(--fg);
+  text-align:center; line-height:1.5;
+}
+.demo-cap[hidden]{display:none}
+/* 남은 시간 막대. 비트마다 그 시각의 비율로 옮긴다.
+   requestAnimationFrame 은 탭이 뒤로 가면 아예 안 돌고, 한 번에 60초짜리 전이를 걸면
+   감속 설정에서 통째로 죽는다. 단계로 옮기면 어느 쪽에서도 남은 시간이 읽힌다. */
+.demo-bar{
+  position:absolute; left:0; top:0; height:2px; width:100%;
+  transform:scaleX(var(--p,0)); transform-origin:left; background:var(--accent);
+  transition:transform 800ms var(--ease-move);
+}
+
 </style>
 </head>
 <body>
@@ -4444,7 +4460,7 @@ function blockerCard(X){
       Object.keys(BLOCKER_LABEL).map(k=>
         `<tr><td>${t(BLOCKER_LABEL[k])}</td><td><code>${BLOCKER_EN[k]}</code></td>`+
         `<td>${t(BLOCKER_OWNER[k])}</td></tr>`).join("")+
-      `</table></div>`));
+      `</table></div>`),"blocker");
 }
 
 function nearCard(X){
@@ -4994,6 +5010,8 @@ function applyHash(){
   if(p.get("w")) $("#f-ws").value=p.get("w");
   if(p.get("v")==="cards"){ S.cards=true; $("#btn-view").textContent="▦"; }
   if(p.get("l")) setLang(p.get("l"));
+  // #demo — 자동 시연. 폴더가 들어온 뒤에 시작한다.
+  if(p.has("demo")) setTimeout(demoRun,600);
   if(p.get("sw")) setSideWidth(+p.get("sw"));
   setSideOpen(p.get("s")!=="0");
   const e=p.get("e"); if(e&&S.execs.some(x=>x.id===e)) S.sel=e;
@@ -5087,6 +5105,126 @@ function selectExec(id,opts){
   if(li) li.scrollIntoView({block:"nearest"});
 }
 
+
+/* ── 자동 시연 ──
+   1분짜리 영상을 찍는 데 사람이 클릭할 시간이 없다. 주소에 #demo 를 붙이면
+   폴더를 넣는 순간부터 60초 동안 스스로 돌면서 아래 자막을 바꿔 준다.
+
+   실행을 id 로 고르지 않는다. 촬영 데이터가 그때그때 다르기 때문이다.
+   "라우팅이 어긋난 실행", "가장 아까운 실행" 처럼 성격으로 찾고, 없으면 다음 후보로 내려간다.
+   그래서 어떤 워크스페이스를 넣어도 같은 이야기가 나온다 — 숫자만 그 데이터의 것으로 바뀐다.
+
+   자막은 화면 아래 띠 하나뿐이다. 영상에 목소리를 얹든 안 얹든 읽히게. */
+
+const DEMO_CAP=[
+  ["폴더 하나. 설치도 서버도 없습니다","One folder. No install, no server"],
+  ["AI:GO 는 {aigo}건이 성공이라고 적었습니다. 점수가 되는 건 {grad}건입니다",
+   "AI:GO recorded {aigo} successes. {grad} of them would score"],
+  ["0점은 한 덩어리가 아닙니다. 갈래마다 고칠 사람이 다릅니다",
+   "A zero is not one thing. Each branch has a different owner"],
+  ["트랙마다 요구하는 출력 형식이 다릅니다","Each track demands a different output format"],
+  ["{line}","{line}"],
+  ["녹화된 로그만으로 재생합니다. 모델 호출 0회","Replayed from the log alone. Zero model calls"],
+  ["상한을 걸면 얼마를 아끼고 무엇을 잃는지 즉시 계산합니다",
+   "Cap the spend and see what it saves and costs, instantly"],
+  ["로그에 있는 것만 씁니다","Only what the log actually holds"]
+];
+
+/* 이 데이터에서 가장 할 말이 많은 실행을 고른다. 위에서부터 찾고 없으면 내려간다. */
+function demoPick(){
+  const X=S.execs;
+  const near=e=>e.carriers&&e.carriers.some(c=>c.a&&(c.a.hint||c.a.near));
+  const cands=[
+    // 1순위 — 라우팅이 어긋났고 값은 맞은 실행. 할 이야기가 가장 많다.
+    [e=>e.route&&e.route.track!==e.track&&near(e),
+     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다. 답은 맞고 형식이 틀렸습니다`,
+     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track}. Right answer, wrong format`],
+    // 2순위 — 값은 맞았는데 형식 때문에 0점
+    [near,
+     ()=>`답은 맞혔는데 채점기가 읽는 형식이 아닙니다`,
+     ()=>`The answer is right; it is not in the shape the grader reads`],
+    // 3순위 — 라우팅만 어긋난 실행
+    [e=>e.route&&e.route.track!==e.track,
+     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다. 트랙이 곧 출력 계약입니다`,
+     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track}. The track is the contract`],
+    // 4순위 — 형식만 못 맞춘 실행
+    [e=>e.blocker==="markers",
+     e=>`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)} 가 없어 0점입니다`,
+     e=>`It ran and answered, but without ${t(CONTRACT[e.contract].label)} it scores 0`],
+    // 5순위 — 호출 자체가 거부된 실행
+    [e=>e.blocker==="blocked",
+     ()=>`모델이 요청을 받지도 못했습니다. 프롬프트로는 못 고칩니다`,
+     ()=>`The model never received the request. No prompt fixes this`],
+    // 마지막 — 아무거나. 적격이라도 보여준다.
+    [()=>true,
+     e=>`${t(verdictOf(e).label)} — 채점기가 읽는 바이트를 그대로 봅니다`,
+     e=>`${t(verdictOf(e).label)} — this is the byte the grader reads`]
+  ];
+  for(const [test,ko,en] of cands){
+    const hit=X.find(test);
+    if(hit) return {e:hit, ko:ko(hit), en:en(hit)};
+  }
+  return null;
+}
+
+/* 60초 · 8비트. at 은 시작 시각(ms)이다. */
+function demoRun(){
+  if(!S.execs.length||S.demo) return;
+  S.demo=true;
+  const cap=$("#demo-cap");
+  if(!cap) return;
+  cap.hidden=false;
+
+  const p=demoPick();
+  const d=decidable(S.execs);
+  const fill=s=>String(s)
+    .replace("{aigo}",S.execs.filter(aigoOk).length)
+    .replace("{grad}",d.grad)
+    .replace("{line}",LANG==="en"?(p?p.en:""):(p?p.ko:""));
+
+  const say=i=>{
+    const [ko,en]=DEMO_CAP[i];
+    $("#demo-text").textContent=fill(LANG==="en"?en:ko);
+  };
+  const TOTAL=60000;
+  const to=(sel)=>document.querySelector("#pane-all "+sel)?.scrollIntoView({block:"center"});
+
+  /* [시작 시각(ms), 자막 번호, 그때 할 일] */
+  const BEATS=[
+    // 시작은 늘 같은 그림이어야 한다 — 주소에 남아 있던 선택·탭이 첫 컷을 바꾸면 안 된다.
+    [    0, 0, ()=>{ S.sel=null; setTab("overview"); setMode("exec"); renderList(); renderPane(); }],
+    [ 6000, 1, null],
+    [14000, 2, ()=>{ setMode("all"); to(".blocker"); }],
+    [22000, 3, ()=>to(".by-track")],
+    [29000, 4, ()=>{ if(p){ setMode("exec"); S.sel=p.e.id; renderList(); setTab("overview"); } }],
+    [40000, 5, ()=>{ if(p){ setTab("replay"); $("#rp-play")?.click(); } }],
+    [49000, 6, ()=>{ setMode("all"); to(".cut"); demoSlide(); }],
+    [56000, 7, null]
+  ];
+  for(const [ms,i,run] of BEATS) setTimeout(()=>{
+    if(!S.demo) return;
+    if(run) run();
+    say(i);
+    cap.style.setProperty("--p",(ms/TOTAL).toFixed(3));
+  },ms);
+  setTimeout(()=>{ S.demo=false; cap.hidden=true; cap.style.setProperty("--p","0"); },TOTAL);
+}
+
+/* 절단선을 사람이 끄는 것처럼 천천히 민다. 한 번에 옮기면 계기가 튀어서 안 읽힌다.
+   requestAnimationFrame 이 아니라 타이머로 민다 — 촬영 중 다른 창을 만지면 rAF 가 멈춰서
+   슬라이더가 중간에 선 채로 남는다. 24단이면 손으로 끈 것과 구분되지 않는다. */
+function demoSlide(){
+  const el=$("#w-cut"); if(!el) return;
+  const from=Number(el.value), to=Math.round(from*0.42), STEPS=24;
+  let i=0;
+  const h=setInterval(()=>{
+    i++;
+    el.value=String(Math.round(from+(to-from)*(i/STEPS)));
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+    if(i>=STEPS) clearInterval(h);
+  },130);
+}
+
 /* @preserve:begin export */
 /* ── 내보내기 ──
    CSP 없이 순수 브라우저 기능만 쓴다. Blob + a[download] 면 라이브러리가 필요 없다. */
@@ -5138,5 +5276,10 @@ $("#btn-json").onclick=()=>{
 };
 /* @preserve:end export */
 </script>
+<!-- 자동 시연 자막. #demo 로 열었을 때만 나온다. -->
+<div class="demo-cap" id="demo-cap" hidden>
+  <div class="demo-bar" id="demo-bar"></div>
+  <span id="demo-text"></span>
+</div>
 </body>
 </html>
