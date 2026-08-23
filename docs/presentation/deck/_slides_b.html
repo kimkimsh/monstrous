@@ -1,0 +1,343 @@
+<!-- ══════════════ 06 · ROUTER ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Router</span></div>
+    <h2 class="st wide">Router. One <code style="font-size:.86em">create_task</code> call, and then it stops.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.15;display:flex;flex-direction:column">
+        <div class="p-t"><span class="ember" style="line-height:0">{{glyph:router:24}}</span>
+          The block decides the track<span class="sub">not the model</span></div>
+        <table class="t-tight"><thead><tr>
+          <th style="width:56%">What the REQUIRED OUTPUT block asks for</th><th>Goes to</th>
+        </tr></thead><tbody>
+          <tr><td>A patch between two patch markers</td><td class="k plum">Coder &middot; coding</td></tr>
+          <tr><td>A final boxed value</td><td class="k lime">Solver &middot; math</td></tr>
+          <tr><td>A single option letter</td><td class="k lime">Solver &middot; generic</td></tr>
+          <tr><td>Something else, or no block at all</td><td class="k lime">Solver &middot; other</td></tr>
+        </tbody></table>
+        <p class="note mt3">The rule reads the shape of the block, so there is no room for
+          the model to guess a track. Every request ends with one of these four.</p>
+
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Never calls</span>
+            <span class="said" style="font-size:14.5px">check_task_status &middot; aggregate_results &middot; update_plan</span></div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight">
+          <div class="lbl">It copies, it does not summarise</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            A rewritten problem is a different problem. An options list that was not copied
+            has no letter to choose. A retyped source line is a patch that will not apply.</p>
+        </div>
+        <div class="p tight" style="flex:1">
+          <div class="lbl">Coding is the one exception</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            Repository context runs to about 60,000 characters and will not fit. Issue text first,
+            then excerpts strongest-first, then the block. It stops at about
+            <b class="mono">32,000</b> characters and <b>drops a whole excerpt rather than cutting one</b>.</p>
+          <div class="mt3">
+            <div class="lbl" style="font-size:12px;margin-bottom:8px">Excerpt ranking, strongest first</div>
+            <ol style="margin:0;padding-left:1.15em;font-size:14.5px;line-height:1.65;color:var(--fg-dim)">
+              <li>A path the issue names outright</li>
+              <li>A path in the traceback the issue pasted</li>
+              <li>An excerpt defining a symbol the issue called</li>
+              <li>An excerpt calling that symbol</li>
+            </ol>
+            <p class="note mt2">Anything past the fourth is a guess, and one guess spends
+              about 12,000 characters.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">06</span></div>
+</section>
+
+<!-- ══════════════ 07 · CODER / PARSER ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Coder</span></div>
+    <h2 class="st wide">A patch that does not apply is worth zero, however right the fix was.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.5">
+        <div class="p-t" style="font-size:21px"><span class="plum" style="line-height:0">{{glyph:coder:22}}</span>
+          What the patch parser enforces<span class="sub">each row turns a correct fix into 0</span></div>
+        <table class="t-tight"><thead><tr>
+          <th style="width:45%">Rule</th><th>What breaking it does</th>
+        </tr></thead><tbody>
+          <tr><td>The three inner markers start at column 0</td>
+              <td>One leading space parses the whole patch into zero blocks</td></tr>
+          <tr><td>SEARCH matches the file byte for byte</td>
+              <td>One different quote or one space of indent and it will not attach</td></tr>
+          <tr><td>SEARCH is unique within that file</td>
+              <td>Two matches, so widen with surrounding lines</td></tr>
+          <tr><td>No prose between blocks</td>
+              <td>Read as the next block's path line. The patch stops with no error</td></tr>
+          <tr><td>No anchor line of seven or more <code>=</code> <code>&lt;</code> <code>&gt;</code></td>
+              <td>The parser cuts the section there. Again, no error</td></tr>
+          <tr><td>One patch per reply</td>
+              <td>Only the last is read, so a second attempt buries a good first one</td></tr>
+          <tr><td>No unified diff, no <code>git diff</code>, no whole-file rewrite</td>
+              <td>This format is the only one read</td></tr>
+        </tbody></table>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="background:var(--panel-2)">
+          <div class="lbl">The only shape that is read</div>
+          <pre class="mt2" style="font-size:12.5px;line-height:1.6">*** PATCH START ***
+<b>path/to/file.py</b>
+<b>&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH</b>
+    the exact lines now in the file
+<b>=======</b>
+    the lines that replace them
+<b>&gt;&gt;&gt;&gt;&gt;&gt;&gt; REPLACE</b>
+*** PATCH END ***</pre>
+        </div>
+        <div class="p tight">
+          <div class="pull" style="font-size:16px">
+            Fixing only the path the issue names is the larger change, and it leaves the
+            sibling callers broken. The tests that already passed are watching exactly
+            those siblings.
+          </div>
+        </div>
+        <div class="p tight">
+          <div class="lbl">No tools, by design</div>
+          <p class="note mt2">Coder cannot open a file, run a test, or search the repository.
+            A path, symbol or line number absent from the text it was handed is invented,
+            and an invented patch does not apply.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">07</span></div>
+</section>
+
+<!-- ══════════════ 08 · CODER / RUN SHAPE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Coder</span></div>
+    <h2 class="st wide">Two sentences that look alike and mean the opposite.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">The judge says</div>
+        <p class="mono mt2" style="font-size:17px;color:var(--fg)">&ldquo;runs your file as a program&rdquo;</p>
+        <hr class="rule mt3">
+        <p class="mt3" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Read standard input. Write the answer, and only the answer, to standard output.</p>
+        <p class="note mt2">A file that only defines a function prints nothing and scores zero.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Practice items</span>
+            <span class="said">4 of 7</span></div>
+          <div class="gauge" style="--cells:7;--on:4;--c:var(--plum);margin-left:auto"></div>
+        </div>
+      </div>
+
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">The judge says</div>
+        <p class="mono mt2" style="font-size:17px;color:var(--fg)">&ldquo;imports your file and calls the entry point&rdquo;</p>
+        <hr class="rule mt3">
+        <p class="mt3" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Keep the given names and signatures exactly. Read nothing from standard input.
+          Run nothing at import time.</p>
+        <p class="note mt2">Reading standard input here scores zero.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Practice items</span>
+            <span class="said">3 of 7</span></div>
+          <div class="gauge" style="--cells:7;--on:3;--c:var(--plum);margin-left:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      Swap the two and a correct algorithm still scores zero. Coder follows the run-shape
+      sentence to the letter, because it is the one line that decides whether anything runs at all.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">08</span></div>
+</section>
+
+<!-- ══════════════ 09 · SOLVER ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Solver</span></div>
+    <h2 class="st wide">Solver carries 109 of the 147 items.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g3">
+      <div class="p raise">
+        <div class="p-t" style="font-size:20px">
+          <span class="lime" style="line-height:0">{{glyph:math:20}}</span>Mathematics</div>
+        <p style="font-size:15.5px;line-height:1.5;color:var(--fg-dim)">
+          Solve to a value, then check it a second way &mdash; substitute back, re-derive one
+          step along another path, or try the smallest case. When the two disagree, take the
+          one you can justify.</p>
+        <p class="note mt2">No averaging, and never both answers. Sign, integrality, range,
+          and extraneous roots get checked.</p>
+      </div>
+      <div class="p raise">
+        <div class="p-t" style="font-size:20px">
+          <span class="lime" style="line-height:0">{{glyph:generic:20}}</span>Multiple choice</div>
+        <p style="font-size:15.5px;line-height:1.5;color:var(--fg-dim)">
+          Solve before looking at the options. Picking an option first and reasoning toward it
+          is how a wrong option wins.</p>
+        <p class="note mt2">Option counts run from three to ten and are not always A through J.
+          A letter absent from that item's own Options block scores zero however good the reasoning.</p>
+      </div>
+      <div class="p raise" style="border-style:dashed">
+        <div class="p-t" style="font-size:20px">
+          <span class="faint" style="line-height:0">{{glyph:generic:20}}</span>Everything else</div>
+        <p style="font-size:15.5px;line-height:1.5;color:var(--fg-dim)">
+          The graded benchmarks are three, but the harness can send something outside them.
+          A squad that knows only three tracks forces a shape onto the fourth and loses a
+          correct value to formatting.</p>
+        <p class="note mt2">There the sentence in which the request states its own answer
+          shape is the contract.</p>
+      </div>
+    </div>
+
+    <div class="p bad">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="lbl" style="flex:none;color:var(--v-bad)">Three ways the last line breaks</div>
+        <div class="row grow" style="gap:var(--s6);font-size:15.5px;color:var(--fg-dim)">
+          <div><b>Before the value</b><br><span class="note">bold marks, a bullet, a quote arrow</span></div>
+          <div><b>After the value</b><br><span class="note">an option name, brackets, a full stop, two letters</span></div>
+          <div><b>Wrong case</b><br><span class="note">the pattern is anchored to the whole line</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">09</span></div>
+</section>
+
+<!-- ══════════════ 10 · VERIFICATION ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; who verifies</span></div>
+    <h2 class="st wide">We did not delete the verifier. We moved it into two places.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p ok" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="lime" style="line-height:0">{{glyph:ok:22}}</span>
+          Inside the agent's own turn<span class="sub">no extra call</span></div>
+        <ul style="margin:0;padding-left:1.15em;font-size:16px;line-height:1.7;color:var(--fg-dim)">
+          <li>Solver's second derivation of the same value</li>
+          <li>Coder's sibling-caller check before it writes</li>
+          <li>The final-line rules, applied by the seat that writes the line</li>
+        </ul>
+        <p class="note mt3">All of it runs inside one response, so the call count does not move.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Model calls added</span><span class="said">0</span></div>
+        </div>
+      </div>
+
+      <div class="p ok" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="lime" style="line-height:0">{{glyph:ok:22}}</span>
+          A program, at build time<span class="sub">tools/validate_template.py</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          The build feeds our six prompt texts to the grader's own extractors &mdash;
+          <code>extract_letter</code>, <code>extract_boxed</code>, <code>extract_patch</code>.
+          If any of them pulls an answer out, no artifact is produced.</p>
+        <div class="pull q2 mt3" style="font-size:16px">
+          If the grader can find an answer in our instructions, then the moment a model
+          leaks a fragment of those instructions, the fragment is what gets graded.
+        </div>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Conditions enforced</span><span class="said">50</span></div>
+          <div class="side" style="margin-left:auto"><span class="k">Human review needed</span>
+            <span class="said">none</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+        <b>Why not one more verification hop.</b> The grader reads only the last task, so a
+        verification hop becomes the last hop, and that seat is not the one that produced the
+        answer. Beyond that, self-verification with no external signal moved GPT-4 on GSM8K from
+        <b class="mono">95.5%</b> to <b class="mono">89.0%</b>, while deterministic supervision
+        raised SWE-bench resolve rate by <b class="mono">9.9%</b> on average. We took the second one.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">10</span></div>
+</section>
+
+<!-- ══════════════ 11 · GIVING UP ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>03</s> Giving up, and the budget</div>
+    <h2 class="st wide">There is no cap to stop before. So giving up means not making the call.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p warn" style="flex:none;width:340px">
+        <div class="lbl">Hidden-set caps, from the leaderboard API</div>
+        <p class="mono mt2" style="font-size:15px;color:var(--fg)">no wall-clock cap,<br>no token cap</p>
+        <p class="note mt2">Both fields come back <code>null</code> on every graded run.
+          Nothing throttles a run from outside, so every call we make is a call we chose.</p>
+      </div>
+      <div class="p grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">The plan graph freezes before the run starts and carries no conditional
+          branch, so <b>this cannot be an agent making a judgment call.</b>
+          It has to be four rules, each sitting where it can still act.</p>
+      </div>
+    </div>
+
+    <div class="g4">
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">01 &middot; Router</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          One task, no re-planning. The app's own planner instruction says split as small
+          as possible; we reversed it. One task is one model call.</p>
+      </div>
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">02 &middot; Copy budget</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          32,000 characters, filled strongest-first. If <code>create_task</code> returns a length
+          error, drop the excerpts and call again. Issue text alone still scores; a missing
+          task scores zero.</p>
+      </div>
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">03 &middot; The worker</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          When a derivation runs long, stop and write the answer line with the best value
+          held so far. A truncated response has no answer line at all &mdash; the only way we
+          lose an item already solved.</p>
+      </div>
+      <div class="p tight bad" style="display:flex;flex-direction:column">
+        <div class="lbl coral">04 &middot; Never answer empty</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          This one reversed. With several waves an empty output is safe, because the grader
+          skips back. <b>With one wave there is no net.</b> Empty is a certain zero; a guess
+          is sometimes right.</p>
+      </div>
+    </div>
+
+    <p class="note"><b>The budget file is not part of the submission.</b>
+      <code>budget.json</code> is a local squad budget and never reaches the evaluation server,
+      which runs on runtime defaults (<code>maxTasksPerPlan</code> 20, <code>maxAgentTurns</code> 20,
+      <code>maxPlanIterations</code> 3). That is why all four rules live in prompts rather than settings.</p>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">11</span></div>
+</section>

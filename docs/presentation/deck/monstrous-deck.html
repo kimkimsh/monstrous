@@ -1,0 +1,1341 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Monstrous Squad — JUNCTIONX Korea 2026</title>
+<style>
+/* ═══ tokens — lifted from viz_revise_program/src/app.html:18-195 ═══ */
+@property --on  { syntax:'<integer>'; inherits:false; initial-value:0 }
+@property --dim { syntax:'<integer>'; inherits:false; initial-value:0 }
+
+:root{
+  --bg:#FBF1DF;  --panel:#FFFAF0;  --panel-2:#F2E4CC;
+  --line:#D8C4A4; --line-strong:#B99C74;
+  --fg:#241813;  --fg-dim:#5C4436;  --fg-faint:#71543F;
+  --ink:#FFF8EC;
+  --ember:#AF3B09; --gold:#865A00; --lime:#3F6A0B;
+  --coral:#B92D24; --magenta:#B12B75; --plum:#7A3DAF;
+  --v-ok:var(--lime); --v-bad:var(--coral);
+  --v-warn:var(--gold); --v-hold:var(--fg-faint);
+  --accent:var(--ember);
+
+  --font-ui:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+            "Helvetica Neue",system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono","Cascadia Mono","JetBrains Mono",
+              Consolas,"DejaVu Sans Mono",monospace;
+
+  --fs-micro:11.5px; --fs-caption:13.5px; --fs-label:13.5px;
+  --fs-body:17px;    --fs-lead:20px;   --fs-title:24px;
+  --fs-display:52px; --fs-slide:36px;
+
+  --s1:5px; --s2:10px; --s3:15px; --s4:20px;
+  --s6:30px; --s8:44px; --s12:64px;
+
+  --bd:1.5px; --block:5px 5px 0;
+  --cell-gap:3px; --cell-h:15px; --cell-pitch:12px;
+}
+.dark{
+  --bg:#17110E;  --panel:#211812;  --panel-2:#2C201A;
+  --line:#46332A; --line-strong:#5C4436;
+  --fg:#FFF3E3;  --fg-dim:#D8BCA1;  --fg-faint:#AB8E76;
+  --ink:#1A120C;
+  --ember:#FF8A3D; --gold:#FFC24B; --lime:#B5D94A;
+  --coral:#FF6B5E; --magenta:#FF7FB8; --plum:#C08CE0;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:#C9B393;
+  color:var(--fg);
+  font:var(--fs-body)/1.6 var(--font-ui);
+  -webkit-font-smoothing:auto;
+  font-variant-numeric:tabular-nums;
+  word-break:keep-all; overflow-wrap:break-word;
+}
+h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+b,strong{font-weight:700;color:var(--fg)}
+em{font-style:normal}
+code,kbd{font-family:var(--font-mono);font-variant-ligatures:none;
+  font-variant-numeric:slashed-zero tabular-nums;word-break:normal}
+
+/* ═══ page ═══ */
+.s{
+  position:relative; width:1280px; height:720px; overflow:hidden;
+  background:var(--bg); color:var(--fg);
+  padding:38px 56px 40px;
+  display:grid; grid-template-rows:auto minmax(0,1fr); row-gap:var(--s4);
+  margin:0 auto 26px;
+  background-image:repeating-linear-gradient(0deg,
+    rgba(26,18,12,.045) 0 1px, transparent 1px 2px);
+}
+.s.dark{background-image:repeating-linear-gradient(0deg,
+    rgba(255,243,227,.04) 0 1px, transparent 1px 2px)}
+@media print{
+  @page{ size:1280px 720px; margin:0 }
+  body{background:none}
+  .s{margin:0; break-after:page; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .s:last-child{break-after:auto}
+}
+
+/* ═══ slide furniture ═══ */
+.eyebrow{
+  font:700 var(--fs-label)/1 var(--font-mono);
+  letter-spacing:.17em; text-transform:uppercase;
+  color:var(--accent); display:flex; align-items:center; gap:var(--s2);
+}
+.eyebrow s{text-decoration:none;color:var(--line-strong)}
+.eyebrow .rest{color:var(--fg-faint)}
+h2.st{font-size:var(--fs-slide);line-height:1.1;letter-spacing:-.022em;
+  margin:var(--s2) 0 0; max-width:36ch}
+h2.st.wide{max-width:46ch}
+.dek{font-size:var(--fs-lead);line-height:1.45;color:var(--fg-dim);
+  margin-top:var(--s2);max-width:76ch}
+.dek b{color:var(--fg)}
+.hd{min-height:0}
+.body{min-height:0;display:flex;flex-direction:column;
+  justify-content:center;gap:var(--s3);padding-bottom:34px}
+.body.top{justify-content:flex-start}
+.foot{
+  position:absolute;left:56px;right:56px;bottom:16px;
+  display:flex;align-items:baseline;justify-content:space-between;
+  font:var(--fs-micro)/1.35 var(--font-mono);color:var(--fg-faint);
+  letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;
+  border-top:1px solid var(--line);padding-top:9px;gap:var(--s4);
+}
+.foot b{color:var(--fg-faint);font-weight:400}
+.pg{font-weight:700;color:var(--fg-dim)}
+
+/* ═══ panel ═══ */
+.p{border:var(--bd) solid var(--line);background:var(--panel);padding:var(--s4)}
+.p.tight{padding:var(--s3)}
+.p.raise{box-shadow:var(--block) var(--line-strong)}
+.p.warn{border-color:var(--v-warn);box-shadow:var(--block) var(--v-warn)}
+.p.bad{border-color:var(--v-bad);box-shadow:var(--block) var(--v-bad)}
+.p.ok{border-color:var(--v-ok);box-shadow:var(--block) var(--v-ok)}
+.p.acc{border-color:var(--accent);box-shadow:var(--block) var(--accent)}
+.p-t{font:700 var(--fs-title)/1.2 var(--font-ui);letter-spacing:-.012em;
+  margin-bottom:var(--s2);display:flex;align-items:baseline;gap:var(--s2)}
+.p-t .g{align-self:center}
+.p-t .g{fill:currentColor;flex:none}
+.p-t .sub{font:400 var(--fs-caption)/1 var(--font-mono);color:var(--fg-faint);
+  letter-spacing:.06em;margin-left:auto;white-space:nowrap}
+.lbl{font:700 var(--fs-label)/1.2 var(--font-mono);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--fg-faint)}
+.q{font-size:var(--fs-lead);line-height:1.45;color:var(--fg-dim)}
+.q b{color:var(--fg)}
+
+/* ═══ layout helpers ═══ */
+.row{display:flex;gap:var(--s4);align-items:stretch}
+.row > *{min-width:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3)}
+.grow{flex:1}
+.fill{flex:1;min-height:0}
+.spread{display:flex;flex-direction:column;justify-content:space-between}
+.mt2{margin-top:var(--s2)} .mt3{margin-top:var(--s3)} .mt4{margin-top:var(--s4)}
+
+/* ═══ tables ═══ */
+table{border-collapse:collapse;width:100%;font-size:var(--fs-body)}
+th{font:700 var(--fs-label)/1.2 var(--font-mono);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--fg-faint);text-align:left;
+  padding:0 var(--s3) var(--s2) 0;border-bottom:var(--bd) solid var(--line-strong);
+  vertical-align:bottom}
+td{padding:7px var(--s3) 7px 0;border-bottom:1px solid var(--line);
+  vertical-align:top;line-height:1.4}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;padding-right:var(--s4);font-family:var(--font-mono);
+  white-space:nowrap}
+th.n{text-align:right}
+td.k{font-family:var(--font-mono);font-size:var(--fs-caption);color:var(--fg-dim);
+  white-space:nowrap}
+.t-tight td{padding:5px var(--s3) 5px 0;font-size:16px}
+.t-tight th{font-size:13.5px}
+
+/* ═══ stat ═══ */
+.stat{display:flex;flex-direction:column;gap:5px}
+.stat .k{font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--fg-faint)}
+.stat .v{font:700 var(--fs-display)/1 var(--font-mono);letter-spacing:-.025em}
+.stat .v.sm{font-size:38px}
+.stat .d{font:var(--fs-caption)/1.35 var(--font-ui);color:var(--fg-faint)}
+
+/* ═══ cell gauge — the signature. app.html:362-390 ═══ */
+.gauge{
+  --cells:20; --on:0; --dim:0; --c:var(--accent);
+  position:relative;flex:none;
+  width:calc(var(--cells) * var(--cell-pitch));
+  height:var(--cell-h);
+  background:linear-gradient(90deg,
+    var(--c) 0 calc(var(--on) * var(--cell-pitch)),
+    var(--line) 0 100%);
+  -webkit-mask:repeating-linear-gradient(90deg,
+    #000 0 calc(var(--cell-pitch) - var(--cell-gap)),transparent 0 var(--cell-pitch));
+          mask:repeating-linear-gradient(90deg,
+    #000 0 calc(var(--cell-pitch) - var(--cell-gap)),transparent 0 var(--cell-pitch));
+}
+.gauge::before{content:"";position:absolute;top:0;bottom:0;
+  left:calc(var(--on) * var(--cell-pitch));
+  width:calc(var(--dim) * var(--cell-pitch));
+  background-image:repeating-linear-gradient(45deg,
+    var(--line-strong) 0 1px, transparent 1px 4px)}
+
+/* ═══ stamp — app.html:393-408 ═══ */
+.stamp{display:inline-flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;padding:var(--s2) var(--s3);
+  border:2px solid var(--v-hold);color:var(--v-hold);background:var(--panel);
+  transform:rotate(-4deg);box-shadow:var(--block) currentColor;
+  min-width:118px;text-align:center}
+.stamp b{font:700 var(--fs-body)/1.15 var(--font-ui);color:currentColor}
+.stamp em{font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.2em;
+  margin-right:-.2em;text-transform:uppercase;opacity:.85}
+.stamp[data-v=ok]{border-color:var(--v-ok);color:var(--v-ok)}
+.stamp[data-v=bad]{border-color:var(--v-bad);color:var(--v-bad)}
+.stamp[data-v=warn]{border-color:var(--v-warn);color:var(--v-warn)}
+
+/* ═══ flow diagram — one rail, one tick per seat ═══ */
+.flow{flex:1;display:flex;flex-direction:column;justify-content:center}
+.fl-rows{position:relative;display:flex;flex-direction:column;gap:var(--s4)}
+.fl-rail{position:absolute;left:16px;width:var(--bd);background:var(--line-strong)}
+.fl-row{position:relative;padding-left:52px;display:flex;align-items:center;gap:var(--s3)}
+.fl-row::before{content:"";position:absolute;left:16px;top:50%;width:34px;
+  height:var(--bd);background:var(--line-strong)}
+.fl-row .nm{font:700 18px/1 var(--font-mono);flex:none;width:74px}
+.fl-row .gl{line-height:0;flex:none}
+.fl-row .tx{font-size:16px;line-height:1.45;color:var(--fg-dim)}
+
+/* ═══ verdict split — what the app said vs what got graded ═══ */
+.split{display:flex;align-items:center;gap:var(--s4);
+  border-top:var(--bd) dashed var(--line-strong);padding-top:var(--s3);margin-top:var(--s3)}
+.split .side{display:flex;flex-direction:column;gap:6px}
+.split .side .k{font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg-faint);white-space:nowrap}
+.split .arrow{font:700 20px/1 var(--font-mono);color:var(--line-strong)}
+.split .said{font:700 17px/1.2 var(--font-mono);color:var(--fg-dim)}
+
+/* ═══ HUD strip — the tool's own meter bar, in the tool's own palette ═══ */
+.hud{display:flex;align-items:center;gap:var(--s8);padding:var(--s3) var(--s4);
+  background:var(--panel);border:var(--bd) solid var(--line);
+  box-shadow:var(--block) var(--line-strong)}
+.hud .wm{display:flex;align-items:center;gap:var(--s2);flex:none;
+  padding-right:var(--s4);border-right:var(--bd) solid var(--line)}
+.hud .wm b{font:700 17px/1 var(--font-mono);letter-spacing:.11em;color:var(--fg)}
+.hud .m{display:flex;flex-direction:column;gap:5px;min-width:0}
+.hud .m .k{font:700 11px/1 var(--font-mono);letter-spacing:.15em;
+  text-transform:uppercase;color:var(--fg-faint);white-space:nowrap}
+.hud .m .v{font:700 24px/1 var(--font-mono);letter-spacing:-.02em;color:var(--fg)}
+.hud .m .v s{text-decoration:none;color:var(--fg-faint);margin:0 8px;font-size:19px}
+.hud .m .d{font:11.5px/1.2 var(--font-ui);color:var(--fg-faint);white-space:nowrap}
+
+/* ═══ misc marks ═══ */
+.dither{background-image:repeating-linear-gradient(45deg,
+  var(--line) 0 1px, transparent 1px 4px)}
+.dotgrid{background-image:radial-gradient(var(--line) 1px, transparent 1px);
+  background-size:9px 9px}
+.g{fill:currentColor}
+.chip{display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--line-strong);padding:3px 10px;
+  font:700 var(--fs-micro)/1.5 var(--font-mono);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--fg-dim)}
+.chip .g{width:13px;height:13px}
+.kv{display:flex;gap:var(--s2);align-items:baseline}
+.kv .k{font:700 var(--fs-micro)/1.4 var(--font-mono);letter-spacing:.13em;
+  text-transform:uppercase;color:var(--fg-faint);flex:none;width:96px}
+.rule{height:var(--bd);background:var(--line);border:0;margin:0}
+.pull{border-left:4px solid var(--accent);padding:var(--s1) 0 var(--s1) var(--s3);
+  font-size:var(--fs-lead);line-height:1.45;color:var(--fg)}
+.pull.q2{border-color:var(--line-strong);color:var(--fg-dim)}
+.note{font:var(--fs-caption)/1.45 var(--font-ui);color:var(--fg-faint)}
+.note code{font-size:.93em}
+.mono{font-family:var(--font-mono)}
+.num{font-family:var(--font-mono);font-weight:700}
+.ember{color:var(--ember)} .lime{color:var(--lime)} .coral{color:var(--coral)}
+.gold{color:var(--gold)} .plum{color:var(--plum)} .faint{color:var(--fg-faint)}
+pre{margin:0;font:var(--fs-caption)/1.55 var(--font-mono);color:var(--fg-dim);
+  white-space:pre;overflow:hidden}
+pre b{color:var(--fg)}
+</style>
+<body>
+<!-- ══════════════ 01 · COVER ══════════════ -->
+<section class="s" style="grid-template-rows:1fr">
+  <div class="dotgrid" style="position:absolute;inset:0"></div>
+  <div style="position:absolute;left:56px;right:56px;top:38px;height:var(--bd);background:var(--line-strong)"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;justify-content:center;padding-bottom:186px">
+    <div style="display:flex;align-items:center;gap:30px">
+      <span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="104" height="104" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/></svg></span>
+      <div>
+        <h1 style="font:700 76px/.92 var(--font-mono);letter-spacing:.05em">MONSTROUS</h1>
+        <p class="lbl" style="margin-top:13px;color:var(--fg-dim);letter-spacing:.3em">
+          AGENT SQUAD &nbsp;+&nbsp; TRACE VIEWER</p>
+      </div>
+    </div>
+
+    <p class="dek" style="max-width:56ch;margin-top:28px;font-size:23px">
+      Three agents, one model, two model calls per benchmark item, and a single
+      HTML file that shows where the other runs leaked.
+    </p>
+
+    <div class="row" style="margin-top:32px;gap:var(--s8);align-items:flex-end">
+      <div class="stat"><span class="k">Agents</span><b class="v">3</b></div>
+      <div class="stat"><span class="k">Models</span><b class="v">1</b></div>
+      <div class="stat"><span class="k">Calls / item</span><b class="v">2</b></div>
+      <div style="margin-left:auto;text-align:right">
+        <span class="k" style="font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.15em;
+              text-transform:uppercase;color:var(--fg-faint)">Hidden set</span>
+        <div class="row" style="gap:var(--s3);align-items:baseline;margin-top:6px">
+          <span class="chip"><svg class="g" viewBox="0 0 12 12" width="13" height="13" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/></svg> coding 38</span>
+          <span class="chip"><svg class="g" viewBox="0 0 12 12" width="13" height="13" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg> math 13</span>
+          <span class="chip"><svg class="g" viewBox="0 0 12 12" width="13" height="13" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg> generic 96</span>
+          <b class="mono" style="font-size:40px;letter-spacing:-.02em">147</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:56px;right:56px;bottom:78px">
+    <div class="lbl" style="font-size:12px;margin-bottom:11px">
+      Everything below is aimed at three strings</div>
+    <div class="row" style="gap:var(--s3)">
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)"><svg class="g" viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/></svg> coding</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">*** PATCH START *** &hellip; *** PATCH END ***</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)"><svg class="g" viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg> math</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">FINAL ANSWER: \boxed{&lt;answer&gt;}</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)"><svg class="g" viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg> generic</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">ANSWER: &lt;letter&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>JUNCTIONX Korea 2026 &nbsp;&middot;&nbsp; Lablup + <span style="text-transform:none">FuriosaAI</span>
+      &nbsp;&middot;&nbsp; Build the Ultimate Agent Squad</b>
+    <b>Team Monstrous &nbsp;&middot;&nbsp; Seonghyeon Kim &nbsp;&middot;&nbsp; Juhyeong Lee &nbsp;&middot;&nbsp; Ilkwon Kim</b>
+  </div>
+</section>
+
+<!-- ══════════════ 02 · THE SHAPE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape</div>
+    <h2 class="st wide">Three agents. One item. Two model calls.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise grow" style="display:flex;flex-direction:column">
+        <div class="lbl">One benchmark item enters here</div>
+
+          <div class="flow">
+           <div class="fl-rows">
+            <div class="fl-rail" style="top:24px;bottom:15px"></div>
+
+            <div class="fl-row">
+              <span class="gl ember"><svg class="g" viewBox="0 0 12 12" width="30" height="30" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
+              <b class="nm">Router</b>
+              <p class="tx">Copies the request into one task, character for character,
+                and sends it to the seat the <code>REQUIRED&nbsp;OUTPUT</code> block names.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl plum"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+              <b class="nm">Coder</b>
+              <p class="tx">A repository patch, or a program written from nothing.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl lime"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+              <b class="nm">Solver</b>
+              <p class="tx">Mathematics, multiple choice, and whatever is neither.</p>
+            </div>
+           </div>
+          </div>
+
+        <div style="border-top:var(--bd) dashed var(--line-strong);padding-top:var(--s3)">
+          <div class="lbl" style="color:var(--accent)">&darr;&nbsp; This task's output is what gets graded</div>
+          <div class="row mt3" style="align-items:flex-end;gap:var(--s6)">
+            <div>
+              <div class="k" style="font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.15em;
+                   text-transform:uppercase;color:var(--fg-faint);white-space:nowrap">Calls per item</div>
+              <div class="row mt2" style="align-items:center;gap:var(--s3)">
+                <div class="gauge" style="--cells:9;--on:2;--c:var(--accent)"></div>
+                <b class="mono" style="font-size:26px">2</b>
+              </div>
+            </div>
+            <div style="border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+              <p class="note">Our first submission averaged <b class="mono">8.1</b> requests per item
+                across 1,192 requests. Same benchmark, same 147 items.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:none;width:328px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p acc tight" style="background:var(--panel-2);flex:none">
+          <div class="lbl">Scored out of 100</div>
+          <table class="t-tight mt2"><tbody>
+            <tr><td>Benchmark accuracy</td><td class="n num">40</td></tr>
+            <tr><td>Visualization</td><td class="n num">30</td></tr>
+            <tr><td><b>Token efficiency</b></td><td class="n num ember">30</td></tr>
+          </tbody></table>
+        </div>
+        <div class="p tight" style="flex:none">
+          <div class="lbl">One model, all three seats</div>
+          <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
+          <p class="note mt2">Nothing in the template can set reasoning effort per agent,
+            so a second model buys nothing a prompt cannot.</p>
+        </div>
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">And on a draw</div>
+          <p class="note mt2">Total tokens break a tie on accuracy. Wall clock breaks the tie
+            after that. The cheaper run wins an even score.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">02</span></div>
+</section>
+
+<!-- ══════════════ 03 · ONE OUTPUT ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape <span class="rest">&middot; the grader reads one output</span></div>
+    <h2 class="st wide">Every hop between the answer and the grader is a chance to lose it.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise">
+      <p class="q">The grader reads <b>the output of the last task</b> and nothing else.
+        The runtime's own <code>finalResult</code> summary is refused as a status report.
+        So the task that writes the answer has to be the task that gets read.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/></svg></span>
+          It went into a file<span class="sub">2 runs</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          An agent holding tools solved the item, wrote the answer to a workspace file,
+          and put &ldquo;task complete&rdquo; in its response.
+          <b>The grader never opens the workspace.</b></p>
+        <p class="note mt2">Now: <code>enabledTools</code> is empty on all three seats, and the
+          build refuses a template where it is not.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">The app said</span>
+            <span class="said">completed</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">The grader saw</span>
+            <span class="stamp" data-v="bad"><b>No answer</b><em>no format</em></span></div>
+        </div>
+      </div>
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/></svg></span>
+          A reviewer rewrote it<span class="sub">v1 design</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          We put a review seat last. It never received the problem text, because no path
+          existed for the text to arrive, so it rewrote an answer it could not check.</p>
+        <p class="note mt2">Now: the seat that solves is the seat that finishes.
+          Verification moved &mdash; slide&nbsp;09.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Answer existed at</span>
+            <span class="said">wave 1</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">Grader read</span>
+            <span class="said">wave 3</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="bad"><b>Never reached</b><em>lost hop</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">03</span></div>
+</section>
+
+<!-- ══════════════ 04 · WHY NOT ONE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape <span class="rest">&middot; why not one</span></div>
+    <h2 class="st wide">One seat the app forced. One seat arithmetic asked for.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise">
+        <div class="p-t"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
+          The planner seat is nailed down<span class="sub">platform</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Only the planner sees the request in full. Workers receive the
+          <code>description</code> of the task the planner wrote and nothing else.
+          We cannot delete the seat, so we shrank its job:
+          <b>Router calls <code>create_task</code> once and stops.</b></p>
+      </div>
+      <div class="p raise">
+        <div class="p-t"><span class="plum" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+          Coder and Solver split on length<span class="sub">arithmetic</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Coder's contract runs to <b>7,698 characters</b>, most of it the patch format the
+          parser enforces. Merge the two seats and every math item carries those rules
+          past a parser it will never reach.</p>
+        <div class="kv mt2"><span class="k">Charged on</span>
+          <b class="mono">109 of 147 items</b></div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">Coding request, median</span>
+          <b class="v" style="font-size:44px">63,812 B</b>
+          <span class="d">across the 20 published coding requests</span>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+            Head count is a multiplier when things go wrong. If the planner call fails,
+            the app stops splitting the request and hands the full text to
+            <b>every agent</b>. At that median, each extra seat costs another
+            63,812 bytes of input on one coding item.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">04</span></div>
+</section>
+
+<!-- ══════════════ 05 · FOUR QUESTIONS ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape <span class="rest">&middot; the track's four questions</span></div>
+    <h2 class="st wide">Two questions have a name attached. Two do not, on purpose.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise" style="background:var(--panel-2)">
+      <table><thead><tr>
+        <th style="width:31%">The track's question</th><th style="width:17%">Who</th><th>How</th>
+      </tr></thead><tbody>
+        <tr><td>Which agents read the code</td><td class="k ember">Router</td>
+            <td>Ranks the repository excerpts and copies the winners into the task</td></tr>
+        <tr><td>Which ones modify it</td><td class="k plum">Coder</td>
+            <td>Writes the patch. It is the only seat that emits patch markers</td></tr>
+        <tr><td>Which ones verify results</td><td class="k faint">No single seat</td>
+            <td>Inside each agent's own turn, and again in the build &mdash; slide&nbsp;09</td></tr>
+        <tr><td>Which ones decide to give up</td><td class="k faint">Four rules</td>
+            <td>The plan graph freezes before the run, so this cannot be an agent &mdash; slide&nbsp;10</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="p raise">
+      <div class="p-t" style="font-size:20px">Every seat signs its work
+        <span class="sub">first line of the reply &middot; task title for Router</span></div>
+      <p class="note" style="margin-bottom:var(--s3)">One line of compact JSON per seat, with
+        no key shared across seats. It is how the viewer knows which agent produced what,
+        without guessing from prose.</p>
+      <div class="g3">
+        <div>
+          <div class="lbl ember" style="font-size:12px;margin-bottom:7px">Router</div>
+          <pre>{"a":"Router",
+ "track":"coding",
+ "copy":"anchors",
+ "chars":31840}</pre>
+        </div>
+        <div>
+          <div class="lbl plum" style="font-size:12px;margin-bottom:7px">Coder</div>
+          <pre>{"a":"Coder",
+ "kind":"repo",
+ "edits":2,
+ "site":"query.py"}</pre>
+        </div>
+        <div>
+          <div class="lbl lime" style="font-size:12px;margin-bottom:7px">Solver</div>
+          <pre>{"a":"Solver",
+ "kind":"math",
+ "conf":0.82}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      The third answer has no name in it. That was deliberate, and the reason
+      is easier to see after the three contracts.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">05</span></div>
+</section>
+<!-- ══════════════ 06 · ROUTER ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Router</span></div>
+    <h2 class="st wide">Router. One <code style="font-size:.86em">create_task</code> call, and then it stops.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.15;display:flex;flex-direction:column">
+        <div class="p-t"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
+          The block decides the track<span class="sub">not the model</span></div>
+        <table class="t-tight"><thead><tr>
+          <th style="width:56%">What the REQUIRED OUTPUT block asks for</th><th>Goes to</th>
+        </tr></thead><tbody>
+          <tr><td>A patch between two patch markers</td><td class="k plum">Coder &middot; coding</td></tr>
+          <tr><td>A final boxed value</td><td class="k lime">Solver &middot; math</td></tr>
+          <tr><td>A single option letter</td><td class="k lime">Solver &middot; generic</td></tr>
+          <tr><td>Something else, or no block at all</td><td class="k lime">Solver &middot; other</td></tr>
+        </tbody></table>
+        <p class="note mt3">The rule reads the shape of the block, so there is no room for
+          the model to guess a track. Every request ends with one of these four.</p>
+
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Never calls</span>
+            <span class="said" style="font-size:14.5px">check_task_status &middot; aggregate_results &middot; update_plan</span></div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight">
+          <div class="lbl">It copies, it does not summarise</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            A rewritten problem is a different problem. An options list that was not copied
+            has no letter to choose. A retyped source line is a patch that will not apply.</p>
+        </div>
+        <div class="p tight" style="flex:1">
+          <div class="lbl">Coding is the one exception</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            Repository context runs to about 60,000 characters and will not fit. Issue text first,
+            then excerpts strongest-first, then the block. It stops at about
+            <b class="mono">32,000</b> characters and <b>drops a whole excerpt rather than cutting one</b>.</p>
+          <div class="mt3">
+            <div class="lbl" style="font-size:12px;margin-bottom:8px">Excerpt ranking, strongest first</div>
+            <ol style="margin:0;padding-left:1.15em;font-size:14.5px;line-height:1.65;color:var(--fg-dim)">
+              <li>A path the issue names outright</li>
+              <li>A path in the traceback the issue pasted</li>
+              <li>An excerpt defining a symbol the issue called</li>
+              <li>An excerpt calling that symbol</li>
+            </ol>
+            <p class="note mt2">Anything past the fourth is a guess, and one guess spends
+              about 12,000 characters.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">06</span></div>
+</section>
+
+<!-- ══════════════ 07 · CODER / PARSER ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Coder</span></div>
+    <h2 class="st wide">A patch that does not apply is worth zero, however right the fix was.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.5">
+        <div class="p-t" style="font-size:21px"><span class="plum" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
+          What the patch parser enforces<span class="sub">each row turns a correct fix into 0</span></div>
+        <table class="t-tight"><thead><tr>
+          <th style="width:45%">Rule</th><th>What breaking it does</th>
+        </tr></thead><tbody>
+          <tr><td>The three inner markers start at column 0</td>
+              <td>One leading space parses the whole patch into zero blocks</td></tr>
+          <tr><td>SEARCH matches the file byte for byte</td>
+              <td>One different quote or one space of indent and it will not attach</td></tr>
+          <tr><td>SEARCH is unique within that file</td>
+              <td>Two matches, so widen with surrounding lines</td></tr>
+          <tr><td>No prose between blocks</td>
+              <td>Read as the next block's path line. The patch stops with no error</td></tr>
+          <tr><td>No anchor line of seven or more <code>=</code> <code>&lt;</code> <code>&gt;</code></td>
+              <td>The parser cuts the section there. Again, no error</td></tr>
+          <tr><td>One patch per reply</td>
+              <td>Only the last is read, so a second attempt buries a good first one</td></tr>
+          <tr><td>No unified diff, no <code>git diff</code>, no whole-file rewrite</td>
+              <td>This format is the only one read</td></tr>
+        </tbody></table>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="background:var(--panel-2)">
+          <div class="lbl">The only shape that is read</div>
+          <pre class="mt2" style="font-size:12.5px;line-height:1.6">*** PATCH START ***
+<b>path/to/file.py</b>
+<b>&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH</b>
+    the exact lines now in the file
+<b>=======</b>
+    the lines that replace them
+<b>&gt;&gt;&gt;&gt;&gt;&gt;&gt; REPLACE</b>
+*** PATCH END ***</pre>
+        </div>
+        <div class="p tight">
+          <div class="pull" style="font-size:16px">
+            Fixing only the path the issue names is the larger change, and it leaves the
+            sibling callers broken. The tests that already passed are watching exactly
+            those siblings.
+          </div>
+        </div>
+        <div class="p tight">
+          <div class="lbl">No tools, by design</div>
+          <p class="note mt2">Coder cannot open a file, run a test, or search the repository.
+            A path, symbol or line number absent from the text it was handed is invented,
+            and an invented patch does not apply.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">07</span></div>
+</section>
+
+<!-- ══════════════ 08 · CODER / RUN SHAPE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Coder</span></div>
+    <h2 class="st wide">Two sentences that look alike and mean the opposite.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">The judge says</div>
+        <p class="mono mt2" style="font-size:17px;color:var(--fg)">&ldquo;runs your file as a program&rdquo;</p>
+        <hr class="rule mt3">
+        <p class="mt3" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Read standard input. Write the answer, and only the answer, to standard output.</p>
+        <p class="note mt2">A file that only defines a function prints nothing and scores zero.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Practice items</span>
+            <span class="said">4 of 7</span></div>
+          <div class="gauge" style="--cells:7;--on:4;--c:var(--plum);margin-left:auto"></div>
+        </div>
+      </div>
+
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">The judge says</div>
+        <p class="mono mt2" style="font-size:17px;color:var(--fg)">&ldquo;imports your file and calls the entry point&rdquo;</p>
+        <hr class="rule mt3">
+        <p class="mt3" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Keep the given names and signatures exactly. Read nothing from standard input.
+          Run nothing at import time.</p>
+        <p class="note mt2">Reading standard input here scores zero.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Practice items</span>
+            <span class="said">3 of 7</span></div>
+          <div class="gauge" style="--cells:7;--on:3;--c:var(--plum);margin-left:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      Swap the two and a correct algorithm still scores zero. Coder follows the run-shape
+      sentence to the letter, because it is the one line that decides whether anything runs at all.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">08</span></div>
+</section>
+
+<!-- ══════════════ 09 · SOLVER ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; Solver</span></div>
+    <h2 class="st wide">Solver carries 109 of the 147 items.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g3">
+      <div class="p raise">
+        <div class="p-t" style="font-size:20px">
+          <span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg></span>Mathematics</div>
+        <p style="font-size:15.5px;line-height:1.5;color:var(--fg-dim)">
+          Solve to a value, then check it a second way &mdash; substitute back, re-derive one
+          step along another path, or try the smallest case. When the two disagree, take the
+          one you can justify.</p>
+        <p class="note mt2">No averaging, and never both answers. Sign, integrality, range,
+          and extraneous roots get checked.</p>
+      </div>
+      <div class="p raise">
+        <div class="p-t" style="font-size:20px">
+          <span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>Multiple choice</div>
+        <p style="font-size:15.5px;line-height:1.5;color:var(--fg-dim)">
+          Solve before looking at the options. Picking an option first and reasoning toward it
+          is how a wrong option wins.</p>
+        <p class="note mt2">Option counts run from three to ten and are not always A through J.
+          A letter absent from that item's own Options block scores zero however good the reasoning.</p>
+      </div>
+      <div class="p raise" style="border-style:dashed">
+        <div class="p-t" style="font-size:20px">
+          <span class="faint" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>Everything else</div>
+        <p style="font-size:15.5px;line-height:1.5;color:var(--fg-dim)">
+          The graded benchmarks are three, but the harness can send something outside them.
+          A squad that knows only three tracks forces a shape onto the fourth and loses a
+          correct value to formatting.</p>
+        <p class="note mt2">There the sentence in which the request states its own answer
+          shape is the contract.</p>
+      </div>
+    </div>
+
+    <div class="p bad">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="lbl" style="flex:none;color:var(--v-bad)">Three ways the last line breaks</div>
+        <div class="row grow" style="gap:var(--s6);font-size:15.5px;color:var(--fg-dim)">
+          <div><b>Before the value</b><br><span class="note">bold marks, a bullet, a quote arrow</span></div>
+          <div><b>After the value</b><br><span class="note">an option name, brackets, a full stop, two letters</span></div>
+          <div><b>Wrong case</b><br><span class="note">the pattern is anchored to the whole line</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">09</span></div>
+</section>
+
+<!-- ══════════════ 10 · VERIFICATION ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>02</s> The contracts <span class="rest">&middot; who verifies</span></div>
+    <h2 class="st wide">We did not delete the verifier. We moved it into two places.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p ok" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="9" y="3" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/></svg></span>
+          Inside the agent's own turn<span class="sub">no extra call</span></div>
+        <ul style="margin:0;padding-left:1.15em;font-size:16px;line-height:1.7;color:var(--fg-dim)">
+          <li>Solver's second derivation of the same value</li>
+          <li>Coder's sibling-caller check before it writes</li>
+          <li>The final-line rules, applied by the seat that writes the line</li>
+        </ul>
+        <p class="note mt3">All of it runs inside one response, so the call count does not move.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Model calls added</span><span class="said">0</span></div>
+        </div>
+      </div>
+
+      <div class="p ok" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="9" y="3" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/></svg></span>
+          A program, at build time<span class="sub">tools/validate_template.py</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          The build feeds our six prompt texts to the grader's own extractors &mdash;
+          <code>extract_letter</code>, <code>extract_boxed</code>, <code>extract_patch</code>.
+          If any of them pulls an answer out, no artifact is produced.</p>
+        <div class="pull q2 mt3" style="font-size:16px">
+          If the grader can find an answer in our instructions, then the moment a model
+          leaks a fragment of those instructions, the fragment is what gets graded.
+        </div>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Conditions enforced</span><span class="said">50</span></div>
+          <div class="side" style="margin-left:auto"><span class="k">Human review needed</span>
+            <span class="said">none</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+        <b>Why not one more verification hop.</b> The grader reads only the last task, so a
+        verification hop becomes the last hop, and that seat is not the one that produced the
+        answer. Beyond that, self-verification with no external signal moved GPT-4 on GSM8K from
+        <b class="mono">95.5%</b> to <b class="mono">89.0%</b>, while deterministic supervision
+        raised SWE-bench resolve rate by <b class="mono">9.9%</b> on average. We took the second one.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">10</span></div>
+</section>
+
+<!-- ══════════════ 11 · GIVING UP ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>03</s> Giving up, and the budget</div>
+    <h2 class="st wide">There is no cap to stop before. So giving up means not making the call.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p warn" style="flex:none;width:340px">
+        <div class="lbl">Hidden-set caps, from the leaderboard API</div>
+        <p class="mono mt2" style="font-size:15px;color:var(--fg)">no wall-clock cap,<br>no token cap</p>
+        <p class="note mt2">Both fields come back <code>null</code> on every graded run.
+          Nothing throttles a run from outside, so every call we make is a call we chose.</p>
+      </div>
+      <div class="p grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">The plan graph freezes before the run starts and carries no conditional
+          branch, so <b>this cannot be an agent making a judgment call.</b>
+          It has to be four rules, each sitting where it can still act.</p>
+      </div>
+    </div>
+
+    <div class="g4">
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">01 &middot; Router</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          One task, no re-planning. The app's own planner instruction says split as small
+          as possible; we reversed it. One task is one model call.</p>
+      </div>
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">02 &middot; Copy budget</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          32,000 characters, filled strongest-first. If <code>create_task</code> returns a length
+          error, drop the excerpts and call again. Issue text alone still scores; a missing
+          task scores zero.</p>
+      </div>
+      <div class="p tight" style="display:flex;flex-direction:column">
+        <div class="lbl ember">03 &middot; The worker</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          When a derivation runs long, stop and write the answer line with the best value
+          held so far. A truncated response has no answer line at all &mdash; the only way we
+          lose an item already solved.</p>
+      </div>
+      <div class="p tight bad" style="display:flex;flex-direction:column">
+        <div class="lbl coral">04 &middot; Never answer empty</div>
+        <p class="mt2" style="font-size:15px;line-height:1.5;color:var(--fg-dim)">
+          This one reversed. With several waves an empty output is safe, because the grader
+          skips back. <b>With one wave there is no net.</b> Empty is a certain zero; a guess
+          is sometimes right.</p>
+      </div>
+    </div>
+
+    <p class="note"><b>The budget file is not part of the submission.</b>
+      <code>budget.json</code> is a local squad budget and never reaches the evaluation server,
+      which runs on runtime defaults (<code>maxTasksPerPlan</code> 20, <code>maxAgentTurns</code> 20,
+      <code>maxPlanIterations</code> 3). That is why all four rules live in prompts rather than settings.</p>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">11</span></div>
+</section>
+<!-- ══════════════ 12 · WHY WE BUILT IT ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer</div>
+    <h2 class="st wide">The log said the run finished. There was no answer to grade.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">What the app watches is whether the task finished.
+          What we needed to know is whether the response body carries a format the grader reads.
+          <b>Those are two different questions</b>, and reading the logs by eye never separated them.</p>
+        <div class="split">
+          <div class="side"><span class="k">The app's question</span>
+            <span class="said">Did the task finish?</span></div>
+          <span class="arrow">&ne;</span>
+          <div class="side"><span class="k">Ours</span>
+            <span class="said">Is there an answer in the body?</span></div>
+        </div>
+      </div>
+      <div style="flex:none;width:352px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">AI:GO already has a dashboard</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            It has swimlanes and budget meters, and it shows what happened inside one run.
+            What we needed was dozens of runs laid side by side, to see where they leak.</p>
+        </div>
+        <div class="p tight acc" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">Who it was for</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            This was not built to show a judging panel. It was built to fix the squad,
+            and the numbers on the next slide are the ones that changed the design.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lbl" style="margin-bottom:var(--s2)">The four meters, on the folder we will open in the demo</div>
+      <div class="hud dark">
+        <div class="wm"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/></svg></span><b>MONSTROUS</b></div>
+        <div class="m"><span class="k">Runs</span><b class="v">39</b>
+          <span class="d">310 files &middot; 9 squads</span></div>
+        <div class="m"><span class="k">AI:GO success &rlarr; Gradable</span>
+          <b class="v">22<s>&rlarr;</s>12</b>
+          <span class="d">the two verdicts differ on 10</span></div>
+        <div class="m"><span class="k">Credits</span>
+          <div class="row" style="align-items:center;gap:var(--s2)">
+            <b class="v">154.6k</b>
+            <div class="gauge" style="--cells:20;--on:19;--c:var(--ember);--cell-pitch:8px;--cell-h:12px"></div>
+          </div>
+          <span class="d">1 cell = 8.0k tok</span></div>
+        <div class="m"><span class="k">Time</span><b class="v">1h 8m</b>
+          <span class="d">avg 104.4s per run</span></div>
+      </div>
+      <p class="note mt2">The second meter is the whole argument. The count beneath it is the
+        number of runs the platform called a success and the grader would score as nothing.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">12</span></div>
+</section>
+
+<!-- ══════════════ 13 · WHAT IT SHOWED ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; 39 recorded runs</span></div>
+    <h2 class="st wide">Zero is not one thing. Each kind has a different owner.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.25">
+        <table class="t-tight"><thead><tr>
+          <th style="width:52%">Verdict</th><th class="n">Runs</th><th>Who fixes it</th>
+        </tr></thead><tbody>
+          <tr class="faint"><td>Not an item &mdash; a two-character smoke test</td>
+              <td class="n">10</td><td class="k">no one. not graded</td></tr>
+          <tr class="faint"><td>Call refused &mdash; context overflow, infrastructure</td>
+              <td class="n">6</td><td class="k gold">configuration</td></tr>
+          <tr class="faint"><td>Undecided &mdash; neither track nor contract recognised</td>
+              <td class="n">0</td><td class="k">the checker</td></tr>
+          <tr><td><b>No answer format</b></td>
+              <td class="n coral"><b>11</b></td><td class="k coral">the prompt</td></tr>
+          <tr><td><b>Gradable</b></td>
+              <td class="n lime"><b>12</b></td><td class="k">&mdash;</td></tr>
+        </tbody></table>
+        <div class="split">
+          <div class="side"><span class="k">Ours to fix</span>
+            <span class="said">23 of 39</span></div>
+          <div class="gauge" style="--cells:23;--on:12;--dim:11;--c:var(--v-ok);margin-left:var(--s3)"></div>
+          <div class="side" style="margin-left:auto">
+            <span class="k">Gradable share</span><span class="said">12 / 23</span></div>
+        </div>
+        <p class="note mt2">The first three rows leave the denominator. A smoke test we typed
+          ourselves is not a benchmark failure, and counting it as one flatters nothing.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2)">
+        <div class="lbl">What became visible &rarr; what changed</div>
+        <table class="t-tight mt2"><tbody>
+          <tr><td>An AI:GO success and a scoring run are not the same run</td>
+              <td class="k">answer task pinned last</td></tr>
+          <tr><td>Zero has several branches, each with a different owner</td>
+              <td class="k">split three ways</td></tr>
+          <tr><td>A run wrote the answer to a file and never into the response</td>
+              <td class="k">all seats, zero tools</td></tr>
+          <tr><td>Queue wait averaged 11.9s and peaked at 138.4s</td>
+              <td class="k">wall clock split in two</td></tr>
+        </tbody></table>
+        <div class="pull mt3" style="font-size:16px">
+          The model finished the answer, saved it to a file, and wrote only
+          &ldquo;task complete&rdquo; in the response. The grader never opens the workspace.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">13</span></div>
+</section>
+
+<!-- ══════════════ 14 · IT CORRECTED ITSELF ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; the fault that never happened</span></div>
+    <h2 class="st wide">The tool's most useful finding was its own miscount.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p bad">
+      <p class="q">For a while the screen carried a branch called <b>contract not sent</b>.
+        If the recorded request had no <code>=== REQUIRED OUTPUT ===</code> section, we read that
+        as the runner failing to send the contract, and we were charging
+        <b>8 runs</b> to the runner on that basis.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">Evidence one &middot; it never fit</div>
+        <div class="row mt3" style="align-items:baseline;gap:var(--s4)">
+          <div class="stat"><span class="k">Those 8 request fields</span>
+            <b class="v" style="font-size:34px">83&ndash;499 <span class="faint" style="font-size:18px">chars</span></b></div>
+          <div class="stat"><span class="k">A contract section</span>
+            <b class="v" style="font-size:34px">~250 <span class="faint" style="font-size:18px">chars</span></b></div>
+        </div>
+        <p class="note mt3">There was no room for one to have been there. <code>history.json</code>
+          stores the question only, not the prompt the model was handed.</p>
+      </div>
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">Evidence two &middot; the model heard it</div>
+        <div class="row mt3" style="align-items:center;gap:var(--s4)">
+          <div class="gauge" style="--cells:8;--on:6;--c:var(--v-ok)"></div>
+          <p style="font-size:16px;line-height:1.4;color:var(--fg-dim)">
+            <b class="mono">6 of 8</b> responses contained <code>\boxed{}</code>.
+            One went all the way to <code>FINAL&nbsp;ANSWER:</code>.</p>
+        </div>
+        <p class="note mt3">A model cannot follow a contract it was never sent.
+          The branch described something that had not happened.</p>
+      </div>
+    </div>
+
+    <div class="pull">
+      Write the log's silence down as an event and you invent a fault nobody committed.
+      That is the one thing this tool must never do, so the branch came out.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">14</span></div>
+</section>
+
+<!-- ══════════════ 15 · WHAT'S INSIDE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; what is in it</span></div>
+    <h2 class="st wide">One HTML file. No install, no server, no network.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.3">
+        <table class="t-tight"><thead><tr>
+          <th style="width:34%">Screen</th><th>What it does</th>
+        </tr></thead><tbody>
+          <tr><td class="k">Four top meters</td>
+              <td>Runs &middot; AI:GO success against gradable &middot; CREDITS, counting tokens in cells &middot; TIME</td></tr>
+          <tr><td class="k">Three modes</td>
+              <td>One run &middot; whole-set analysis &middot; squad comparison. Each answers a different question</td></tr>
+          <tr><td class="k">Six tabs</td>
+              <td>Overview &middot; replay &middot; ledger &middot; timeline &middot; failure classes &middot; raw log</td></tr>
+          <tr><td class="k">Cut-line bench</td>
+              <td>Drag a per-item token ceiling and watch what it saves and what it loses</td></tr>
+          <tr><td class="k">Zero-score stack</td>
+              <td>Every branch prints who fixes it, in words</td></tr>
+          <tr><td class="k">Shared selection</td>
+              <td>Pick one task and the map, lanes, ticker and ledger all light the same thing</td></tr>
+          <tr><td class="k">Also</td>
+              <td>Korean and English &middot; high contrast &middot; presentation mode &middot; print &middot; SVG and JSON export &middot; nine shortcuts</td></tr>
+        </tbody></table>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1">
+          <div class="lbl">Three rules the screen keeps</div>
+          <ol class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.6;color:var(--fg-dim)">
+            <li>When the window narrows a meter disappears whole. A missing meter reads as
+              missing; a clipped number reads as a different number.</li>
+            <li>Every panel opens with the one question it answers, and nothing decorative
+              goes above that line.</li>
+            <li>No meaning is carried by colour alone.</li>
+          </ol>
+        </div>
+        <div class="p tight acc" style="flex:none">
+          <div class="lbl">External requests</div>
+          <div class="row mt2" style="align-items:baseline;gap:var(--s3)">
+            <b class="mono" style="font-size:40px">0</b>
+            <p class="note">Checked by the build. An offline demo cannot break on a CDN
+              that is not there.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">15</span></div>
+</section>
+
+<!-- ══════════════ 16 · TRUST ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; why the screen can be trusted</span></div>
+    <h2 class="st wide">If it is not in the log, we do not draw it.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p bad">
+        <div class="lbl coral">Deliberately absent</div>
+        <p class="mt2" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Cache hit rate, cost per model, tokens per task, confidence curves. The platform's
+          per-agent token fields come back <b>all zero</b>. Drawing them would be inventing numbers.</p>
+      </div>
+      <div class="p ok">
+        <div class="lbl lime">Labelled where it is inferred</div>
+        <p class="mt2" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Per-agent tokens are an estimate and the screen says so, in place, with the reason.
+          Cut-line figures are an upper bound on loss, because every truncated run is counted
+          as lost outright. That sentence is on the screen too.</p>
+      </div>
+    </div>
+
+    <div class="p raise">
+      <div class="lbl">Replay is labelled three ways, and they are never mixed</div>
+      <div class="g3 mt3">
+        <div><b class="mono lime" style="font-size:16px">Observed replay</b>
+          <p class="note mt2">Exactly what happened, in the order it happened.</p></div>
+        <div><b class="mono gold" style="font-size:16px">Prefix stop simulation</b>
+          <p class="note mt2">A recorded run, cut short at a chosen point.</p></div>
+        <div><b class="mono plum" style="font-size:16px">Assumption-bound policy simulation</b>
+          <p class="note mt2">A changed policy, with the remainder filled in by estimate.</p></div>
+      </div>
+      <p class="note mt3">Nothing that did not run is ever drawn as though it ran.</p>
+    </div>
+
+    <div class="p acc">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">Logic moved byte for byte</span>
+          <b class="v" style="font-size:40px">1,105 <span class="faint" style="font-size:18px">lines</span></b>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+            We replaced the entire interface and changed no data. Parsing, verdicts, aggregation,
+            loading and export were carried over unchanged, and the build diffs them against the
+            original every time. One line of drift and no artifact is produced.
+            <b>Same folder in, byte-identical JSON out.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">16</span></div>
+</section>
+
+<!-- ══════════════ 17 · DEMO ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>05</s> Demo <span class="rest">&middot; 65 seconds</span></div>
+    <h2 class="st wide">Live, on the runs we kept while building.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise">
+      <p class="note" style="margin-bottom:var(--s3)">
+        <b>Said first, before the folder opens:</b> these are development runs, so the squad
+        composition differs from run to run. The third mode exists to lay those side by side.
+        Without that sentence, the map showing more than three nodes invites the wrong question.</p>
+      <table class="t-tight"><thead><tr>
+        <th style="width:11%" class="n">Time</th><th style="width:30%">Action</th><th>What it shows</th>
+      </tr></thead><tbody>
+        <tr><td class="n k">0&ndash;10s</td><td>Drop the workspace folder in</td>
+            <td>No install, no server. One HTML file, and the run list is there</td></tr>
+        <tr><td class="n k">10&ndash;25s</td><td>Point at <b>AI:GO success &rlarr; gradable</b></td>
+            <td>The meter this whole tool exists for. The count where the two verdicts disagree
+              is on the line beneath it</td></tr>
+        <tr><td class="n k">25&ndash;42s</td><td><kbd>m</kbd> to whole-set analysis, then <b>drag the cut line</b></td>
+            <td>Three places move at once: truncated points hollow out, the three result meters
+              recompute, and CREDITS at the top of the screen actually falls. Cut cells stay as
+              hatching</td></tr>
+        <tr><td class="n k">42&ndash;55s</td><td>Scroll to the <b>zero-score stack</b></td>
+            <td>Zero is not one thing. Only the branch the prompt owns stays in the denominator</td></tr>
+        <tr><td class="n k">55&ndash;65s</td><td>Back to one run, click a node on the squad map</td>
+            <td>Map, lanes, ticker and ledger light the same target. From a result back to its
+              cause, by clicking. Stop here</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="g4">
+      <div class="p tight"><div class="lbl" style="font-size:12px">Folder blocked</div>
+        <p class="note mt2"><code>python3 -m http.server 8777</code>, started beforehand</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:12px">Projector washed out</div>
+        <p class="note mt2">High-contrast mode is on a shortcut, set in advance</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:12px">Running late</div>
+        <p class="note mt2">Drop 55&ndash;65s first. The cut line is not the segment to lose</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:12px">Numbers moving</div>
+        <p class="note mt2">The folder is a frozen copy. A live one grows during the talk</p></div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">17</span></div>
+</section>
+
+<!-- ══════════════ 18 · CLAIMS WE DON'T MAKE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>A</s> Appendix <span class="rest">&middot; claims we do not make</span></div>
+    <h2 class="st wide">Things that would sound good and are not true.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise" style="background:var(--panel-2)">
+      <table class="t-tight"><thead><tr>
+        <th style="width:38%">Not said</th><th>Because</th>
+      </tr></thead><tbody>
+        <tr><td>&ldquo;This design raised our score&rdquo;</td>
+            <td><b>There is no graded result yet.</b> What we can say is what we measured and
+              which design decision each measurement produced</td></tr>
+        <tr><td>&ldquo;Requests fell from 1,192 to 294&rdquo;</td>
+            <td>294 is a projection: measured practice sizes multiplied by hidden item counts.
+              The documents label it a projection too</td></tr>
+        <tr><td>&ldquo;We have an agent that decides to give up&rdquo;</td>
+            <td>Not buildable. The plan graph freezes before the run and has no conditional branch</td></tr>
+        <tr><td>&ldquo;Prefix caching saves us tokens&rdquo;</td>
+            <td>It saves latency. vLLM bills cache hits into <code>prompt_tokens</code> in full,
+              and the documentation says it returns prefill time</td></tr>
+        <tr><td>&ldquo;Coder runs at high reasoning effort&rdquo;</td>
+            <td>The template has no way to set effort per agent, and writing the line into a
+              system prompt does not work either</td></tr>
+        <tr><td>&ldquo;22 disabled tools locked the agents down&rdquo;</td>
+            <td>The squad execution path does not read that field. The handle that works is the
+              empty <code>enabledTools</code></td></tr>
+        <tr><td>&ldquo;Here are per-item traces from a graded run&rdquo;</td>
+            <td>The portal does not break runs down per item, and no path to re-read hidden
+              response bodies has been confirmed. The viewer earns its keep on development runs</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">18</span></div>
+</section>
+
+<!-- ══════════════ 19 · SOURCES ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>B</s> Appendix <span class="rest">&middot; where each number comes from</span></div>
+    <h2 class="st wide">Every figure on these slides has a file behind it.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.35">
+        <table class="t-tight"><thead><tr>
+          <th style="width:20%">Slides</th><th>Source</th>
+        </tr></thead><tbody>
+          <tr><td class="k">02&ndash;11</td>
+              <td class="k" style="white-space:normal">squad/squad_template/monstrous_squad/README.md &middot;
+                agent_prompts/{router,coder,solver}.txt &middot; add_prompt/README.md</td></tr>
+          <tr><td class="k">Platform facts</td>
+              <td class="k" style="white-space:normal">docs/ideation/final_final_ideation/spec/01-플랫폼-사실.md
+                &mdash; grader read order, field behaviour, budget schema, null caps</td></tr>
+          <tr><td class="k">Scoring</td>
+              <td class="k" style="white-space:normal">docs/resource/track_resource/lableup/02-평가-채점-규칙.md</td></tr>
+          <tr><td class="k">12&ndash;17</td>
+              <td class="k" style="white-space:normal">viz_revise_program/사용설명서.md &middot;
+                work_log/01-검증-결과.md &middot; docs/viz_revise/research/02-데이터-원천과-한계.md</td></tr>
+        </tbody></table>
+        <p class="note mt3">The 39-run figures were re-measured on the shipped viewer against
+          the current <code>squad/</code> folder before this deck was written, rather than copied
+          forward from an earlier count.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2);display:flex;flex-direction:column">
+        <div class="lbl">Before going on stage</div>
+        <ul class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.75;color:var(--fg-dim)">
+          <li>Start <code>python3 -m http.server 8777</code>, bookmark the URL</li>
+          <li>Freeze a copy of the demo workspace folder</li>
+          <li>Rehearse once on the projector in high-contrast mode</li>
+          <li>Put the SVG and PDF exports into the slides as a fallback</li>
+          <li>Fix the screen language to suit the panel</li>
+          <li>Re-read the live meter values on the day</li>
+          <li>Confirm the browser &mdash; verified on Chromium only</li>
+          <li>Check the roster here still matches <code>squad-template.json</code></li>
+          <li><code>python3 tools/validate_template.py squad-template.json</code> passes</li>
+        </ul>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Template</span>
+            <span class="said" style="font-size:14px">user-monstrous-squad-v2</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="ok"><b>Validated</b><em>50 checks</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">19</span></div>
+</section>
+
+</body>

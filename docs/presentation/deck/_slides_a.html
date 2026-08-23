@@ -1,0 +1,314 @@
+<!-- ══════════════ 01 · COVER ══════════════ -->
+<section class="s" style="grid-template-rows:1fr">
+  <div class="dotgrid" style="position:absolute;inset:0"></div>
+  <div style="position:absolute;left:56px;right:56px;top:38px;height:var(--bd);background:var(--line-strong)"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;justify-content:center;padding-bottom:186px">
+    <div style="display:flex;align-items:center;gap:30px">
+      <span class="ember" style="line-height:0">{{glyph:logo:104}}</span>
+      <div>
+        <h1 style="font:700 76px/.92 var(--font-mono);letter-spacing:.05em">MONSTROUS</h1>
+        <p class="lbl" style="margin-top:13px;color:var(--fg-dim);letter-spacing:.3em">
+          AGENT SQUAD &nbsp;+&nbsp; TRACE VIEWER</p>
+      </div>
+    </div>
+
+    <p class="dek" style="max-width:56ch;margin-top:28px;font-size:23px">
+      Three agents, one model, two model calls per benchmark item, and a single
+      HTML file that shows where the other runs leaked.
+    </p>
+
+    <div class="row" style="margin-top:32px;gap:var(--s8);align-items:flex-end">
+      <div class="stat"><span class="k">Agents</span><b class="v">3</b></div>
+      <div class="stat"><span class="k">Models</span><b class="v">1</b></div>
+      <div class="stat"><span class="k">Calls / item</span><b class="v">2</b></div>
+      <div style="margin-left:auto;text-align:right">
+        <span class="k" style="font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.15em;
+              text-transform:uppercase;color:var(--fg-faint)">Hidden set</span>
+        <div class="row" style="gap:var(--s3);align-items:baseline;margin-top:6px">
+          <span class="chip">{{glyph:coding:13}} coding 38</span>
+          <span class="chip">{{glyph:math:13}} math 13</span>
+          <span class="chip">{{glyph:generic:13}} generic 96</span>
+          <b class="mono" style="font-size:40px;letter-spacing:-.02em">147</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:56px;right:56px;bottom:78px">
+    <div class="lbl" style="font-size:12px;margin-bottom:11px">
+      Everything below is aimed at three strings</div>
+    <div class="row" style="gap:var(--s3)">
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:coding:12}} coding</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">*** PATCH START *** &hellip; *** PATCH END ***</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:math:12}} math</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">FINAL ANSWER: \boxed{&lt;answer&gt;}</div>
+      </div>
+      <div class="p" style="flex:1;padding:11px 15px">
+        <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:generic:12}} generic</span>
+        <div class="mono mt2" style="font-size:14px;color:var(--fg)">ANSWER: &lt;letter&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>JUNCTIONX Korea 2026 &nbsp;&middot;&nbsp; Lablup + <span style="text-transform:none">FuriosaAI</span>
+      &nbsp;&middot;&nbsp; Build the Ultimate Agent Squad</b>
+    <b>Team Monstrous &nbsp;&middot;&nbsp; Seonghyeon Kim &nbsp;&middot;&nbsp; Juhyeong Lee &nbsp;&middot;&nbsp; Ilkwon Kim</b>
+  </div>
+</section>
+
+<!-- ══════════════ 02 · THE SHAPE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape</div>
+    <h2 class="st wide">Three agents. One item. Two model calls.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row fill">
+      <div class="p raise grow" style="display:flex;flex-direction:column">
+        <div class="lbl">One benchmark item enters here</div>
+
+          <div class="flow">
+           <div class="fl-rows">
+            <div class="fl-rail" style="top:24px;bottom:15px"></div>
+
+            <div class="fl-row">
+              <span class="gl ember">{{glyph:router:30}}</span>
+              <b class="nm">Router</b>
+              <p class="tx">Copies the request into one task, character for character,
+                and sends it to the seat the <code>REQUIRED&nbsp;OUTPUT</code> block names.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl plum">{{glyph:coder:26}}</span>
+              <b class="nm">Coder</b>
+              <p class="tx">A repository patch, or a program written from nothing.</p>
+            </div>
+
+            <div class="fl-row">
+              <span class="gl lime">{{glyph:solver:26}}</span>
+              <b class="nm">Solver</b>
+              <p class="tx">Mathematics, multiple choice, and whatever is neither.</p>
+            </div>
+           </div>
+          </div>
+
+        <div style="border-top:var(--bd) dashed var(--line-strong);padding-top:var(--s3)">
+          <div class="lbl" style="color:var(--accent)">&darr;&nbsp; This task's output is what gets graded</div>
+          <div class="row mt3" style="align-items:flex-end;gap:var(--s6)">
+            <div>
+              <div class="k" style="font:700 var(--fs-micro)/1 var(--font-mono);letter-spacing:.15em;
+                   text-transform:uppercase;color:var(--fg-faint);white-space:nowrap">Calls per item</div>
+              <div class="row mt2" style="align-items:center;gap:var(--s3)">
+                <div class="gauge" style="--cells:9;--on:2;--c:var(--accent)"></div>
+                <b class="mono" style="font-size:26px">2</b>
+              </div>
+            </div>
+            <div style="border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+              <p class="note">Our first submission averaged <b class="mono">8.1</b> requests per item
+                across 1,192 requests. Same benchmark, same 147 items.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:none;width:328px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p acc tight" style="background:var(--panel-2);flex:none">
+          <div class="lbl">Scored out of 100</div>
+          <table class="t-tight mt2"><tbody>
+            <tr><td>Benchmark accuracy</td><td class="n num">40</td></tr>
+            <tr><td>Visualization</td><td class="n num">30</td></tr>
+            <tr><td><b>Token efficiency</b></td><td class="n num ember">30</td></tr>
+          </tbody></table>
+        </div>
+        <div class="p tight" style="flex:none">
+          <div class="lbl">One model, all three seats</div>
+          <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
+          <p class="note mt2">Nothing in the template can set reasoning effort per agent,
+            so a second model buys nothing a prompt cannot.</p>
+        </div>
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">And on a draw</div>
+          <p class="note mt2">Total tokens break a tie on accuracy. Wall clock breaks the tie
+            after that. The cheaper run wins an even score.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">02</span></div>
+</section>
+
+<!-- ══════════════ 03 · ONE OUTPUT ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape <span class="rest">&middot; the grader reads one output</span></div>
+    <h2 class="st wide">Every hop between the answer and the grader is a chance to lose it.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise">
+      <p class="q">The grader reads <b>the output of the last task</b> and nothing else.
+        The runtime's own <code>finalResult</code> summary is refused as a status report.
+        So the task that writes the answer has to be the task that gets read.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0">{{glyph:no:20}}</span>
+          It went into a file<span class="sub">2 runs</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          An agent holding tools solved the item, wrote the answer to a workspace file,
+          and put &ldquo;task complete&rdquo; in its response.
+          <b>The grader never opens the workspace.</b></p>
+        <p class="note mt2">Now: <code>enabledTools</code> is empty on all three seats, and the
+          build refuses a template where it is not.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">The app said</span>
+            <span class="said">completed</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">The grader saw</span>
+            <span class="stamp" data-v="bad"><b>No answer</b><em>no format</em></span></div>
+        </div>
+      </div>
+      <div class="p bad" style="display:flex;flex-direction:column">
+        <div class="p-t"><span class="coral" style="line-height:0">{{glyph:no:20}}</span>
+          A reviewer rewrote it<span class="sub">v1 design</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          We put a review seat last. It never received the problem text, because no path
+          existed for the text to arrive, so it rewrote an answer it could not check.</p>
+        <p class="note mt2">Now: the seat that solves is the seat that finishes.
+          Verification moved &mdash; slide&nbsp;09.</p>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Answer existed at</span>
+            <span class="said">wave 1</span></div>
+          <span class="arrow">&rarr;</span>
+          <div class="side"><span class="k">Grader read</span>
+            <span class="said">wave 3</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="bad"><b>Never reached</b><em>lost hop</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">03</span></div>
+</section>
+
+<!-- ══════════════ 04 · WHY NOT ONE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape <span class="rest">&middot; why not one</span></div>
+    <h2 class="st wide">One seat the app forced. One seat arithmetic asked for.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p raise">
+        <div class="p-t"><span class="ember" style="line-height:0">{{glyph:router:24}}</span>
+          The planner seat is nailed down<span class="sub">platform</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Only the planner sees the request in full. Workers receive the
+          <code>description</code> of the task the planner wrote and nothing else.
+          We cannot delete the seat, so we shrank its job:
+          <b>Router calls <code>create_task</code> once and stops.</b></p>
+      </div>
+      <div class="p raise">
+        <div class="p-t"><span class="plum" style="line-height:0">{{glyph:coder:24}}</span>
+          Coder and Solver split on length<span class="sub">arithmetic</span></div>
+        <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Coder's contract runs to <b>7,698 characters</b>, most of it the patch format the
+          parser enforces. Merge the two seats and every math item carries those rules
+          past a parser it will never reach.</p>
+        <div class="kv mt2"><span class="k">Charged on</span>
+          <b class="mono">109 of 147 items</b></div>
+      </div>
+    </div>
+
+    <div class="p warn">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">Coding request, median</span>
+          <b class="v" style="font-size:44px">63,812 B</b>
+          <span class="d">across the 20 published coding requests</span>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+            Head count is a multiplier when things go wrong. If the planner call fails,
+            the app stops splitting the request and hands the full text to
+            <b>every agent</b>. At that median, each extra seat costs another
+            63,812 bytes of input on one coding item.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">04</span></div>
+</section>
+
+<!-- ══════════════ 05 · FOUR QUESTIONS ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>01</s> The shape <span class="rest">&middot; the track's four questions</span></div>
+    <h2 class="st wide">Two questions have a name attached. Two do not, on purpose.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise" style="background:var(--panel-2)">
+      <table><thead><tr>
+        <th style="width:31%">The track's question</th><th style="width:17%">Who</th><th>How</th>
+      </tr></thead><tbody>
+        <tr><td>Which agents read the code</td><td class="k ember">Router</td>
+            <td>Ranks the repository excerpts and copies the winners into the task</td></tr>
+        <tr><td>Which ones modify it</td><td class="k plum">Coder</td>
+            <td>Writes the patch. It is the only seat that emits patch markers</td></tr>
+        <tr><td>Which ones verify results</td><td class="k faint">No single seat</td>
+            <td>Inside each agent's own turn, and again in the build &mdash; slide&nbsp;09</td></tr>
+        <tr><td>Which ones decide to give up</td><td class="k faint">Four rules</td>
+            <td>The plan graph freezes before the run, so this cannot be an agent &mdash; slide&nbsp;10</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="p raise">
+      <div class="p-t" style="font-size:20px">Every seat signs its work
+        <span class="sub">first line of the reply &middot; task title for Router</span></div>
+      <p class="note" style="margin-bottom:var(--s3)">One line of compact JSON per seat, with
+        no key shared across seats. It is how the viewer knows which agent produced what,
+        without guessing from prose.</p>
+      <div class="g3">
+        <div>
+          <div class="lbl ember" style="font-size:12px;margin-bottom:7px">Router</div>
+          <pre>{"a":"Router",
+ "track":"coding",
+ "copy":"anchors",
+ "chars":31840}</pre>
+        </div>
+        <div>
+          <div class="lbl plum" style="font-size:12px;margin-bottom:7px">Coder</div>
+          <pre>{"a":"Coder",
+ "kind":"repo",
+ "edits":2,
+ "site":"query.py"}</pre>
+        </div>
+        <div>
+          <div class="lbl lime" style="font-size:12px;margin-bottom:7px">Solver</div>
+          <pre>{"a":"Solver",
+ "kind":"math",
+ "conf":0.82}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pull">
+      The third answer has no name in it. That was deliberate, and the reason
+      is easier to see after the three contracts.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">05</span></div>
+</section>

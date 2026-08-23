@@ -1,0 +1,424 @@
+<!-- ══════════════ 12 · WHY WE BUILT IT ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer</div>
+    <h2 class="st wide">The log said the run finished. There was no answer to grade.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise grow" style="display:flex;flex-direction:column;justify-content:center">
+        <p class="q">What the app watches is whether the task finished.
+          What we needed to know is whether the response body carries a format the grader reads.
+          <b>Those are two different questions</b>, and reading the logs by eye never separated them.</p>
+        <div class="split">
+          <div class="side"><span class="k">The app's question</span>
+            <span class="said">Did the task finish?</span></div>
+          <span class="arrow">&ne;</span>
+          <div class="side"><span class="k">Ours</span>
+            <span class="said">Is there an answer in the body?</span></div>
+        </div>
+      </div>
+      <div style="flex:none;width:352px;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">AI:GO already has a dashboard</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            It has swimlanes and budget meters, and it shows what happened inside one run.
+            What we needed was dozens of runs laid side by side, to see where they leak.</p>
+        </div>
+        <div class="p tight acc" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="lbl">Who it was for</div>
+          <p class="note mt2" style="font-size:15px;line-height:1.5">
+            This was not built to show a judging panel. It was built to fix the squad,
+            and the numbers on the next slide are the ones that changed the design.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lbl" style="margin-bottom:var(--s2)">The four meters, on the folder we will open in the demo</div>
+      <div class="hud dark">
+        <div class="wm"><span class="ember" style="line-height:0">{{glyph:logo:26}}</span><b>MONSTROUS</b></div>
+        <div class="m"><span class="k">Runs</span><b class="v">39</b>
+          <span class="d">310 files &middot; 9 squads</span></div>
+        <div class="m"><span class="k">AI:GO success &rlarr; Gradable</span>
+          <b class="v">22<s>&rlarr;</s>12</b>
+          <span class="d">the two verdicts differ on 10</span></div>
+        <div class="m"><span class="k">Credits</span>
+          <div class="row" style="align-items:center;gap:var(--s2)">
+            <b class="v">154.6k</b>
+            <div class="gauge" style="--cells:20;--on:19;--c:var(--ember);--cell-pitch:8px;--cell-h:12px"></div>
+          </div>
+          <span class="d">1 cell = 8.0k tok</span></div>
+        <div class="m"><span class="k">Time</span><b class="v">1h 8m</b>
+          <span class="d">avg 104.4s per run</span></div>
+      </div>
+      <p class="note mt2">The second meter is the whole argument. The count beneath it is the
+        number of runs the platform called a success and the grader would score as nothing.</p>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">12</span></div>
+</section>
+
+<!-- ══════════════ 13 · WHAT IT SHOWED ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; 39 recorded runs</span></div>
+    <h2 class="st wide">Zero is not one thing. Each kind has a different owner.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.25">
+        <table class="t-tight"><thead><tr>
+          <th style="width:52%">Verdict</th><th class="n">Runs</th><th>Who fixes it</th>
+        </tr></thead><tbody>
+          <tr class="faint"><td>Not an item &mdash; a two-character smoke test</td>
+              <td class="n">10</td><td class="k">no one. not graded</td></tr>
+          <tr class="faint"><td>Call refused &mdash; context overflow, infrastructure</td>
+              <td class="n">6</td><td class="k gold">configuration</td></tr>
+          <tr class="faint"><td>Undecided &mdash; neither track nor contract recognised</td>
+              <td class="n">0</td><td class="k">the checker</td></tr>
+          <tr><td><b>No answer format</b></td>
+              <td class="n coral"><b>11</b></td><td class="k coral">the prompt</td></tr>
+          <tr><td><b>Gradable</b></td>
+              <td class="n lime"><b>12</b></td><td class="k">&mdash;</td></tr>
+        </tbody></table>
+        <div class="split">
+          <div class="side"><span class="k">Ours to fix</span>
+            <span class="said">23 of 39</span></div>
+          <div class="gauge" style="--cells:23;--on:12;--dim:11;--c:var(--v-ok);margin-left:var(--s3)"></div>
+          <div class="side" style="margin-left:auto">
+            <span class="k">Gradable share</span><span class="said">12 / 23</span></div>
+        </div>
+        <p class="note mt2">The first three rows leave the denominator. A smoke test we typed
+          ourselves is not a benchmark failure, and counting it as one flatters nothing.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2)">
+        <div class="lbl">What became visible &rarr; what changed</div>
+        <table class="t-tight mt2"><tbody>
+          <tr><td>An AI:GO success and a scoring run are not the same run</td>
+              <td class="k">answer task pinned last</td></tr>
+          <tr><td>Zero has several branches, each with a different owner</td>
+              <td class="k">split three ways</td></tr>
+          <tr><td>A run wrote the answer to a file and never into the response</td>
+              <td class="k">all seats, zero tools</td></tr>
+          <tr><td>Queue wait averaged 11.9s and peaked at 138.4s</td>
+              <td class="k">wall clock split in two</td></tr>
+        </tbody></table>
+        <div class="pull mt3" style="font-size:16px">
+          The model finished the answer, saved it to a file, and wrote only
+          &ldquo;task complete&rdquo; in the response. The grader never opens the workspace.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">13</span></div>
+</section>
+
+<!-- ══════════════ 14 · IT CORRECTED ITSELF ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; the fault that never happened</span></div>
+    <h2 class="st wide">The tool's most useful finding was its own miscount.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p bad">
+      <p class="q">For a while the screen carried a branch called <b>contract not sent</b>.
+        If the recorded request had no <code>=== REQUIRED OUTPUT ===</code> section, we read that
+        as the runner failing to send the contract, and we were charging
+        <b>8 runs</b> to the runner on that basis.</p>
+    </div>
+
+    <div class="g2">
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">Evidence one &middot; it never fit</div>
+        <div class="row mt3" style="align-items:baseline;gap:var(--s4)">
+          <div class="stat"><span class="k">Those 8 request fields</span>
+            <b class="v" style="font-size:34px">83&ndash;499 <span class="faint" style="font-size:18px">chars</span></b></div>
+          <div class="stat"><span class="k">A contract section</span>
+            <b class="v" style="font-size:34px">~250 <span class="faint" style="font-size:18px">chars</span></b></div>
+        </div>
+        <p class="note mt3">There was no room for one to have been there. <code>history.json</code>
+          stores the question only, not the prompt the model was handed.</p>
+      </div>
+      <div class="p raise" style="display:flex;flex-direction:column">
+        <div class="lbl">Evidence two &middot; the model heard it</div>
+        <div class="row mt3" style="align-items:center;gap:var(--s4)">
+          <div class="gauge" style="--cells:8;--on:6;--c:var(--v-ok)"></div>
+          <p style="font-size:16px;line-height:1.4;color:var(--fg-dim)">
+            <b class="mono">6 of 8</b> responses contained <code>\boxed{}</code>.
+            One went all the way to <code>FINAL&nbsp;ANSWER:</code>.</p>
+        </div>
+        <p class="note mt3">A model cannot follow a contract it was never sent.
+          The branch described something that had not happened.</p>
+      </div>
+    </div>
+
+    <div class="pull">
+      Write the log's silence down as an event and you invent a fault nobody committed.
+      That is the one thing this tool must never do, so the branch came out.
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">14</span></div>
+</section>
+
+<!-- ══════════════ 15 · WHAT'S INSIDE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; what is in it</span></div>
+    <h2 class="st wide">One HTML file. No install, no server, no network.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.3">
+        <table class="t-tight"><thead><tr>
+          <th style="width:34%">Screen</th><th>What it does</th>
+        </tr></thead><tbody>
+          <tr><td class="k">Four top meters</td>
+              <td>Runs &middot; AI:GO success against gradable &middot; CREDITS, counting tokens in cells &middot; TIME</td></tr>
+          <tr><td class="k">Three modes</td>
+              <td>One run &middot; whole-set analysis &middot; squad comparison. Each answers a different question</td></tr>
+          <tr><td class="k">Six tabs</td>
+              <td>Overview &middot; replay &middot; ledger &middot; timeline &middot; failure classes &middot; raw log</td></tr>
+          <tr><td class="k">Cut-line bench</td>
+              <td>Drag a per-item token ceiling and watch what it saves and what it loses</td></tr>
+          <tr><td class="k">Zero-score stack</td>
+              <td>Every branch prints who fixes it, in words</td></tr>
+          <tr><td class="k">Shared selection</td>
+              <td>Pick one task and the map, lanes, ticker and ledger all light the same thing</td></tr>
+          <tr><td class="k">Also</td>
+              <td>Korean and English &middot; high contrast &middot; presentation mode &middot; print &middot; SVG and JSON export &middot; nine shortcuts</td></tr>
+        </tbody></table>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
+        <div class="p tight" style="flex:1">
+          <div class="lbl">Three rules the screen keeps</div>
+          <ol class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.6;color:var(--fg-dim)">
+            <li>When the window narrows a meter disappears whole. A missing meter reads as
+              missing; a clipped number reads as a different number.</li>
+            <li>Every panel opens with the one question it answers, and nothing decorative
+              goes above that line.</li>
+            <li>No meaning is carried by colour alone.</li>
+          </ol>
+        </div>
+        <div class="p tight acc" style="flex:none">
+          <div class="lbl">External requests</div>
+          <div class="row mt2" style="align-items:baseline;gap:var(--s3)">
+            <b class="mono" style="font-size:40px">0</b>
+            <p class="note">Checked by the build. An offline demo cannot break on a CDN
+              that is not there.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">15</span></div>
+</section>
+
+<!-- ══════════════ 16 · TRUST ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>04</s> The viewer <span class="rest">&middot; why the screen can be trusted</span></div>
+    <h2 class="st wide">If it is not in the log, we do not draw it.</h2>
+  </div>
+
+  <div class="body">
+    <div class="g2">
+      <div class="p bad">
+        <div class="lbl coral">Deliberately absent</div>
+        <p class="mt2" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Cache hit rate, cost per model, tokens per task, confidence curves. The platform's
+          per-agent token fields come back <b>all zero</b>. Drawing them would be inventing numbers.</p>
+      </div>
+      <div class="p ok">
+        <div class="lbl lime">Labelled where it is inferred</div>
+        <p class="mt2" style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+          Per-agent tokens are an estimate and the screen says so, in place, with the reason.
+          Cut-line figures are an upper bound on loss, because every truncated run is counted
+          as lost outright. That sentence is on the screen too.</p>
+      </div>
+    </div>
+
+    <div class="p raise">
+      <div class="lbl">Replay is labelled three ways, and they are never mixed</div>
+      <div class="g3 mt3">
+        <div><b class="mono lime" style="font-size:16px">Observed replay</b>
+          <p class="note mt2">Exactly what happened, in the order it happened.</p></div>
+        <div><b class="mono gold" style="font-size:16px">Prefix stop simulation</b>
+          <p class="note mt2">A recorded run, cut short at a chosen point.</p></div>
+        <div><b class="mono plum" style="font-size:16px">Assumption-bound policy simulation</b>
+          <p class="note mt2">A changed policy, with the remainder filled in by estimate.</p></div>
+      </div>
+      <p class="note mt3">Nothing that did not run is ever drawn as though it ran.</p>
+    </div>
+
+    <div class="p acc">
+      <div class="row" style="align-items:center;gap:var(--s6)">
+        <div class="stat" style="flex:none">
+          <span class="k">Logic moved byte for byte</span>
+          <b class="v" style="font-size:40px">1,105 <span class="faint" style="font-size:18px">lines</span></b>
+        </div>
+        <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
+          <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
+            We replaced the entire interface and changed no data. Parsing, verdicts, aggregation,
+            loading and export were carried over unchanged, and the build diffs them against the
+            original every time. One line of drift and no artifact is produced.
+            <b>Same folder in, byte-identical JSON out.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">16</span></div>
+</section>
+
+<!-- ══════════════ 17 · DEMO ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>05</s> Demo <span class="rest">&middot; 65 seconds</span></div>
+    <h2 class="st wide">Live, on the runs we kept while building.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise">
+      <p class="note" style="margin-bottom:var(--s3)">
+        <b>Said first, before the folder opens:</b> these are development runs, so the squad
+        composition differs from run to run. The third mode exists to lay those side by side.
+        Without that sentence, the map showing more than three nodes invites the wrong question.</p>
+      <table class="t-tight"><thead><tr>
+        <th style="width:11%" class="n">Time</th><th style="width:30%">Action</th><th>What it shows</th>
+      </tr></thead><tbody>
+        <tr><td class="n k">0&ndash;10s</td><td>Drop the workspace folder in</td>
+            <td>No install, no server. One HTML file, and the run list is there</td></tr>
+        <tr><td class="n k">10&ndash;25s</td><td>Point at <b>AI:GO success &rlarr; gradable</b></td>
+            <td>The meter this whole tool exists for. The count where the two verdicts disagree
+              is on the line beneath it</td></tr>
+        <tr><td class="n k">25&ndash;42s</td><td><kbd>m</kbd> to whole-set analysis, then <b>drag the cut line</b></td>
+            <td>Three places move at once: truncated points hollow out, the three result meters
+              recompute, and CREDITS at the top of the screen actually falls. Cut cells stay as
+              hatching</td></tr>
+        <tr><td class="n k">42&ndash;55s</td><td>Scroll to the <b>zero-score stack</b></td>
+            <td>Zero is not one thing. Only the branch the prompt owns stays in the denominator</td></tr>
+        <tr><td class="n k">55&ndash;65s</td><td>Back to one run, click a node on the squad map</td>
+            <td>Map, lanes, ticker and ledger light the same target. From a result back to its
+              cause, by clicking. Stop here</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="g4">
+      <div class="p tight"><div class="lbl" style="font-size:12px">Folder blocked</div>
+        <p class="note mt2"><code>python3 -m http.server 8777</code>, started beforehand</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:12px">Projector washed out</div>
+        <p class="note mt2">High-contrast mode is on a shortcut, set in advance</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:12px">Running late</div>
+        <p class="note mt2">Drop 55&ndash;65s first. The cut line is not the segment to lose</p></div>
+      <div class="p tight"><div class="lbl" style="font-size:12px">Numbers moving</div>
+        <p class="note mt2">The folder is a frozen copy. A live one grows during the talk</p></div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">17</span></div>
+</section>
+
+<!-- ══════════════ 18 · CLAIMS WE DON'T MAKE ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>A</s> Appendix <span class="rest">&middot; claims we do not make</span></div>
+    <h2 class="st wide">Things that would sound good and are not true.</h2>
+  </div>
+
+  <div class="body">
+    <div class="p raise" style="background:var(--panel-2)">
+      <table class="t-tight"><thead><tr>
+        <th style="width:38%">Not said</th><th>Because</th>
+      </tr></thead><tbody>
+        <tr><td>&ldquo;This design raised our score&rdquo;</td>
+            <td><b>There is no graded result yet.</b> What we can say is what we measured and
+              which design decision each measurement produced</td></tr>
+        <tr><td>&ldquo;Requests fell from 1,192 to 294&rdquo;</td>
+            <td>294 is a projection: measured practice sizes multiplied by hidden item counts.
+              The documents label it a projection too</td></tr>
+        <tr><td>&ldquo;We have an agent that decides to give up&rdquo;</td>
+            <td>Not buildable. The plan graph freezes before the run and has no conditional branch</td></tr>
+        <tr><td>&ldquo;Prefix caching saves us tokens&rdquo;</td>
+            <td>It saves latency. vLLM bills cache hits into <code>prompt_tokens</code> in full,
+              and the documentation says it returns prefill time</td></tr>
+        <tr><td>&ldquo;Coder runs at high reasoning effort&rdquo;</td>
+            <td>The template has no way to set effort per agent, and writing the line into a
+              system prompt does not work either</td></tr>
+        <tr><td>&ldquo;22 disabled tools locked the agents down&rdquo;</td>
+            <td>The squad execution path does not read that field. The handle that works is the
+              empty <code>enabledTools</code></td></tr>
+        <tr><td>&ldquo;Here are per-item traces from a graded run&rdquo;</td>
+            <td>The portal does not break runs down per item, and no path to re-read hidden
+              response bodies has been confirmed. The viewer earns its keep on development runs</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">18</span></div>
+</section>
+
+<!-- ══════════════ 19 · SOURCES ══════════════ -->
+<section class="s">
+  <div class="hd">
+    <div class="eyebrow"><s>B</s> Appendix <span class="rest">&middot; where each number comes from</span></div>
+    <h2 class="st wide">Every figure on these slides has a file behind it.</h2>
+  </div>
+
+  <div class="body">
+    <div class="row">
+      <div class="p raise" style="flex:1.35">
+        <table class="t-tight"><thead><tr>
+          <th style="width:20%">Slides</th><th>Source</th>
+        </tr></thead><tbody>
+          <tr><td class="k">02&ndash;11</td>
+              <td class="k" style="white-space:normal">squad/squad_template/monstrous_squad/README.md &middot;
+                agent_prompts/{router,coder,solver}.txt &middot; add_prompt/README.md</td></tr>
+          <tr><td class="k">Platform facts</td>
+              <td class="k" style="white-space:normal">docs/ideation/final_final_ideation/spec/01-플랫폼-사실.md
+                &mdash; grader read order, field behaviour, budget schema, null caps</td></tr>
+          <tr><td class="k">Scoring</td>
+              <td class="k" style="white-space:normal">docs/resource/track_resource/lableup/02-평가-채점-규칙.md</td></tr>
+          <tr><td class="k">12&ndash;17</td>
+              <td class="k" style="white-space:normal">viz_revise_program/사용설명서.md &middot;
+                work_log/01-검증-결과.md &middot; docs/viz_revise/research/02-데이터-원천과-한계.md</td></tr>
+        </tbody></table>
+        <p class="note mt3">The 39-run figures were re-measured on the shipped viewer against
+          the current <code>squad/</code> folder before this deck was written, rather than copied
+          forward from an earlier count.</p>
+      </div>
+
+      <div class="p" style="flex:1;background:var(--panel-2);display:flex;flex-direction:column">
+        <div class="lbl">Before going on stage</div>
+        <ul class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.75;color:var(--fg-dim)">
+          <li>Start <code>python3 -m http.server 8777</code>, bookmark the URL</li>
+          <li>Freeze a copy of the demo workspace folder</li>
+          <li>Rehearse once on the projector in high-contrast mode</li>
+          <li>Put the SVG and PDF exports into the slides as a fallback</li>
+          <li>Fix the screen language to suit the panel</li>
+          <li>Re-read the live meter values on the day</li>
+          <li>Confirm the browser &mdash; verified on Chromium only</li>
+          <li>Check the roster here still matches <code>squad-template.json</code></li>
+          <li><code>python3 tools/validate_template.py squad-template.json</code> passes</li>
+        </ul>
+        <div class="split" style="margin-top:auto">
+          <div class="side"><span class="k">Template</span>
+            <span class="said" style="font-size:14px">user-monstrous-squad-v2</span></div>
+          <div class="side" style="margin-left:auto">
+            <span class="stamp" data-v="ok"><b>Validated</b><em>50 checks</em></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><b>Monstrous Squad</b><span class="pg">19</span></div>
+</section>
