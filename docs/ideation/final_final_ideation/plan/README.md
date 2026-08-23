@@ -1,5 +1,15 @@
 # plan — monstrous_squad 스쿼드 템플릿 기획
 
+> **[2026-08-23 갱신 — 이 폴더는 v1 설계를 기술한다. 제출본은 v2다.]**
+> v1(5 에이전트 Router/Architect/Editor/Solver/Reviewer)이 hidden 세트에서 **overall 0.0925, 24개 실행 중 23등**을 받았다.
+> 원인 넷 — ① 다섯 systemPrompt 전부가 채점기 정규식에 걸리는 정답 예시(`ANSWER: C`, `\boxed{204800}`)를 품고 있었고,
+> ② 입력 토큰 5,368,135의 **81%가 우리 지시문**이었고, ③ 플래너가 태스크 설명에서 답 계약을 지웠고(플래너가 쓴 태스크 61개 중 언급 0개),
+> ④ 마지막 웨이브의 Reviewer가 문제 본문을 못 본 채 답을 다시 썼다.
+> 현재 제출본은 **에이전트 3명 · 모델 1개 · 문항당 호출 2회**이고, 근거와 수치는
+> `squad/squad_template/monstrous_squad/README.md`에 있다. 이 폴더의 §5(플랜 A/B/C), 에이전트 5인 구성,
+> Layer 1 공유 규칙, 모델 2종 배정은 **폐기됐다.** 플랫폼 사실(필드 생사, 추출 규칙, 예산 스키마)은 그대로 유효하다.
+
+
 JUNCTIONX Korea 2026 · Lablup + FuriosaAI 트랙 "Build the Ultimate Agent Squad"
 
 > **[2026-08-23] 먼저 읽을 것 — 리더보드 API가 인증 없이 열려 있다.**

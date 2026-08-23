@@ -3,15 +3,14 @@
 against the hackathon grader in docs/resource/example_task/tools/grade.py.
 
 Every check here corresponds to a limit read out of the app binary
-(/Applications/Backend.AI GO.app/Contents/MacOS/backend-ai-go) or to a parser
-function in grade.py / extract.py. Nothing is asserted from documentation alone.
+(/Applications/Backend.AI GO.app/Contents/MacOS/backend-ai-go), to a parser
+function in grade.py / extract.py, or to a measured failure in a recorded run.
 
     python3 tools/validate_template.py squad-template.json
 
 Exit code 0 when every check passes, 1 otherwise.
 """
 
-import hashlib
 import json
 import re
 import sys
@@ -21,9 +20,6 @@ REPO = Path(__file__).resolve().parents[4]
 GRADE_TOOLS = REPO / "docs" / "resource" / "example_task" / "tools"
 
 # --- Import-validation limits, from backend-ai-go error strings -------------
-# MAX_TEMPLATE_ID and the id charset below are the only two guesses here: the
-# name limit was read off constant 0xc8 at 0x101da5828, the id check lives in a
-# different function whose constant was never located (plan/01 §7 #5).
 MAX_TEMPLATE_ID = 200
 MAX_NAME = 200
 MAX_DESCRIPTION = 5000
@@ -46,8 +42,6 @@ MODEL_PREFERENCE_KEYS = {
     "preferredModelId", "preferredProviderId", "minContextWindow",
     "requiresToolCalling", "requiresVision",
 }
-# Absent is not the same as empty: len(t.get("name", "")) reads a missing key as
-# a passing zero-length string, so presence is checked separately.
 REQUIRED_TEMPLATE_KEYS = (
     "id", "name", "description", "icon", "category", "isBuiltin",
     "suggestedModels", "agents",
@@ -67,15 +61,13 @@ EVALUATION_MODELS = {
     "furiosa-ai/K-EXAONE-236B-A23B-NVFP4A16",
 }
 
-LAYER_BOUNDARY = "=== END SQUAD CONTRACT ==="
 # squad-template.min.json is the import fallback: the same template with these two
 # fields emptied. Any other divergence means the fallback is not a fallback.
 MIN_EMPTIED = ("disabledTools", "toolPermissionOverrides")
-# The three one-shot prompts are submitted alongside the template. add_prompt/ is the
-# source; example_task/prompts/ is where compose.py looks by default. Two copies of the
-# same submitted text is exactly the drift the deleted spec template used to cause.
 PROMPT_TRACKS = ("coding", "math", "generic")
 STATUS_SUMMARY = re.compile(r"^\s*\*\*Execution (complete|failed)\*\*\s*—", re.MULTILINE)
+# The planner reads this line first and it decides which agent answers the item.
+PLANNER_LINE = re.compile(r"^PLANNER: .*?assign it to (\w+)", re.S)
 
 failures = []
 notes = []
@@ -87,6 +79,39 @@ def fail(msg):
 
 def note(msg):
     notes.append(msg)
+
+
+def load_grader():
+    sys.path.insert(0, str(GRADE_TOOLS))
+    try:
+        import grade
+    except Exception as exc:  # noqa: BLE001 - the reason is reported, not swallowed
+        return None, exc
+    return grade, None
+
+
+def grader_reads(grade, text):
+    """What the three graders would pull out of `text` if a model echoed it.
+
+    Returns a list of (track, extracted) for every extractor that fires. The whole
+    point of the check is that this list is empty: a system prompt that contains a
+    literal answer line hands the grader that line whenever a model reproduces any
+    part of its own instructions, and the run that scored 0.0925 shipped five
+    prompts that each yielded 'C' and '204800'.
+    """
+    hits = []
+    letter = grade.extract_letter(text)
+    if letter is not None:
+        hits.append(("generic", letter))
+    boxed = grade.extract_boxed(text)
+    if boxed is not None:
+        hits.append(("math", boxed))
+    patch = grade.extract_patch(text)
+    if patch is not None:
+        blocks, _ = grade.parse_edit_blocks(patch)
+        if blocks:
+            hits.append(("coding", f"{len(blocks)} block(s)"))
+    return hits
 
 
 def check_schema(t):
@@ -134,6 +159,7 @@ def check_agents(t):
     if len(planners) != 1:
         fail(f"exactly one agent must carry role 'planner'; found {len(planners)}")
 
+    models = set()
     for a in agents:
         name = a.get("name", "<unnamed>")
         unknown = set(a) - AGENT_KEYS
@@ -146,8 +172,6 @@ def check_agents(t):
         prompt = a.get("systemPrompt", "")
         if len(prompt) > MAX_SYSTEM_PROMPT:
             fail(f"{name}: systemPrompt is {len(prompt)} chars, limit {MAX_SYSTEM_PROMPT}")
-        if LAYER_BOUNDARY not in prompt:
-            fail(f"{name}: systemPrompt has no {LAYER_BOUNDARY!r} layer boundary")
 
         role = str(a.get("role", ""))
         if role.lower() not in KNOWN_ROLES:
@@ -166,14 +190,11 @@ def check_agents(t):
         # only a summary; two runs on this machine died that way.
         if enabled:
             fail(f"{name}: enabledTools must be empty, has {enabled}")
-        for tool in enabled:
-            if tool not in SQUAD_TOOLS:
-                fail(f"{name}: enables {tool!r}, which this squad does not permit "
-                     f"(workspace tools: {sorted(SQUAD_TOOLS)})")
 
         if a.get("memoryEnabled") is not False:
             fail(f"{name}: memoryEnabled must be false — a memory read costs up to "
-                 f"2000 input tokens per call and benchmark items are independent")
+                 f"2000 input tokens per call, benchmark items are independent, and a "
+                 f"recorded run memorised a wrong answer and reused it")
 
         prefs = a.get("modelPreferences") or {}
         unknown = set(prefs) - MODEL_PREFERENCE_KEYS
@@ -182,94 +203,119 @@ def check_agents(t):
         model = prefs.get("preferredModelId")
         if model not in EVALUATION_MODELS:
             fail(f"{name}: preferredModelId {model!r} is not one of the three served models")
+        models.add(model)
         if prefs.get("minContextWindow") is not None:
-            fail(f"{name}: minContextWindow must stay null — model-metadata.yaml records "
-                 f"gpt-oss-120b at context_window 2048, so any floor removes it from the "
-                 f"candidate set and a planner with no model broadcasts the whole request")
+            fail(f"{name}: minContextWindow must stay null — the resolver never reads it, "
+                 f"and a planner left with no model broadcasts the whole request to "
+                 f"every agent")
         if prefs.get("requiresToolCalling") is not False:
-            fail(f"{name}: requiresToolCalling must be false — model-metadata.yaml lists "
-                 f"gpt-oss-120b capabilities as [chat, code] with no tool entry")
+            fail(f"{name}: requiresToolCalling must be false")
         if prefs.get("requiresVision") is not False:
             fail(f"{name}: requiresVision must be false")
 
-
-def check_layer_one(t):
-    """Layer 1 must be byte-identical across every agent or the prefix cache never hits."""
-    digests = {}
-    for a in t.get("agents") or []:
-        prompt = a.get("systemPrompt", "")
-        cut = prompt.find(LAYER_BOUNDARY)
-        if cut < 0:
-            continue
-        digests.setdefault(hashlib.sha256(prompt[:cut].encode()).hexdigest(), []).append(a["name"])
-    if len(digests) > 1:
-        fail(f"Layer 1 differs across agents: {digests}")
-    elif digests:
-        (digest, names), = digests.items()
-        layer_one = next(a["systemPrompt"] for a in t["agents"] if a["name"] == names[0])
-        cut = layer_one.find(LAYER_BOUNDARY)
-        chars = cut
-        note(f"Layer 1 identical across {len(names)} agents, {chars} chars, sha256 {digest[:16]}")
-        # Furiosa-LLM will not open a radix entry below roughly 1024 tokens.
-        if chars < 5000:
-            fail(f"Layer 1 is {chars} chars, likely under the 1024-token cache floor")
+    if len(models) > 1:
+        note(f"template spans {len(models)} models: {sorted(models)}. The submitted run that "
+             f"assigned a second model saw it serve 6 of 1192 requests, so routing to it is "
+             f"not reliable")
 
 
-def check_against_grader(t):
-    """The worked examples inside Layer 1 must parse the way they are labelled."""
-    sys.path.insert(0, str(GRADE_TOOLS))
-    try:
-        import grade
-    except Exception as exc:
-        fail(f"grade.py not importable ({exc}); the parser checks did not run, so "
-             f"this template is unvalidated against the grader")
-        return
-
+def check_planner_names_its_team(t):
+    """The planner assigns by agent name; a name it never learned cannot be assigned."""
     agents = t.get("agents") or []
-    if not agents:
+    planner = next((a for a in agents if str(a.get("role", "")).lower() == "planner"), None)
+    if planner is None:
         return
-    prompt = agents[0]["systemPrompt"]
-    cut = prompt.find(LAYER_BOUNDARY)
-    layer_one = prompt[:cut]
+    prompt = planner.get("systemPrompt", "")
+    workers = [a["name"] for a in agents if a is not planner]
+    missing = [w for w in workers if w not in prompt]
+    if missing:
+        fail(f"{planner['name']}: systemPrompt never names {missing}, so the planner has no "
+             f"instruction that routes work there")
+    note(f"planner {planner['name']!r} routes to {workers}")
 
-    blocks = re.findall(r">>> BEGIN\n(.*?)<<< END", layer_one, re.S)
-    if len(blocks) < 6:
-        fail(f"Layer 1 carries {len(blocks)} worked examples, expected the six labelled ones")
 
-    labels = re.findall(r"^(Correct|Wrong), (math|generic|coding)\.", layer_one, re.M)
-    for (verdict, track), body in zip(labels, blocks):
-        if track == "math":
-            got = grade.extract_boxed(body)
-        elif track == "generic":
-            got = grade.extract_letter(body)
-        else:
-            patch = grade.extract_patch(body)
-            got = None
-            if patch is not None:
-                parsed, _ = grade.parse_edit_blocks(patch)
-                got = parsed or None
-        if verdict == "Correct" and got is None:
-            fail(f"example labelled correct/{track} does not parse")
-        if verdict == "Wrong" and got is not None:
-            fail(f"example labelled wrong/{track} parses as {got!r}")
+def check_no_extractable_answer(t):
+    """No system prompt may contain a string the grader itself reads as an answer.
+
+    This is the invariant the previous template broke. Its five prompts each carried a
+    worked example whose bare `ANSWER: C` line and boxed 204800 are matched by the
+    grader's own regexes, so any model that echoed a fragment of its instructions
+    handed those in as the answer.
+    """
+    grade, exc = load_grader()
+    if grade is None:
+        fail(f"grade.py not importable ({exc}); the parser checks did not run, so this "
+             f"template is unvalidated against the grader")
+        return
+    for a in t.get("agents") or []:
+        for track, value in grader_reads(grade, a.get("systemPrompt", "")):
+            fail(f"{a.get('name')}: systemPrompt is read by the {track} grader as {value!r}; "
+                 f"an echoed prompt would be submitted as the answer")
+    note("no agent systemPrompt is extractable by any of the three graders")
 
     # A ledger line must never be mistaken for an answer, and must never make the
     # whole output look like the runtime's status summary.
-    for a in agents:
-        for ledger in re.findall(r'`(\{"a":"[^`]*\})`', a["systemPrompt"]):
-            if "\n" in ledger:
-                fail(f"{a['name']}: ledger template spans more than one line")
-            if grade.extract_letter(ledger) or grade.extract_boxed(ledger):
-                fail(f"{a['name']}: ledger template {ledger!r} extracts as an answer")
+    for a in t.get("agents") or []:
+        for ledger in re.findall(r'(\{"a":"[^\n`]*?\})', a.get("systemPrompt", "")):
+            if grader_reads(grade, ledger):
+                fail(f"{a.get('name')}: ledger template {ledger!r} extracts as an answer")
             if STATUS_SUMMARY.search(ledger):
-                fail(f"{a['name']}: ledger template reads as a status summary")
+                fail(f"{a.get('name')}: ledger template reads as a status summary")
 
 
-BUDGET_KEYS = {
-    "maxTotalTokens", "maxTokensPerAgent", "maxTokensPerTask", "maxConcurrentAgents",
-    "maxTasksPerPlan", "maxPlanIterations", "maxAgentTurns", "executionTimeoutSecs",
-    "taskTimeoutSecs", "agentIdleTimeoutSecs", "warningThresholdPercent",
-}
+def check_tool_denials(t):
+    """disabledTools and toolPermissionOverrides are a record, so keep them coherent."""
+    for a in t.get("agents") or []:
+        cfg = a.get("toolConfig") or {}
+        denied, perms = cfg.get("disabledTools") or [], cfg.get("toolPermissionOverrides") or {}
+        if set(denied) != set(perms):
+            fail(f"{a.get('name')}: disabledTools and toolPermissionOverrides list "
+                 f"different tools ({len(denied)} vs {len(perms)})")
+        wrong = sorted(k for k, v in perms.items() if v != "never_allow")
+        if wrong:
+            fail(f"{a.get('name')}: toolPermissionOverrides not never_allow for {wrong}")
+
+
+def check_one_shot_prompts(path, t):
+    """add_prompt/ is the submitted set; the harness copy must not drift from it."""
+    grade, _ = load_grader()
+    src = path.parent / "add_prompt"
+    harness = REPO / "docs" / "resource" / "example_task" / "prompts"
+    names = {a.get("name") for a in t.get("agents") or []}
+    if not src.is_dir():
+        note("no add_prompt/ beside the template; one-shot prompts not checked")
+        return
+    for track in PROMPT_TRACKS:
+        a = src / f"{track}.txt"
+        if not a.exists():
+            fail(f"add_prompt/{track}.txt is missing")
+            continue
+        text = a.read_text()
+        if text.count("{{TASK}}") != 1:
+            fail(f"add_prompt/{track}.txt has {text.count('{{TASK}}')} {{{{TASK}}}} "
+                 f"placeholders; the composer substitutes every one, so two doubles the item")
+        if not text.rstrip().endswith("{{TASK}}"):
+            fail(f"add_prompt/{track}.txt does not end with {{{{TASK}}}}; the item has to "
+                 f"land last so the stable prefix stays cacheable")
+        match = PLANNER_LINE.match(text)
+        if not match:
+            fail(f"add_prompt/{track}.txt does not open with a PLANNER line naming an agent; "
+                 f"the planner is the first and sometimes only reader of this text")
+        elif match.group(1) not in names:
+            fail(f"add_prompt/{track}.txt routes to {match.group(1)!r}, which is not an agent "
+                 f"in this template ({sorted(names)})")
+        if grade is not None:
+            for kind, value in grader_reads(grade, text):
+                fail(f"add_prompt/{track}.txt is read by the {kind} grader as {value!r}")
+        b = harness / f"{track}.txt"
+        if not b.exists():
+            fail(f"docs/resource/example_task/prompts/{track}.txt is missing")
+        elif b.read_text() != text:
+            fail(f"docs/resource/example_task/prompts/{track}.txt differs from "
+                 f"add_prompt/{track}.txt — the submitted prompt and the one the local "
+                 f"harness measures are not the same text")
+    note(f"one-shot prompts: {len(PROMPT_TRACKS)} tracks, one {{{{TASK}}}} each, PLANNER line "
+         f"routes to a real agent, harness copy in sync, none extractable")
 
 
 def check_min_variant(path):
@@ -293,48 +339,16 @@ def check_min_variant(path):
         note(f"min variant matches, emptying only {', '.join(MIN_EMPTIED)}")
 
 
-def check_tool_denials(t):
-    """disabledTools and toolPermissionOverrides are a record, so keep them coherent."""
-    for a in t.get("agents") or []:
-        cfg = a.get("toolConfig") or {}
-        denied, perms = cfg.get("disabledTools") or [], cfg.get("toolPermissionOverrides") or {}
-        if set(denied) != set(perms):
-            fail(f"{a.get('name')}: disabledTools and toolPermissionOverrides list "
-                 f"different tools ({len(denied)} vs {len(perms)})")
-        wrong = sorted(k for k, v in perms.items() if v != "never_allow")
-        if wrong:
-            fail(f"{a.get('name')}: toolPermissionOverrides not never_allow for {wrong}")
-
-
-def check_one_shot_prompts(path):
-    """add_prompt/ is the submitted set; the harness copy must not drift from it."""
-    src = path.parent / "add_prompt"
-    harness = REPO / "docs" / "resource" / "example_task" / "prompts"
-    if not src.is_dir():
-        note("no add_prompt/ beside the template; one-shot prompts not checked")
-        return
-    for track in PROMPT_TRACKS:
-        a = src / f"{track}.txt"
-        if not a.exists():
-            fail(f"add_prompt/{track}.txt is missing")
-            continue
-        text = a.read_text()
-        if text.count("{{TASK}}") != 1:
-            fail(f"add_prompt/{track}.txt has {text.count('{{TASK}}')} {{{{TASK}}}} "
-                 f"placeholders; the composer substitutes every one, so two doubles the item")
-        if not text.rstrip().endswith("{{TASK}}"):
-            fail(f"add_prompt/{track}.txt does not end with {{{{TASK}}}}; the item has to "
-                 f"land last so the stable prefix stays cacheable")
-        b = harness / f"{track}.txt"
-        if b.exists() and b.read_text() != text:
-            fail(f"docs/resource/example_task/prompts/{track}.txt differs from "
-                 f"add_prompt/{track}.txt — the submitted prompt and the one the local "
-                 f"harness measures are not the same text")
-    note(f"one-shot prompts: {len(PROMPT_TRACKS)} tracks, one {{{{TASK}}}} each, harness copy in sync")
+BUDGET_KEYS = {
+    "maxTotalTokens", "maxTokensPerAgent", "maxTokensPerTask", "maxConcurrentAgents",
+    "maxTasksPerPlan", "maxPlanIterations", "maxAgentTurns", "executionTimeoutSecs",
+    "taskTimeoutSecs", "agentIdleTimeoutSecs", "warningThresholdPercent",
+}
 
 
 def check_budget(path):
-    """budget.json ships beside the template; the app rejects it out of order."""
+    """budget.json applies to a locally created squad only; the submission is the
+    template plus the three prompts, so nothing here reaches the evaluation server."""
     if not path.exists():
         note("no budget.json beside the template")
         return
@@ -348,7 +362,6 @@ def check_budget(path):
         if not isinstance(value, int) or isinstance(value, bool):
             fail(f"budget.json {key} is {value!r}, not an integer")
             return
-    # backend-ai-go: "warning_threshold_percent must be in [0, 100]".
     if not 0 <= budget["warningThresholdPercent"] <= 100:
         fail(f"warningThresholdPercent must be in [0, 100], got "
              f"{budget['warningThresholdPercent']}")
@@ -357,9 +370,12 @@ def check_budget(path):
     if not task <= agent <= total:
         fail(f"budget violates max_tokens_per_task <= per_agent <= total: "
              f"{task} / {agent} / {total}")
-    if budget["maxTasksPerPlan"] < 3:
-        fail("maxTasksPerPlan below 3 cannot express plan A (Architect, Editor, Reviewer)")
-    note(f"budget.json: {total} total, {budget['maxTasksPerPlan']} tasks/plan, "
+    if budget["maxTasksPerPlan"] > 2:
+        fail(f"maxTasksPerPlan is {budget['maxTasksPerPlan']}; the plan is one task, and "
+             f"headroom above two is headroom for the planner to split")
+    if budget["maxPlanIterations"] != 1:
+        fail("maxPlanIterations must be 1 — a re-plan re-reads the whole request")
+    note(f"budget.json (local runs only): {total} total, {budget['maxTasksPerPlan']} tasks/plan, "
          f"{budget['maxAgentTurns']} turns, concurrency {budget['maxConcurrentAgents']}")
 
 
@@ -370,15 +386,18 @@ def main():
 
     check_schema(template)
     check_agents(template)
-    check_layer_one(template)
-    check_against_grader(template)
+    check_planner_names_its_team(template)
+    check_no_extractable_answer(template)
     check_tool_denials(template)
-    check_one_shot_prompts(Path(sys.argv[1]))
-    check_min_variant(Path(sys.argv[1]))
+    check_one_shot_prompts(path, template)
+    check_min_variant(path)
     check_budget(path.parent / "budget.json")
 
     print(f"{path.name}: {len(template.get('agents') or [])} agents, "
           f"{path.stat().st_size} bytes")
+    for a in template.get("agents") or []:
+        print(f"  {a.get('name'):<8} {len(a.get('systemPrompt','')):>6} chars  "
+              f"role={a.get('role')}  {a.get('modelPreferences',{}).get('preferredModelId')}")
     for msg in notes:
         print(f"  note  {msg}")
     for msg in failures:

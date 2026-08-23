@@ -1,58 +1,63 @@
+PLANNER: create exactly one task, assign it to Solver, and put this whole message — from the line
+below to the end, the Options block and the REQUIRED OUTPUT block included — into its description,
+copied character for character. An option list you did not copy has no letters to choose from.
+Create no second task and call no other tool. Everyone else: this line is not for you; the question
+begins now.
+
 Answer the graduate-level multiple-choice question below.
 
 WHAT IS GRADED
 
-One letter. A program reads the last line that matches `ANSWER: <letter>` and compares that
-letter against a reference. Your reasoning is never read and no model judges it.
+One letter. A program reads the last line that matches the required form and compares that letter
+against a reference. Your reasoning is never read and no model judges it.
 
 Everything before that line is ignored and not penalised, so reasoning costs tokens but never
-costs points. Do not skip it. On questions of this kind, answering from the letter alone has
-been measured to cost far more accuracy than the tokens it saves — the options are built so
-that the plausible-sounding one is usually wrong.
+costs points. Do not skip it. On questions of this kind, answering from the options alone has been
+measured to cost far more accuracy than the tokens it saves — the options are built so that the
+plausible-sounding one is usually wrong.
 
 You have no tools. You cannot compute, look anything up, or verify externally.
 
 HOW TO WORK
 
-1. Read what is actually being asked, including any qualifier: "not", "except", "least",
-   "best", a unit, a stated condition, an order of magnitude.
+1. Read what is actually being asked, including any qualifier: "not", "except", "least", "best", a
+   unit, a stated condition, an order of magnitude.
 
-2. Reason in short steps — a clause each, not a paragraph — and take as many steps as the
-   question needs. Do the work before you look for the matching option; picking an option
-   first and reasoning toward it is how a distractor wins.
+2. Reason in short steps — a clause each, not a paragraph — and take as many steps as the question
+   needs. Do the work before you look for the matching option; picking an option first and
+   reasoning toward it is how a distractor wins.
 
 3. Narrow to the strongest two or three options, then reject the others against the question's
-   exact constraints rather than against how they sound. A distractor is usually right about
-   the topic and wrong about one clause.
+   exact constraints rather than against how they sound. A distractor is usually right about the
+   topic and wrong about one clause.
 
 4. Confirm that the option text you settled on is the one carrying the letter you are about to
    write. Miscopying the letter is a real and avoidable zero.
 
-5. Commit to one letter. If you are unsure, pick the best supported one anyway — an omitted
-   answer and a wrong answer score the same, and there is no penalty for guessing. Never show
-   two candidates, never hedge, never write "possibly B or D".
+5. Commit to one letter. If you are unsure, pick the best supported one anyway — an omitted answer
+   and a wrong answer score the same, and there is no penalty for guessing. Never show two
+   candidates, never hedge, never write "possibly B or D".
+
+Choose only from the letters listed in this question's own `Options:` block. The count varies by
+question — three to ten — and it is not always A through J. A letter that is not in that block is
+a zero even when the reasoning was right.
 
 THE OUTPUT CONTRACT
 
-The last line of your reply must be exactly this shape, with `<letter>` replaced by the one
-letter you chose:
+The REQUIRED OUTPUT block at the end of this message gives the exact final line: the prefix, one
+space, and the single letter you chose. Each of these extracts nothing and scores zero:
 
-    ANSWER: <letter>
-
-The pattern is anchored to the whole line: the line must contain the prefix, spaces, and one
-letter, and nothing else. Each of these extracts nothing and scores zero:
-
-    ANSWER: C (isothermal work)      trailing text on the line
-    **ANSWER: C**                    bold markers
-    - ANSWER: C                      list bullet
+    **ANSWER: C**                    bold markers around the line
+    - ANSWER: C                      a list bullet before the prefix
+    ANSWER: C (isothermal work)      any trailing text on the line
     ANSWER: AB                       more than one letter
     The answer is C.                 not the prefix
+    answer: c                        wrong case on the prefix
 
-Choose only from the letters listed in that question's own `Options:` block. The count varies
-by question — three to ten — and it is not always A through J. A letter that is not in that
-block is a zero even when the reasoning was right.
+Write that line once, at the very end, and write nothing after it. If more than one appears, only
+the last is read.
 
-If more than one such line appears, only the last is read. Write the line once, at the very
-end, and write nothing after it.
+Always write it. A reply with no final line extracts nothing and scores zero, and a guess scores
+sometimes.
 
 {{TASK}}

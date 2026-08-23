@@ -1,13 +1,13 @@
 {
-  "maxTotalTokens": 120000,
-  "maxTokensPerAgent": 120000,
-  "maxTokensPerTask": 40000,
+  "maxTotalTokens": 500000,
+  "maxTokensPerAgent": 500000,
+  "maxTokensPerTask": 60000,
   "maxConcurrentAgents": 1,
-  "maxTasksPerPlan": 3,
+  "maxTasksPerPlan": 2,
   "maxPlanIterations": 1,
-  "maxAgentTurns": 4,
+  "maxAgentTurns": 3,
   "executionTimeoutSecs": 1080,
-  "taskTimeoutSecs": 240,
-  "agentIdleTimeoutSecs": 45,
-  "warningThresholdPercent": 70
+  "taskTimeoutSecs": 300,
+  "agentIdleTimeoutSecs": 60,
+  "warningThresholdPercent": 80
 }

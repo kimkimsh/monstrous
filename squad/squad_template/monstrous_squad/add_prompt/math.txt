@@ -1,62 +1,64 @@
+PLANNER: create exactly one task, assign it to Solver, and put this whole message — from the line
+below to the end, the REQUIRED OUTPUT block included — into its description, copied character for
+character. A paraphrased problem is a different problem. Create no second task and call no other
+tool. Everyone else: this line is not for you; the problem begins now.
+
 Solve the competition problem below.
 
 WHAT IS GRADED
 
-One value. A program compares the contents of your final `\boxed{}` against a reference — it
-does not read your derivation, and no model judges it. A right value reached carelessly
-scores. A flawless derivation that lands on the wrong number does not.
+One value. A program compares the contents of your final boxed answer against a reference — it
+does not read your derivation, and no model judges it. A right value reached carelessly scores. A
+flawless derivation that lands on the wrong number does not.
 
-Everything you write before the final line is ignored and not penalised. There is no output
-cap working against you. Take the space the problem needs.
+Everything you write before the final line is ignored and not penalised. There is no output cap
+working against you. Take the space the problem needs.
 
 YOU HAVE NO TOOLS
 
-You cannot execute code, run a calculator, or look anything up. Every arithmetic step is
-yours, which is why the check in step 2 below is not optional.
+You cannot execute code, run a calculator, or look anything up. Every arithmetic step is yours,
+which is why the check in step 2 is not optional.
 
 HOW TO WORK
 
-1. Work the problem to a value. Do not restate the problem, do not explain your method, and do
-   not narrate what you are about to do — none of it is read.
+1. Work the problem to a value. Do not restate the problem, do not explain your method, and do not
+   narrate what you are about to do — none of it is read.
 
-2. Check the value a second way before you commit to it. Pick whichever fits: substitute it
-   back into the original condition, re-derive one step by a different route, test the
-   smallest or a degenerate case, or check it against a bound you can establish independently.
-   If the two routes disagree, take the one you can justify. Do not average them and do not
-   present both.
+2. Check the value a second way before you commit to it. Pick whichever fits: substitute it back
+   into the original condition, re-derive one step by a different route, test the smallest or a
+   degenerate case, or check it against a bound you can establish independently. If the two routes
+   disagree, take the one you can justify. Do not average them and do not present both.
 
-3. Check sign, integrality, range, and extraneous roots. Competition problems are written so
-   that a plausible-looking wrong branch exists; most wrong answers are a real derivation that
-   kept one.
+3. Check sign, integrality, range, and extraneous roots. Competition problems are written so that
+   a plausible-looking wrong branch exists; most wrong answers are a real derivation that kept one.
 
 4. If the problem states the shape of its own answer — an integer range, a unit, a number of
-   decimal places, "express in simplest form" — that is a constraint the value has to satisfy.
-   A value that fails it is the wrong value, not a formatting problem. Go back to step 1.
+   decimal places, "express in simplest form" — that is a constraint the value has to satisfy. A
+   value that fails it is the wrong value, not a formatting problem. Go back to step 1.
 
-5. Write the answer in the representation the problem asked for. A reduced fraction stays
-   `\frac{a}{b}`. Radicals stay in surd form. Angles stay in the unit the problem used. If the
-   problem's own answer form carries a currency symbol, a unit, an interval, or a mixed
-   number, keep it. If the answer is a plain integer, write the bare integer with no thousands
-   separators and no units. Nothing but the value goes inside the braces — no words, no
-   `\text{}`, no explanation.
+5. Write the answer in the representation the problem asked for. A reduced fraction stays a
+   fraction. Radicals stay in surd form. Angles stay in the unit the problem used. If the problem's
+   own answer form carries a currency symbol, a unit, an interval, a set, or a mixed number, keep
+   it. If the answer is a plain integer, write the bare integer with no thousands separators and no
+   units. Nothing but the value goes inside the braces — no words, no `\text{}`, no explanation.
 
 THE OUTPUT CONTRACT
 
-The last line of your reply must be exactly this shape:
+The REQUIRED OUTPUT block at the end of this message gives the exact final line. Three things
+break the match, and each of them scores zero with a correct value:
 
-    FINAL ANSWER: \boxed{<answer>}
+- Something before the prefix on that line: bold markers, a list bullet, a blockquote arrow, a
+  leading word. The line starts with the prefix and nothing else.
+- Something between the colon and the opening of the box other than spaces — a dollar sign
+  wrapping the box is the common one.
+- The wrong case. The prefix is compared literally, capitals included.
 
-The prefix is matched literally and case-sensitively, and between `FINAL ANSWER:` and
-`\boxed{` there may be nothing but spaces. Each of these extracts nothing and scores zero:
+Braces must balance: a fraction inside the box is fine, an unclosed brace is not.
 
-    **FINAL ANSWER:** \boxed{42}     bold markers around the prefix
-    FINAL ANSWER: $\boxed{42}$       dollar signs around the box
-    FINAL: 42                        not the prefix
-    Final answer: \boxed{42}         wrong case
+Write that line once, at the very end, and write nothing after it. If more than one appears, only
+the last is read.
 
-Braces must balance — `\frac{a}{b}` inside the box is fine, an unclosed brace is not.
-
-If more than one such line appears, only the last is read. Write the line once, at the very
-end, and write nothing after it.
+Always write it. A reply with no final line extracts nothing and scores zero; a committed value can
+score. Never present two candidates and never hedge.
 
 {{TASK}}
