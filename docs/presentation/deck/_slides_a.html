@@ -14,8 +14,8 @@
     </div>
 
     <p class="dek" style="max-width:56ch;margin-top:28px;font-size:23px">
-      Three agents, one model, two model calls per benchmark item, and a single
-      HTML file that shows where the other runs leaked.
+      One model behind three seats, and a single HTML file that shows where the
+      runs we threw away leaked.
     </p>
 
     <div class="row" style="margin-top:32px;gap:var(--s8);align-items:flex-end">
@@ -37,7 +37,7 @@
 
   <div style="position:absolute;left:56px;right:56px;bottom:78px">
     <div class="lbl" style="font-size:12px;margin-bottom:11px">
-      Everything below is aimed at three strings</div>
+      The whole squad aims at three strings</div>
     <div class="row" style="gap:var(--s3)">
       <div class="p" style="flex:1;padding:11px 15px">
         <span class="chip" style="border:0;padding:0;color:var(--fg-faint)">{{glyph:coding:12}} coding</span>
@@ -110,8 +110,10 @@
               </div>
             </div>
             <div style="border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
-              <p class="note">Our first submission averaged <b class="mono">8.1</b> requests per item
-                across 1,192 requests. Same benchmark, same 147 items.</p>
+              <p class="note">One planner turn, one worker turn. Our first submission averaged
+                <b class="mono">8.1</b> requests per item across 1,192 requests, on the same
+                147 items. Whether the planner takes a second turn after <code>create_task</code>
+                returns is not yet confirmed on the evaluation runner.</p>
             </div>
           </div>
         </div>
@@ -121,7 +123,7 @@
         <div class="p acc tight" style="background:var(--panel-2);flex:none">
           <div class="lbl">Scored out of 100</div>
           <table class="t-tight mt2"><tbody>
-            <tr><td>Benchmark accuracy</td><td class="n num">40</td></tr>
+            <tr><td>Benchmark score</td><td class="n num">40</td></tr>
             <tr><td>Visualization</td><td class="n num">30</td></tr>
             <tr><td><b>Token efficiency</b></td><td class="n num ember">30</td></tr>
           </tbody></table>
@@ -129,13 +131,13 @@
         <div class="p tight" style="flex:none">
           <div class="lbl">One model, all three seats</div>
           <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
-          <p class="note mt2">Nothing in the template can set reasoning effort per agent,
-            so a second model buys nothing a prompt cannot.</p>
+          <p class="note mt2">Effort is the only knob a second model entry would give us,
+            and the template cannot set it per agent.</p>
         </div>
         <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
           <div class="lbl">And on a draw</div>
-          <p class="note mt2">Total tokens break a tie on accuracy. Wall clock breaks the tie
-            after that. The cheaper run wins an even score.</p>
+          <p class="note mt2">Total tokens break a tie on accuracy. Wall clock breaks whatever
+            tokens leave tied.</p>
         </div>
       </div>
     </div>
@@ -153,9 +155,11 @@
 
   <div class="body">
     <div class="p raise">
-      <p class="q">The grader reads <b>the output of the last task</b> and nothing else.
-        The runtime's own <code>finalResult</code> summary is refused as a status report.
-        So the task that writes the answer has to be the task that gets read.</p>
+      <p class="q">The grader reads <code>finalResult</code> first, refuses it as a status report,
+        then walks the tasks backwards from the last wave until it finds real output. On all 28
+        recorded runs it fell through to that second stage, so in practice
+        <b>the last task's output is the answer</b> &mdash; and the seat that writes it has to be
+        the seat that gets read.</p>
     </div>
 
     <div class="g2">
@@ -166,8 +170,8 @@
           An agent holding tools solved the item, wrote the answer to a workspace file,
           and put &ldquo;task complete&rdquo; in its response.
           <b>The grader never opens the workspace.</b></p>
-        <p class="note mt2">Now: <code>enabledTools</code> is empty on all three seats, and the
-          build refuses a template where it is not.</p>
+        <p class="note mt2">Now: <code>enabledTools</code> is empty on all three seats, and
+          <code>validate_template.py</code> fails the template if it is not.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">The app said</span>
             <span class="said">completed</span></div>
@@ -183,7 +187,7 @@
           We put a review seat last. It never received the problem text, because no path
           existed for the text to arrive, so it rewrote an answer it could not check.</p>
         <p class="note mt2">Now: the seat that solves is the seat that finishes.
-          Verification moved &mdash; slide&nbsp;09.</p>
+          Verification moved &mdash; slide&nbsp;10.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">Answer existed at</span>
             <span class="said">wave 1</span></div>
@@ -222,10 +226,10 @@
         <div class="p-t"><span class="plum" style="line-height:0">{{glyph:coder:24}}</span>
           Coder and Solver split on length<span class="sub">arithmetic</span></div>
         <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
-          Coder's contract runs to <b>7,698 characters</b>, most of it the patch format the
-          parser enforces. Merge the two seats and every math item carries those rules
+          Coder's contract runs to <b>7,698 characters</b>, of which 1,943 are the patch format
+          the parser enforces. Merge the two seats and every math item carries those rules
           past a parser it will never reach.</p>
-        <div class="kv mt2"><span class="k">Charged on</span>
+        <div class="kv mt2"><span class="k">A merge would charge</span>
           <b class="mono">109 of 147 items</b></div>
       </div>
     </div>
@@ -239,10 +243,10 @@
         </div>
         <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
           <p style="font-size:16px;line-height:1.5;color:var(--fg-dim)">
-            Head count is a multiplier when things go wrong. If the planner call fails,
+            Head count multiplies the damage when the planner call fails. If it does,
             the app stops splitting the request and hands the full text to
-            <b>every agent</b>. At that median, each extra seat costs another
-            63,812 bytes of input on one coding item.</p>
+            <b>every non-planner seat</b>. Each extra seat then costs another full copy of that median
+            on a single coding item.</p>
         </div>
       </div>
     </div>
@@ -268,18 +272,18 @@
         <tr><td>Which ones modify it</td><td class="k plum">Coder</td>
             <td>Writes the patch. It is the only seat that emits patch markers</td></tr>
         <tr><td>Which ones verify results</td><td class="k faint">No single seat</td>
-            <td>Inside each agent's own turn, and again in the build &mdash; slide&nbsp;09</td></tr>
+            <td>Inside each agent's own turn, and again in the build &mdash; slide&nbsp;10</td></tr>
         <tr><td>Which ones decide to give up</td><td class="k faint">Four rules</td>
-            <td>The plan graph freezes before the run, so this cannot be an agent &mdash; slide&nbsp;10</td></tr>
+            <td>The plan graph freezes before the run, so this cannot be an agent &mdash; slide&nbsp;11</td></tr>
       </tbody></table>
     </div>
 
     <div class="p raise">
       <div class="p-t" style="font-size:20px">Every seat signs its work
         <span class="sub">first line of the reply &middot; task title for Router</span></div>
-      <p class="note" style="margin-bottom:var(--s3)">One line of compact JSON per seat, with
-        no key shared across seats. It is how the viewer knows which agent produced what,
-        without guessing from prose.</p>
+      <p class="note" style="margin-bottom:var(--s3)">One line of compact JSON per seat. The <code>a</code> key
+        names the seat and the rest differ, so the viewer reads which agent produced what
+        instead of guessing from prose.</p>
       <div class="g3">
         <div>
           <div class="lbl ember" style="font-size:12px;margin-bottom:7px">Router</div>
@@ -305,8 +309,8 @@
     </div>
 
     <div class="pull">
-      The third answer has no name in it. That was deliberate, and the reason
-      is easier to see after the three contracts.
+      The last two answers have no name in them. The reason is easier to see
+      after the three contracts.
     </div>
   </div>
 
