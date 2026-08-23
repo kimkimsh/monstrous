@@ -275,7 +275,7 @@ pre b{color:var(--fg)}
     </div>
 
     <p class="dek" style="max-width:52ch;margin-top:28px;font-size:23px">
-      모델 하나 뒤에 자리 셋. 그리고 버린 실행들이 어디서 샜는지 보여주는 HTML 파일 하나.
+      모델 하나 뒤에 에이전트 셋. 거기에, 버린 실행이 어디서 샜는지 보여주는 HTML 파일 하나.
     </p>
 
     <div class="row" style="margin-top:30px;gap:var(--s8);align-items:flex-end">
@@ -339,8 +339,8 @@ pre b{color:var(--fg)}
             <div class="fl-row">
               <span class="gl ember"><svg class="g" viewBox="0 0 12 12" width="30" height="30" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/></svg></span>
               <b class="nm">Router</b>
-              <p class="tx">요청을 글자 그대로 태스크 하나에 옮겨 담고,
-                <code>REQUIRED&nbsp;OUTPUT</code> 블록이 가리키는 자리로 보낸다.</p>
+              <p class="tx">요청을 글자 그대로 태스크 하나에 옮겨 담아
+                <code>REQUIRED&nbsp;OUTPUT</code> 블록이 가리키는 곳으로 보낸다.</p>
             </div>
 
             <div class="fl-row">
@@ -352,7 +352,7 @@ pre b{color:var(--fg)}
             <div class="fl-row">
               <span class="gl lime"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
               <b class="nm">Solver</b>
-              <p class="tx">수학, 객관식, 그리고 둘 중 어느 것도 아닌 것.</p>
+              <p class="tx">수학, 객관식, 둘 중 어느 것도 아닌 것.</p>
             </div>
            </div>
           </div>
@@ -388,9 +388,9 @@ pre b{color:var(--fg)}
           </tbody></table>
         </div>
         <div class="p tight" style="flex:none">
-          <div class="lbl">모델 하나로 세 자리를 다 돌린다</div>
+          <div class="lbl">에이전트 셋을 모델 하나로 돌린다</div>
           <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
-          <p class="note mt2">모델을 하나 더 넣어 얻는 손잡이는 추론 강도뿐인데,
+          <p class="note mt2">모델을 하나 더 넣어 봐야 조절되는 건 추론 강도뿐인데,
             템플릿에는 그걸 에이전트별로 지정할 수단이 없다.</p>
         </div>
         <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
@@ -407,16 +407,16 @@ pre b{color:var(--fg)}
 <!-- ══════════════ 03 · 채점기는 출력 하나만 읽는다 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 채점기가 읽는 자리</span></div>
-    <h2 class="st wide">답과 채점기 사이에 놓인 홉 하나하나가 답을 잃을 자리다.</h2>
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 채점기가 읽는 곳</span></div>
+    <h2 class="st wide">답과 채점기 사이를 한 번 더 거칠 때마다 답이 샐 구멍이 하나씩 는다.</h2>
   </div>
 
   <div class="body">
     <div class="p raise">
-      <p class="q">채점기는 <code>finalResult</code>를 먼저 열고, 그걸 상태 보고라며 물린 다음,
+      <p class="q">채점기는 <code>finalResult</code>를 먼저 열고 그걸 상태 보고로 치고 넘어간 다음,
         마지막 웨이브부터 태스크를 거꾸로 훑어 진짜 출력을 찾는다. 기록된 28건 전부 2단계까지
         내려갔다. 그러니 실무에서는 <b>마지막 태스크의 출력이 곧 답</b>이고,
-        답을 쓴 자리가 읽히는 자리여야 한다.</p>
+        답을 쓴 에이전트가 읽히는 에이전트여야 한다.</p>
     </div>
 
     <div class="g2">
@@ -424,11 +424,11 @@ pre b{color:var(--fg)}
         <div class="p-t"><span class="coral" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/></svg></span>
           파일로 들어갔다<span class="sub">실행 2건</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
-          도구를 쥔 에이전트가 문항을 풀어 놓고, 답은 워크스페이스 파일에 저장하고,
+          도구를 쥔 에이전트가 문항을 풀어 놓고는 답을 워크스페이스 파일에 저장했다.
           응답에는 &ldquo;작업 완료&rdquo;만 썼다.
           <b>채점기는 워크스페이스를 열지 않는다.</b></p>
-        <p class="note mt2">지금은 세 자리 전부 <code>enabledTools</code>가 비어 있고,
-          비어 있지 않으면 <code>validate_template.py</code>가 템플릿을 물린다.</p>
+        <p class="note mt2">지금은 에이전트 셋 전부 <code>enabledTools</code>가 비어 있고,
+          비어 있지 않으면 <code>validate_template.py</code>가 그 템플릿을 막는다.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">앱이 찍은 것</span>
             <span class="said">완료</span></div>
@@ -439,11 +439,11 @@ pre b{color:var(--fg)}
       </div>
       <div class="p bad" style="display:flex;flex-direction:column">
         <div class="p-t"><span class="coral" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/></svg></span>
-          검토 자리가 다시 썼다<span class="sub">v1 설계</span></div>
+          검토 에이전트가 다시 썼다<span class="sub">v1 설계</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
-          검토 자리를 마지막에 뒀는데, 그 자리에는 문제 본문이 도착하는 경로가 없었다.
+          검토 에이전트를 마지막에 뒀는데, 거기에는 문제 본문이 도착하는 경로가 없었다.
           확인할 수도 없는 답을 다시 쓴 셈이다.</p>
-        <p class="note mt2">지금은 푸는 자리가 끝내는 자리다. 검증은 자리를 옮겼다 &mdash; 10쪽.</p>
+        <p class="note mt2">지금은 푸는 에이전트가 끝낸다. 검증은 자리를 옮겼다 &mdash; 10쪽.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">답이 있던 곳</span>
             <span class="said">웨이브 1</span></div>
@@ -451,7 +451,7 @@ pre b{color:var(--fg)}
           <div class="side"><span class="k">채점기가 읽은 곳</span>
             <span class="said">웨이브 3</span></div>
           <div class="side" style="margin-left:auto">
-            <span class="stamp" data-v="bad"><b>도달 못 함</b><em class="ko">홉에서 유실</em></span></div>
+            <span class="stamp" data-v="bad"><b>도달 못 함</b><em class="ko">단계에서 유실</em></span></div>
         </div>
       </div>
     </div>
@@ -474,7 +474,7 @@ pre b{color:var(--fg)}
           플래너 자리는 앱이 못 박아 뒀다<span class="sub">플랫폼</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
           요청 전문을 보는 컴포넌트는 플래너 하나뿐이다. 워커는 플래너가 만든 태스크의
-          <code>description</code>만 받는다. 자리를 없앨 수 없으니 할 일을 깎았다.
+          <code>description</code>만 받는다. 없앨 수 없으니 할 일을 깎았다.
           <b>Router는 <code>create_task</code>를 한 번 부르고 끝낸다.</b></p>
       </div>
       <div class="p raise">
@@ -482,8 +482,8 @@ pre b{color:var(--fg)}
           Coder와 Solver를 가른 건 길이다<span class="sub">계산</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
           Coder 계약이 <b>7,698자</b>고 그중 1,943자가 파서가 강제하는 패치 형식이다.
-          두 자리를 합치면 math 문항마다 닿지도 않을 파서 규칙을 같이 실어 나른다.</p>
-        <div class="kv mt2"><span class="k">합쳤을 때 물리는 문항</span>
+          둘을 합치면 math 문항마다 닿지도 않을 파서 규칙을 같이 실어 나른다.</p>
+        <div class="kv mt2"><span class="k">합쳤을 때 걸리는 문항</span>
           <b class="mono">147개 중 109개</b></div>
       </div>
     </div>
@@ -498,8 +498,8 @@ pre b{color:var(--fg)}
         <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
           <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
             사람 수는 사고가 났을 때의 배수이기도 하다. 플래너 호출이 실패하면 앱은 요청을 쪼개지 않고
-            <b>플래너 아닌 자리 전부</b>에 전문을 그대로 뿌린다. 이 중앙값이면 자리 하나가 늘 때마다
-            coding 문항 하나에서 63,812바이트가 더 나간다.</p>
+            <b>플래너 아닌 에이전트 전부</b>에 전문을 그대로 뿌린다. 에이전트가 하나 늘 때마다
+            coding 문항 하나에서 저 중앙값이 통째로 한 번 더 나간다.</p>
         </div>
       </div>
     </div>
@@ -523,7 +523,7 @@ pre b{color:var(--fg)}
         <tr><td>누가 코드를 읽는가</td><td class="k lat ember">Router</td>
             <td>저장소 발췌를 순서 매겨 고르고 태스크에 옮긴다</td></tr>
         <tr><td>누가 코드를 고치는가</td><td class="k lat plum">Coder</td>
-            <td>패치를 쓴다. 패치 마커를 내는 자리는 여기뿐이다</td></tr>
+            <td>패치를 쓴다. 패치 마커를 내는 건 여기뿐이다</td></tr>
         <tr><td>누가 결과를 검증하는가</td><td class="k faint">한 자리가 아니다</td>
             <td>에이전트 안에서 한 번, 빌드에서 또 한 번 &mdash; 10쪽</td></tr>
         <tr><td>누가 포기를 판단하는가</td><td class="k faint">규칙 네 군데</td>
@@ -532,10 +532,10 @@ pre b{color:var(--fg)}
     </div>
 
     <div class="p raise">
-      <div class="p-t" style="font-size:20px">자리마다 자기 일에 서명한다
+      <div class="p-t" style="font-size:20px">에이전트마다 자기 일에 서명한다
         <span class="sub">응답 첫 줄 &middot; Router는 태스크 제목</span></div>
-      <p class="note" style="margin-bottom:var(--s3)">자리마다 압축한 JSON 한 줄을 쓴다.
-        <code>a</code>가 자리를 적고 나머지 키는 서로 다르다. 뷰어는 산문에서 짐작하는 대신
+      <p class="note" style="margin-bottom:var(--s3)">에이전트마다 압축한 JSON 한 줄을 쓴다.
+        <code>a</code>가 누구인지 적고 나머지 키는 서로 다르다. 뷰어는 산문에서 짐작하는 대신
         이 줄을 읽어 어느 에이전트가 뭘 냈는지 안다.</p>
       <div class="g3">
         <div>
@@ -562,7 +562,7 @@ pre b{color:var(--fg)}
     </div>
 
     <div class="pull">
-      뒤의 두 답에는 사람 이름이 없다. 이유는 계약 셋을 보고 나면 훨씬 쉽게 보인다.
+      뒤의 두 답에는 사람 이름이 없다. 계약 셋을 보면 이유가 보인다.
     </div>
   </div>
 
@@ -571,7 +571,7 @@ pre b{color:var(--fg)}
 <!-- ══════════════ 06 · Router ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Router</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Router</span></div>
     <h2 class="st wide">Router. <code style="font-size:.86em">create_task</code> 한 번, 그리고 끝낸다.</h2>
   </div>
 
@@ -589,7 +589,7 @@ pre b{color:var(--fg)}
           <tr><td>그 밖이거나, 블록이 아예 없거나</td><td class="k lat lime">Solver &middot; other</td></tr>
         </tbody></table>
         <p class="note mt3">블록의 모양만 보고 가르니 모델의 짐작이 들어갈 자리가 없다.
-          합성기가 실제로 붙이는 건 앞의 셋뿐이고, 넷째 줄은 우리가 못 본 모양에 대비해 둔 자리다.</p>
+          합성기가 실제로 붙이는 건 앞의 셋뿐이다. 넷째 줄은 우리가 못 본 모양에 대비해 둔 것이다.</p>
 
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">부르지 않는 것</span>
@@ -599,7 +599,7 @@ pre b{color:var(--fg)}
 
       <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
         <div class="p tight">
-          <div class="lbl">옮기지, 요약하지 않는다</div>
+          <div class="lbl">옮기되, 요약하지 않는다</div>
           <p class="note mt2" style="font-size:15px;line-height:1.6">
             바꿔 쓴 문제는 다른 문제다. 옮기지 않은 보기 목록에는 고를 글자가 없다.
             다시 타이핑한 소스 한 줄은 붙지 않는 패치다.</p>
@@ -618,7 +618,7 @@ pre b{color:var(--fg)}
               <li>이슈가 부른 심볼을 정의하는 발췌</li>
               <li>그것을 호출하는 발췌</li>
             </ol>
-            <p class="note mt2">넷 중 아무것에도 안 걸리면 추측이고, 추측 하나가 약 12,000자를 먹는다.</p>
+            <p class="note mt2">넷 중 아무것에도 안 걸리면 추측이다. 추측 하나가 약 12,000자를 먹는다.</p>
           </div>
         </div>
       </div>
@@ -631,7 +631,7 @@ pre b{color:var(--fg)}
 <!-- ══════════════ 07 · Coder / 파서 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Coder</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Coder</span></div>
     <h2 class="st wide">안 붙는 패치는 아무리 옳아도 0점이다.</h2>
   </div>
 
@@ -639,7 +639,7 @@ pre b{color:var(--fg)}
     <div class="row">
       <div class="p raise" style="flex:1.5">
         <div class="p-t" style="font-size:21px"><span class="plum" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/></svg></span>
-          패치 파서가 실제로 강제하는 것<span class="sub">한 줄 한 줄이 맞는 수정을 0점으로 만든다</span></div>
+          패치 파서가 실제로 강제하는 것<span class="sub">한 줄만 어긋나도 맞는 수정이 0점이 된다</span></div>
         <table class="t-tight"><thead><tr>
           <th style="width:44%">규칙</th><th>어기면</th>
         </tr></thead><tbody>
@@ -650,8 +650,8 @@ pre b{color:var(--fg)}
           <tr><td>SEARCH가 그 파일 안에서 유일</td>
               <td>두 번 걸리면 아무것도 안 붙는다. 주변 줄을 붙여 넓힌다</td></tr>
           <tr><td>블록과 블록 사이에 산문 금지</td>
-              <td>다음 블록의 경로 줄로 읽히고, 패치가 조용히 멈춘다</td></tr>
-          <tr><td><code>=</code>가 일곱 개 이상 이어지는 줄을 앵커로 안 쓰기</td>
+              <td>다음 블록의 경로 줄로 읽히면서 패치가 조용히 멈춘다</td></tr>
+          <tr><td><code>=</code>가 일곱 개 이상 이어지는 줄은 앵커 금지</td>
               <td>파서가 거기서 SEARCH를 끊는다. 오류는 안 난다.
                   <code>&lt;</code> <code>&gt;</code>는 뒤에 <code>&nbsp;REPLACE</code>가 붙을 때만 위험하다</td></tr>
           <tr><td>패치는 응답당 한 번</td>
@@ -675,15 +675,16 @@ pre b{color:var(--fg)}
         </div>
         <div class="p tight">
           <div class="pull" style="font-size:16px">
-            여러 경로가 같은 함수로 모이면 고칠 자리는 그 함수 한 곳이다.
-            이슈가 지목한 경로만 고치는 건 더 큰 변경이면서 형제 호출자를 깨진 채로 남기고,
-            이미 통과하던 테스트가 보고 있는 게 정확히 그 형제다.
+            여러 경로가 같은 함수로 모이면 고칠 곳은 그 함수 한 군데다.
+            이슈가 지목한 경로만 고치면 diff는 오히려 커지는데 같은 함수를 부르는 다른
+            호출부(형제 호출자)는 깨진 채로 남는다. 이미 통과하던 테스트가 보고 있는 게
+            정확히 그 형제다.
           </div>
         </div>
         <div class="p tight">
           <div class="lbl">도구 없음, 설계대로</div>
           <p class="note mt2">Coder는 파일을 열 수도, 테스트를 돌릴 수도, 저장소를 뒤질 수도 없다.
-            받은 글 안에 없는 경로·심볼·줄 번호는 지어낸 것이고, 지어낸 패치는 적용되지 않는다.</p>
+            받은 글 안에 없는 경로·심볼·줄 번호는 지어낸 것이라, 지어낸 패치는 적용되지 않는다.</p>
         </div>
       </div>
     </div>
@@ -695,7 +696,7 @@ pre b{color:var(--fg)}
 <!-- ══════════════ 08 · Coder / 실행 방식 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Coder</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Coder</span></div>
     <h2 class="st wide">닮았는데 정반대인 문장 두 개.</h2>
   </div>
 
@@ -706,7 +707,7 @@ pre b{color:var(--fg)}
         <p class="mono mt2" style="font-size:16px;color:var(--fg)">&ldquo;runs your file as a program&rdquo;</p>
         <hr class="rule mt3">
         <p class="mt3" style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
-          표준 입력에서 읽고, 답만 표준 출력에 쓴다.</p>
+          표준 입력에서 읽어 답만 표준 출력에 쓴다.</p>
         <p class="note mt2">함수 정의만 있는 파일은 아무것도 안 찍고 0점이다.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">연습 문항</span>
@@ -742,7 +743,7 @@ pre b{color:var(--fg)}
 <!-- ══════════════ 09 · Solver ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Solver</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Solver</span></div>
     <h2 class="st wide">Solver가 147문항 중 109개를 진다.</h2>
   </div>
 
@@ -753,8 +754,8 @@ pre b{color:var(--fg)}
           <span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="20" height="20" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/></svg></span>수학</div>
         <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
           값까지 푼 다음 다른 방법으로 한 번 더 검산한다. 대입해 보거나, 한 단계를 다른 경로로 다시
-          유도하거나, 가장 작은 케이스로 시험한다. 두 경로가 어긋나면 정당화할 수 있는 쪽을 택한다.</p>
-        <p class="note mt2">평균 내지 않고 둘 다 내놓지도 않는다. 부호, 정수성, 범위, 무연근을 확인한다.</p>
+          유도하거나, 가장 작은 케이스로 시험한다. 두 경로가 어긋나면? 정당화할 수 있는 쪽을 택한다.</p>
+        <p class="note mt2">평균은 안 낸다. 둘 다 내놓지도 않는다. 부호, 정수 여부, 범위, 무연근까지 확인한다.</p>
       </div>
       <div class="p raise">
         <div class="p-t" style="font-size:20px">
@@ -763,7 +764,7 @@ pre b{color:var(--fg)}
           보기를 보기 전에 푼다. 보기부터 고르고 거기로 추론을 맞춰 가는 것이
           오답 보기가 이기는 방식이다.</p>
         <p class="note mt2">보기 개수는 셋에서 열까지라 목록이 C에서 끝나기도, G에서 끝나기도 한다.
-          그 문항의 Options 블록 끝을 넘어간 글자는 추론이 맞아도 0점이다.</p>
+          그 문항의 Options 블록 끝을 넘어간 글자를 쓰면 추론이 맞아도 0점이다.</p>
       </div>
       <div class="p raise" style="border-style:dashed">
         <div class="p-t" style="font-size:20px">
@@ -771,7 +772,7 @@ pre b{color:var(--fg)}
         <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
           채점되는 벤치마크는 셋이지만 하네스가 그 밖의 것을 보낼 수 있다. 세 트랙만 아는 스쿼드는
           넷째가 오는 순간 억지로 형식을 씌워서, 값이 맞는데도 형식으로 잃는다.</p>
-        <p class="note mt2">그 자리에서는 요청이 자기 답의 모양을 말한 문장이 곧 계약이다.</p>
+        <p class="note mt2">그럴 땐 요청이 답의 모양을 지정한 문장, 그게 계약이다.</p>
       </div>
     </div>
 
@@ -797,19 +798,19 @@ pre b{color:var(--fg)}
 <!-- ══════════════ 10 · 검증 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; 누가 검증하는가</span></div>
-    <h2 class="st wide">검증자를 없앤 게 아니라 자리를 둘로 옮겼다.</h2>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; 누가 검증하는가</span></div>
+    <h2 class="st wide">검증자를 없앤 게 아니라 두 군데로 옮겼다.</h2>
   </div>
 
   <div class="body">
     <div class="g2">
       <div class="p ok" style="display:flex;flex-direction:column">
         <div class="p-t"><span class="lime" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true"><rect x="9" y="3" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/></svg></span>
-          하나. 에이전트 안<span class="sub">호출이 안 는다</span></div>
+          하나. 에이전트 안<span class="sub">호출이 늘지 않는다</span></div>
         <ul style="margin:0;padding-left:1.15em;font-size:16px;line-height:1.8;color:var(--fg-dim)">
           <li>Solver가 같은 값을 두 번째 경로로 다시 유도한다</li>
-          <li>Coder가 쓰기 전에 형제 호출자를 확인한다</li>
-          <li>마지막 줄 규칙은 그 줄을 쓰는 자리가 직접 지킨다</li>
+          <li>Coder가 쓰기 전에 형제 호출부를 확인한다</li>
+          <li>마지막 줄 규칙은 그 줄을 쓰는 에이전트가 직접 지킨다</li>
         </ul>
         <p class="note mt3">전부 같은 응답 안에서 돌아서 호출 수가 그대로다.</p>
         <div class="split" style="margin-top:auto">
@@ -838,11 +839,11 @@ pre b{color:var(--fg)}
 
     <div class="p warn">
       <p style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
-        <b>검증 홉을 하나 더 두지 않은 이유.</b> 채점기가 마지막 태스크만 읽으니 검증 홉이 곧 마지막
-        홉이 되는데, 그 자리는 답을 만든 자리가 아니다. 설계할 때 참고한 공개 측정도 같은 쪽을 가리켰다.
-        외부 신호 없는 자기검증은 GPT-4를 GSM8K에서 <b class="mono">95.5%</b>에서
-        <b class="mono">89.0%</b>로 떨어뜨렸고, 결정론적 감시는 SWE-bench resolve를 평균
-        <b class="mono">9.9%</b> 올렸다. 둘 다 <code>00-스쿼드-스펙.md</code> &sect;614&ndash;617에 모아 뒀다.
+        <b>검증 단계를 하나 더 두지 않은 이유.</b> 채점기가 마지막 태스크만 읽으니 검증이 곧 마지막
+        단계가 되는데, 거기는 답을 만든 곳이 아니다. 설계할 때 참고한 공개 측정도 같은 쪽을 가리켰다.
+        외부 신호 없이 자기검증만 시키면 GPT-4의 GSM8K 점수가 <b class="mono">95.5%</b>에서
+        <b class="mono">89.0%</b>로 떨어졌다. 결정론적 감시를 붙이면 SWE-bench resolve가 평균
+        <b class="mono">9.9%</b> 올랐다. 둘 다 <code>00-스쿼드-스펙.md</code> &sect;614&ndash;617에 모아 뒀다.
         우리가 고른 건 뒤쪽이다.</p>
     </div>
   </div>
@@ -854,7 +855,7 @@ pre b{color:var(--fg)}
 <section class="s">
   <div class="hd">
     <div class="eyebrow"><s>03</s> 포기와 예산</div>
-    <h2 class="st wide">캡이 없으니 포기는 안 해도 되는 호출을 안 하는 것이다.</h2>
+    <h2 class="st wide">캡이 없으니, 포기란 결국 안 해도 될 호출을 안 하는 것이다.</h2>
   </div>
 
   <div class="body">
@@ -868,7 +869,7 @@ pre b{color:var(--fg)}
       <div class="p grow" style="display:flex;flex-direction:column;justify-content:center">
         <p class="q">플랜 그래프가 실행 전에 굳고 조건 분기가 없다.
           그래서 <b>판단하는 에이전트를 둘 수 없다.</b>
-          규칙 네 개가 각자 아직 손쓸 수 있는 자리에 앉아 있어야 한다.</p>
+          규칙 네 개가 각자 아직 손쓸 수 있는 지점에 걸려 있어야 한다.</p>
       </div>
     </div>
 
@@ -894,8 +895,8 @@ pre b{color:var(--fg)}
       <div class="p tight bad" style="display:flex;flex-direction:column">
         <div class="lbl coral">04 &middot; 빈 응답 금지</div>
         <p class="mt2" style="font-size:15px;line-height:1.6;color:var(--fg-dim)">
-          여기가 뒤집힌 자리다. 웨이브가 여럿이면 빈 출력이 안전하다. 채점기가 건너뛰고 앞을 읽어서다.
-          <b>웨이브가 하나면 그 안전망이 없다.</b> 빈 응답은 확정 0점이고, 찍은 답은 가끔 맞는다.</p>
+          여기가 뒤집힌 대목이다. 웨이브가 여럿이면 빈 출력이 안전하다. 채점기가 건너뛰고 앞을 읽어서다.
+          <b>웨이브가 하나면 그 안전망이 없다.</b> 빈 응답은 확정 0점이다. 찍은 답은 가끔 맞는다.</p>
       </div>
     </div>
 
@@ -911,7 +912,7 @@ pre b{color:var(--fg)}
 <section class="s">
   <div class="hd">
     <div class="eyebrow"><s>04</s> 뷰어</div>
-    <h2 class="st wide">로그에는 실행 완료라고 찍혔는데, 채점될 답이 없었다.</h2>
+    <h2 class="st wide">로그에는 실행 완료라고 찍혔는데 채점될 답이 없었다.</h2>
   </div>
 
   <div class="body">
@@ -938,14 +939,14 @@ pre b{color:var(--fg)}
         <div class="p tight acc" style="flex:1;display:flex;flex-direction:column;justify-content:center">
           <div class="lbl">누구를 위해 만들었나</div>
           <p class="note mt2" style="font-size:15px;line-height:1.6">
-            심사에 보여주려고 만든 화면이 아니다. 스쿼드를 고치려고 만들었고,
-            다음 장의 숫자가 설계를 바꾼 숫자들이다.</p>
+            심사에 보여주려고 만든 화면이 아니다. 스쿼드를 고치려고 만들었다.
+            설계를 바꾼 숫자는 다음 장에 있다.</p>
         </div>
       </div>
     </div>
 
     <div>
-      <div class="lbl" style="margin-bottom:var(--s2)">데모에서 열 폴더를 넣었을 때의 계기 넷</div>
+      <div class="lbl" style="margin-bottom:var(--s2)">데모에서 열 폴더를 넣었을 때의 상단 지표 넷</div>
       <div class="hud dark">
         <div class="wm"><span class="ember" style="line-height:0"><svg class="g" viewBox="0 0 12 12" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/></svg></span><b>MONSTROUS</b></div>
         <div class="m"><span class="k">실행</span><b class="v">39</b>
@@ -962,7 +963,7 @@ pre b{color:var(--fg)}
         <div class="m"><span class="k">Time</span><b class="v">1h 8m</b>
           <span class="d">실행당 평균 104.4s</span></div>
       </div>
-      <p class="note mt2">두 번째 계기가 이 도구의 논점 전부다. 아래 줄의 숫자는
+      <p class="note mt2">이 도구를 만든 이유가 두 번째 지표 하나다. 아래 줄의 숫자는
         플랫폼이 성공이라 부르고 채점기는 0점으로 셀 실행의 개수다.</p>
     </div>
   </div>
@@ -1001,8 +1002,8 @@ pre b{color:var(--fg)}
           <div class="side" style="margin-left:auto">
             <span class="k">적격 비율</span><span class="said">12 / 23</span></div>
         </div>
-        <p class="note mt2">앞의 세 줄은 분모에서 뺀다. 우리가 직접 친 스모크 테스트는 벤치마크 실패가
-          아니고, 남겨 두면 없던 실패를 하나 만들어 내는 셈이다.</p>
+        <p class="note mt2">앞의 세 줄은 분모에서 뺀다. 우리가 직접 친 스모크 테스트는 벤치마크 실패가 아니다.
+          남겨 두면 없던 실패를 하나 만들어 내는 셈이다.</p>
       </div>
 
       <div class="p" style="flex:1;background:var(--panel-2)">
@@ -1013,7 +1014,7 @@ pre b{color:var(--fg)}
           <tr><td>0점 안에 갈래가 여럿이고 갈래마다 담당이 다르다</td>
               <td class="k">셋으로 갈랐다</td></tr>
           <tr><td>답을 파일에는 썼는데 응답에는 안 낸 실행이 있다</td>
-              <td class="k">세 자리 전부 도구 0개</td></tr>
+              <td class="k">에이전트 셋 전부 도구 0개</td></tr>
           <tr><td>큐 대기가 평균 11.9초, 최대 138.4초다</td>
               <td class="k">wall-clock을 둘로 갈랐다</td></tr>
         </tbody></table>
@@ -1031,14 +1032,14 @@ pre b{color:var(--fg)}
 <section class="s">
   <div class="hd">
     <div class="eyebrow"><s>04</s> 뷰어 <span class="rest">&middot; 일어나지 않은 잘못</span></div>
-    <h2 class="st wide">이 도구가 찾아낸 가장 쓸모 있는 건 자기 오산이었다.</h2>
+    <h2 class="st wide">이 도구가 제일 쓸모 있었던 순간은 우리 오판을 잡아냈을 때다.</h2>
   </div>
 
   <div class="body">
     <div class="p bad">
       <p class="q">한동안 화면에 <b>계약 미전송</b>이라는 갈래를 뒀다. 기록된 요청에
         <code>=== REQUIRED OUTPUT ===</code> 절이 없으면 러너가 계약을 안 보낸 것으로 읽었다.
-        데모에 쓸 폴더에서 이 규칙에 걸리는 건 <b>13건</b>이고, 그 전부를 러너 잘못으로 세고 있었다.</p>
+        데모에 쓸 폴더에서 이 규칙에 걸리는 건 <b>13건</b>이다. 그 전부를 러너 잘못으로 세고 있었다.</p>
     </div>
 
     <div class="g2">
@@ -1055,7 +1056,7 @@ pre b{color:var(--fg)}
           질문만 잘라 저장한 값이다.</p>
       </div>
       <div class="p raise" style="display:flex;flex-direction:column">
-        <div class="lbl">근거 둘 &middot; 모델은 형식을 들었다</div>
+        <div class="lbl">근거 둘 &middot; 모델은 형식을 받았다</div>
         <div class="row mt3" style="align-items:center;gap:var(--s4)">
           <div class="gauge" style="--cells:13;--on:10;--c:var(--v-ok)"></div>
           <p style="font-size:16px;line-height:1.45;color:var(--fg-dim)">
@@ -1089,13 +1090,13 @@ pre b{color:var(--fg)}
         <table class="t-tight"><thead><tr>
           <th style="width:30%">화면</th><th>무엇을 하나</th>
         </tr></thead><tbody>
-          <tr><td class="k">상단 계기 넷</td>
+          <tr><td class="k">상단 지표 넷</td>
               <td>실행 수 &middot; AI:GO 성공과 채점 적격의 대조 &middot; Credits, 토큰을 칸으로 센다 &middot; Time</td></tr>
           <tr><td class="k">모드 셋</td>
               <td>실행 하나 &middot; 전체 분석 &middot; 스쿼드 비교. 모드마다 답하는 질문이 다르다</td></tr>
           <tr><td class="k">탭 여섯</td>
               <td>개요 &middot; 재생 &middot; 장부 대조 &middot; 타임라인 &middot; 실패 분류 &middot; 원문 로그</td></tr>
-          <tr><td class="k">절단선 실험대</td>
+          <tr><td class="k">절단선 슬라이더</td>
               <td>문항당 토큰 상한을 끌면 얼마를 아끼고 몇 개를 잃는지 다시 계산된다</td></tr>
           <tr><td class="k">0점 분류 스택</td>
               <td>우리가 지는 갈래마다 담당을 글자로 적는다. 우리 밖인 갈래에는 줄표가 붙는다</td></tr>
@@ -1109,9 +1110,9 @@ pre b{color:var(--fg)}
         <div class="p tight" style="flex:1">
           <div class="lbl">화면이 지키는 규칙 셋</div>
           <ol class="mt2" style="margin:0;padding-left:1.15em;font-size:15px;line-height:1.7;color:var(--fg-dim)">
-            <li>창이 좁아지면 계기가 하나씩 통째로 사라진다. 사라진 건 사라진 줄 알지만,
+            <li>창이 좁아지면 지표가 하나씩 통째로 사라진다. 사라진 건 사라진 줄 알지만,
               잘린 숫자는 다른 숫자로 읽힌다.</li>
-            <li>모든 패널은 자기가 답하는 질문 한 줄로 시작하고, 어떤 장식도 그 줄 위에 오지 않는다.</li>
+            <li>모든 패널은 자기가 답하는 질문 한 줄로 시작한다. 어떤 장식도 그 줄 위에 오지 않는다.</li>
             <li>색만으로 뜻을 전달하지 않는다.</li>
           </ol>
         </div>
@@ -1119,7 +1120,7 @@ pre b{color:var(--fg)}
           <div class="lbl">외부 요청</div>
           <div class="row mt2" style="align-items:baseline;gap:var(--s3)">
             <b class="mono" style="font-size:40px">0</b>
-            <p class="note">빌드가 검사한다. 없는 CDN 때문에 오프라인 시연이 깨질 일이 없다.</p>
+            <p class="note">빌드가 검사한다. 빠진 CDN 때문에 오프라인 시연이 깨질 일이 없다.</p>
           </div>
         </div>
       </div>
@@ -1141,14 +1142,14 @@ pre b{color:var(--fg)}
       <div class="p bad">
         <div class="lbl coral">일부러 뺀 것</div>
         <p class="mt2" style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
-          캐시 적중률은 로그에 없다. 모델 이름도 로그에 없다. 태스크별 토큰은 <b>0</b>으로 돌아온다.
+          캐시 적중률은 로그에 없다. 모델 이름도 없다. 태스크별 토큰은 <b>0</b>으로 돌아온다.
           확신도는 신호 자체가 없다. 빠진 넷의 이유가 각각 다르고, 넷 중 무엇을 그려도 숫자를 지어내는 셈이다.</p>
       </div>
       <div class="p ok">
         <div class="lbl lime">추정한 자리에는 추정이라고 쓴다</div>
         <p class="mt2" style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
-          에이전트별 토큰은 추정이고, 화면이 그 자리에서 이유까지 같이 설명한다.
-          절단선 숫자는 손실의 상한이다. 잘린 실행을 전부 잃는 것으로 계산하기 때문이고,
+          에이전트별 토큰은 추정이다. 화면이 그 자리에서 이유까지 같이 설명한다.
+          절단선 숫자는 손실의 상한이다. 잘린 실행을 전부 잃는 것으로 계산하기 때문이며
           그 문장도 화면 안에 있다.</p>
       </div>
     </div>
@@ -1161,7 +1162,7 @@ pre b{color:var(--fg)}
             다시 돌리지도, 추정하지도 않는다.</p></div>
         <div><b class="gold" style="font-size:16px">절단선</b>
           <p class="note mt2">제목이 <b>정직한 한계</b>다. 상한에 닿는 순간 그 실행을 포기했다고
-            가정하고, 잘린 실행을 전부 잃은 것으로 센다.</p></div>
+            가정한 뒤 잘린 실행을 전부 잃은 것으로 센다.</p></div>
       </div>
       <p class="note mt3">안 돌아간 걸 돌아간 것처럼 그리지 않는다.</p>
     </div>
@@ -1175,8 +1176,8 @@ pre b{color:var(--fg)}
         <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
           <p style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
             화면을 전부 갈아엎었는데 데이터는 한 바이트도 안 바뀌었다. 파싱, 판정, 집계, 로드,
-            내보내기를 그대로 옮겼고, 빌드가 매번 얼려 둔 스냅샷과 diff를 뜬다. 한 줄이라도 어긋나면
-            산출물을 안 만든다. <b>같은 폴더를 넣으면 JSON이 바이트 동일하다.</b></p>
+            내보내기를 그대로 옮겼다. 빌드가 매번 얼려 둔 스냅샷과 diff를 뜬다. 한 줄이라도 어긋나면
+            산출물을 안 만든다. <b>같은 폴더를 넣으면 JSON이 바이트 단위로 같다.</b></p>
         </div>
       </div>
     </div>
@@ -1197,16 +1198,16 @@ pre b{color:var(--fg)}
       <p class="note" style="margin-bottom:var(--s3)">
         <b>폴더를 열기 전에 먼저 하는 말:</b> 지금 여는 건 개발하면서 남은 실행 기록이라
         스쿼드 구성이 실행마다 다르다. 그걸 나란히 놓고 보려고 만든 모드가 세 번째에 있다.
-        이 말을 건너뛰면 심사위원이 맨 먼저 묻는 게 왜 맵에 노드가 셋보다 많냐다.</p>
+        이 말을 건너뛰면 심사위원이 맨 먼저 묻는 게 왜 맵에 노드가 셋보다 많냐는 것이다.</p>
       <table class="t-tight"><thead><tr>
         <th style="width:11%" class="n">구간</th><th style="width:30%">조작</th><th>무엇이 보이나</th>
       </tr></thead><tbody>
         <tr><td class="n k">0&ndash;10s</td><td>워크스페이스 폴더를 끌어다 놓는다</td>
-            <td>설치도 서버도 없다. HTML 파일 하나고, 실행 목록이 바로 뜬다</td></tr>
+            <td>설치도 서버도 없다. HTML 파일 하나다. 실행 목록이 바로 뜬다</td></tr>
         <tr><td class="n k">10&ndash;25s</td><td><b>AI:GO 성공 &rlarr; 채점 적격</b>을 가리킨다</td>
-            <td>이 계기 하나 보자고 만든 도구다. 두 판정이 갈린 건수가 아래 줄에 적혀 있다</td></tr>
+            <td>이 지표 하나 보자고 만든 도구다. 두 판정이 갈린 건수가 아래 줄에 적혀 있다</td></tr>
         <tr><td class="n k">25&ndash;42s</td><td><kbd>m</kbd>으로 전체 분석, 그다음 <b>절단선을 끈다</b></td>
-            <td>세 곳이 동시에 움직인다. 잘린 점이 속 빈 점선으로 바뀌고, 결과 계기 셋이 다시 계산되고,
+            <td>세 곳이 동시에 움직인다. 잘린 점이 속 빈 점선으로 바뀐다. 결과 지표 셋이 다시 계산되고
               맨 위 Credits가 같이 내려간다. 잘려나간 칸은 빗금으로 남는다</td></tr>
         <tr><td class="n k">42&ndash;55s</td><td>스크롤해서 <b>0점 분류 스택</b></td>
             <td>0점은 한 덩어리가 아니다. 프롬프트가 지는 갈래만 분모에 남는다</td></tr>
@@ -1224,7 +1225,7 @@ pre b{color:var(--fg)}
       <div class="p tight"><div class="lbl" style="font-size:13px">시간이 밀리면</div>
         <p class="note mt2">55&ndash;65초를 먼저 버린다. 절단선 구간은 버리지 않는다</p></div>
       <div class="p tight"><div class="lbl" style="font-size:13px">숫자가 바뀌면</div>
-        <p class="note mt2">폴더는 복사해 얼려 둔 것이다. 살아 있는 폴더는 발표 중에 실행이 는다</p></div>
+        <p class="note mt2">폴더는 복사해 얼려 둔 것이다. 살아 있는 폴더는 발표 중에 실행이 늘어난다</p></div>
     </div>
   </div>
 
@@ -1251,13 +1252,13 @@ pre b{color:var(--fg)}
         <tr><td>&ldquo;포기 판단 에이전트를 뒀습니다&rdquo;</td>
             <td>못 만든다. 플랜 그래프가 실행 전에 굳고 조건 분기가 없다</td></tr>
         <tr><td>&ldquo;prefix cache로 토큰을 아낍니다&rdquo;</td>
-            <td>캐시는 지연시간만 줄인다. vLLM은 캐시 적중분도 <code>prompt_tokens</code>에 전액
-              계상하고, 문서도 절약분을 prefill 시간으로 적는다</td></tr>
+            <td>캐시는 지연시간만 줄인다. vLLM은 캐시 적중분도 <code>prompt_tokens</code>에 그대로 다
+              세고, 문서도 절약분을 prefill 시간으로 적는다</td></tr>
         <tr><td>&ldquo;Coder를 높은 추론 강도로 돌립니다&rdquo;</td>
             <td>추론 강도를 에이전트별로 지정할 수단이 템플릿에 없고, 시스템 프롬프트에
               <code>reasoning: high</code>를 적는 우회로도 작동하지 않는다</td></tr>
         <tr><td>&ldquo;disabledTools 22개로 도구를 막았습니다&rdquo;</td>
-            <td>스쿼드 실행 경로는 그 필드를 읽지 않는다. 실제로 작동하는 손잡이는
+            <td>스쿼드 실행 경로는 그 필드를 읽지 않는다. 실제로 먹히는 설정은
               <code>enabledTools</code>를 비운 것 하나다</td></tr>
         <tr><td>&ldquo;채점된 실행의 문항별 트레이스를 보여줍니다&rdquo;</td>
             <td>포털이 문항별 상태와 담당은 돌려주지만 응답 본문은 안 준다. 그마저도 문항 정체가
@@ -1310,10 +1311,10 @@ pre b{color:var(--fg)}
           <li>프로젝터에서 고대비 모드로 한 번 리허설</li>
           <li>SVG·PDF 내보내기 결과를 슬라이드에 백업으로 삽입</li>
           <li>화면 언어를 심사위원 구성에 맞춰 고정</li>
-          <li>계기의 실제 숫자를 발표 당일 다시 확인</li>
-          <li>발표 노트북 브라우저 확인. Chromium 계열에서만 검증했다</li>
+          <li>지표의 실제 숫자를 발표 당일 다시 확인</li>
+          <li>발표 노트북 브라우저 확인. Chromium 계열에서만 검증</li>
           <li>슬라이드의 에이전트 명단이 <code>squad-template.json</code>과 같은지 대조</li>
-          <li><code>python3 tools/validate_template.py squad-template.json</code> 돌려서 통과 확인</li>
+          <li><code>python3 tools/validate_template.py squad-template.json</code> 통과 확인</li>
         </ul>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">템플릿</span>

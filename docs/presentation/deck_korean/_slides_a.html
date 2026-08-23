@@ -14,7 +14,7 @@
     </div>
 
     <p class="dek" style="max-width:52ch;margin-top:28px;font-size:23px">
-      모델 하나 뒤에 자리 셋. 그리고 버린 실행들이 어디서 샜는지 보여주는 HTML 파일 하나.
+      모델 하나 뒤에 에이전트 셋. 거기에, 버린 실행이 어디서 샜는지 보여주는 HTML 파일 하나.
     </p>
 
     <div class="row" style="margin-top:30px;gap:var(--s8);align-items:flex-end">
@@ -78,8 +78,8 @@
             <div class="fl-row">
               <span class="gl ember">{{glyph:router:30}}</span>
               <b class="nm">Router</b>
-              <p class="tx">요청을 글자 그대로 태스크 하나에 옮겨 담고,
-                <code>REQUIRED&nbsp;OUTPUT</code> 블록이 가리키는 자리로 보낸다.</p>
+              <p class="tx">요청을 글자 그대로 태스크 하나에 옮겨 담아
+                <code>REQUIRED&nbsp;OUTPUT</code> 블록이 가리키는 곳으로 보낸다.</p>
             </div>
 
             <div class="fl-row">
@@ -91,7 +91,7 @@
             <div class="fl-row">
               <span class="gl lime">{{glyph:solver:26}}</span>
               <b class="nm">Solver</b>
-              <p class="tx">수학, 객관식, 그리고 둘 중 어느 것도 아닌 것.</p>
+              <p class="tx">수학, 객관식, 둘 중 어느 것도 아닌 것.</p>
             </div>
            </div>
           </div>
@@ -127,9 +127,9 @@
           </tbody></table>
         </div>
         <div class="p tight" style="flex:none">
-          <div class="lbl">모델 하나로 세 자리를 다 돌린다</div>
+          <div class="lbl">에이전트 셋을 모델 하나로 돌린다</div>
           <p class="mono mt2" style="font-size:15.5px;color:var(--fg)">furiosa-ai/gpt-oss-120b</p>
-          <p class="note mt2">모델을 하나 더 넣어 얻는 손잡이는 추론 강도뿐인데,
+          <p class="note mt2">모델을 하나 더 넣어 봐야 조절되는 건 추론 강도뿐인데,
             템플릿에는 그걸 에이전트별로 지정할 수단이 없다.</p>
         </div>
         <div class="p tight" style="flex:1;display:flex;flex-direction:column;justify-content:center">
@@ -146,16 +146,16 @@
 <!-- ══════════════ 03 · 채점기는 출력 하나만 읽는다 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 채점기가 읽는 자리</span></div>
-    <h2 class="st wide">답과 채점기 사이에 놓인 홉 하나하나가 답을 잃을 자리다.</h2>
+    <div class="eyebrow"><s>01</s> 구성 <span class="rest">&middot; 채점기가 읽는 곳</span></div>
+    <h2 class="st wide">답과 채점기 사이를 한 번 더 거칠 때마다 답이 샐 구멍이 하나씩 는다.</h2>
   </div>
 
   <div class="body">
     <div class="p raise">
-      <p class="q">채점기는 <code>finalResult</code>를 먼저 열고, 그걸 상태 보고라며 물린 다음,
+      <p class="q">채점기는 <code>finalResult</code>를 먼저 열고 그걸 상태 보고로 치고 넘어간 다음,
         마지막 웨이브부터 태스크를 거꾸로 훑어 진짜 출력을 찾는다. 기록된 28건 전부 2단계까지
         내려갔다. 그러니 실무에서는 <b>마지막 태스크의 출력이 곧 답</b>이고,
-        답을 쓴 자리가 읽히는 자리여야 한다.</p>
+        답을 쓴 에이전트가 읽히는 에이전트여야 한다.</p>
     </div>
 
     <div class="g2">
@@ -163,11 +163,11 @@
         <div class="p-t"><span class="coral" style="line-height:0">{{glyph:no:20}}</span>
           파일로 들어갔다<span class="sub">실행 2건</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
-          도구를 쥔 에이전트가 문항을 풀어 놓고, 답은 워크스페이스 파일에 저장하고,
+          도구를 쥔 에이전트가 문항을 풀어 놓고는 답을 워크스페이스 파일에 저장했다.
           응답에는 &ldquo;작업 완료&rdquo;만 썼다.
           <b>채점기는 워크스페이스를 열지 않는다.</b></p>
-        <p class="note mt2">지금은 세 자리 전부 <code>enabledTools</code>가 비어 있고,
-          비어 있지 않으면 <code>validate_template.py</code>가 템플릿을 물린다.</p>
+        <p class="note mt2">지금은 에이전트 셋 전부 <code>enabledTools</code>가 비어 있고,
+          비어 있지 않으면 <code>validate_template.py</code>가 그 템플릿을 막는다.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">앱이 찍은 것</span>
             <span class="said">완료</span></div>
@@ -178,11 +178,11 @@
       </div>
       <div class="p bad" style="display:flex;flex-direction:column">
         <div class="p-t"><span class="coral" style="line-height:0">{{glyph:no:20}}</span>
-          검토 자리가 다시 썼다<span class="sub">v1 설계</span></div>
+          검토 에이전트가 다시 썼다<span class="sub">v1 설계</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
-          검토 자리를 마지막에 뒀는데, 그 자리에는 문제 본문이 도착하는 경로가 없었다.
+          검토 에이전트를 마지막에 뒀는데, 거기에는 문제 본문이 도착하는 경로가 없었다.
           확인할 수도 없는 답을 다시 쓴 셈이다.</p>
-        <p class="note mt2">지금은 푸는 자리가 끝내는 자리다. 검증은 자리를 옮겼다 &mdash; 10쪽.</p>
+        <p class="note mt2">지금은 푸는 에이전트가 끝낸다. 검증은 자리를 옮겼다 &mdash; 10쪽.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">답이 있던 곳</span>
             <span class="said">웨이브 1</span></div>
@@ -190,7 +190,7 @@
           <div class="side"><span class="k">채점기가 읽은 곳</span>
             <span class="said">웨이브 3</span></div>
           <div class="side" style="margin-left:auto">
-            <span class="stamp" data-v="bad"><b>도달 못 함</b><em class="ko">홉에서 유실</em></span></div>
+            <span class="stamp" data-v="bad"><b>도달 못 함</b><em class="ko">단계에서 유실</em></span></div>
         </div>
       </div>
     </div>
@@ -213,7 +213,7 @@
           플래너 자리는 앱이 못 박아 뒀다<span class="sub">플랫폼</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
           요청 전문을 보는 컴포넌트는 플래너 하나뿐이다. 워커는 플래너가 만든 태스크의
-          <code>description</code>만 받는다. 자리를 없앨 수 없으니 할 일을 깎았다.
+          <code>description</code>만 받는다. 없앨 수 없으니 할 일을 깎았다.
           <b>Router는 <code>create_task</code>를 한 번 부르고 끝낸다.</b></p>
       </div>
       <div class="p raise">
@@ -221,8 +221,8 @@
           Coder와 Solver를 가른 건 길이다<span class="sub">계산</span></div>
         <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
           Coder 계약이 <b>7,698자</b>고 그중 1,943자가 파서가 강제하는 패치 형식이다.
-          두 자리를 합치면 math 문항마다 닿지도 않을 파서 규칙을 같이 실어 나른다.</p>
-        <div class="kv mt2"><span class="k">합쳤을 때 물리는 문항</span>
+          둘을 합치면 math 문항마다 닿지도 않을 파서 규칙을 같이 실어 나른다.</p>
+        <div class="kv mt2"><span class="k">합쳤을 때 걸리는 문항</span>
           <b class="mono">147개 중 109개</b></div>
       </div>
     </div>
@@ -237,8 +237,8 @@
         <div style="flex:1;border-left:var(--bd) solid var(--line);padding-left:var(--s6)">
           <p style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
             사람 수는 사고가 났을 때의 배수이기도 하다. 플래너 호출이 실패하면 앱은 요청을 쪼개지 않고
-            <b>플래너 아닌 자리 전부</b>에 전문을 그대로 뿌린다. 이 중앙값이면 자리 하나가 늘 때마다
-            coding 문항 하나에서 63,812바이트가 더 나간다.</p>
+            <b>플래너 아닌 에이전트 전부</b>에 전문을 그대로 뿌린다. 에이전트가 하나 늘 때마다
+            coding 문항 하나에서 저 중앙값이 통째로 한 번 더 나간다.</p>
         </div>
       </div>
     </div>
@@ -262,7 +262,7 @@
         <tr><td>누가 코드를 읽는가</td><td class="k lat ember">Router</td>
             <td>저장소 발췌를 순서 매겨 고르고 태스크에 옮긴다</td></tr>
         <tr><td>누가 코드를 고치는가</td><td class="k lat plum">Coder</td>
-            <td>패치를 쓴다. 패치 마커를 내는 자리는 여기뿐이다</td></tr>
+            <td>패치를 쓴다. 패치 마커를 내는 건 여기뿐이다</td></tr>
         <tr><td>누가 결과를 검증하는가</td><td class="k faint">한 자리가 아니다</td>
             <td>에이전트 안에서 한 번, 빌드에서 또 한 번 &mdash; 10쪽</td></tr>
         <tr><td>누가 포기를 판단하는가</td><td class="k faint">규칙 네 군데</td>
@@ -271,10 +271,10 @@
     </div>
 
     <div class="p raise">
-      <div class="p-t" style="font-size:20px">자리마다 자기 일에 서명한다
+      <div class="p-t" style="font-size:20px">에이전트마다 자기 일에 서명한다
         <span class="sub">응답 첫 줄 &middot; Router는 태스크 제목</span></div>
-      <p class="note" style="margin-bottom:var(--s3)">자리마다 압축한 JSON 한 줄을 쓴다.
-        <code>a</code>가 자리를 적고 나머지 키는 서로 다르다. 뷰어는 산문에서 짐작하는 대신
+      <p class="note" style="margin-bottom:var(--s3)">에이전트마다 압축한 JSON 한 줄을 쓴다.
+        <code>a</code>가 누구인지 적고 나머지 키는 서로 다르다. 뷰어는 산문에서 짐작하는 대신
         이 줄을 읽어 어느 에이전트가 뭘 냈는지 안다.</p>
       <div class="g3">
         <div>
@@ -301,7 +301,7 @@
     </div>
 
     <div class="pull">
-      뒤의 두 답에는 사람 이름이 없다. 이유는 계약 셋을 보고 나면 훨씬 쉽게 보인다.
+      뒤의 두 답에는 사람 이름이 없다. 계약 셋을 보면 이유가 보인다.
     </div>
   </div>
 

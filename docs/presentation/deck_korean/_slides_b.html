@@ -1,7 +1,7 @@
 <!-- ══════════════ 06 · Router ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Router</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Router</span></div>
     <h2 class="st wide">Router. <code style="font-size:.86em">create_task</code> 한 번, 그리고 끝낸다.</h2>
   </div>
 
@@ -19,7 +19,7 @@
           <tr><td>그 밖이거나, 블록이 아예 없거나</td><td class="k lat lime">Solver &middot; other</td></tr>
         </tbody></table>
         <p class="note mt3">블록의 모양만 보고 가르니 모델의 짐작이 들어갈 자리가 없다.
-          합성기가 실제로 붙이는 건 앞의 셋뿐이고, 넷째 줄은 우리가 못 본 모양에 대비해 둔 자리다.</p>
+          합성기가 실제로 붙이는 건 앞의 셋뿐이다. 넷째 줄은 우리가 못 본 모양에 대비해 둔 것이다.</p>
 
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">부르지 않는 것</span>
@@ -29,7 +29,7 @@
 
       <div style="flex:1;display:flex;flex-direction:column;gap:var(--s3)">
         <div class="p tight">
-          <div class="lbl">옮기지, 요약하지 않는다</div>
+          <div class="lbl">옮기되, 요약하지 않는다</div>
           <p class="note mt2" style="font-size:15px;line-height:1.6">
             바꿔 쓴 문제는 다른 문제다. 옮기지 않은 보기 목록에는 고를 글자가 없다.
             다시 타이핑한 소스 한 줄은 붙지 않는 패치다.</p>
@@ -48,7 +48,7 @@
               <li>이슈가 부른 심볼을 정의하는 발췌</li>
               <li>그것을 호출하는 발췌</li>
             </ol>
-            <p class="note mt2">넷 중 아무것에도 안 걸리면 추측이고, 추측 하나가 약 12,000자를 먹는다.</p>
+            <p class="note mt2">넷 중 아무것에도 안 걸리면 추측이다. 추측 하나가 약 12,000자를 먹는다.</p>
           </div>
         </div>
       </div>
@@ -61,7 +61,7 @@
 <!-- ══════════════ 07 · Coder / 파서 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Coder</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Coder</span></div>
     <h2 class="st wide">안 붙는 패치는 아무리 옳아도 0점이다.</h2>
   </div>
 
@@ -69,7 +69,7 @@
     <div class="row">
       <div class="p raise" style="flex:1.5">
         <div class="p-t" style="font-size:21px"><span class="plum" style="line-height:0">{{glyph:coder:22}}</span>
-          패치 파서가 실제로 강제하는 것<span class="sub">한 줄 한 줄이 맞는 수정을 0점으로 만든다</span></div>
+          패치 파서가 실제로 강제하는 것<span class="sub">한 줄만 어긋나도 맞는 수정이 0점이 된다</span></div>
         <table class="t-tight"><thead><tr>
           <th style="width:44%">규칙</th><th>어기면</th>
         </tr></thead><tbody>
@@ -80,8 +80,8 @@
           <tr><td>SEARCH가 그 파일 안에서 유일</td>
               <td>두 번 걸리면 아무것도 안 붙는다. 주변 줄을 붙여 넓힌다</td></tr>
           <tr><td>블록과 블록 사이에 산문 금지</td>
-              <td>다음 블록의 경로 줄로 읽히고, 패치가 조용히 멈춘다</td></tr>
-          <tr><td><code>=</code>가 일곱 개 이상 이어지는 줄을 앵커로 안 쓰기</td>
+              <td>다음 블록의 경로 줄로 읽히면서 패치가 조용히 멈춘다</td></tr>
+          <tr><td><code>=</code>가 일곱 개 이상 이어지는 줄은 앵커 금지</td>
               <td>파서가 거기서 SEARCH를 끊는다. 오류는 안 난다.
                   <code>&lt;</code> <code>&gt;</code>는 뒤에 <code>&nbsp;REPLACE</code>가 붙을 때만 위험하다</td></tr>
           <tr><td>패치는 응답당 한 번</td>
@@ -105,15 +105,16 @@
         </div>
         <div class="p tight">
           <div class="pull" style="font-size:16px">
-            여러 경로가 같은 함수로 모이면 고칠 자리는 그 함수 한 곳이다.
-            이슈가 지목한 경로만 고치는 건 더 큰 변경이면서 형제 호출자를 깨진 채로 남기고,
-            이미 통과하던 테스트가 보고 있는 게 정확히 그 형제다.
+            여러 경로가 같은 함수로 모이면 고칠 곳은 그 함수 한 군데다.
+            이슈가 지목한 경로만 고치면 diff는 오히려 커지는데 같은 함수를 부르는 다른
+            호출부(형제 호출자)는 깨진 채로 남는다. 이미 통과하던 테스트가 보고 있는 게
+            정확히 그 형제다.
           </div>
         </div>
         <div class="p tight">
           <div class="lbl">도구 없음, 설계대로</div>
           <p class="note mt2">Coder는 파일을 열 수도, 테스트를 돌릴 수도, 저장소를 뒤질 수도 없다.
-            받은 글 안에 없는 경로·심볼·줄 번호는 지어낸 것이고, 지어낸 패치는 적용되지 않는다.</p>
+            받은 글 안에 없는 경로·심볼·줄 번호는 지어낸 것이라, 지어낸 패치는 적용되지 않는다.</p>
         </div>
       </div>
     </div>
@@ -125,7 +126,7 @@
 <!-- ══════════════ 08 · Coder / 실행 방식 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Coder</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Coder</span></div>
     <h2 class="st wide">닮았는데 정반대인 문장 두 개.</h2>
   </div>
 
@@ -136,7 +137,7 @@
         <p class="mono mt2" style="font-size:16px;color:var(--fg)">&ldquo;runs your file as a program&rdquo;</p>
         <hr class="rule mt3">
         <p class="mt3" style="font-size:16px;line-height:1.55;color:var(--fg-dim)">
-          표준 입력에서 읽고, 답만 표준 출력에 쓴다.</p>
+          표준 입력에서 읽어 답만 표준 출력에 쓴다.</p>
         <p class="note mt2">함수 정의만 있는 파일은 아무것도 안 찍고 0점이다.</p>
         <div class="split" style="margin-top:auto">
           <div class="side"><span class="k">연습 문항</span>
@@ -172,7 +173,7 @@
 <!-- ══════════════ 09 · Solver ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; Solver</span></div>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; Solver</span></div>
     <h2 class="st wide">Solver가 147문항 중 109개를 진다.</h2>
   </div>
 
@@ -183,8 +184,8 @@
           <span class="lime" style="line-height:0">{{glyph:math:20}}</span>수학</div>
         <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
           값까지 푼 다음 다른 방법으로 한 번 더 검산한다. 대입해 보거나, 한 단계를 다른 경로로 다시
-          유도하거나, 가장 작은 케이스로 시험한다. 두 경로가 어긋나면 정당화할 수 있는 쪽을 택한다.</p>
-        <p class="note mt2">평균 내지 않고 둘 다 내놓지도 않는다. 부호, 정수성, 범위, 무연근을 확인한다.</p>
+          유도하거나, 가장 작은 케이스로 시험한다. 두 경로가 어긋나면? 정당화할 수 있는 쪽을 택한다.</p>
+        <p class="note mt2">평균은 안 낸다. 둘 다 내놓지도 않는다. 부호, 정수 여부, 범위, 무연근까지 확인한다.</p>
       </div>
       <div class="p raise">
         <div class="p-t" style="font-size:20px">
@@ -193,7 +194,7 @@
           보기를 보기 전에 푼다. 보기부터 고르고 거기로 추론을 맞춰 가는 것이
           오답 보기가 이기는 방식이다.</p>
         <p class="note mt2">보기 개수는 셋에서 열까지라 목록이 C에서 끝나기도, G에서 끝나기도 한다.
-          그 문항의 Options 블록 끝을 넘어간 글자는 추론이 맞아도 0점이다.</p>
+          그 문항의 Options 블록 끝을 넘어간 글자를 쓰면 추론이 맞아도 0점이다.</p>
       </div>
       <div class="p raise" style="border-style:dashed">
         <div class="p-t" style="font-size:20px">
@@ -201,7 +202,7 @@
         <p style="font-size:15.5px;line-height:1.6;color:var(--fg-dim)">
           채점되는 벤치마크는 셋이지만 하네스가 그 밖의 것을 보낼 수 있다. 세 트랙만 아는 스쿼드는
           넷째가 오는 순간 억지로 형식을 씌워서, 값이 맞는데도 형식으로 잃는다.</p>
-        <p class="note mt2">그 자리에서는 요청이 자기 답의 모양을 말한 문장이 곧 계약이다.</p>
+        <p class="note mt2">그럴 땐 요청이 답의 모양을 지정한 문장, 그게 계약이다.</p>
       </div>
     </div>
 
@@ -227,19 +228,19 @@
 <!-- ══════════════ 10 · 검증 ══════════════ -->
 <section class="s">
   <div class="hd">
-    <div class="eyebrow"><s>02</s> 세 자리의 계약 <span class="rest">&middot; 누가 검증하는가</span></div>
-    <h2 class="st wide">검증자를 없앤 게 아니라 자리를 둘로 옮겼다.</h2>
+    <div class="eyebrow"><s>02</s> 에이전트 셋의 계약 <span class="rest">&middot; 누가 검증하는가</span></div>
+    <h2 class="st wide">검증자를 없앤 게 아니라 두 군데로 옮겼다.</h2>
   </div>
 
   <div class="body">
     <div class="g2">
       <div class="p ok" style="display:flex;flex-direction:column">
         <div class="p-t"><span class="lime" style="line-height:0">{{glyph:ok:22}}</span>
-          하나. 에이전트 안<span class="sub">호출이 안 는다</span></div>
+          하나. 에이전트 안<span class="sub">호출이 늘지 않는다</span></div>
         <ul style="margin:0;padding-left:1.15em;font-size:16px;line-height:1.8;color:var(--fg-dim)">
           <li>Solver가 같은 값을 두 번째 경로로 다시 유도한다</li>
-          <li>Coder가 쓰기 전에 형제 호출자를 확인한다</li>
-          <li>마지막 줄 규칙은 그 줄을 쓰는 자리가 직접 지킨다</li>
+          <li>Coder가 쓰기 전에 형제 호출부를 확인한다</li>
+          <li>마지막 줄 규칙은 그 줄을 쓰는 에이전트가 직접 지킨다</li>
         </ul>
         <p class="note mt3">전부 같은 응답 안에서 돌아서 호출 수가 그대로다.</p>
         <div class="split" style="margin-top:auto">
@@ -268,11 +269,11 @@
 
     <div class="p warn">
       <p style="font-size:16px;line-height:1.6;color:var(--fg-dim)">
-        <b>검증 홉을 하나 더 두지 않은 이유.</b> 채점기가 마지막 태스크만 읽으니 검증 홉이 곧 마지막
-        홉이 되는데, 그 자리는 답을 만든 자리가 아니다. 설계할 때 참고한 공개 측정도 같은 쪽을 가리켰다.
-        외부 신호 없는 자기검증은 GPT-4를 GSM8K에서 <b class="mono">95.5%</b>에서
-        <b class="mono">89.0%</b>로 떨어뜨렸고, 결정론적 감시는 SWE-bench resolve를 평균
-        <b class="mono">9.9%</b> 올렸다. 둘 다 <code>00-스쿼드-스펙.md</code> &sect;614&ndash;617에 모아 뒀다.
+        <b>검증 단계를 하나 더 두지 않은 이유.</b> 채점기가 마지막 태스크만 읽으니 검증이 곧 마지막
+        단계가 되는데, 거기는 답을 만든 곳이 아니다. 설계할 때 참고한 공개 측정도 같은 쪽을 가리켰다.
+        외부 신호 없이 자기검증만 시키면 GPT-4의 GSM8K 점수가 <b class="mono">95.5%</b>에서
+        <b class="mono">89.0%</b>로 떨어졌다. 결정론적 감시를 붙이면 SWE-bench resolve가 평균
+        <b class="mono">9.9%</b> 올랐다. 둘 다 <code>00-스쿼드-스펙.md</code> &sect;614&ndash;617에 모아 뒀다.
         우리가 고른 건 뒤쪽이다.</p>
     </div>
   </div>
@@ -284,7 +285,7 @@
 <section class="s">
   <div class="hd">
     <div class="eyebrow"><s>03</s> 포기와 예산</div>
-    <h2 class="st wide">캡이 없으니 포기는 안 해도 되는 호출을 안 하는 것이다.</h2>
+    <h2 class="st wide">캡이 없으니, 포기란 결국 안 해도 될 호출을 안 하는 것이다.</h2>
   </div>
 
   <div class="body">
@@ -298,7 +299,7 @@
       <div class="p grow" style="display:flex;flex-direction:column;justify-content:center">
         <p class="q">플랜 그래프가 실행 전에 굳고 조건 분기가 없다.
           그래서 <b>판단하는 에이전트를 둘 수 없다.</b>
-          규칙 네 개가 각자 아직 손쓸 수 있는 자리에 앉아 있어야 한다.</p>
+          규칙 네 개가 각자 아직 손쓸 수 있는 지점에 걸려 있어야 한다.</p>
       </div>
     </div>
 
@@ -324,8 +325,8 @@
       <div class="p tight bad" style="display:flex;flex-direction:column">
         <div class="lbl coral">04 &middot; 빈 응답 금지</div>
         <p class="mt2" style="font-size:15px;line-height:1.6;color:var(--fg-dim)">
-          여기가 뒤집힌 자리다. 웨이브가 여럿이면 빈 출력이 안전하다. 채점기가 건너뛰고 앞을 읽어서다.
-          <b>웨이브가 하나면 그 안전망이 없다.</b> 빈 응답은 확정 0점이고, 찍은 답은 가끔 맞는다.</p>
+          여기가 뒤집힌 대목이다. 웨이브가 여럿이면 빈 출력이 안전하다. 채점기가 건너뛰고 앞을 읽어서다.
+          <b>웨이브가 하나면 그 안전망이 없다.</b> 빈 응답은 확정 0점이다. 찍은 답은 가끔 맞는다.</p>
       </div>
     </div>
 
