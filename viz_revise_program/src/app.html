@@ -5127,44 +5127,63 @@ const DEMO_CAP=[
   ["AI:GO 가 남긴 원문","What AI:GO actually wrote"],
   ["여기서 끊었다면 얼마를 아끼고 몇 점을 잃었을까","Cap it here — what it saves, what it costs"],
   ["0점은 네 갈래 · 갈래마다 고칠 사람이 다릅니다","A zero splits four ways · each has a different owner"],
-  ["같은 문항, 다른 스쿼드","Same items, different squads"]
+  ["같은 문항, 다른 스쿼드","Same items, different squads"],
+  ["{alt1}","{alt1}"],
+  ["{alt2}","{alt2}"]
 ];
 
-/* 이 데이터에서 가장 할 말이 많은 실행을 고른다. 위에서부터 찾고 없으면 내려간다. */
+/* 시연에 쓸 실행을 고른다.
+   깊게 파는 것은 하나뿐이고(탭 여섯 개), 나머지 두 트랙은 개요만 스쳐 지나간다.
+   세 트랙이 다 나오되 하나만 끝까지 판다 — 90초에 셋을 다 파면 아무것도 안 남는다.
+
+   id 로 고르지 않는다. 촬영 데이터가 그때그때 다르기 때문이다. */
 function demoPick(){
   const X=S.execs;
   const near=e=>e.carriers&&e.carriers.some(c=>c.a&&(c.a.hint||c.a.near));
-  const cands=[
-    // 1순위 — 라우팅이 어긋났고 값은 맞은 실행. 할 이야기가 가장 많다.
-    [e=>e.route&&e.route.track!==e.track&&near(e),
-     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 답은 맞고 형식이 틀렸습니다`,
-     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track} · right answer, wrong format`],
-    // 2순위 — 값은 맞았는데 형식 때문에 0점
-    [near,
-     ()=>`답은 맞혔는데 채점기가 읽는 형식이 아닙니다`,
-     ()=>`Right answer, not in the shape the grader reads`],
-    // 3순위 — 라우팅만 어긋난 실행
-    [e=>e.route&&e.route.track!==e.track,
-     e=>`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 트랙이 곧 출력 계약입니다`,
-     e=>`A ${TRACK[e.track].label} item routed as ${e.route.track} · the track is the contract`],
-    // 4순위 — 형식만 못 맞춘 실행
-    [e=>e.blocker==="markers",
-     e=>`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)} 가 없습니다`,
-     e=>`It ran and answered, but without ${t(CONTRACT[e.contract].label)}`],
-    // 5순위 — 호출 자체가 거부된 실행
-    [e=>e.blocker==="blocked",
-     ()=>`모델이 요청을 받지도 못했습니다 · 프롬프트로는 못 고칩니다`,
-     ()=>`The model never received the request · no prompt fixes this`],
-    // 마지막 — 아무거나. 적격이라도 보여준다.
-    [()=>true,
-     e=>`${t(verdictOf(e).label)} · 채점기가 읽는 바이트를 그대로 봅니다`,
-     e=>`${t(verdictOf(e).label)} · this is the byte the grader reads`]
-  ];
-  for(const [test,ko,en] of cands){
-    const hit=X.find(test);
-    if(hit) return {e:hit, ko:ko(hit), en:en(hit)};
+  const line=e=>
+      e.route&&e.route.track!==e.track&&near(e)
+        ? [`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 답은 맞고 형식이 틀렸습니다`,
+           `A ${TRACK[e.track].label} item routed as ${e.route.track} · right answer, wrong format`]
+    : near(e)
+        ? [`답은 맞혔는데 채점기가 읽는 형식이 아닙니다`,
+           `Right answer, not in the shape the grader reads`]
+    : e.route&&e.route.track!==e.track
+        ? [`${TRACK[e.track].label} 문항을 ${e.route.track} 로 찍었습니다 · 트랙이 곧 출력 계약입니다`,
+           `A ${TRACK[e.track].label} item routed as ${e.route.track} · the track is the contract`]
+    : e.blocker==="markers"
+        ? [`실행도 됐고 답도 나왔는데 ${t(CONTRACT[e.contract].label)} 가 없습니다`,
+           `It ran and answered, but without ${t(CONTRACT[e.contract].label)}`]
+    : e.blocker==="blocked"
+        ? [`모델이 요청을 받지도 못했습니다 · 프롬프트로는 못 고칩니다`,
+           `The model never received the request · no prompt fixes this`]
+    :   [`${t(verdictOf(e).label)} · 채점기가 읽는 바이트를 그대로 봅니다`,
+         `${t(verdictOf(e).label)} · this is the byte the grader reads`];
+
+  /* 깊게 팔 실행. 할 이야기가 많은 쪽을 먼저 찾고, 없으면 coding — 탭 여섯 개가 가장 잘 찬다. */
+  const main=
+      X.find(e=>e.route&&e.route.track!==e.track&&near(e))
+   || X.find(near)
+   || X.find(e=>e.route&&e.route.track!==e.track)
+   || X.find(e=>e.track==="coding")
+   || X.find(e=>e.track!=="unknown")
+   || X[0];
+  if(!main) return null;
+
+  /* 나머지 두 트랙에서 하나씩. 같은 스쿼드를 먼저 보고, 없으면 어디서든 가져온다 —
+     트랙이 다 나오는 편이 스쿼드가 같은 것보다 중요하다. */
+  const order=["coding","math","generic"].filter(k=>k!==main.track);
+  const alts=[];
+  for(const k of order){
+    const hit=X.find(e=>e.track===k&&e.sq===main.sq) || X.find(e=>e.track===k);
+    if(hit) alts.push(hit);
   }
-  return null;
+  // 은/는 을 붙이면 트랙 이름이 영문이라 받침 판단이 틀린다. "의" 로 피한다.
+  const altLine=e=>[
+    `${TRACK[e.track].label} 의 출력 계약 · ${t(CONTRACT[TRACK[e.track].contract].spec)}`,
+    `The ${TRACK[e.track].label} contract · ${t(CONTRACT[TRACK[e.track].contract].spec)}`];
+
+  const [ko,en]=line(main);
+  return {e:main, ko, en, alts, altLine};
 }
 
 /* 한 화면을 위에서 아래까지 밀어 준다.
@@ -5192,8 +5211,10 @@ function demoScroll(el,ms){
   S.demoT.push(h);
 }
 
-/* 60초. 화면을 앱이 놓인 순서대로 훑는다 —
-   실행 하나의 탭 여섯 개를 차례로 지나고, 전체 분석, 스쿼드 비교로 닫는다.
+/* 90초.
+     1부 (0~56s)  문항 하나를 끝까지 — 탭 여섯 개를 순서대로
+     2부 (56~79s) 전체 분석 · 스쿼드 비교
+     3부 (79~90s) 안 보여준 트랙 둘을 개요로
    각 화면은 위에서 아래까지 민다. 앵커로 튀지 않는다 —
    튀면 그 사이에 무엇이 있었는지가 영상에서 사라진다. */
 function demoRun(){
@@ -5206,33 +5227,41 @@ function demoRun(){
   const p=demoPick();
   const d=decidable(S.execs);
   const manySquads=(S.squads||[]).length>1;
+  const alt=i=>(p&&p.alts[i])?p.altLine(p.alts[i]):["",""];
   const fill=s=>String(s)
     .replace("{aigo}",S.execs.filter(aigoOk).length)
     .replace("{grad}",d.grad)
-    .replace("{line}",LANG==="en"?(p?p.en:""):(p?p.ko:""));
+    .replace("{line}",LANG==="en"?(p?p.en:""):(p?p.ko:""))
+    .replace("{alt1}",alt(0)[LANG==="en"?1:0])
+    .replace("{alt2}",alt(1)[LANG==="en"?1:0]);
   const say=i=>{ $("#demo-text").textContent=fill(LANG==="en"?DEMO_CAP[i][1]:DEMO_CAP[i][0]); };
-  const TOTAL=60000;
+  const TOTAL=90000;
   // 탭을 갈아탄 뒤 화면이 그려질 틈을 주고 민다.
-  const tab=(name,ms)=>{ setTab(name); S.demoT.push(setTimeout(()=>demoScroll($("#pane"),ms),500)); };
+  const tab=(name,ms)=>{ setTab(name); S.demoT.push(setTimeout(()=>demoScroll($("#pane"),ms),450)); };
+  const show=e=>{ setMode("exec"); S.sel=e.id; renderList(); setTab("overview"); };
 
   /* [시작 시각(ms), 자막 번호, 그때 할 일] */
   const BEATS=[
-    // 시작은 늘 같은 그림이어야 한다 — 주소에 남아 있던 선택·탭이 첫 컷을 바꾸면 안 된다.
-    [    0, 0, ()=>{ S.sel=null; setTab("overview"); setMode("exec"); renderList(); renderPane(); }],
-    // 실행 하나 — 탭 여섯 개를 순서대로
-    [ 5000, 1, ()=>{ if(p){ S.sel=p.e.id; renderList(); } tab("overview",6500); }],
-    [14000, 2, ()=>{ setTab("replay"); $("#rp-play")?.click(); }],
-    [23000, 3, ()=>tab("ledger",5000)],
-    [30000, 4, ()=>tab("timeline",5000)],
-    [37000, 5, ()=>tab("failure",4000)],
-    [43000, 6, ()=>tab("raw",2500)],
-    // 전체 분석 — 절단선을 먼저 밀고 화면을 훑는다
-    [47000, 7, ()=>{ setMode("all");
-                     S.demoT.push(setTimeout(demoSlide,600));
-                     S.demoT.push(setTimeout(()=>demoScroll($("#pane-all"),7000),1800)); }],
-    [52000, 8, null],
-    [56000, manySquads?9:8, ()=>{ if(manySquads){ setMode("cmp");
-                     S.demoT.push(setTimeout(()=>demoScroll($("#pane-cmp"),3000),400)); } }]
+    // 1부 — 문항 하나를 끝까지
+    [    0,  0, ()=>{ if(p) show(p.e); S.demoT.push(setTimeout(()=>demoScroll($("#pane"),8000),1400)); }],
+    [ 6000,  1, null],
+    [14000,  2, ()=>{ setTab("replay"); $("#rp-play")?.click(); }],
+    [26000,  3, ()=>tab("ledger",7000)],
+    [35000,  4, ()=>tab("timeline",6000)],
+    [43000,  5, ()=>tab("failure",5000)],
+    [50000,  6, ()=>tab("raw",4000)],
+    // 2부 — 전체로 넓힌다
+    [56000,  7, ()=>{ setMode("all");
+                      S.demoT.push(setTimeout(demoSlide,500));
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane-all"),8000),1800)); }],
+    [66000,  8, null],
+    [72000,  9, ()=>{ if(manySquads){ setMode("cmp");
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane-cmp"),5000),400)); } }],
+    // 3부 — 안 보여준 트랙 둘
+    [79000, 10, ()=>{ if(p&&p.alts[0]){ show(p.alts[0]);
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane"),4000),700)); } }],
+    [85000, 11, ()=>{ if(p&&p.alts[1]){ show(p.alts[1]);
+                      S.demoT.push(setTimeout(()=>demoScroll($("#pane"),3000),700)); } }]
   ];
   for(const [ms,i,run] of BEATS){
     S.demoT.push(setTimeout(()=>{
@@ -5255,7 +5284,7 @@ function demoRun(){
   S.demoT.push(setTimeout(demoStop,TOTAL));
 }
 
-/* 60초가 지나면 자막만 걷는다. 화면은 마지막 상태 그대로 둔다 —
+/* 90초가 지나면 자막만 걷는다. 화면은 마지막 상태 그대로 둔다 —
    촬영이 몇 초 늦게 끝나도 마지막 프레임이 빈 화면이 되지 않게. */
 function demoStop(){
   S.demo=false;
